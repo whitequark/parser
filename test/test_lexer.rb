@@ -1,10 +1,9 @@
-#!/usr/bin/env ruby
 # encoding: ascii-8bit
 
 require 'minitest/autorun'
 require 'parser/lexer'
 
-class TestRubyLexer < MiniTest::Unit::TestCase
+class TestLexer < MiniTest::Unit::TestCase
   def setup
     setup_lexer 18
   end
@@ -1912,8 +1911,9 @@ class TestRubyLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_static_env
-    env = RubyParserStuff::Environment.new
-    env[:a] = :lvar
+    env = Parser::StaticEnvironment.new
+    env.declare :a
+
     @lex.static_env = env
 
     util_lex_token("a [42]",

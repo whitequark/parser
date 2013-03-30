@@ -1383,7 +1383,7 @@ class Parser::Lexer
       => {
         emit(:tIDENTIFIER)
 
-        if @static_env && @static_env[tok.to_sym] == :lvar
+        if @static_env && @static_env.declared?(tok.to_sym)
           fgoto expr_end;
         else
           fgoto expr_arg;
