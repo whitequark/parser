@@ -1,5 +1,8 @@
 # Parser
 
+[![Build Status](https://travis-ci.org/whitequark/parser.png?branch=master)](https://travis-ci.org/whitequark/parser)
+[![Code Climate](https://codeclimate.com/github/whitequark/parser.png)](https://codeclimate.com/github/whitequark/parser)
+
 Parser is a Ruby parser written in pure Ruby.
 
 ## Installation
