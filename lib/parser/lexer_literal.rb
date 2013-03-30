@@ -1,6 +1,6 @@
 module Parser
 
-  class Literal
+  class LexerLiteral
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
     MONOLITHIC = { :tSTRING_BEG => :tSTRING, :tSYMBEG => :tSYMBOL }
 

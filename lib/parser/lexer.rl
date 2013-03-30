@@ -66,10 +66,11 @@
 #       NoMethodError: undefined method `ord' for nil:NilClass
 #
 
-require 'parser/literal'
+require 'parser/lexer_literal'
 require 'parser/syntax_error'
 
 class Parser::Lexer
+
   %% write data nofinal;
   # %
 
@@ -87,7 +88,7 @@ class Parser::Lexer
   def reset(reset_state=true)
     if reset_state
       # Unit tests set state prior to resetting lexer.
-      @cs    = self.class.lex_en_line_begin
+      @cs  = self.class.lex_en_line_begin
     end
 
     # Ragel-internal variables:
@@ -226,7 +227,7 @@ class Parser::Lexer
     puts "Lex state: #{lex.state}"
   end
 
-  # Used by RubyLexer::Literal to emit tokens for string content.
+  # Used by LexerLiteral to emit tokens for string content.
   def emit(type, value = tok, s = @ts, e = @te)
     if s.nil? || e.nil?
       raise "broken #emit invocation in #{caller[0]}"
@@ -312,7 +313,7 @@ class Parser::Lexer
   #
 
   def push_literal(*args)
-    new_literal = Parser::Literal.new(self, *args)
+    new_literal = Parser::LexerLiteral.new(self, *args)
     @literal_stack.push(new_literal)
 
     if    new_literal.type == :tWORDS_BEG
@@ -665,7 +666,7 @@ class Parser::Lexer
   # of positions in the input stream, namely @heredoc_e
   # (HEREDOC declaration End) and @herebody_s (HEREdoc BODY line Start).
   #
-  # @heredoc_e is simply contained inside the corresponding Literal, and
+  # @heredoc_e is simply contained inside the corresponding LexerLiteral, and
   # when the heredoc is closed, the lexing is restarted from that position.
   #
   # @herebody_s is quite more complex. First, @herebody_s changes after each
@@ -768,7 +769,7 @@ class Parser::Lexer
     end
 
     # A literal newline is appended if the heredoc was _not_ closed
-    # this time. See also Literal#nest_and_try_closing for rationale of
+    # this time. See also LexerLiteral#nest_and_try_closing for rationale of
     # calling #flush_string here.
     literal.extend_string tok, @ts, @te
     literal.flush_string

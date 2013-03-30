@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # encoding: ascii-8bit
 
-require 'minitest/unit'
 require 'minitest/autorun'
 require 'parser/lexer'
 
