@@ -14,6 +14,8 @@ task :generate => %w(lib/parser/lexer.rb)
                     #lib/parser/ruby18.rb
                     #lib/parser/ruby19.rb)
 
+task :build => :generate
+
 rule '.rb' => '.rl' do |t|
   sh "ragel -R #{t.source} -o #{t.name}"
 end
