@@ -16,6 +16,12 @@ module Parser::Builders
     def build_true(token);  t(token, :true);  end
     def build_false(token); t(token, :false); end
 
+    def build_ident(token); t(token, :ident, value(token).to_sym); end
+    def build_ivar(token);  t(token, :ivar,  value(token).to_sym); end
+    def build_gvar(token);  t(token, :gvar,  value(token).to_sym); end
+    def build_cvar(token);  t(token, :cvar,  value(token).to_sym); end
+    def build_const(token); t(token, :const, value(token).to_sym); end
+
     def build_integer(token, negate=false)
       val = value(token)
       val = -val if negate
@@ -24,24 +30,30 @@ module Parser::Builders
     end
     alias build_float build_integer
 
-    def build_assignable(token)
-      val = value(token)
-
-      case val
-      when /^@@/ then
+    def build_assignable(lhs)
+      case lhs.type
+      when :cvar
         if @parser.in_def?
-          t(token, :cvasgn, val)
+          lhs.updated(:cvasgn)
         else
-          t(token, :cvdecl, val)
+          lhs.updated(:cvdecl)
         end
-      when /^@/ then
-        t(token, :iasgn, val)
-      when /^\$/ then
-        t(token, :gasgn, val)
-      when /^[A-Z]/ then
-        t(token, :cdecl, val)
+      when :ivar
+        lhs.updated(:iasgn)
+      when :gvar
+        lhs.updated(:gasgn)
+      when :const
+        lhs.updated(:cdecl)
+      when :ident
+        name, = *lhs
+        @parser.static_env.declare(name)
+
+        lhs.updated(:lasgn)
+      when :nil, :self, :true, :false, :__FILE__, :__LINE__
+        # TODO
+        raise "cannot assign to #{lhs.type}"
       else
-        t(token, :lasgn, val)
+        raise NotImplementedError, "build_assignable #{lhs}"
       end
     end
 
@@ -53,6 +65,8 @@ module Parser::Builders
         raise NotImplementedError
       when :const
         (lhs << rhs).updated(:cdecl)
+      else
+        raise NotImplementedError, "build_assign #{lhs}"
       end
     end
 

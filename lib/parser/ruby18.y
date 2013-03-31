@@ -411,7 +411,6 @@ rule
 
              lhs: variable
                     {
-                      handle_assignable(val[0])
                       result = @builder.build_assignable(val[0])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
@@ -1618,23 +1617,23 @@ xstring_contents: none
                       result = @builder.build_float(val[0], true)
                     }
 
-        variable: tIDENTIFIER
-                | tIVAR       { result = @builder.build_ivar(val[0]) }
-                | tGVAR       { result = @builder.build_gvar(val[0]) }
-                | tCVAR       { result = @builder.build_cvar(val[0]) }
-                | tCONSTANT   { result = @builder.build_const(val[0]) }
-                | kNIL        { result = @builder.build_nil(val[0])   }
-                | kSELF       { result = @builder.build_self(val[0])  }
-                | kTRUE       { result = @builder.build_true(val[0])  }
-                | kFALSE      { result = @builder.build_false(val[0]) }
-                | k__FILE__   { result = @builder.build___FILE__(val[0], @file) }
+        variable: tIDENTIFIER { result = @builder.build_ident(val[0])    }
+                | tIVAR       { result = @builder.build_ivar(val[0])     }
+                | tGVAR       { result = @builder.build_gvar(val[0])     }
+                | tCVAR       { result = @builder.build_cvar(val[0])     }
+                | tCONSTANT   { result = @builder.build_const(val[0])    }
+                | kNIL        { result = @builder.build_nil(val[0])      }
+                | kSELF       { result = @builder.build_self(val[0])     }
+                | kTRUE       { result = @builder.build_true(val[0])     }
+                | kFALSE      { result = @builder.build_false(val[0])    }
+                | k__FILE__   { result = @builder.build___FILE__(val[0]) }
                 | k__LINE__   { result = @builder.build___LINE__(val[0]) }
 
          var_ref: variable
 
          var_lhs: variable
                     {
-                      result = assignable val[0]
+                      result = @builder.build_assignable(val[0])
                     }
 
          backref: tNTH_REF    { result = s(:nth_ref,  val[0]) }
