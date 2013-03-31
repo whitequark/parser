@@ -989,8 +989,8 @@ class Parser::Lexer
       => { fhold; fgoto expr_end; };
 
       global_var
-      => { emit(:tGVAR)
-           fbreak; };
+      => { p = @ts - 1
+           fcall expr_variable; };
 
       c_space_nl+;
 

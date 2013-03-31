@@ -22,6 +22,13 @@ module Parser::Builders
     def build_cvar(token);  t(token, :cvar,  value(token).to_sym); end
     def build_const(token); t(token, :const, value(token).to_sym); end
 
+    def build_back_ref(token); t(token, :back_ref, value(token)); end
+    def build_nth_ref(token);  t(token, :nth_ref,  value(token)); end
+
+    def build_func_name(token)
+      t(token, :lit, value(token).to_sym)
+    end
+
     def build_integer(token, negate=false)
       val = value(token)
       val = -val if negate
@@ -53,7 +60,7 @@ module Parser::Builders
         # TODO
         raise "cannot assign to #{lhs.type}"
       else
-        raise NotImplementedError, "build_assignable #{lhs}"
+        raise NotImplementedError, "build_assignable #{lhs.inspect}"
       end
     end
 
@@ -66,7 +73,20 @@ module Parser::Builders
       when :const
         (lhs << rhs).updated(:cdecl)
       else
-        raise NotImplementedError, "build_assign #{lhs}"
+        raise NotImplementedError, "build_assign #{lhs.inspect}"
+      end
+    end
+
+    def build_alias(token, to, from)
+      t(token, :alias, to, from)
+    end
+
+    def build_keyword_cmd(type, token, args=nil)
+      case type
+      when :return, :break, :next, :redo, :retry, :yield, :defined
+        t(token, type, *args)
+      else
+        raise NotImplementedError, "build_keyword_cmd #{type} #{args.inspect}"
       end
     end
 

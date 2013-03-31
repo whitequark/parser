@@ -50,6 +50,16 @@ module Parser
 
     protected
 
+    def value_expr(v)
+      p "value_expr", v
+      v
+    end
+
+    def arg_blk_pass(v1, v2)
+      p "arg_blk_pass", v1, v2
+      v1
+    end
+
     def next_token
       @lexer.advance
     end
