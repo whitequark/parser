@@ -13,14 +13,14 @@ module Parser
     end
 
     def extend_static
-      @stack.push @variables
+      @stack.push(@variables)
       @variables = Set[]
 
       self
     end
 
     def extend_dynamic
-      @stack.push @variables
+      @stack.push(@variables)
       @variables = @variables.dup
 
       self
@@ -28,14 +28,18 @@ module Parser
 
     def unextend
       @variables = @stack.pop
+
+      self
     end
 
     def declare(name)
-      @variables.add name
+      @variables.add(name)
+
+      self
     end
 
     def declared?(name)
-      @variables.include? name
+      @variables.include?(name)
     end
   end
 
