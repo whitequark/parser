@@ -1,6 +1,8 @@
 require 'set'
 require 'racc/parser'
 
+require 'furnace/ast'
+
 # Library namespace
 module Parser
   require 'parser/syntax_error'

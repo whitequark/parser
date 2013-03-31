@@ -1,5 +1,3 @@
-require 'furnace/ast'
-
 module Parser
   class Sexp < Furnace::AST::Node
     attr_reader :line, :first_column, :last_column
