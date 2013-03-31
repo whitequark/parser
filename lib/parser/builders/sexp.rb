@@ -37,30 +37,45 @@ module Parser::Builders
     end
     alias build_float build_integer
 
-    def build_assignable(lhs)
-      case lhs.type
+    def build_readable(node)
+      case node.type
+      when :ident
+        name, = *node
+
+        if @parser.static_env.declared?(name)
+          node.updated(:lvar)
+        else
+          raise NotImplementedError, "make this a call"
+        end
+      else
+        node
+      end
+    end
+
+    def build_assignable(node)
+      case node.type
       when :cvar
         if @parser.in_def?
-          lhs.updated(:cvasgn)
+          node.updated(:cvasgn)
         else
-          lhs.updated(:cvdecl)
+          node.updated(:cvdecl)
         end
       when :ivar
-        lhs.updated(:iasgn)
+        node.updated(:iasgn)
       when :gvar
-        lhs.updated(:gasgn)
+        node.updated(:gasgn)
       when :const
-        lhs.updated(:cdecl)
+        node.updated(:cdecl)
       when :ident
-        name, = *lhs
+        name, = *node
         @parser.static_env.declare(name)
 
-        lhs.updated(:lasgn)
+        node.updated(:lasgn)
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
         # TODO
-        raise "cannot assign to #{lhs.type}"
+        raise "cannot assign to #{node.type}"
       else
-        raise NotImplementedError, "build_assignable #{lhs.inspect}"
+        raise NotImplementedError, "build_assignable #{node.inspect}"
       end
     end
 

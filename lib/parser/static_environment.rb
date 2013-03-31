@@ -31,13 +31,13 @@ module Parser
     end
 
     def declare(name)
-      @variables.add(name)
+      @variables.add(name.to_sym)
 
       self
     end
 
     def declared?(name)
-      @variables.include?(name)
+      @variables.include?(name.to_sym)
     end
   end
 

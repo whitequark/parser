@@ -1561,7 +1561,7 @@ xstring_contents: none
                 | k__FILE__   { result = @builder.build___FILE__(val[0]) }
                 | k__LINE__   { result = @builder.build___LINE__(val[0]) }
 
-         var_ref: variable
+         var_ref: variable    { result = @builder.build_readable(val[0])   }
 
          var_lhs: variable    { result = @builder.build_assignable(val[0]) }
 
