@@ -10,8 +10,8 @@ task :test do
 end
 
 desc "Generate the Ragel lexer and Bison parser."
-task :generate => %w(lib/parser/lexer.rb)
-                    #lib/parser/ruby18.rb
+task :generate => %w(lib/parser/lexer.rb
+                     lib/parser/ruby18.rb)
                     #lib/parser/ruby19.rb)
 
 task :build => :generate
@@ -21,5 +21,5 @@ rule '.rb' => '.rl' do |t|
 end
 
 rule '.rb' => '.y' do |t|
-  sh "racc #{t.source} -o #{t.name} -O"
+  sh "racc --superclass=Parser::Base #{t.source} -o #{t.name}"
 end

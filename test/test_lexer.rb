@@ -12,6 +12,10 @@ class TestLexer < MiniTest::Unit::TestCase
     setup_lexer 18
   end
 
+  #
+  # Additional matchers
+  #
+
   def util_bad_token s, *args
     assert_raises Parser::SyntaxError do
       util_lex_token s, *args
@@ -22,7 +26,7 @@ class TestLexer < MiniTest::Unit::TestCase
     @lex.reset
     @lex.source = "%Q[\\#{input}]"
 
-    lex_token, lex_value = @lex.advance
+    lex_token, (lex_value, *) = @lex.advance
 
     if lex_value.respond_to?(:force_encoding)
       lex_value.force_encoding('ASCII-8BIT')
@@ -53,14 +57,18 @@ class TestLexer < MiniTest::Unit::TestCase
     until args.empty? do
       token, value = args.shift(2)
 
-      lex_token, lex_value = @lex.advance
+      lex_token, (lex_value, *) = @lex.advance
       assert lex_token, "no more tokens"
       assert_equal [token, value], [lex_token, lex_value], input
     end
 
-    lex_token, lex_value = @lex.advance
+    lex_token, (lex_value, *) = @lex.advance
     refute lex_token, "must be empty, but had #{[lex_token, lex_value].inspect}"
   end
+
+  #
+  # Tests
+  #
 
   def test_advance
     @lex.source = "blah"

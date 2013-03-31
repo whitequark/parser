@@ -79,6 +79,24 @@ class Parser::Lexer
 
   attr_reader   :location, :comments
 
+  # Lex `str` for the Ruby version `version` with initial state `state`.
+  #
+  # The tokens displayed by this function are not the same as tokens
+  # consumed by parser, because the parser manipulates lexer state on
+  # its own.
+  def self.do(source, state=nil, version=19)
+    lex = new(version)
+    lex.source = source
+    lex.state  = state if state
+
+    loop do
+      type, val = lex.advance_and_decorate
+      break if !type
+    end
+
+    puts "Lex state: #{lex.state}"
+  end
+
   def initialize(version)
     @version = version
 
@@ -86,20 +104,21 @@ class Parser::Lexer
   end
 
   def reset(reset_state=true)
+    # Ragel-related variables:
     if reset_state
       # Unit tests set state prior to resetting lexer.
       @cs  = self.class.lex_en_line_begin
     end
 
-    # Ragel-internal variables:
-    @p     = 0   # stream position (saved manually in #advance)
-    @ts    = nil # token start
-    @te    = nil # token end
-    @act   = 0   # next action
+    @p             = 0   # stream position (saved manually in #advance)
+    @ts            = nil # token start
+    @te            = nil # token end
+    @act           = 0   # next action
 
-    @stack = []  # state stack
-    @top   = 0   # state stack top pointer
+    @stack         = []  # state stack
+    @top           = 0   # state stack top pointer
 
+    # Lexer state:
     @token_queue   = []
     @literal_stack = []
 
@@ -159,7 +178,7 @@ class Parser::Lexer
   # Return next token: [type, value].
   def advance
     if @token_queue.any?
-      return with_location(@token_queue.shift)
+      return @token_queue.shift
     end
 
     # Ugly, but dependent on Ragel output. Consider refactoring it somehow.
@@ -183,11 +202,15 @@ class Parser::Lexer
     @p = p
 
     if @token_queue.any?
-      with_location(@token_queue.shift)
-    elsif @cs == self.class.lex_error
-      with_location([ false, '$undefined', p, p + 1 ])
+      @token_queue.shift
     else
-      with_location([ false, '$end',       p, p + 1 ])
+      if @cs == self.class.lex_error
+        value = '$error'
+      else
+        value = '$eof'
+      end
+
+      [ false, [ value, dissect_location(p, p + 1) ] ]
     end
   end
 
@@ -209,41 +232,17 @@ class Parser::Lexer
     comments
   end
 
-  # Lex `str` for the Ruby version `version` with initial state `state`.
-  #
-  # The tokens displayed by this function are not the same as tokens
-  # consumed by parser, because the parser manipulates lexer state on
-  # its own.
-  def self.do(source, state=nil, version=19)
-    lex = new(version)
-    lex.source = source
-    lex.state  = state if state
-
-    loop do
-      type, val = lex.advance_and_decorate
-      break if !type
-    end
-
-    puts "Lex state: #{lex.state}"
-  end
-
   # Used by LexerLiteral to emit tokens for string content.
   def emit(type, value = tok, s = @ts, e = @te)
-    if s.nil? || e.nil?
-      raise "broken #emit invocation in #{caller[0]}"
-    end
+    yyvalue = [ value, dissect_location(s, e) ]
 
-    @token_queue << [ type, value, s, e ]
+    @token_queue << [ type, yyvalue ]
   end
 
   def emit_table(table, s = @ts, e = @te)
     token = tok(s, e)
-    emit(table[token], token, s, e)
-  end
 
-  # shim
-  def lineno
-    @location[0] + 1
+    emit(table[token], token, s, e)
   end
 
   protected
@@ -272,18 +271,10 @@ class Parser::Lexer
     line_number    = @newlines.rindex { |nl| start >= nl }
     line_first_col = @newlines[line_number]
 
-    start_col   = start  - line_first_col
-    finish_col  = finish - line_first_col
+    start_col      = start  - line_first_col
+    finish_col     = finish - line_first_col
 
     [ line_number, start_col, finish_col ]
-  end
-
-  def with_location(item)
-    type, value, start, finish = *item
-
-    @location = dissect_location(start, finish)
-
-    [ type, value ]
   end
 
   def decorate(location, message="")
@@ -304,7 +295,7 @@ class Parser::Lexer
     $stderr.puts decorate(dissect_location(start, finish))
   end
 
-  def error(message)
+  def error(message, start = @ts, finish = @te)
     raise Parser::SyntaxError, message
   end
 
@@ -328,7 +319,7 @@ class Parser::Lexer
   end
 
   def literal
-    @literal_stack[-1]
+    @literal_stack.last
   end
 
   def pop_literal
@@ -514,8 +505,8 @@ class Parser::Lexer
 
   # Ruby accepts (and fails on) variables with leading digit
   # in literal context, but not in unquoted symbol body.
-  class_var_v    = '@@' [0-9]? bareword;
-  instance_var_v = '@' [0-9]? bareword;
+  class_var_v    = '@@' c_alnum+;
+  instance_var_v = '@' c_alnum+;
 
   #
   # === ESCAPE SEQUENCE PARSING ===
@@ -782,8 +773,7 @@ class Parser::Lexer
   # Interpolations with immediate variable names simply call into
   # the corresponding machine.
 
-  interp_var =
-      '#' ( global_var | class_var_v | instance_var_v );
+  interp_var = '#' ( global_var | class_var_v | instance_var_v );
 
   action extend_interp_var {
     literal.flush_string
@@ -1561,12 +1551,12 @@ class Parser::Lexer
       };
 
       ':' bareword ambiguous_symbol_suffix
-      => { emit(:tSYMBOL, tok(@ts + 1, tm))
+      => { emit(:tSYMBOL, tok(@ts + 1, tm), @ts + 1, tm)
            p = tm - 1; fbreak; };
 
       ':' ( bareword | global_var | class_var | instance_var |
             operator_fname | operator_arithmetic | operator_rest )
-      => { emit(:tSYMBOL, tok(@ts + 1))
+      => { emit(:tSYMBOL, tok(@ts + 1), @ts + 1)
            fbreak; };
 
       #
