@@ -376,7 +376,6 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_yylex_comment_begin_bad
     util_bad_token("=begin\nblah\nblah\n")
-    assert_equal "", @lex.comments
   end
 
   def test_yylex_comment_begin_not_comment
@@ -593,8 +592,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_global_backref
-    @lex.state = :expr_fname
-    util_lex_token("$`", :tGVAR, "$`")
+    util_lex_token("$`", :tBACK_REF, :`)
   end
 
   def test_yylex_global_dash_nothing
@@ -606,13 +604,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_global_number
-    @lex.state = :expr_fname
-    util_lex_token("$1", :tGVAR, "$1")
-  end
-
-  def test_yylex_global_number_big
-    @lex.state = :expr_fname
-    util_lex_token("$1234", :tGVAR, "$1234")
+    util_lex_token("$10", :tNTH_REF, 10)
   end
 
   def test_yylex_global_other

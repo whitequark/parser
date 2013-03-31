@@ -77,25 +77,7 @@ class Parser::Lexer
   attr_reader   :source
   attr_accessor :static_env
 
-  attr_reader   :location, :comments
-
-  # Lex `str` for the Ruby version `version` with initial state `state`.
-  #
-  # The tokens displayed by this function are not the same as tokens
-  # consumed by parser, because the parser manipulates lexer state on
-  # its own.
-  def self.do(source, state=nil, version=19)
-    lex = new(version)
-    lex.source = source
-    lex.state  = state if state
-
-    loop do
-      type, val = lex.advance_and_decorate
-      break if !type
-    end
-
-    puts "Lex state: #{lex.state}"
-  end
+  attr_reader   :comments
 
   def initialize(version)
     @version = version
@@ -122,11 +104,9 @@ class Parser::Lexer
     @token_queue   = []
     @literal_stack = []
 
-    @newlines      = [0] # sorted set of \n positions
-    @newline_s     = nil # location of last encountered newline
-    @location      = nil # location of last #advance'd token
-
     @comments      = ""  # collected comments
+
+    @newline_s     = nil # location of last encountered newline
 
     @num_base      = nil # last numeric base
     @num_digits_s  = nil # starting position of numeric digits
@@ -203,25 +183,11 @@ class Parser::Lexer
 
     if @token_queue.any?
       @token_queue.shift
+    elsif @cs == self.class.lex_error
+      [ false, [ '$error', p..p ] ]
     else
-      if @cs == self.class.lex_error
-        value = '$error'
-      else
-        value = '$eof'
-      end
-
-      [ false, [ value, dissect_location(p, p + 1) ] ]
+      [ false, [ '$eof',   p..p ] ]
     end
-  end
-
-  # Like #advance, but also pretty-print the token and its position
-  # in the stream to `stdout`.
-  def advance_and_decorate
-    type, val = advance
-
-    puts decorate(location, "\e[0;32m#{type} #{val.inspect}\e[0m")
-
-    [type, val]
   end
 
   # Return the current collected comment block and clear the storage.
@@ -234,15 +200,13 @@ class Parser::Lexer
 
   # Used by LexerLiteral to emit tokens for string content.
   def emit(type, value = tok, s = @ts, e = @te)
-    yyvalue = [ value, dissect_location(s, e) ]
-
-    @token_queue << [ type, yyvalue ]
+    @token_queue << [ type, [ value, s...e ] ]
   end
 
   def emit_table(table, s = @ts, e = @te)
-    token = tok(s, e)
+    value = tok(s, e)
 
-    emit(table[token], token, s, e)
+    emit(table[value], value, s, e)
   end
 
   protected
@@ -251,52 +215,21 @@ class Parser::Lexer
     [0x04, 0x1a, 0x00].include? char.ord
   end
 
-  def ruby18?
-    @version == 18
-  end
-
-  def ruby19?
-    @version == 19
+  def version?(*versions)
+    versions.include?(@version)
   end
 
   def tok(s = @ts, e = @te)
     @source[s...e]
   end
 
-  def record_newline(p)
-    @newlines = (@newlines + [p]).uniq.sort
-  end
+  def diagnostic(type, message, *ranges)
+    ranges = @ts...@te if ranges.empty?
 
-  def dissect_location(start, finish)
-    line_number    = @newlines.rindex { |nl| start >= nl }
-    line_first_col = @newlines[line_number]
-
-    start_col      = start  - line_first_col
-    finish_col     = finish - line_first_col
-
-    [ line_number, start_col, finish_col ]
-  end
-
-  def decorate(location, message="")
-    line_number, from, to = location
-
-    line = @source.lines.drop(line_number).first
-    line[from...to] = "\e[4m#{line[from...to]}\e[0m"
-
-    tail_len   = to - from - 1
-    tail       = "~" * (tail_len >= 0 ? tail_len : 0)
-    decoration =  "#{" " * from}\e[1;31m^#{tail}\e[0m #{message}"
-
-    [ line, decoration ]
-  end
-
-  def warning(message, start = @ts, finish = @te)
-    $stderr.puts "warning: #{message}"
-    $stderr.puts decorate(dissect_location(start, finish))
-  end
-
-  def error(message, start = @ts, finish = @te)
-    raise Parser::SyntaxError, message
+    # Temporary
+    if type == :error || type == :fatal
+      raise Parser::SyntaxError, message
+    end
   end
 
   #
@@ -398,7 +331,6 @@ class Parser::Lexer
     #
     # This action is embedded directly into c_nl, as it is idempotent and
     # there are no cases when we need to skip it.
-    record_newline(p + 1)
     @newline_s = p
   }
 
@@ -529,7 +461,11 @@ class Parser::Lexer
       codepoint = codepoint_str.to_i(16)
 
       if codepoint >= 0x110000
-        @escape = lambda { error "invalid Unicode codepoint (too large)" }
+        @escape = lambda do
+          # TODO better location reporting
+          diagnostic :error, "invalid Unicode codepoint (too large)", @escape_s...p
+        end
+
         break
       end
 
@@ -546,7 +482,9 @@ class Parser::Lexer
   }
 
   action invalid_complex_escape {
-    @escape = lambda { error "invalid escape character syntax" }
+    @escape = lambda do
+      diagnostic :error, "invalid escape character syntax"
+    end
   }
 
   action slash_c_char {
@@ -583,7 +521,11 @@ class Parser::Lexer
 
       # %q[\x]
     | 'x' ( c_any - xdigit )
-      % { @escape = lambda { error "invalid hex escape" } }
+      % {
+        @escape = lambda do
+          diagnostic :error, "invalid hex escape", @escape_s...p
+        end
+      }
 
       # %q[\u123] %q[\u{12]
     | 'u' ( c_any{0,4}  -
@@ -593,7 +535,11 @@ class Parser::Lexer
             | '{' xdigit{2} [ \t}] # \u{12. \u{12} are valid
             )
           )
-      % { @escape = lambda { error "invalid Unicode escape" } }
+      % {
+        @escape = lambda do
+          diagnostic :error, "invalid Unicode escape", @escape_s...p
+        end
+      }
 
       # \u{123 456}
     | 'u{' ( xdigit{1,6} [ \t] )*
@@ -602,7 +548,11 @@ class Parser::Lexer
       | ( xdigit* ( c_any - xdigit - '}' )+ '}'
         | ( c_any - '}' )* c_eof
         | xdigit{7,}
-        ) % { @escape = lambda { error "unterminated Unicode escape" } }
+        ) % {
+          @escape = lambda do
+            diagnostic :fatal, "unterminated Unicode escape", p - 1...p
+          end
+        }
       )
 
       # \C-\a \cx
@@ -626,7 +576,9 @@ class Parser::Lexer
 
     | ( c_any - [0-7xuCMc] ) %unescape_char
 
-    | c_eof % { error "escape sequence meets end of file" }
+    | c_eof % {
+      diagnostic :fatal, "escape sequence meets end of file", p - 1...p
+    }
   );
 
   # Use rules in form of `e_bs escape' when you need to parse a sequence.
@@ -756,7 +708,7 @@ class Parser::Lexer
     end
 
     if is_eof
-      error "unterminated string meets end of file"
+      diagnostic :fatal, "unterminated string meets end of file", p - 1...p
     end
 
     # A literal newline is appended if the heredoc was _not_ closed
@@ -872,7 +824,7 @@ class Parser::Lexer
       => {
         unknown_options = tok.scan(/[^imxouesn]/)
         if unknown_options.any?
-          error "unknown regexp options: #{unknown_options.join}"
+          diagnostic :error, "unknown regexp options: #{unknown_options.join}"
         end
 
         emit(:tREGEXP_OPT)
@@ -942,7 +894,9 @@ class Parser::Lexer
 
       class_var_v
       => {
-        error "`#{tok}' is not allowed as a class variable name" if tok =~ /^@@[0-9]/
+        if tok =~ /^@@[0-9]/
+          diagnostic :error, "`#{tok}' is not allowed as a class variable name"
+        end
 
         emit(:tCVAR)
         fnext *@stack.pop; fbreak;
@@ -950,7 +904,9 @@ class Parser::Lexer
 
       instance_var_v
       => {
-        error "`#{tok}' is not allowed as an instance variable name" if tok =~ /^@[0-9]/
+        if tok =~ /^@[0-9]/
+          diagnostic :error, "`#{tok}' is not allowed as an instance variable name"
+        end
 
         emit(:tIVAR)
         fnext *@stack.pop; fbreak;
@@ -1085,7 +1041,10 @@ class Parser::Lexer
       # Ambiguous unary operator or regexp literal.
       c_space+ [+\-/]
       => {
-        warning "ambiguous first argument; put parentheses or even spaces", @te - 1, @te
+        diagnostic :warning,
+                   "ambiguous first argument; put parentheses or even spaces",
+                   @te - 1...@te
+
         fhold; fhold; fgoto expr_beg;
       };
 
@@ -1094,7 +1053,10 @@ class Parser::Lexer
       c_space+ [*&]
       => {
         what = tok(@te - 1, @te)
-        warning "`#{what}' interpreted as argument prefix", @te - 1, @te
+        diagnostic :warning,
+                   "`#{what}' interpreted as argument prefix",
+                   @te - 1...@te
+
         fhold; fgoto expr_beg;
       };
 
@@ -1243,7 +1205,7 @@ class Parser::Lexer
 
       '%' c_eof
       => {
-        error "unterminated string meets end of file"
+        diagnostic :fatal, "unterminated string meets end of file", @ts..@ts
       };
 
       # Heredoc start.
@@ -1283,7 +1245,7 @@ class Parser::Lexer
 
         value = @escape || tok(@ts + 1)
 
-        if ruby18?
+        if version?(18)
           emit(:tINTEGER, value.ord)
         else
           emit(:tSTRING, value)
@@ -1296,7 +1258,7 @@ class Parser::Lexer
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
                    "\v" => '\v', "\f" => '\f' }[tok[@ts + 1]]
-        warning "invalid character syntax; use ?#{escape}", @ts
+        diagnostic :warning, "invalid character syntax; use ?#{escape}", @ts..@ts
 
         p = @ts - 1
         fgoto expr_end;
@@ -1304,7 +1266,7 @@ class Parser::Lexer
 
       '?' c_eof
       => {
-        error "incomplete character syntax"
+        diagnostic :fatal, "incomplete character syntax", @ts..@ts
       };
 
       # f ?aa : b: Disambiguate with a character literal.
@@ -1346,7 +1308,7 @@ class Parser::Lexer
       => {
         fhold;
 
-        if ruby18?
+        if version?(18)
           emit(:tIDENTIFIER, tok(@ts, @te - 2), @ts, @te - 2)
           fhold; # continue as a symbol
         else
@@ -1470,7 +1432,7 @@ class Parser::Lexer
       => {
         emit_table(KEYWORDS)
 
-        if ruby18? && tok == 'not'
+        if version?(18) && tok == 'not'
           fnext expr_beg; fbreak;
         else
           fnext expr_arg; fbreak;
@@ -1502,14 +1464,15 @@ class Parser::Lexer
         digits = tok(@num_digits_s)
 
         if digits.end_with? '_'
-          error "trailing `_' in number"
-        elsif digits.empty? && @num_base == 8 && ruby18?
+          diagnostic :error, "trailing `_' in number", @te - 1...@te
+        elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
           digits = "0"
         elsif digits.empty?
-          error "numeric literal without digits"
+          diagnostic :error, "numeric literal without digits"
         elsif @num_base == 8 && digits =~ /[89]/
-          error "invalid octal digit"
+          # TODO better location reporting
+          diagnostic :error, "invalid octal digit"
         end
 
         emit(:tINTEGER, digits.to_i(@num_base))
@@ -1527,7 +1490,7 @@ class Parser::Lexer
       )
       => {
         if tok.start_with? '.'
-          error "no .<digit> floating literal anymore; put 0 before dot"
+          diagnostic :error, "no .<digit> floating literal anymore; put 0 before dot"
         elsif tok =~ /^[eE]/
           # The rule above allows to specify floats as just `e10', which is
           # certainly not a float. Send a patch if you can do this better.
@@ -1622,8 +1585,10 @@ class Parser::Lexer
       #
 
       '\\' e_heredoc_nl;
+
       '\\' ( any - c_nl ) {
-        error "bare backslash only allowed before newline"
+        diagnostic :error, "bare backslash only allowed before newline", @ts...@ts + 1
+        fhold;
       };
 
       '#' ( c_any - c_nl )*
@@ -1640,7 +1605,7 @@ class Parser::Lexer
 
       c_any
       => {
-        error "unexpected #{tok.inspect}"
+        diagnostic :fatal, "unexpected #{tok.inspect}"
       };
 
       c_eof => do_eof;
@@ -1671,10 +1636,9 @@ class Parser::Lexer
       c_line* c_nl
       => { @comments << tok };
 
-      any
+      c_eof
       => {
-        @comments = ""
-        error "embedded document meats end of file (and they embark on a romantic journey)"
+        diagnostic :fatal, "embedded document meats end of file (and they embark on a romantic journey)"
       };
   *|;
 
