@@ -414,7 +414,6 @@ rule
                 | primary_value tCOLON2 tCONSTANT
                     {
                       yyerror "dynamic constant assignment" if in_def?
-                      end
 
                       result = s(:const, s(:colon2, val[0], val[2].to_sym))
                     }

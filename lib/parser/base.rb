@@ -1,14 +1,18 @@
 module Parser
   class Base < Racc::Parser
     def self.parse(string, file='(string)', line=1)
-      new.parse(string, file, line)
+      source_file = SourceFile.new(file, line)
+      source_file.source = string
+
+      new.parse(source_file)
     end
 
     attr_reader :static_env
 
     def initialize(builder=Parser::Builders::Sexp.new)
-      @lexer = Lexer.new(version)
       @static_env = StaticEnvironment.new
+
+      @lexer = Lexer.new(version)
       @lexer.static_env = @static_env
 
       @builder = builder
@@ -22,8 +26,8 @@ module Parser
     end
 
     def reset
-      @file       = nil
-      @def_level  = 0 # count of nested def's.
+      @source_file = nil
+      @def_level   = 0 # count of nested def's.
 
       @lexer.reset
       @static_env.reset
@@ -31,9 +35,9 @@ module Parser
       self
     end
 
-    def parse(string, file='(string)', line=1)
-      @file = file
-      @lexer.source = string
+    def parse(source_file)
+      @source_file  = source_file
+      @lexer.source = source_file.source
 
       do_parse
     end

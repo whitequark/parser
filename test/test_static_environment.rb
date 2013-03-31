@@ -1,5 +1,3 @@
-# encoding: ascii-8bit
-
 require 'minitest/autorun'
 require 'parser'
 
