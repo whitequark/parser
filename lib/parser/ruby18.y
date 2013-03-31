@@ -43,7 +43,7 @@ preclow
 
 rule
 
-         program:   compstmt
+         program: compstmt
                     {
                       result = val[0]
                     }
@@ -1770,7 +1770,7 @@ end
 
 ---- header
 
-require 'parser/base'
+require 'parser'
 
 ---- inner
 

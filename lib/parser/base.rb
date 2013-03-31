@@ -1,9 +1,3 @@
-require 'racc/parser'
-
-require 'parser/static_environment'
-require 'parser/lexer'
-require 'parser/builders/sexp'
-
 module Parser
   class Base < Racc::Parser
     def self.parse(string, file='(string)', line=1)

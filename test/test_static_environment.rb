@@ -1,7 +1,7 @@
 # encoding: ascii-8bit
 
 require 'minitest/autorun'
-require 'parser/static_environment'
+require 'parser'
 
 class TestStaticEnvironment < MiniTest::Unit::TestCase
   def setup

@@ -66,9 +66,6 @@
 #       NoMethodError: undefined method `ord' for nil:NilClass
 #
 
-require 'parser/lexer_literal'
-require 'parser/syntax_error'
-
 class Parser::Lexer
 
   %% write data nofinal;
@@ -198,17 +195,6 @@ class Parser::Lexer
     comments
   end
 
-  # Used by LexerLiteral to emit tokens for string content.
-  def emit(type, value = tok, s = @ts, e = @te)
-    @token_queue << [ type, [ value, s...e ] ]
-  end
-
-  def emit_table(table, s = @ts, e = @te)
-    value = tok(s, e)
-
-    emit(table[value], value, s, e)
-  end
-
   protected
 
   def eof_char?(char)
@@ -221,6 +207,16 @@ class Parser::Lexer
 
   def tok(s = @ts, e = @te)
     @source[s...e]
+  end
+
+  def emit(type, value = tok, s = @ts, e = @te)
+    @token_queue << [ type, [ value, s...e ] ]
+  end
+
+  def emit_table(table, s = @ts, e = @te)
+    value = tok(s, e)
+
+    emit(table[value], value, s, e)
   end
 
   def diagnostic(type, message, *ranges)
@@ -237,7 +233,7 @@ class Parser::Lexer
   #
 
   def push_literal(*args)
-    new_literal = Parser::LexerLiteral.new(self, *args)
+    new_literal = Literal.new(self, *args)
     @literal_stack.push(new_literal)
 
     if    new_literal.type == :tWORDS_BEG
@@ -609,7 +605,7 @@ class Parser::Lexer
   # of positions in the input stream, namely @heredoc_e
   # (HEREDOC declaration End) and @herebody_s (HEREdoc BODY line Start).
   #
-  # @heredoc_e is simply contained inside the corresponding LexerLiteral, and
+  # @heredoc_e is simply contained inside the corresponding Literal, and
   # when the heredoc is closed, the lexing is restarted from that position.
   #
   # @herebody_s is quite more complex. First, @herebody_s changes after each
@@ -712,7 +708,7 @@ class Parser::Lexer
     end
 
     # A literal newline is appended if the heredoc was _not_ closed
-    # this time. See also LexerLiteral#nest_and_try_closing for rationale of
+    # this time. See also Literal#nest_and_try_closing for rationale of
     # calling #flush_string here.
     literal.extend_string tok, @ts, @te
     literal.flush_string

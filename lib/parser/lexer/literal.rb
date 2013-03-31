@@ -1,6 +1,6 @@
 module Parser
 
-  class LexerLiteral
+  class Lexer::Literal
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
     MONOLITHIC = { :tSTRING_BEG => :tSTRING, :tSYMBEG => :tSYMBOL }
 
@@ -34,7 +34,7 @@ module Parser
       @nesting     = 1
 
       unless TYPES.include?(str_type)
-        lexer.send(:error, "#{str_type}: unknown type of %string")
+        lexer.send(:diagnostic, :error, "#{str_type}: unknown type of %string", str_s..str_s)
       end
 
       # String type. For :'foo', it is :'
@@ -113,14 +113,14 @@ module Parser
       if @nesting == 0
         # Emit the string as a single token if it's applicable.
         if @monolithic
-          @lexer.emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
+          emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
         else
           # If this is a heredoc, @buffer contains the sentinel now.
           # Just throw it out. Lexer flushes the heredoc after each
           # non-heredoc-terminating \n anyway, so no data will be lost.
           flush_string unless heredoc?
 
-          @lexer.emit(:tSTRING_END, @end_delim, ts, te)
+          emit(:tSTRING_END, @end_delim, ts, te)
         end
       end
     end
@@ -152,10 +152,10 @@ module Parser
       end
 
       unless @buffer.empty?
-        @lexer.emit(:tSTRING_CONTENT, @buffer, @buffer_s, @buffer_e)
+        emit(:tSTRING_CONTENT, @buffer, @buffer_s, @buffer_e)
 
         if words?
-          @lexer.emit(:tSPACE, nil, @buffer_e, @buffer_e + 1)
+          emit(:tSPACE, nil, @buffer_e, @buffer_e + 1)
         end
 
         @buffer   = ""
@@ -168,7 +168,11 @@ module Parser
 
     def emit_start_tok
       str_e = @heredoc_e || @str_s + @str_type.length
-      @lexer.emit(@start_tok, @str_type, @str_s, str_e)
+      emit(@start_tok, @str_type, @str_s, str_e)
+    end
+
+    def emit(token, type, s, e)
+      @lexer.send(:emit, token, type, s, e)
     end
   end
 
