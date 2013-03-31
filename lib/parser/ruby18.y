@@ -1,6 +1,4 @@
-# -*- racc -*-
-
-class Ruby18Parser
+class Parser::Ruby18
 
 token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       kTHEN kELSIF kELSE kCASE kWHEN kWHILE kUNTIL kFOR kBREAK kNEXT
@@ -57,18 +55,24 @@ rule
 
         compstmt: stmts opt_terms
                     {
-                      result = new_compstmt val
+                      result = @builder.build_compstmt(val[0])
                     }
 
            stmts: none
-                | stmt
-                | stmts terms stmt
                     {
-                      result = block_append val[0], val[2]
+                      result = []
+                    }
+                | stmt
+                    {
+                      result = [ val[0] ]
                     }
                 | error stmt
                     {
-                      result = val[1]
+                      result = [ val[1] ]
+                    }
+                | stmts terms stmt
+                    {
+                      result = val[0] << val[2]
                     }
 
             stmt: kALIAS fitem
@@ -137,7 +141,7 @@ rule
                     }
                 | lhs tEQL command_call
                     {
-                      result = node_assign val[0], val[2]
+                      result = @builder.build_assign(*val)
                     }
                 | mlhs tEQL command_call
                     {
@@ -407,7 +411,8 @@ rule
 
              lhs: variable
                     {
-                      result = assignable val[0]
+                      handle_assignable(val[0])
+                      result = @builder.build_assignable(val[0])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
@@ -510,7 +515,7 @@ rule
 
              arg: lhs tEQL arg
                     {
-                      result = node_assign val[0], val[2]
+                      result = @builder.build_assign(*val)
                     }
                 | lhs tEQL arg kRESCUE_MOD arg
                     {
@@ -1432,8 +1437,8 @@ rule
                     }
                 | none
 
-         literal: numeric { result = s(:lit, val[0]) }
-                | symbol  { result = s(:lit, val[0]) }
+         literal: numeric
+                | symbol
                 | dsym
 
          strings: string
@@ -1574,7 +1579,7 @@ xstring_contents: none
                     }
                 | tSYMBOL
                     {
-                      result = val[0].to_sym
+                      result = @builder.build_symbol(val[0])
                     }
 
              sym: fname | tIVAR | tGVAR | tCVAR
@@ -1597,41 +1602,43 @@ xstring_contents: none
                     }
 
          numeric: tINTEGER
+                    {
+                      result = @builder.build_integer(val[0])
+                    }
                 | tFLOAT
+                    {
+                      result = @builder.build_float(val[0])
+                    }
                 | tUMINUS_NUM tINTEGER =tLOWEST
                     {
-                      result = -val[1] # TODO: pt_testcase
+                      result = @builder.build_integer(val[0], true)
                     }
                 | tUMINUS_NUM tFLOAT   =tLOWEST
                     {
-                      result = -val[1] # TODO: pt_testcase
+                      result = @builder.build_float(val[0], true)
                     }
 
         variable: tIDENTIFIER
-                | tIVAR
-                | tGVAR
-                | tCONSTANT
-                | tCVAR
-                | kNIL      { result = s(:nil)   }
-                | kSELF     { result = s(:self)  }
-                | kTRUE     { result = s(:true)  }
-                | kFALSE    { result = s(:false) }
-                | k__FILE__ { result = s(:str, self.file) }
-                | k__LINE__ { result = s(:lit, lexer.lineno) }
+                | tIVAR       { result = @builder.build_ivar(val[0]) }
+                | tGVAR       { result = @builder.build_gvar(val[0]) }
+                | tCVAR       { result = @builder.build_cvar(val[0]) }
+                | tCONSTANT   { result = @builder.build_const(val[0]) }
+                | kNIL        { result = @builder.build_nil(val[0])   }
+                | kSELF       { result = @builder.build_self(val[0])  }
+                | kTRUE       { result = @builder.build_true(val[0])  }
+                | kFALSE      { result = @builder.build_false(val[0]) }
+                | k__FILE__   { result = @builder.build___FILE__(val[0], @file) }
+                | k__LINE__   { result = @builder.build___LINE__(val[0]) }
 
          var_ref: variable
-                    {
-                      var = val[0]
-                      result = Sexp === var ? var : self.gettable(var)
-                    }
 
          var_lhs: variable
                     {
                       result = assignable val[0]
                     }
 
-         backref: tNTH_REF  { result = s(:nth_ref,  val[0]) }
-                | tBACK_REF { result = s(:back_ref, val[0]) }
+         backref: tNTH_REF    { result = s(:nth_ref,  val[0]) }
+                | tBACK_REF   { result = s(:back_ref, val[0]) }
 
       superclass: term
                     {
@@ -1837,10 +1844,12 @@ xstring_contents: none
 
 end
 
+---- header
+
+require 'parser/base'
+
 ---- inner
 
-require "ruby_parser_extras"
-
-# Local Variables: **
-# racc-token-length-max:14 **
-# End: **
+  def version
+    18
+  end

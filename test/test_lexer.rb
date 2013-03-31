@@ -1971,7 +1971,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_yylex_static_env
     env = Parser::StaticEnvironment.new
-    env.declare :a
+    env.declare "a"
 
     @lex.static_env = env
 

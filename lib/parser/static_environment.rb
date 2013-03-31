@@ -4,6 +4,10 @@ module Parser
 
   class StaticEnvironment
     def initialize
+      reset
+    end
+
+    def reset
       @variables = Set[]
       @stack     = []
     end
