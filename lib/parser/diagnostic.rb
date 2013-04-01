@@ -1,12 +1,3 @@
-unless Range.method_defined? :size
-  # A monkeypatch for 1.9.3.
-  class Range
-    def size
-      max - min + 1
-    end
-  end
-end
-
 module Parser
 
   class Diagnostic
@@ -62,7 +53,7 @@ module Parser
       spans, points = ranges.partition { |r| r.size > 1 }
 
       spans.each do |span|
-        highlight_pointers[span] = '~' * span.size
+        highlight_pointers[span] = '~' * range_size(span)
       end
 
       points.each do |point|
@@ -75,6 +66,13 @@ module Parser
         @source_file.line(@line),
         highlight_pointers,
       ]
+    end
+
+    private
+
+    # Replace call sites with #size once we don't support 1.9.x anymore.
+    def range_size(range)
+      range.max - range.min + 1
     end
   end
 
