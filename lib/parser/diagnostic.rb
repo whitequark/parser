@@ -50,7 +50,7 @@ module Parser
       highlight_length   = ranges.map(&:end).max
       highlight_pointers = ' ' * highlight_length
 
-      spans, points = ranges.partition { |range| range_size(range) }
+      spans, points = ranges.partition { |range| range_size(range) > 1 }
 
       spans.each do |span|
         highlight_pointers[span] = '~' * range_size(span)
