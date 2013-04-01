@@ -5,6 +5,7 @@ require 'furnace/ast'
 
 # Library namespace
 module Parser
+  require 'parser/version'
   require 'parser/syntax_error'
   require 'parser/source_file'
   require 'parser/diagnostic'

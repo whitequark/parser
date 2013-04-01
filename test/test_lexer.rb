@@ -12,7 +12,19 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def setup
-    setup_lexer 18
+    setup_lexer_18
+  end
+
+  def setup_lexer_18
+    setup_lexer(Parser::Version::RUBY_18)
+  end
+
+  def setup_lexer_19
+    setup_lexer(Parser::Version::RUBY_19)
+  end
+
+  def setup_lexer_20
+    setup_lexer(Parser::Version::RUBY_20)
   end
 
   #
@@ -218,7 +230,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_label__19
-    setup_lexer 19
+    setup_lexer_19
 
     util_lex_token("{a:b",
                    :tLBRACE,     "{",
@@ -227,7 +239,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_label_in_params__19
-    setup_lexer 19
+    setup_lexer_19
 
     util_lex_token("foo(a:b",
                    :tIDENTIFIER, "foo",
@@ -237,7 +249,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_command_start__19
-    setup_lexer 19
+    setup_lexer_19
 
     %w[case elsif for in until when while
       if unless and or].each do |keyword|
@@ -252,7 +264,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_mod_not_command_start__19
-    setup_lexer 19
+    setup_lexer_19
 
     %w[if unless while until rescue].each do |keyword|
       token = "k#{keyword.upcase}_MOD".to_sym
@@ -912,25 +924,25 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_question_eh_a__18
-    setup_lexer 18
+    setup_lexer_18
 
     util_lex_token "?a", :tINTEGER, 97
   end
 
   def test_yylex_question_eh_a__19
-    setup_lexer 19
+    setup_lexer_19
 
     util_lex_token '?a', :tSTRING, "a"
   end
 
   def test_yylex_question_eh_escape_M_escape_C__18
-    setup_lexer 18
+    setup_lexer_18
 
     util_lex_token '?\M-\C-a', :tINTEGER, 129
   end
 
   def test_yylex_question_eh_escape_M_escape_C__19
-    setup_lexer 19
+    setup_lexer_19
 
     util_lex_token '?\M-\C-a', :tSTRING, "\M-\C-a"
   end
@@ -1258,13 +1270,13 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_question__18
-    setup_lexer 18
+    setup_lexer_18
 
     util_lex_token "?*", :tINTEGER, 42
   end
 
   def test_yylex_question__19
-    setup_lexer 19
+    setup_lexer_19
 
     util_lex_token "?*", :tSTRING, "*"
   end
@@ -1283,7 +1295,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_question_ws_backslashed__18
-    setup_lexer 18
+    setup_lexer_18
 
     @lex.state = :expr_beg
     util_lex_token "?\\ ", :tINTEGER, 32
@@ -1300,7 +1312,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_question_ws_backslashed__19
-    setup_lexer 19
+    setup_lexer_19
 
     @lex.state = :expr_beg
     util_lex_token "?\\ ", :tSTRING, " "
