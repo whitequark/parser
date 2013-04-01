@@ -24,7 +24,8 @@ module Parser
     end_in_method:      "END in method; use at_exit",
     backref_assignment: "cannot assign to a back-reference variable",
     invalid_assignment: "cannot assign to %{node}",
-    module_name_const:  "class or module name must be a constant literal"
+    module_name_const:  "class or module name must be a constant literal",
+    unexpected_token:   "unexpected token %{token}"
   }
 
   ERRORS.default_proc = ->(hash, key) do

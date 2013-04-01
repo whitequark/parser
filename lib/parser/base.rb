@@ -88,7 +88,8 @@ module Parser
         range
       end
 
-      diagnostic = Diagnostic.new(:error, Parser::ERRORS[kind],
+      message    = Parser::ERRORS[kind]
+      diagnostic = Diagnostic.new(:error, message,
                                   @source_file, ranges)
 
       @diagnostics.process(diagnostic)
@@ -101,7 +102,8 @@ module Parser
       _, token_range = error_value
 
       # TODO add "expected: ..." here
-      diagnostic = Diagnostic.new(:error, "unexpected #{token_name}",
+      message    = Parser::ERRORS[:unexpected_token] % { token: token_name }
+      diagnostic = Diagnostic.new(:error, message,
                                   @source_file, [token_range])
 
       @diagnostics.process(diagnostic)
