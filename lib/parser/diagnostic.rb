@@ -42,7 +42,7 @@ module Parser
 
       if unique_lines.count > 1
         raise ArgumentError,
-              "Cannot create a Diagnostic which spans over multiple source lines."
+              'Cannot create a Diagnostic which spans over multiple source lines.'
       end
 
       @ranges      = ranges.dup.freeze
@@ -53,16 +53,16 @@ module Parser
 
     def render
       highlight_length   = ranges.map(&:end).max
-      highlight_pointers = " " * highlight_length
+      highlight_pointers = ' ' * highlight_length
 
       spans, points = ranges.partition { |r| r.size > 1 }
 
       spans.each do |span|
-        highlight_pointers[span] = "~" * span.size
+        highlight_pointers[span] = '~' * span.size
       end
 
       points.each do |point|
-        highlight_pointers[point] = "^"
+        highlight_pointers[point] = '^'
       end
 
       [
