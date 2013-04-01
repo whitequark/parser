@@ -9,7 +9,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
     @lex.diagnostics = Parser::DiagnosticsEngine.new
     @lex.diagnostics.all_errors_are_fatal = true
-    #@lex.diagnostics.consumer = ->(diag) { puts "", diag.render }
+    #@lex.diagnostics.consumer = ->(diag) { $stderr.puts "", diag.render }
   end
 
   def setup

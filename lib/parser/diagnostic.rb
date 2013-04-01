@@ -1,3 +1,13 @@
+unless Range.method_defined? :size
+  # A horrible monkeypatch for 1.9.3. It should be robust yet
+  # may be slow due to creation of a Enumerator.
+  class Range
+    def size
+      self.step.size
+    end
+  end
+end
+
 module Parser
 
   class Diagnostic
