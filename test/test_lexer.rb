@@ -4,7 +4,7 @@ require 'minitest/autorun'
 require 'parser'
 
 class TestLexer < MiniTest::Unit::TestCase
-  def setup_lexer version
+  def setup_lexer(version)
     @lex = Parser::Lexer.new(version)
 
     @lex.diagnostics = Parser::DiagnosticsEngine.new
@@ -19,13 +19,13 @@ class TestLexer < MiniTest::Unit::TestCase
   # Additional matchers
   #
 
-  def util_bad_token s, *args
+  def util_bad_token(s, *args)
     assert_raises Parser::SyntaxError do
-      util_lex_token s, *args
+      util_lex_token(s, *args)
     end
   end
 
-  def util_escape expected, input
+  def util_escape(expected, input)
     source_file = Parser::SourceFile.new('(util_escape)')
     source_file.source = "%Q[\\#{input}]"
 
@@ -43,20 +43,20 @@ class TestLexer < MiniTest::Unit::TestCase
                  source_file.source
   end
 
-  def util_escape_bad input
+  def util_escape_bad(input)
     assert_raises Parser::SyntaxError do
       @lex.state = :expr_beg
       util_lex_token "%Q[\\#{input}]"
     end
   end
 
-  def util_lex_fname name, type, end_state = :expr_end
+  def util_lex_fname(name, type, end_state = :expr_end)
     util_lex_token("def #{name} ", :kDEF, 'def', type, name)
 
     assert_equal end_state, @lex.state
   end
 
-  def util_lex_token input, *args
+  def util_lex_token(input, *args)
     source_file = Parser::SourceFile.new('(util_lex_token)')
     source_file.source = input
 
