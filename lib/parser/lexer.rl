@@ -3,6 +3,9 @@
 #
 # === BEFORE YOU START ===
 #
+# Read the Ruby Hacking Guide chapter 11, available in English at
+# http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+#
 # Remember two things about Ragel scanners:
 #
 #   1) Longest match wins.
