@@ -40,7 +40,15 @@ module Parser
       mapped_line = line - @first_line
 
       # Consider improving this naïve implementation.
-      source.lines.drop(mapped_line).first
+      source_line = source.lines.drop(mapped_line).first
+
+      # Line endings will be commonly present for all lines
+      # except the last one. It does not make sense to keep them.
+      if source_line.end_with? "\n"
+        source_line.chomp
+      else
+        source_line
+      end
     end
   end
 
