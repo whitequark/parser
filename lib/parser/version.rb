@@ -1,12 +1,31 @@
 module Parser
   # A particular ruby version
   class Version
-    RUBY_18 = new
-    RUBY_19 = new
-    RUBY_20 = new
 
     class << self
       private :new
+    end
+
+    # Initialize object
+    #
+    # @param [String] string
+    #
+    # @return [undefined]
+    #
+    # @api private
+    #
+    def initialize(string)
+      @string = string
+    end
+
+    # Return inspection
+    #
+    # @return [String]
+    #
+    # @api private
+    #
+    def inspect
+      "<#{self.class.name}::RUBY_#{@string}>".freeze
     end
 
     # Test for 1.8
@@ -50,6 +69,10 @@ module Parser
     def ruby20?
       equal?(RUBY_20)
     end
+
+    RUBY_18 = new('18')
+    RUBY_19 = new('19')
+    RUBY_20 = new('20')
 
   end # Version
 end # Parser
