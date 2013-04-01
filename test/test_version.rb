@@ -28,5 +28,6 @@ class TestVersion < MiniTest::Unit::TestCase
     assert_equal Parser::Version::RUBY_19.inspect, '<Parser::Version::RUBY_19>'
     assert_equal Parser::Version::RUBY_20.inspect, '<Parser::Version::RUBY_20>'
     assert_predicate Parser::Version::RUBY_18.inspect, :frozen?
+    assert_same Parser::Version::RUBY_18.inspect, Parser::Version::RUBY_18.inspect
   end
 end

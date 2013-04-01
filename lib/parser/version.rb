@@ -25,7 +25,7 @@ module Parser
     # @api private
     #
     def inspect
-      "<#{self.class.name}::RUBY_#{@string}>".freeze
+      @inspect ||= "<#{self.class.name}::RUBY_#{@string}>".freeze
     end
 
     # Test for 1.8
