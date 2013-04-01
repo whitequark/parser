@@ -526,7 +526,7 @@ class Parser::Lexer
     | 'x' ( c_any - xdigit )
       % {
         @escape = lambda do
-          diagnostic :error, "invalid hex escape", @escape_s...p
+          diagnostic :error, "invalid hex escape", @escape_s - 1..p + 1
         end
       }
 
@@ -540,7 +540,7 @@ class Parser::Lexer
           )
       % {
         @escape = lambda do
-          diagnostic :error, "invalid Unicode escape", @escape_s...p
+          diagnostic :error, "invalid Unicode escape", @escape_s - 1...p
         end
       }
 
@@ -1473,9 +1473,9 @@ class Parser::Lexer
           digits = "0"
         elsif digits.empty?
           diagnostic :error, "numeric literal without digits"
-        elsif @num_base == 8 && digits =~ /[89]/
-          # TODO better location reporting
-          diagnostic :error, "invalid octal digit"
+        elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
+          range = (@num_digits_s + invalid_idx)..(@num_digits_s + invalid_idx)
+          diagnostic :error, "invalid octal digit", range
         end
 
         emit(:tINTEGER, digits.to_i(@num_base))

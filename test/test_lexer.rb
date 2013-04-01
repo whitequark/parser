@@ -9,6 +9,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
     @lex.diagnostics = Parser::DiagnosticsEngine.new
     @lex.diagnostics.all_errors_are_fatal = true
+    #@lex.diagnostics.consumer = ->(diag) { puts "", diag.render }
   end
 
   def setup
@@ -964,7 +965,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_integer_oct_O_bad_range
-    util_bad_token "0O8"
+    util_bad_token "0O1238"
   end
 
   def test_yylex_integer_oct_O_bad_underscores
@@ -980,7 +981,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_integer_oct_o_bad_range
-    util_bad_token "0o8"
+    util_bad_token "0o1283"
   end
 
   def test_yylex_integer_oct_o_bad_underscores

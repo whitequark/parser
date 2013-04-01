@@ -35,7 +35,7 @@ class TestDiagnostic < MiniTest::Unit::TestCase
     diag  = Parser::Diagnostic.new(:error, "code far too bad",
                                    @sfile, [21..24, 26...27, 28..31])
     assert_equal([
-      "(string):1:21: error: code far too bad",
+      "(string):1:22: error: code far too bad",
       "if (this is some bad code + bugs)",
       "                     ~~~~ ^ ~~~~"
     ], diag.render)

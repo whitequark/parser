@@ -56,7 +56,7 @@ module Parser
       end
 
       [
-        "#{@source_file.name}:#{@line}:#{@ranges.first.begin}: " \
+        "#{@source_file.name}:#{@line}:#{@ranges.first.begin + 1}: " \
           "#{@level}: #{@message}",
         @source_file.line(@line),
         highlight_pointers,
