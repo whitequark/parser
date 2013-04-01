@@ -74,7 +74,9 @@ class Parser::Lexer
   %% write data nofinal;
   # %
 
-  attr_reader   :source
+  attr_reader   :source_file
+
+  attr_accessor :diagnostics
   attr_accessor :static_env
 
   attr_reader   :comments
@@ -124,7 +126,9 @@ class Parser::Lexer
     @lambda_stack  = []
   end
 
-  def source=(source)
+  def source_file=(source_file)
+    @source_file = source_file
+
     # Heredoc processing coupled with weird newline quirks
     # require three '\0' (EOF) chars to be appended; after
     # `p = @heredoc_s`, if `p` points at EOF, the FSM could
@@ -132,7 +136,7 @@ class Parser::Lexer
     #
     # Patches accepted.
     #
-    @source = source.gsub(/\r\n/, "\n") + "\0\0\0"
+    @source = @source_file.source.gsub(/\r\n/, "\n") + "\0\0\0"
   end
 
   LEX_STATES = {
@@ -223,12 +227,12 @@ class Parser::Lexer
   end
 
   def diagnostic(type, message, *ranges)
-    ranges = @ts...@te if ranges.empty?
+    ranges = [@ts...@te] if ranges.empty?
 
-    # Temporary
-    if type == :error || type == :fatal
-      raise Parser::SyntaxError, message
-    end
+    diagnostic = Parser::Diagnostic.
+                    new(type, message, @source_file, ranges)
+
+    @diagnostics.process(diagnostic)
   end
 
   #

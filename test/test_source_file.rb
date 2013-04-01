@@ -29,4 +29,10 @@ class TestSourceFile < MiniTest::Unit::TestCase
     sfile.read
     assert_equal 'foobar', sfile.source
   end
+
+  def test_uninitialized
+    assert_raises RuntimeError do
+      @sfile.source
+    end
+  end
 end

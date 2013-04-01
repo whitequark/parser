@@ -6,6 +6,9 @@ require 'parser'
 class TestLexer < MiniTest::Unit::TestCase
   def setup_lexer version
     @lex = Parser::Lexer.new(version)
+
+    @lex.diagnostics = Parser::DiagnosticsEngine.new
+    @lex.diagnostics.all_errors_are_fatal = true
   end
 
   def setup
@@ -23,8 +26,11 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def util_escape expected, input
+    source_file = Parser::SourceFile.new('(util_escape)')
+    source_file.source = "%Q[\\#{input}]"
+
     @lex.reset
-    @lex.source = "%Q[\\#{input}]"
+    @lex.source_file = source_file
 
     lex_token, (lex_value, *) = @lex.advance
 
@@ -34,7 +40,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
     assert_equal [:tSTRING, expected],
                  [lex_token, lex_value],
-                 @lex.source
+                 source_file.source
   end
 
   def util_escape_bad input
@@ -51,8 +57,11 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def util_lex_token input, *args
+    source_file = Parser::SourceFile.new('(util_lex_token)')
+    source_file.source = input
+
     @lex.reset(false)
-    @lex.source = input
+    @lex.source_file = source_file
 
     until args.empty? do
       token, value = args.shift(2)
@@ -69,16 +78,6 @@ class TestLexer < MiniTest::Unit::TestCase
   #
   # Tests
   #
-
-  def test_advance
-    @lex.source = "blah"
-
-    token, = @lex.advance
-    assert token # blah
-
-    token, = @lex.advance
-    refute token # nada
-  end
 
   def test_read_escape
     util_escape "\\",   "\\"
@@ -1931,7 +1930,10 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_underscore_end
-    @lex.source = "__END__\n"
+    source_file = Parser::SourceFile.new('(yylex_underscore_end)')
+    source_file.source = "__END__\n"
+
+    @lex.source_file = source_file
 
     tok, = @lex.advance
     refute tok

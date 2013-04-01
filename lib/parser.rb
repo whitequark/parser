@@ -7,6 +7,9 @@ require 'furnace/ast'
 module Parser
   require 'parser/syntax_error'
   require 'parser/source_file'
+  require 'parser/diagnostic'
+  require 'parser/diagnostics_engine'
+
   require 'parser/static_environment'
 
   require 'parser/lexer'

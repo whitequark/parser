@@ -2,7 +2,6 @@ module Parser
 
   class SourceFile
     attr_reader   :name, :first_line
-    attr_accessor :source
 
     def initialize(name, first_line = 1)
       @name       = name
@@ -14,6 +13,14 @@ module Parser
       self.source = File.read(@name)
 
       self
+    end
+
+    def source
+      if @source.nil?
+        raise RuntimeError, "Cannot extract source from uninitialized SourceFile"
+      end
+
+      @source
     end
 
     def source=(source)
