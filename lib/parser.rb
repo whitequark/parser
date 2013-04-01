@@ -1,7 +1,7 @@
 require 'set'
 require 'racc/parser'
 
-require 'furnace/ast'
+require 'ast'
 
 # Library namespace
 module Parser

@@ -1,5 +1,5 @@
 module Parser
-  class Sexp < Furnace::AST::Node
+  class Sexp < AST::Node
     attr_reader :line, :first_column, :last_column
     alias :column :first_column
   end
