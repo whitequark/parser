@@ -74,6 +74,7 @@ class Parser::Lexer
   %% write data nofinal;
   # %
 
+  attr_reader   :version
   attr_reader   :source_file
 
   attr_accessor :diagnostics
@@ -206,10 +207,6 @@ class Parser::Lexer
 
   def eof_char?(char)
     [0x04, 0x1a, 0x00].include? char.ord
-  end
-
-  def version?(*versions)
-    versions.include?(@version)
   end
 
   def tok(s = @ts, e = @te)
@@ -1248,7 +1245,7 @@ class Parser::Lexer
 
         value = @escape || tok(@ts + 1)
 
-        if version?(18)
+        if version.ruby18?
           emit(:tINTEGER, value.ord)
         else
           emit(:tSTRING, value)
@@ -1311,7 +1308,7 @@ class Parser::Lexer
       => {
         fhold;
 
-        if version?(18)
+        if version.ruby18?
           emit(:tIDENTIFIER, tok(@ts, @te - 2), @ts, @te - 2)
           fhold; # continue as a symbol
         else
@@ -1435,7 +1432,7 @@ class Parser::Lexer
       => {
         emit_table(KEYWORDS)
 
-        if version?(18) && tok == 'not'
+        if version.ruby18? && tok == 'not'
           fnext expr_beg; fbreak;
         else
           fnext expr_arg; fbreak;
@@ -1468,7 +1465,7 @@ class Parser::Lexer
 
         if digits.end_with? '_'
           diagnostic :error, "trailing `_' in number", @te - 1...@te
-        elsif digits.empty? && @num_base == 8 && version?(18)
+        elsif digits.empty? && @num_base == 8 && version.ruby18?
           # 1.8 did not raise an error on 0o.
           digits = "0"
         elsif digits.empty?
