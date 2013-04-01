@@ -1,9 +1,8 @@
 unless Range.method_defined? :size
-  # A horrible monkeypatch for 1.9.3. It should be robust yet
-  # may be slow due to creation of a Enumerator.
+  # A monkeypatch for 1.9.3.
   class Range
     def size
-      self.step.size
+      max - min + 1
     end
   end
 end
