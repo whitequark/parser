@@ -3,7 +3,7 @@ module Parser
     def self.parse(string, file='(string)', line=1)
       parser = new
 
-      parser.diagnostics.all_errors_are_fatal = true
+      #parser.diagnostics.all_errors_are_fatal = true
 
       # Temporary, for manual testing convenience
       parser.diagnostics.consumer = ->(diagnostic) do
@@ -82,9 +82,29 @@ module Parser
       @lexer.advance
     end
 
+    def syntax_error(kind, tokens)
+      ranges = tokens.map do |token|
+        value, range = token
+        range
+      end
+
+      diagnostic = Diagnostic.new(:error, Parser::ERRORS[kind],
+                                  @source_file, ranges)
+
+      @diagnostics.process(diagnostic)
+
+      yyerror
+    end
+
     def on_error(error_token_id, error_value, value_stack)
-      # TODO: emit a diagnostic
-      super
+      token_name = token_to_str(error_token_id)
+      _, token_range = error_value
+
+      # TODO add "expected: ..." here
+      diagnostic = Diagnostic.new(:error, "unexpected #{token_name}",
+                                  @source_file, [token_range])
+
+      @diagnostics.process(diagnostic)
     end
   end
 end

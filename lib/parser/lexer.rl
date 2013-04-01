@@ -715,7 +715,8 @@ class Parser::Lexer
     end
 
     if is_eof
-      diagnostic :fatal, "unterminated string meets end of file", p - 1...p
+      diagnostic :fatal, "unterminated string meets end of file",
+                 literal.str_s..literal.str_s
     end
 
     # A literal newline is appended if the heredoc was _not_ closed

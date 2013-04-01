@@ -26,7 +26,7 @@ module Parser
       '`'  => [ :tXSTRING_BEG, true  ],
     }
 
-    attr_reader   :heredoc_e
+    attr_reader   :heredoc_e, :str_s
     attr_accessor :saved_herebody_s
 
     def initialize(lexer, str_type, delimiter, str_s, heredoc_e = nil, indent = false)

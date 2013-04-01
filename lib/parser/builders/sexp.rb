@@ -45,7 +45,8 @@ module Parser::Builders
         if @parser.static_env.declared?(name)
           node.updated(:lvar)
         else
-          raise NotImplementedError, "make this a call"
+          node.updated(:call, [node])
+          #raise NotImplementedError, "make this a call"
         end
       else
         node
@@ -73,7 +74,11 @@ module Parser::Builders
         node.updated(:lasgn)
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
         # TODO figure out locations in nodes. SourceLocation?
-        diagnostic :error, "cannot assign to #{node.type}", []
+        message = Parser::ERRORS[:invalid_assignment] % { node: node.type }
+        diagnostic :error, message, [1..1]
+      when :back_ref, :nth_ref
+        message = Parser::ERRORS[:backref_assignment]
+        diagnostic :error, message, [1..1]
       else
         raise NotImplementedError, "build_assignable #{node.inspect}"
       end
@@ -141,6 +146,7 @@ module Parser::Builders
     def diagnostic(type, message, ranges)
       diagnostic = Parser::Diagnostic.new(type, message,
                                   @parser.source_file, ranges)
+
       @parser.diagnostics.process(diagnostic)
     end
   end

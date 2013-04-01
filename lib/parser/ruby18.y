@@ -97,7 +97,7 @@ rule
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
-                      yyerror "can't make alias for the number variables"
+                      syntax_error(:nth_ref_alias, [val[2]])
                     }
                 | kUNDEF undef_list
                     {
@@ -125,7 +125,7 @@ rule
                     }
                 | klBEGIN
                     {
-                      yyerror "BEGIN in method" if in_def?
+                      syntax_error(:begin_in_method, [val[0]]) if in_def?
 
                       @static_env.extend
                     }
@@ -136,7 +136,7 @@ rule
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
-                      yyerror "END in method; use at_exit" if in_def?
+                      syntax_error(:end_in_method, [val[0]]) if in_def?
 
                       result = new_iter s(:postexe), nil, val[2]
                     }
@@ -170,7 +170,7 @@ rule
                     }
                 | backref tOP_ASGN command_call
                     {
-                      backref_assign_error val[0]
+                      @builder.build_operator_assign(*val)
                     }
                 | lhs tEQL mrhs
                     {
@@ -388,7 +388,7 @@ rule
                     }
                 | backref
                     {
-                      backref_assign_error val[0]
+                      syntax_error(:backref_assignment, [val[0]])
                     }
 
              lhs: variable
@@ -425,12 +425,12 @@ rule
                     }
                 | backref
                     {
-                      backref_assign_error val[0]
+                      result = @builder.build_assignable(val[0])
                     }
 
            cname: tIDENTIFIER
                     {
-                      yyerror "class/module name must be CONSTANT"
+                      syntax_error(:module_name_const, [val[0]])
                     }
                 | tCONSTANT
 
@@ -449,13 +449,7 @@ rule
 
            fname: tIDENTIFIER | tCONSTANT | tFID
                 | op
-                    {
-                      result = val[0]
-                    }
                 | reswords
-                    {
-                      result = val[0]
-                    }
 
             fsym: fname
                     {
@@ -533,7 +527,7 @@ rule
                     }
                 | backref tOP_ASGN arg
                     {
-                      backref_assign_error val[0]
+                      result = @builder.build_operator_assign(*val)
                     }
                 | arg tDOT2 arg
                     {
