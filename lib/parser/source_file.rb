@@ -27,6 +27,8 @@ module Parser
       @source = source
     end
 
+    # TODO: add a variant of this function which handles tabulation.
+    # Replicating VT-52 features in 2013 :/
     def position_to_line(position)
       # Consider improving this naïve implementation.
       line = source[0..position].lines.count - 1
