@@ -32,6 +32,8 @@ class TestDiagnosticsEngine < MiniTest::Unit::TestCase
     assert_raises Parser::SyntaxError do
       @engine.process(error)
     end
+
+    assert_equal [error], @queue
   end
 
   def test_all_errors_are_collected
@@ -47,5 +49,7 @@ class TestDiagnosticsEngine < MiniTest::Unit::TestCase
     assert_raises Parser::SyntaxError do
       @engine.process(fatal)
     end
+
+    assert_equal [fatal], @queue
   end
 end

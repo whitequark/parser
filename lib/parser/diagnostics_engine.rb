@@ -16,10 +16,12 @@ module Parser
     def process(diagnostic)
       if ignore?(diagnostic)
         # do nothing
-      elsif raise?(diagnostic)
-        raise Parser::SyntaxError, diagnostic.message
       elsif @consumer
         @consumer.call(diagnostic)
+      end
+
+      if raise?(diagnostic)
+        raise Parser::SyntaxError, diagnostic.message
       end
 
       self

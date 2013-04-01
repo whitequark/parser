@@ -33,6 +33,11 @@ module Parser
         ranges = [ranges]
       end
 
+      if ranges.empty?
+        raise ArgumentError,
+              'Cannot create a Diagnostic without source locations.'
+      end
+
       ranges       = ranges.sort_by(&:begin)
 
       # Refactor this?
