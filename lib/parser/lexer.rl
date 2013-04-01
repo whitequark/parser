@@ -129,14 +129,18 @@ class Parser::Lexer
   def source_file=(source_file)
     @source_file = source_file
 
-    # Heredoc processing coupled with weird newline quirks
-    # require three '\0' (EOF) chars to be appended; after
-    # `p = @heredoc_s`, if `p` points at EOF, the FSM could
-    # not bail out early enough and will crash.
-    #
-    # Patches accepted.
-    #
-    @source = @source_file.source.gsub(/\r\n/, "\n") + "\0\0\0"
+    if @source_file
+      # Heredoc processing coupled with weird newline quirks
+      # require three '\0' (EOF) chars to be appended; after
+      # `p = @heredoc_s`, if `p` points at EOF, the FSM could
+      # not bail out early enough and will crash.
+      #
+      # Patches accepted.
+      #
+      @source = @source_file.source.gsub(/\r\n/, "\n") + "\0\0\0"
+    else
+      @source = nil
+    end
   end
 
   LEX_STATES = {

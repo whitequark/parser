@@ -72,8 +72,8 @@ module Parser::Builders
 
         node.updated(:lasgn)
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
-        # TODO
-        raise "cannot assign to #{node.type}"
+        # TODO figure out locations in nodes. SourceLocation?
+        diagnostic :error, "cannot assign to #{node.type}", []
       else
         raise NotImplementedError, "build_assignable #{node.inspect}"
       end
@@ -136,6 +136,12 @@ module Parser::Builders
       end
 
       Parser::Sexp.new(type, args, metadata)
+    end
+
+    def diagnostic(type, message, ranges)
+      diagnostic = Parser::Diagnostic.new(type, message,
+                                  @parser.source_file, ranges)
+      @parser.diagnostics.process(diagnostic)
     end
   end
 end

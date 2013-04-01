@@ -19,6 +19,9 @@ module Parser
     attr_reader :diagnostics
     attr_reader :static_env
 
+    # The source file currently being parsed.
+    attr_reader :source_file
+
     def initialize(builder=Parser::Builders::Sexp.new)
       @diagnostics = DiagnosticsEngine.new
 
@@ -53,6 +56,10 @@ module Parser
       @lexer.source_file = source_file
 
       do_parse
+    ensure
+      # Don't keep references to the source file.
+      @source_file       = nil
+      @lexer.source_file = nil
     end
 
     def in_def?
