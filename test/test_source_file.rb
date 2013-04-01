@@ -35,4 +35,36 @@ class TestSourceFile < MiniTest::Unit::TestCase
       @sfile.source
     end
   end
+
+  def test_position_to_line
+    @sfile.source = "1\nfoo\nbar"
+
+    assert_equal 1, @sfile.position_to_line(0)
+    assert_equal 1, @sfile.position_to_line(1)
+    assert_equal 2, @sfile.position_to_line(2)
+    assert_equal 3, @sfile.position_to_line(7)
+  end
+
+  def test_position_to_line_mapped
+    @sfile = Parser::SourceFile.new('(string)', 5)
+    @sfile.source = "1\nfoo\nbar"
+
+    assert_equal 5, @sfile.position_to_line(0)
+    assert_equal 6, @sfile.position_to_line(2)
+  end
+
+  def test_line
+    @sfile.source = "1\nfoo\nbar"
+
+    assert_equal "1\n", @sfile.line(1)
+    assert_equal "foo\n", @sfile.line(2)
+  end
+
+  def test_line_mapped
+    @sfile = Parser::SourceFile.new('(string)', 5)
+    @sfile.source = "1\nfoo\nbar"
+
+    assert_equal "1\n", @sfile.line(5)
+    assert_equal "foo\n", @sfile.line(6)
+  end
 end

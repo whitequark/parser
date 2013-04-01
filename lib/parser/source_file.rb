@@ -26,6 +26,22 @@ module Parser
     def source=(source)
       @source = source
     end
+
+    def position_to_line(position)
+      # Consider improving this naïve implementation.
+      line = source[0..position].lines.count - 1
+
+      mapped_line = line + @first_line
+
+      mapped_line
+    end
+
+    def line(line)
+      mapped_line = line - @first_line
+
+      # Consider improving this naïve implementation.
+      source.lines.drop(mapped_line).first
+    end
   end
 
 end
