@@ -24,7 +24,7 @@ module Parser
     end
 
     def source=(source)
-      @source     = source
+      @source = source
     end
   end
 
