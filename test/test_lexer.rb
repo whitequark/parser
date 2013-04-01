@@ -51,7 +51,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def util_lex_fname name, type, end_state = :expr_end
-    util_lex_token("def #{name} ", :kDEF, "def", type, name)
+    util_lex_token("def #{name} ", :kDEF, 'def', type, name)
 
     assert_equal end_state, @lex.state
   end
@@ -67,7 +67,7 @@ class TestLexer < MiniTest::Unit::TestCase
       token, value = args.shift(2)
 
       lex_token, (lex_value, *) = @lex.advance
-      assert lex_token, "no more tokens"
+      assert lex_token, 'no more tokens'
       assert_equal [token, value], [lex_token, lex_value], input
     end
 

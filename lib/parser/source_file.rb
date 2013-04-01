@@ -17,7 +17,7 @@ module Parser
 
     def source
       if @source.nil?
-        raise RuntimeError, "Cannot extract source from uninitialized SourceFile"
+        raise RuntimeError, 'Cannot extract source from uninitialized SourceFile'
       end
 
       @source

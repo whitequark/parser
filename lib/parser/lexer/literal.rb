@@ -43,7 +43,7 @@ module Parser
       @str_s       = str_s
 
       # Data buffer.
-      @buffer      = ""
+      @buffer      = ''
       # Start of the current chunk in data buffer.
       @buffer_s    = nil
 
@@ -158,7 +158,7 @@ module Parser
           emit(:tSPACE, nil, @buffer_e, @buffer_e + 1)
         end
 
-        @buffer   = ""
+        @buffer   = ''
         @buffer_s = nil
         @buffer_e = nil
       end
