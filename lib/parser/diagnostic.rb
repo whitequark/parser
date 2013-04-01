@@ -15,7 +15,13 @@ module Parser
       @level       = level
       @message     = message.to_s.dup.freeze
       @source_file = source_file
-      @ranges      = Array(ranges).dup.freeze
+
+      # Array(...) converts a range to an array of elements.
+      unless ranges.respond_to? :to_ary
+        ranges = [ranges]
+      end
+
+      @ranges      = ranges.dup.freeze
 
       freeze
     end
