@@ -8,8 +8,14 @@ class TestDiagnostic < MiniTest::Unit::TestCase
   end
 
   def test_verifies_levels
-    assert_raises ArgumentError do
-      Parser::Diagnostic.new(:foobar, "foo", @sfile, [])
+    assert_raises ArgumentError, /level/ do
+      Parser::Diagnostic.new(:foobar, "foo", @sfile, 1..2)
+    end
+  end
+
+  def test_verifies_ranges
+    assert_raises ArgumentError, /range/ do
+      Parser::Diagnostic.new(:error, "foo", @sfile, [])
     end
   end
 
