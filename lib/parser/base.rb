@@ -1,19 +1,32 @@
 module Parser
   class Base < Racc::Parser
     def self.parse(string, file='(string)', line=1)
+      parser = new
+
+      parser.diagnostics.all_errors_are_fatal = true
+
+      # Temporary, for manual testing convenience
+      parser.diagnostics.consumer = ->(diagnostic) do
+        $stderr.puts(diagnostic.render)
+      end
+
       source_file = SourceFile.new(file, line)
       source_file.source = string
 
-      new.parse(source_file)
+      parser.parse(source_file)
     end
 
+    attr_reader :diagnostics
     attr_reader :static_env
 
     def initialize(builder=Parser::Builders::Sexp.new)
-      @static_env = StaticEnvironment.new
+      @diagnostics = DiagnosticsEngine.new
+
+      @static_env  = StaticEnvironment.new
 
       @lexer = Lexer.new(version)
-      @lexer.static_env = @static_env
+      @lexer.diagnostics = @diagnostics
+      @lexer.static_env  = @static_env
 
       @builder = builder
       @builder.parser = self
@@ -36,8 +49,8 @@ module Parser
     end
 
     def parse(source_file)
-      @source_file  = source_file
-      @lexer.source = source_file.source
+      @source_file       = source_file
+      @lexer.source_file = source_file
 
       do_parse
     end

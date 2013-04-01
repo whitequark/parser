@@ -27,13 +27,15 @@ module Parser::Builders
       t(token, :lit, value(token).to_sym)
     end
 
-    def build_integer(token, negate=false)
+    def build_numeric(token, negate=false)
       val = value(token)
       val = -val if negate
 
       t(token, :lit, val)
     end
-    alias build_float build_integer
+
+    alias build_integer build_numeric
+    alias build_float   build_numeric
 
     def build_readable(node)
       case node.type
