@@ -30,11 +30,11 @@ module Parser
       # Array(...) converts a range to an array of elements.
       # We probably need an #is_a?(Range) check here, but I dislike
       # type snooping in Ruby.
-      unless ranges.respond_to? :to_ary
+      unless ranges.respond_to?(:to_ary)
         ranges = [ranges]
       end
 
-      ranges       = ranges.sort_by &:begin
+      ranges       = ranges.sort_by(&:begin)
 
       # Refactor this?
       positions    = ranges.map { |r| [r.begin, r.end] }.reduce([], :+)
