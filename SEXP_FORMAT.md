@@ -4,14 +4,9 @@ Location and Sexp RFC
 # Open questions:
 
 * Open close markers for delimited literals (regexp, string)?
-  I think the parser would benefit from having them on the longerm.
-  Especially regexp can be very tricky.
+  The parser would benefit from having them on the longerm.  Especially regexp can be very tricky.
 
-* Format of this document is far from perfect ;)
-
-* How I can publish a secret gist?
-
-* This is a pure RFC from how I like ASTs / Sexp from my consuming POV.
+* Format of this document is far from perfect.
 
 ## Literal
 
