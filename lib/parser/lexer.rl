@@ -234,13 +234,9 @@ class Parser::Lexer
     emit(table[value], value, s, e)
   end
 
-  def diagnostic(type, message, *ranges)
-    ranges = [range()] if ranges.empty?
-
-    diagnostic = Parser::Diagnostic.
-                    new(type, message, @source_file, ranges)
-
-    @diagnostics.process(diagnostic)
+  def diagnostic(type, message, location=range, highlights=[])
+    @diagnostics.process(
+        Parser::Diagnostic.new(type, message, location, highlights))
   end
 
   #
@@ -1659,7 +1655,8 @@ class Parser::Lexer
 
       c_eof
       => {
-        diagnostic :fatal, "embedded document meats end of file (and they embark on a romantic journey)"
+        # TODO better location information here
+        diagnostic :fatal, "embedded document meats end of file (and they embark on a romantic journey)", range(p - 1, p)
       };
   *|;
 
