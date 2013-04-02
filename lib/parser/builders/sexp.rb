@@ -21,8 +21,8 @@ module Parser::Builders
     def build_cvar(token);  t(token, :cvar,  value(token).to_sym); end
     def build_const(token); t(token, :const, value(token).to_sym); end
 
-    def build_back_ref(token); t(token, :back_ref, value(token)); end
-    def build_nth_ref(token);  t(token, :nth_ref,  value(token)); end
+    def build_back_ref(token); t(token, :back_ref, value(token).to_sym); end
+    def build_nth_ref(token);  t(token, :nth_ref,  value(token).to_sym); end
 
     def build_func_name(token)
       t(token, :lit, value(token).to_sym)
@@ -62,27 +62,30 @@ module Parser::Builders
         else
           node.updated(:cvdecl)
         end
+
       when :ivar
         node.updated(:iasgn)
+
       when :gvar
         node.updated(:gasgn)
+
       when :const
         node.updated(:cdecl)
+
       when :ident
         name, = *node
         @parser.static_env.declare(name)
 
         node.updated(:lasgn)
+
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
         message = Parser::ERRORS[:invalid_assignment] % { node: node.type }
         diagnostic :error, message, node.loc
 
-        node.updated(:lasgn)
       when :back_ref, :nth_ref
         message = Parser::ERRORS[:backref_assignment]
         diagnostic :error, message, node.loc
 
-        node.updated(:gasgn)
       else
         raise NotImplementedError, "build_assignable #{node.inspect}"
       end
@@ -92,16 +95,25 @@ module Parser::Builders
       case lhs.type
       when :gasgn, :iasgn, :lasgn, :masgn, :cdecl, :cvdecl, :cvasgn
         lhs << rhs
+
       when :attrasgn, :call
         raise NotImplementedError
+
       when :const
         (lhs << rhs).updated(:cdecl)
+
       else
         raise NotImplementedError, "build_assign #{lhs.inspect}"
       end
     end
 
     def build_alias(token, to, from)
+      case from.type
+      when :nth_ref
+        message = Parser::ERRORS[:nth_ref_alias]
+        diagnostic :error, message, from.loc
+      end
+
       t(token, :alias, to, from)
     end
 
@@ -109,6 +121,7 @@ module Parser::Builders
       case type
       when :return, :break, :next, :redo, :retry, :yield, :defined
         t(token, type, *args)
+
       else
         raise NotImplementedError, "build_keyword_cmd #{type} #{args.inspect}"
       end
@@ -145,6 +158,10 @@ module Parser::Builders
     def diagnostic(type, message, location, highlights=[])
       @parser.diagnostics.process(
           Parser::Diagnostic.new(type, message, location, highlights))
+
+      if type == :error
+        @parser.yyerror
+      end
     end
   end
 end

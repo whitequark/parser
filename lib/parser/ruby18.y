@@ -97,7 +97,9 @@ rule
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
-                      syntax_error(:nth_ref_alias, [val[2]])
+                      result = @builder.build_alias(val[0],
+                                  @builder.build_gvar(val[1]),
+                                  @builder.build_nth_ref(val[2]))
                     }
                 | kUNDEF undef_list
                     {
@@ -125,7 +127,7 @@ rule
                     }
                 | klBEGIN
                     {
-                      syntax_error(:begin_in_method, [val[0]]) if in_def?
+                      syntax_error(:begin_in_method, val[0]) if in_def?
 
                       @static_env.extend
                     }
@@ -136,7 +138,7 @@ rule
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
-                      syntax_error(:end_in_method, [val[0]]) if in_def?
+                      syntax_error(:end_in_method, val[0]) if in_def?
 
                       result = new_iter s(:postexe), nil, val[2]
                     }
@@ -356,7 +358,7 @@ rule
 
        mlhs_node: variable
                     {
-                      result = assignable val[0]
+                      result = @builder.build_assignable(val[0])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
@@ -388,7 +390,7 @@ rule
                     }
                 | backref
                     {
-                      syntax_error(:backref_assignment, [val[0]])
+                      result = @builder.build_assignable(val[0])
                     }
 
              lhs: variable
@@ -430,7 +432,7 @@ rule
 
            cname: tIDENTIFIER
                     {
-                      syntax_error(:module_name_const, [val[0]])
+                      syntax_error(:module_name_const, val[0])
                     }
                 | tCONSTANT
 
@@ -1094,7 +1096,7 @@ rule
                       result = new_defn val
 
                       @static_env.unextend
-                      @def_level -= false
+                      @def_level -= 1
                       @lexer.clear_comments
                     }
                 | kDEF singleton dot_or_colon
@@ -1625,19 +1627,19 @@ xstring_contents: none
 
       f_norm_arg: tCONSTANT
                     {
-                      yyerror "formal argument cannot be a constant"
+                      syntax_error(:argument_const, val[0])
                     }
                 | tIVAR
                     {
-                      yyerror "formal argument cannot be an instance variable"
+                      syntax_error(:argument_ivar, val[0])
                     }
                 | tGVAR
                     {
-                      yyerror "formal argument cannot be a global variable"
+                      syntax_error(:argument_gvar, val[0])
                     }
                 | tCVAR
                     {
-                      yyerror "formal argument cannot be a class variable"
+                      syntax_error(:argument_cvar, val[0])
                     }
                 | tIDENTIFIER
                     {

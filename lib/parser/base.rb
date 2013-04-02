@@ -27,6 +27,8 @@ module Parser
 
       @static_env  = StaticEnvironment.new
 
+      @comments    = []
+
       @lexer = Lexer.new(version)
       @lexer.diagnostics = @diagnostics
       @lexer.static_env  = @static_env
@@ -82,31 +84,29 @@ module Parser
       @lexer.advance
     end
 
-    def syntax_error(kind, tokens)
-      ranges = tokens.map do |token|
-        value, range = token
+    def syntax_error(kind, location_tok, highlights_tok=[])
+      _, location = location_tok
+
+      highlights = highlights_tok.map do |token|
+        _, range = token
         range
       end
 
-      message    = Parser::ERRORS[kind]
-      diagnostic = Diagnostic.new(:error, message,
-                                  @source_file, ranges)
-
-      @diagnostics.process(diagnostic)
+      message = Parser::ERRORS[kind]
+      @diagnostics.process(
+          Diagnostic.new(:error, message, location, highlights))
 
       yyerror
     end
 
     def on_error(error_token_id, error_value, value_stack)
       token_name = token_to_str(error_token_id)
-      _, token_range = error_value
+      _, location = error_value
 
       # TODO add "expected: ..." here
-      message    = Parser::ERRORS[:unexpected_token] % { token: token_name }
-      diagnostic = Diagnostic.new(:error, message,
-                                  @source_file, [token_range])
-
-      @diagnostics.process(diagnostic)
+      message = Parser::ERRORS[:unexpected_token] % { token: token_name }
+      @diagnostics.process(
+          Diagnostic.new(:error, message, location))
     end
   end
 end

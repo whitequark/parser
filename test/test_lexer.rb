@@ -269,10 +269,10 @@ class TestLexer < MiniTest::Unit::TestCase
   def test_yylex_back_ref
     util_lex_token("[$&, $`, $', $+]",
                    :tLBRACK,   "[",
-                   :tBACK_REF, :"&", :tCOMMA, ",",
-                   :tBACK_REF, :"`", :tCOMMA, ",",
-                   :tBACK_REF, :"'", :tCOMMA, ",",
-                   :tBACK_REF, :"+",
+                   :tBACK_REF, "$&", :tCOMMA, ",",
+                   :tBACK_REF, "$`", :tCOMMA, ",",
+                   :tBACK_REF, "$'", :tCOMMA, ",",
+                   :tBACK_REF, "$+",
                    :tRBRACK,   "]")
   end
 
@@ -592,7 +592,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_global_backref
-    util_lex_token("$`", :tBACK_REF, :`)
+    util_lex_token("$`", :tBACK_REF, "$`")
   end
 
   def test_yylex_global_dash_nothing
@@ -604,7 +604,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_global_number
-    util_lex_token("$10", :tNTH_REF, 10)
+    util_lex_token("$10", :tNTH_REF, "$10")
   end
 
   def test_yylex_global_other
@@ -1084,17 +1084,11 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_nth_ref
-    util_lex_token('[$1, $2, $3, $4, $5, $6, $7, $8, $9]',
+    util_lex_token('[$1, $2, $3]',
                    :tLBRACK,  "[",
-                   :tNTH_REF, 1, :tCOMMA, ",",
-                   :tNTH_REF, 2, :tCOMMA, ",",
-                   :tNTH_REF, 3, :tCOMMA, ",",
-                   :tNTH_REF, 4, :tCOMMA, ",",
-                   :tNTH_REF, 5, :tCOMMA, ",",
-                   :tNTH_REF, 6, :tCOMMA, ",",
-                   :tNTH_REF, 7, :tCOMMA, ",",
-                   :tNTH_REF, 8, :tCOMMA, ",",
-                   :tNTH_REF, 9,
+                   :tNTH_REF, "$1", :tCOMMA, ",",
+                   :tNTH_REF, "$2", :tCOMMA, ",",
+                   :tNTH_REF, "$3",
                    :tRBRACK,  "]")
   end
 

@@ -51,6 +51,10 @@ module Parser
     invalid_assignment:      "cannot assign to %{node}",
     module_name_const:       "class or module name must be a constant literal",
     unexpected_token:        "unexpected token %{token}",
+    argument_const:          "formal argument cannot be a constant",
+    argument_ivar:           "formal argument cannot be an instance variable",
+    argument_gvar:           "formal argument cannot be a global variable",
+    argument_cvar:           "formal argument cannot be a class variable",
   }
 
   ERRORS.default_proc = ->(hash, key) do
