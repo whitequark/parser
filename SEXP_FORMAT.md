@@ -113,7 +113,7 @@ This is very close to RBX, inner nodes are strings rather regexp.
 This way we avoid inner options!
 
 ```
-(dregexp (regopt :i) (lit "source") (lvar foo))
+(dregexp (regopt :i) (lit "source") (lvar bar))
 "/foo#{bar}/i"
  ~~~~~~~~~~ expression
 ```
