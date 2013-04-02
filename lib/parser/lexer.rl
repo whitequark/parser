@@ -470,7 +470,7 @@ class Parser::Lexer
       if codepoint >= 0x110000
         @escape = lambda do
           # TODO better location reporting
-          diagnostic :error, "invalid Unicode codepoint (too large)",
+          diagnostic :error, Parser::ERRORS[:unicode_point_too_large],
                      range(@escape_s, p)
         end
 
@@ -491,7 +491,7 @@ class Parser::Lexer
 
   action invalid_complex_escape {
     @escape = lambda do
-      diagnostic :error, "invalid escape character syntax"
+      diagnostic :error, Parser::ERRORS[:invalid_escape]
     end
   }
 
@@ -531,7 +531,7 @@ class Parser::Lexer
     | 'x' ( c_any - xdigit )
       % {
         @escape = lambda do
-          diagnostic :error, "invalid hex escape",
+          diagnostic :error, Parser::ERRORS[:invalid_hex_escape],
                      range(@escape_s - 1, p + 2)
         end
       }
@@ -546,7 +546,7 @@ class Parser::Lexer
           )
       % {
         @escape = lambda do
-          diagnostic :error, "invalid Unicode escape",
+          diagnostic :error, Parser::ERRORS[:invalid_unicode_escape],
                      range(@escape_s - 1, p)
         end
       }
@@ -560,7 +560,7 @@ class Parser::Lexer
         | xdigit{7,}
         ) % {
           @escape = lambda do
-            diagnostic :fatal, "unterminated Unicode escape",
+            diagnostic :fatal, Parser::ERRORS[:unterminated_unicode],
                        range(p - 1, p)
           end
         }
@@ -588,7 +588,7 @@ class Parser::Lexer
     | ( c_any - [0-7xuCMc] ) %unescape_char
 
     | c_eof % {
-      diagnostic :fatal, "escape sequence meets end of file",
+      diagnostic :fatal, Parser::ERRORS[:escape_eof],
                  range(p - 1, p)
     }
   );
@@ -720,7 +720,7 @@ class Parser::Lexer
     end
 
     if is_eof
-      diagnostic :fatal, "unterminated string meets end of file",
+      diagnostic :fatal, Parser::ERRORS[:string_eof],
                  range(literal.str_s, literal.str_s + 1)
     end
 
@@ -837,7 +837,8 @@ class Parser::Lexer
       => {
         unknown_options = tok.scan(/[^imxouesn]/)
         if unknown_options.any?
-          diagnostic :error, "unknown regexp options: #{unknown_options.join}"
+          message = Parser::ERRORS[:regexp_options] % { options: unknown_options.join }
+          diagnostic :error, message
         end
 
         emit(:tREGEXP_OPT)
@@ -908,7 +909,8 @@ class Parser::Lexer
       class_var_v
       => {
         if tok =~ /^@@[0-9]/
-          diagnostic :error, "`#{tok}' is not allowed as a class variable name"
+          message = Parser::ERRORS[:cvar_name] % { name: tok }
+          diagnostic :error, message
         end
 
         emit(:tCVAR)
@@ -918,7 +920,8 @@ class Parser::Lexer
       instance_var_v
       => {
         if tok =~ /^@[0-9]/
-          diagnostic :error, "`#{tok}' is not allowed as an instance variable name"
+          message = Parser::ERRORS[:ivar_name] % { name: tok }
+          diagnostic :error, message
         end
 
         emit(:tIVAR)
@@ -1054,7 +1057,7 @@ class Parser::Lexer
       # Ambiguous unary operator or regexp literal.
       c_space+ [+\-/]
       => {
-        diagnostic :warning, "ambiguous first argument; put parentheses or even spaces",
+        diagnostic :warning, Parser::ERRORS[:ambiguous_literal],
                    range(@te - 1, @te)
 
         fhold; fhold; fgoto expr_beg;
@@ -1064,8 +1067,8 @@ class Parser::Lexer
       # Ambiguous splat or block-pass.
       c_space+ [*&]
       => {
-        what = tok(@te - 1, @te)
-        diagnostic :warning, "`#{what}' interpreted as argument prefix",
+        message = Parser::ERRORS[:ambiguous_prefix] % { prefix: tok(@te - 1, @te) }
+        diagnostic :warning, message,
                    range(@te - 1, @te)
 
         fhold; fgoto expr_beg;
@@ -1216,7 +1219,7 @@ class Parser::Lexer
 
       '%' c_eof
       => {
-        diagnostic :fatal, "unterminated string meets end of file",
+        diagnostic :fatal, Parser::ERRORS[:string_eof],
                    range(@ts, @ts + 1)
       };
 
@@ -1270,7 +1273,8 @@ class Parser::Lexer
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
                    "\v" => '\v', "\f" => '\f' }[tok[@ts + 1]]
-        diagnostic :warning, "invalid character syntax; use ?#{escape}",
+        message = Parser::ERRORS[:invalid_escape_use] % { escape: escape }
+        diagnostic :warning, message,
                    range(@ts, @ts + 1)
 
         p = @ts - 1
@@ -1279,7 +1283,7 @@ class Parser::Lexer
 
       '?' c_eof
       => {
-        diagnostic :fatal, "incomplete character syntax",
+        diagnostic :fatal, Parser::ERRORS[:incomplete_escape],
                    range(@ts, @ts + 1)
       };
 
@@ -1478,16 +1482,16 @@ class Parser::Lexer
         digits = tok(@num_digits_s)
 
         if digits.end_with? '_'
-          diagnostic :error, "trailing `_' in number",
+          diagnostic :error, Parser::ERRORS[:trailing_underscore],
                      range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
           digits = "0"
         elsif digits.empty?
-          diagnostic :error, "numeric literal without digits"
+          diagnostic :error, Parser::ERRORS[:empty_numeric]
         elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
           invalid_s = @num_digits_s + invalid_idx
-          diagnostic :error, "invalid octal digit",
+          diagnostic :error, Parser::ERRORS[:invalid_octal],
                      range(invalid_s, invalid_s + 1)
         end
 
@@ -1506,7 +1510,7 @@ class Parser::Lexer
       )
       => {
         if tok.start_with? '.'
-          diagnostic :error, "no .<digit> floating literal anymore; put 0 before dot"
+          diagnostic :error, Parser::ERRORS[:no_dot_digit_literal]
         elsif tok =~ /^[eE]/
           # The rule above allows to specify floats as just `e10', which is
           # certainly not a float. Send a patch if you can do this better.
@@ -1603,7 +1607,7 @@ class Parser::Lexer
       '\\' e_heredoc_nl;
 
       '\\' ( any - c_nl ) {
-        diagnostic :error, "bare backslash only allowed before newline",
+        diagnostic :error, Parser::ERRORS[:bare_backslash],
                    range(@ts, @ts + 1)
         fhold;
       };
@@ -1622,7 +1626,8 @@ class Parser::Lexer
 
       c_any
       => {
-        diagnostic :fatal, "unexpected #{tok.inspect}"
+        message = Parser::ERRORS[:unexpected] % { character: tok.inspect }
+        diagnostic :fatal, message
       };
 
       c_eof => do_eof;
@@ -1656,7 +1661,7 @@ class Parser::Lexer
       c_eof
       => {
         # TODO better location information here
-        diagnostic :fatal, "embedded document meats end of file (and they embark on a romantic journey)", range(p - 1, p)
+        diagnostic :fatal, Parser::ERRORS[:embedded_document], range(p - 1, p)
       };
   *|;
 
