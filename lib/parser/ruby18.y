@@ -97,9 +97,7 @@ rule
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
-                      result = @builder.build_alias(val[0],
-                                  @builder.build_gvar(val[1]),
-                                  @builder.build_nth_ref(val[2]))
+                      syntax_error(:nth_ref_alias, val[2])
                     }
                 | kUNDEF undef_list
                     {

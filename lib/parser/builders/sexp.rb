@@ -108,12 +108,6 @@ module Parser::Builders
     end
 
     def build_alias(token, to, from)
-      case from.type
-      when :nth_ref
-        message = Parser::ERRORS[:nth_ref_alias]
-        diagnostic :error, message, from.loc
-      end
-
       t(token, :alias, to, from)
     end
 
