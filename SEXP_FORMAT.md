@@ -150,7 +150,7 @@ This way we avoid inner options!
 ```
 (irange (lit 1) (lit 2))
 "(1..2)"
-  ~~~~ expression
+ ~~~~~ expression
 ```
 
 ##### Exclusive
@@ -158,7 +158,7 @@ This way we avoid inner options!
 ```
 (erange (lit 1) (lit 2))
 "(1...2)"
-  ~~~~~ expression
+ ~~~~~~ expression
 ```
 
 ## Binary operators (and or && ||)
@@ -212,7 +212,7 @@ This way we avoid inner options!
 ```
 (ivasgn :@foo (lvar :bar))
 "@foo = bar"
-     ^ assignment
+      ^ assignment
  ~~~~~~~~~~ expression
 ````
 
@@ -261,7 +261,7 @@ Used when defining methods / blocks.
 ```
 (args (arg :foo))
 "(foo)"
- ~~~~ expression
+ ~~~~~ expression
 ```
 
 ## argument (within formal arguments)
