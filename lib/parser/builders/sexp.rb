@@ -45,8 +45,8 @@ module Parser::Builders
         if @parser.static_env.declared?(name)
           node.updated(:lvar)
         else
-          node.updated(:call, [node])
-          #raise NotImplementedError, "make this a call"
+          name, = *node
+          node.updated(:call, [ nil, name ])
         end
       else
         node

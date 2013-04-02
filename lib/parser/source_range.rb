@@ -10,6 +10,41 @@ module Parser
       freeze
     end
 
+    def size
+      @end - @begin + 1
+    end
+
+    def line
+      line, _ = @source_file.decompose_position(@begin)
+
+      line
+    end
+
+    def begin_column
+      _, column = @source_file.decompose_position(@begin)
+
+      column
+    end
+
+    def end_column
+      _, column = @source_file.decompose_position(@end)
+
+      column
+    end
+
+    def column_range
+      begin_column..end_column
+    end
+
+    def source_line
+      @source_file.source_line(line)
+    end
+
+    def to_s
+      line, column = @source_file.decompose_position(@begin)
+      [@source_file.name, line, column + 1].join(':')
+    end
+
     def join(other)
       if other.source_file == @source_file
         SourceRange.new(@source_file,

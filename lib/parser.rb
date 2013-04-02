@@ -6,6 +6,7 @@ require 'ast'
 # Library namespace
 module Parser
   require 'parser/syntax_error'
+  require 'parser/source_range'
   require 'parser/source_file'
   require 'parser/diagnostic'
   require 'parser/diagnostics_engine'

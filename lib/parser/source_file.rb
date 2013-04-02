@@ -27,18 +27,14 @@ module Parser
       @source = source
     end
 
-    # TODO: add a variant of this function which handles tabulation.
-    # Replicating VT-52 features in 2013 :/
-    def position_to_line(position)
-      # Consider improving this naïve implementation.
-      line = source[0..position].lines.count - 1
+    def decompose_position(position)
+      line       = line_for(position)
+      line_begin = line_begin_positions[line]
 
-      mapped_line = line + @first_line
-
-      mapped_line
+      [ @first_line + line, position - line_begin ]
     end
 
-    def line(line)
+    def source_line(line)
       mapped_line = line - @first_line
 
       # Consider improving this naïve implementation.
@@ -50,6 +46,26 @@ module Parser
         source_line.chomp
       else
         source_line
+      end
+    end
+
+    private
+
+    def line_begin_positions
+      # TODO: Optimize this.
+      [0] + source.
+        each_char.
+        with_index.
+        select do |char, index|
+          char == "\n"
+        end.map do |char, index|
+          index + 1
+        end
+    end
+
+    def line_for(position)
+      line_begin_positions.rindex do |line_beg|
+        line_beg <= position
       end
     end
   end

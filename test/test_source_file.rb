@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require 'tempfile'
 require 'parser'
 
 class TestSourceFile < MiniTest::Unit::TestCase
@@ -36,35 +37,40 @@ class TestSourceFile < MiniTest::Unit::TestCase
     end
   end
 
-  def test_position_to_line
+  def test_line_begin_positions
     @sfile.source = "1\nfoo\nbar"
-
-    assert_equal 1, @sfile.position_to_line(0)
-    assert_equal 1, @sfile.position_to_line(1)
-    assert_equal 2, @sfile.position_to_line(2)
-    assert_equal 3, @sfile.position_to_line(7)
+    assert_equal [0, 2, 6], @sfile.send(:line_begin_positions)
   end
 
-  def test_position_to_line_mapped
+  def test_decompose_position
+    @sfile.source = "1\nfoo\nbar"
+
+    assert_equal [1, 0], @sfile.decompose_position(0)
+    assert_equal [1, 1], @sfile.decompose_position(1)
+    assert_equal [2, 0], @sfile.decompose_position(2)
+    assert_equal [3, 1], @sfile.decompose_position(7)
+  end
+
+  def test_decompose_position_mapped
     @sfile = Parser::SourceFile.new('(string)', 5)
     @sfile.source = "1\nfoo\nbar"
 
-    assert_equal 5, @sfile.position_to_line(0)
-    assert_equal 6, @sfile.position_to_line(2)
+    assert_equal [5, 0], @sfile.decompose_position(0)
+    assert_equal [6, 0], @sfile.decompose_position(2)
   end
 
   def test_line
     @sfile.source = "1\nfoo\nbar"
 
-    assert_equal "1", @sfile.line(1)
-    assert_equal "foo", @sfile.line(2)
+    assert_equal "1", @sfile.source_line(1)
+    assert_equal "foo", @sfile.source_line(2)
   end
 
   def test_line_mapped
     @sfile = Parser::SourceFile.new('(string)', 5)
     @sfile.source = "1\nfoo\nbar"
 
-    assert_equal "1", @sfile.line(5)
-    assert_equal "foo", @sfile.line(6)
+    assert_equal "1", @sfile.source_line(5)
+    assert_equal "foo", @sfile.source_line(6)
   end
 end

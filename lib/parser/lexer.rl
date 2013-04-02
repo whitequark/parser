@@ -192,9 +192,9 @@ class Parser::Lexer
     if @token_queue.any?
       @token_queue.shift
     elsif @cs == self.class.lex_error
-      [ false, [ '$error', p..p ] ]
+      [ false, [ '$error', range(p, p) ] ]
     else
-      [ false, [ '$eof',   p..p ] ]
+      [ false, [ '$eof',   range(p, p) ] ]
     end
   end
 
@@ -220,8 +220,12 @@ class Parser::Lexer
     @source[s...e]
   end
 
+  def range(s = @ts, e = @te)
+    Parser::SourceRange.new(@source_file, s, e - 1)
+  end
+
   def emit(type, value = tok, s = @ts, e = @te)
-    @token_queue << [ type, [ value, s...e ] ]
+    @token_queue << [ type, [ value, range(s, e) ] ]
   end
 
   def emit_table(table, s = @ts, e = @te)
@@ -231,7 +235,7 @@ class Parser::Lexer
   end
 
   def diagnostic(type, message, *ranges)
-    ranges = [@ts...@te] if ranges.empty?
+    ranges = [range()] if ranges.empty?
 
     diagnostic = Parser::Diagnostic.
                     new(type, message, @source_file, ranges)
@@ -470,7 +474,8 @@ class Parser::Lexer
       if codepoint >= 0x110000
         @escape = lambda do
           # TODO better location reporting
-          diagnostic :error, "invalid Unicode codepoint (too large)", @escape_s...p
+          diagnostic :error, "invalid Unicode codepoint (too large)",
+                     range(@escape_s, p)
         end
 
         break
@@ -530,7 +535,8 @@ class Parser::Lexer
     | 'x' ( c_any - xdigit )
       % {
         @escape = lambda do
-          diagnostic :error, "invalid hex escape", @escape_s - 1..p + 1
+          diagnostic :error, "invalid hex escape",
+                     range(@escape_s - 1, p + 2)
         end
       }
 
@@ -544,7 +550,8 @@ class Parser::Lexer
           )
       % {
         @escape = lambda do
-          diagnostic :error, "invalid Unicode escape", @escape_s - 1...p
+          diagnostic :error, "invalid Unicode escape",
+                     range(@escape_s - 1, p)
         end
       }
 
@@ -557,7 +564,8 @@ class Parser::Lexer
         | xdigit{7,}
         ) % {
           @escape = lambda do
-            diagnostic :fatal, "unterminated Unicode escape", p - 1...p
+            diagnostic :fatal, "unterminated Unicode escape",
+                       range(p - 1, p)
           end
         }
       )
@@ -584,7 +592,8 @@ class Parser::Lexer
     | ( c_any - [0-7xuCMc] ) %unescape_char
 
     | c_eof % {
-      diagnostic :fatal, "escape sequence meets end of file", p - 1...p
+      diagnostic :fatal, "escape sequence meets end of file",
+                 range(p - 1, p)
     }
   );
 
@@ -716,7 +725,7 @@ class Parser::Lexer
 
     if is_eof
       diagnostic :fatal, "unterminated string meets end of file",
-                 literal.str_s..literal.str_s
+                 range(literal.str_s, literal.str_s + 1)
     end
 
     # A literal newline is appended if the heredoc was _not_ closed
@@ -1049,9 +1058,8 @@ class Parser::Lexer
       # Ambiguous unary operator or regexp literal.
       c_space+ [+\-/]
       => {
-        diagnostic :warning,
-                   "ambiguous first argument; put parentheses or even spaces",
-                   @te - 1...@te
+        diagnostic :warning, "ambiguous first argument; put parentheses or even spaces",
+                   range(@te - 1, @te)
 
         fhold; fhold; fgoto expr_beg;
       };
@@ -1061,9 +1069,8 @@ class Parser::Lexer
       c_space+ [*&]
       => {
         what = tok(@te - 1, @te)
-        diagnostic :warning,
-                   "`#{what}' interpreted as argument prefix",
-                   @te - 1...@te
+        diagnostic :warning, "`#{what}' interpreted as argument prefix",
+                   range(@te - 1, @te)
 
         fhold; fgoto expr_beg;
       };
@@ -1213,7 +1220,8 @@ class Parser::Lexer
 
       '%' c_eof
       => {
-        diagnostic :fatal, "unterminated string meets end of file", @ts..@ts
+        diagnostic :fatal, "unterminated string meets end of file",
+                   range(@ts, @ts + 1)
       };
 
       # Heredoc start.
@@ -1266,7 +1274,8 @@ class Parser::Lexer
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
                    "\v" => '\v', "\f" => '\f' }[tok[@ts + 1]]
-        diagnostic :warning, "invalid character syntax; use ?#{escape}", @ts..@ts
+        diagnostic :warning, "invalid character syntax; use ?#{escape}",
+                   range(@ts, @ts + 1)
 
         p = @ts - 1
         fgoto expr_end;
@@ -1274,7 +1283,8 @@ class Parser::Lexer
 
       '?' c_eof
       => {
-        diagnostic :fatal, "incomplete character syntax", @ts..@ts
+        diagnostic :fatal, "incomplete character syntax",
+                   range(@ts, @ts + 1)
       };
 
       # f ?aa : b: Disambiguate with a character literal.
@@ -1472,15 +1482,17 @@ class Parser::Lexer
         digits = tok(@num_digits_s)
 
         if digits.end_with? '_'
-          diagnostic :error, "trailing `_' in number", @te - 1...@te
+          diagnostic :error, "trailing `_' in number",
+                     range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
           digits = "0"
         elsif digits.empty?
           diagnostic :error, "numeric literal without digits"
         elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
-          range = (@num_digits_s + invalid_idx)..(@num_digits_s + invalid_idx)
-          diagnostic :error, "invalid octal digit", range
+          invalid_s = @num_digits_s + invalid_idx
+          diagnostic :error, "invalid octal digit",
+                     range(invalid_s, invalid_s + 1)
         end
 
         emit(:tINTEGER, digits.to_i(@num_base))
@@ -1595,7 +1607,8 @@ class Parser::Lexer
       '\\' e_heredoc_nl;
 
       '\\' ( any - c_nl ) {
-        diagnostic :error, "bare backslash only allowed before newline", @ts...@ts + 1
+        diagnostic :error, "bare backslash only allowed before newline",
+                   range(@ts, @ts + 1)
         fhold;
       };
 

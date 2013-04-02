@@ -3,10 +3,10 @@ module Parser
   class Diagnostic
     LEVELS = [:note, :warning, :error, :fatal].freeze
 
-    attr_reader :source_file
-    attr_reader :level, :message, :ranges, :line
+    attr_reader :level, :message
+    attr_reader :location, :highlights
 
-    def initialize(level, message, source_file, ranges)
+    def initialize(level, message, location, highlights=[])
       unless LEVELS.include?(level)
         raise ArgumentError,
               "Diagnostic#level must be one of #{LEVELS.join(', ')}; " \
@@ -15,64 +15,29 @@ module Parser
 
       @level       = level
       @message     = message.to_s.dup.freeze
-      @source_file = source_file
-
-      # Array(...) converts a range to an array of elements.
-      # We probably need an #is_a?(Range) check here, but I dislike
-      # type snooping in Ruby.
-      unless ranges.respond_to?(:to_ary)
-        ranges = [ranges]
-      end
-
-      if ranges.empty?
-        raise ArgumentError,
-              'Cannot create a Diagnostic without source locations.'
-      end
-
-      ranges       = ranges.sort_by(&:begin)
-
-      # Refactor this?
-      positions    = ranges.map { |r| [r.begin, r.end] }.reduce([], :+)
-      unique_lines = positions.map { |pos| @source_file.position_to_line(pos) }.uniq
-
-      if unique_lines.count > 1
-        raise ArgumentError,
-              'Cannot create a Diagnostic which spans over multiple source lines.'
-      end
-
-      @ranges      = ranges.dup.freeze
-      @line        = unique_lines.first
+      @location    = location
+      @highlights  = highlights.dup.freeze
 
       freeze
     end
 
     def render
-      highlight_length   = ranges.map(&:end).max
-      highlight_pointers = ' ' * highlight_length
+      source_line    = @location.source_line
+      highlight_line = ' ' * source_line.length
 
-      spans, points = ranges.partition { |range| range_size(range) > 1 }
-
-      spans.each do |span|
-        highlight_pointers[span] = '~' * range_size(span)
+      @highlights.each do |hilight|
+        range = hilight.column_range
+        highlight_line[range] = '~' * hilight.size
       end
 
-      points.each do |point|
-        highlight_pointers[point] = '^'
-      end
+      range = @location.column_range
+      highlight_line[range] = '^' * @location.size
 
       [
-        "#{@source_file.name}:#{@line}:#{@ranges.first.begin + 1}: " \
-          "#{@level}: #{@message}",
-        @source_file.line(@line),
-        highlight_pointers,
+        "#{@location.to_s}: #{@level}: #{@message}",
+        source_line,
+        highlight_line,
       ]
-    end
-
-    private
-
-    # Replace call sites with #size once we don't support 1.9.x anymore.
-    def range_size(range)
-      range.max - range.min + 1
     end
   end
 
