@@ -74,7 +74,7 @@ Also the pure symbols make sense. It helps not to leak regexp internals into the
 Format:
 
 ```
-(regexp "source" (regopt :i :m))
+(regexp (regopt :i :m) "source")
 "/source/im"
  ~~~~~~~~~~ expression
 ```
@@ -113,7 +113,7 @@ This is very close to RBX, inner nodes are strings rather regexp.
 This way we avoid inner options!
 
 ```
-(dregexp (lit "source") (lvar foo) (regopt :i))
+(dregexp (regopt :i) (lit "source") (lvar foo))
 "/foo#{bar}/i"
  ~~~~~~~~~~ expression
 ```
