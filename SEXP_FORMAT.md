@@ -258,16 +258,6 @@ For `||= &&= *= /= += %= -=`
  ~~~~~~~~~~~~~~~ expression
 ```
 
-## Arguments Lists
-
-Used when sending messages
-
-```
-(arglist (lit 1) lit(2))
-"(1, 2)"
- ~~~~~~ expression
-```
-
 ## Formal Arguments
 
 Used when defining methods / blocks.
@@ -381,7 +371,7 @@ TODO: rename to block-reference and also use as block-capture?
 #### With arguments
 
 ```
-(send nil :foo (arglist (lvar :bar)))
+(send nil :foo (lvar :bar))
 "foo(bar)"
  ~~~ selector
  ~~~~~~~~ expression
@@ -392,7 +382,7 @@ TODO: rename to block-reference and also use as block-capture?
 #### Without arguments
 
 ```
-(send (lvar :foo) :bar nil)
+(send (lvar :foo) :bar)
 "foo.bar"
      ~~~ selector
  ~~~~~~~ expression
