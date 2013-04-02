@@ -31,12 +31,8 @@ Location and Sexp RFC
 ```
 (lit "foo")
 "'foo'"
- ^ open
-     ^ close
  ~~~~~ expresion
 ```
-
-TODO: With open close tracking? Would be nice to to_source!
 
 #### Singletons
 
@@ -265,8 +261,6 @@ Used when defining methods / blocks.
 ```
 (args (arg :foo))
 "(foo)"
- ^ open
-     ^ close
  ~~~~ expression
 ```
 
