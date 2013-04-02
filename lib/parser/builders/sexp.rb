@@ -1,7 +1,8 @@
 module Parser
   class Sexp < AST::Node
-    attr_reader :line, :first_column, :last_column
-    alias :column :first_column
+    attr_reader :location
+
+    alias loc location
   end
 end
 
@@ -73,12 +74,15 @@ module Parser::Builders
 
         node.updated(:lasgn)
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
-        # TODO figure out locations in nodes. SourceLocation?
         message = Parser::ERRORS[:invalid_assignment] % { node: node.type }
-        diagnostic :error, message, [1..1]
+        diagnostic :error, message, node.loc
+
+        node.updated(:lasgn)
       when :back_ref, :nth_ref
         message = Parser::ERRORS[:backref_assignment]
-        diagnostic :error, message, [1..1]
+        diagnostic :error, message, node.loc
+
+        node.updated(:gasgn)
       else
         raise NotImplementedError, "build_assignable #{node.inspect}"
       end
@@ -117,12 +121,7 @@ module Parser::Builders
     protected
 
     def t(token, type, *args)
-      line, first_col, last_col = *location(token)
-
-      s(type, *args,
-        line:         line,
-        first_column: first_col,
-        last_column:  last_col)
+      s(type, *args, location: location(token))
     end
 
     def value(token)
@@ -143,11 +142,9 @@ module Parser::Builders
       Parser::Sexp.new(type, args, metadata)
     end
 
-    def diagnostic(type, message, ranges)
-      diagnostic = Parser::Diagnostic.new(type, message,
-                                  @parser.source_file, ranges)
-
-      @parser.diagnostics.process(diagnostic)
+    def diagnostic(type, message, location, highlights=[])
+      @parser.diagnostics.process(
+          Parser::Diagnostic.new(type, message, location, highlights))
     end
   end
 end

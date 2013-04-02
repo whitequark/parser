@@ -64,6 +64,7 @@ module Parser
     end
 
     def line_for(position)
+      # TODO: Optimize this.
       line_begin_positions.rindex do |line_beg|
         line_beg <= position
       end
