@@ -3,39 +3,22 @@ Location and Sexp RFC
 
 # Open questions:
 
-* Open close markers for delimited literals (regexp, string)?
-  The parser would benefit from having them on the longerm.  Especially regexp can be very tricky.
+ * None?
 
-* Format of this document is far from perfect.
+## Literals
 
-## Literal
+### Self
 
-### Primitive
-
-#### Integer
-
+Format:
 ```
-(lit 123)
-"123"
- ~~~ expression
-```
-#### Float
-```
-(lit 1.0)
-"1.0"
- ~~~ expression
+(self)
+"self"
+ ~~~~ expression
 ```
 
-#### String
+### Singletons
 
-```
-(lit "foo")
-"'foo'"
- ~~~~~ expresion
-```
-
-#### Singletons
-
+Format:
 ```
 (true)
 "true"
@@ -50,130 +33,194 @@ Location and Sexp RFC
  ~~~ expression
 ```
 
-### Regexp options
+### Integer
 
-IMHO it makes sense to have an regexp options node.
-Ruby regexp options are complex and under documented.
+Format:
+```
+(int 123)
+"123"
+ ~~~ expression
+```
 
-https://github.com/mbj/to_source/blob/master/lib/to_source/emitter/literal/regexp/options.rb#L5-L28
+### Float
 
-Also the pure symbols make sense. It helps not to leak regexp internals into the lexer.
+Format:
+```
+(float 1.0)
+"1.0"
+ ~~~ expression
+```
 
+### String
+
+#### Plain
+
+Format:
+```
+(str "foo")
+"'foo'"
+ ^ begin
+     ^ end
+ ~~~~~ expresion
+```
+
+#### With interpolation
+
+Format:
+```
+(dstr (str "foo") (lvar bar) (str "baz"))
+'"foo#{bar}baz"'
+ ^ begin      ^ end
+ ~~~~~~~~~~~~~~ expression
+```
+
+### Execute-string
+
+#### Plain
+
+Format:
+```
+(xstr "foo")
+"`foo`"
+ ^ begin
+     ^ end
+ ~~~~~ expression
+```
+
+#### With interpolation
+
+Format:
+```
+(dxstr (str "foo") (lvar bar))
+"`foo#{bar}`"
+ ^ begin   ^ end
+ ~~~~~~~~~~~ expression
+```
+
+### Regexp
+
+#### Options
+
+Format:
 ```
 (regopt :i :m)
 "im"
  ~~ expression
 ```
 
-### Regexp
+#### Plain
 
 Format:
-
 ```
 (regexp (regopt :i :m) "source")
 "/source/im"
+ ^ begin
+        ^ end
  ~~~~~~~~~~ expression
 ```
 
-### Execute-string
+#### With interpolation
 
 Format:
-
 ```
-(xstr "foo")
-"`foo`"
- ~~~~~ expression
-```
-
-### Dynamic
-
-#### String
-
-```
-(dstr (lit "foo") (lvar bar) (lit "baz"))
-'"foo#{bar}baz"'
- ~~~~~~~~~~~~~~ expression
-```
-
-#### Execute-string
-
-```
-(dxstr (lit "foo") (lvar bar))
-"`foo#{bar}`"
- ~~~~~~~~~~ expression
-```
-
-#### Regexp
-
-This is very close to RBX, inner nodes are strings rather regexp.
-This way we avoid inner options!
-
-```
-(dregexp (regopt :i) (lit "source") (lvar bar))
+(dregexp (regopt :i) (lit "foo") (lvar bar))
 "/foo#{bar}/i"
  ~~~~~~~~~~ expression
 ```
 
-### Compound
+### Array
 
-#### Array
+#### Plain
 
-##### Plain
+Format:
 ```
-(array (lit 1) (lit 2))
+(array (int 1) (int 2))
 
 "[1, 2]"
  ~~~~~~ expression
 ```
 
-##### With interpolation
+#### Splat
+
+Can also be used in argument lists: `foo(bar, *baz)`
+
+Format:
+```
+(splat (lvar :foo))
+"*foo"
+ ^ operator
+ ~~~~ expression
 
 ```
-(array (lit 1) (splat (lvar :foo)) (lit 2))
+
+#### With interpolation
+
+Format:
+```
+(array (int 1) (splat (lvar :foo)) (int 2))
 
 "[1, *foo, 2]"
+ ^ begin    ^ end
  ~~~~~~~~~~~~ expression
 ```
 
-#### Hash
+### Hash
 
+#### Plain
+
+Format:
 ```
-(hash (lit 1) (lit 2) (lit 3) (lit 4))
+(hash (int 1) (int 2) (int 3) (int 4))
 "{1 => 2, 3 => 4}"
+ ^ begin        ^ end
  ~~~~~~~~~~~~~~~~ expression
 ```
 
-#### Range
+#### Keyword splat (2.0)
 
-##### Inclusive
+Can also be used in argument lists: `foo(bar, **baz)`
 
+Format:
 ```
-(irange (lit 1) (lit 2))
-"(1..2)"
+(kwsplat (lvar :foo))
+"**foo"
+ ~~ operator
  ~~~~~ expression
 ```
 
-##### Exclusive
+#### With interpolation (2.0)
 
+TODO: Ruby 2.0's kwargs break (hash) children iteration with
+.children.each_slice(2). This is bad. Let's make it
+(hash (pair (int 1) (int 2)) (kwsplat (lvar :a))) ?
+Also allows to distinguish `a:` from `a =>`, which enables many
+source-level introspections.
+
+### Range
+
+#### Inclusive
+
+Format:
 ```
-(erange (lit 1) (lit 2))
-"(1...2)"
- ~~~~~~ expression
+(irange (int 1) (int 2))
+"1..2"
+ ~~~~ expression
 ```
 
-## Binary operators (and or && ||)
+#### Exclusive
 
+Format:
 ```
-(and (lvar :foo) (lvar :bar))
-"foo and bar"
-     ~~~ operator
- ~~~~~~~~~~~ expression
+(erange (int 1) (int 2))
+"1...2"
+ ~~~~~ expression
 ```
 
 ## Variables
 
 ### Local
 
+Format:
 ```
 (lvar :foo)
 "foo"
@@ -182,6 +229,7 @@ This way we avoid inner options!
 
 ### Instance
 
+Format:
 ```
 (ivar :@foo)
 "@foo"
@@ -190,6 +238,7 @@ This way we avoid inner options!
 
 ### Global
 
+Format:
 ```
 (gvar :$foo)
 "$foo"
@@ -200,74 +249,130 @@ This way we avoid inner options!
 
 ### To local variable
 
+Format:
 ```
 (lvasgn :foo (lvar :bar))
 "foo = bar"
-     ^ assignment
+     ^ operator
  ~~~~~~~~~ expression
-````
+```
 
 ### To instance variable
 
+Format:
 ```
 (ivasgn :@foo (lvar :bar))
 "@foo = bar"
-      ^ assignment
+      ^ operator
  ~~~~~~~~~~ expression
-````
+```
 
 ### To class variable
 
+Format:
 ```
 (cvasgn :@@foo (lvar :bar))
 "@@foo = bar"
-       ^ assignment
+       ^ operator
  ~~~~~~~~~~~ expression
-````
+```
 
 ### To global variable
 
+Format:
 ```
 (gvasgn :$foo (lvar :bar))
 "$foo = bar"
-      ^ assignment
+      ^ operator
  ~~~~~~~~~~ expression
-````
-
-### Operator assignment
-
-For `||= &&= *= /= += %= -=`
-
-```
-(op_asgn :||=  (lvar :foo) (lvar :bar))
-"foo ||= bar"
-     ~~~ operator
- ~~~~~~~~~~~ expression
 ```
 
 ### Multiple assignment
 
+#### Multiple left hand side
+
+Format:
 ```
-(:masgn [(assgn :foo, (lit, 1)), (assgn :bar, (lit, 1))])
+(mlhs (lvasgn :a) (lvasgn :b))
+"a, b"
+ ~~~~ expression
+"(a, b)"
+ ^ begin
+      ^ end
+ ~~~~~~ expression
+```
+
+#### Assignment
+
+Rule of thumb: every node inside `(mlhs)` is "incomplete"; to make
+it "complete", one could imagine that a corresponding node from the
+mrhs is "appended" to the node in question. This applies both to
+side-effect free assignments (`lvasgn`, etc) and side-effectful
+assignments (`send`).
+
+Format:
+```
+(masgn (mlhs (lvasgn :foo) (lvasgn :bar)) (array (int 1) (int 2)))
 "foo, bar = 1, 2"
           ^ operator
  ~~~~~~~~~~~~~~~ expression
+
+(masgn (mlhs (ivasgn :@a) (cvasgn :@@b)) (splat (lvar :c)))
+"@a, @@b = *c"
+
+(masgn (mlhs (mlhs (lvasgn :a) (lvasgn :b)) (lvasgn :c)) (lvar :d))
+"a, (b, c) = d"
+
+(masgn (mlhs (send (self) :a=) (send (self) :[]= (int 1))) (lvar :a))
+"self.a, self[1] = a"
 ```
 
-## Formal Arguments
+### Binary operator-assignment
 
-Used when defining methods / blocks.
+TODO
 
+### Logical operator-assignment
+
+TODO
+
+## Method definition
+
+### Instance methods
+
+Format:
+```
+(def :foo (args) nil)
+"def foo; end"
+ ~~~ keyword
+     ~~~ name
+          ~~~ end
+ ~~~~~~~~~~~~ expression
+```
+
+### Singleton methods
+
+Format:
+```
+(defs (self) (args) nil)
+"def self.foo; end"
+ ~~~ keyword
+          ~~~ name
+               ~~~ end
+ ~~~~~~~~~~~~~~~~~ expression
+```
+
+### Formal arguments
+
+Format:
 ```
 (args (arg :foo))
 "(foo)"
  ~~~~~ expression
 ```
 
-## argument (within formal arguments)
+#### Required argument
 
-### Required
-
+Format:
 ```
 (arg :foo)
 "foo"
@@ -275,44 +380,61 @@ Used when defining methods / blocks.
  ~~~ name
 ```
 
-### Optional
+#### Optional argument
 
+Format:
 ```
-(optarg :foo (lit 1))
+(optarg :foo (int 1))
 "foo = 1"
  ~~~~~~~ expression
-     ~ assignment
+     ^ assignment
  ~~~ name
 ```
 
-### Named Splat
+#### Named splat argument
+
+Format:
 ```
 (splatarg :foo)
 "*foo"
  ~~~~ expression
   ~~~ name
 ```
-No need to catch "*"?
 
-### Unnamed Splat
+Begin of the `expression` points to `*`.
 
+#### Unnamed splat argument
+
+Format:
 ```
 (splatarg)
 "*"
  ^ expression
 ```
 
-### Keyword argument
+#### Decomposition
 
+Format:
 ```
-(kwoptarg :foo (lit 1))
+(def :f (args (arg :a) (mlhs (arg :foo) (splatarg :bar))))
+"def f(a, (foo, *bar)); end"
+          ^ begin   ^ end
+          ~~~~~~~~~~~ expression
+```
+
+#### Keyword argument
+
+Format:
+```
+(kwoptarg :foo (int 1))
 "foo: 1"
  ~~~~~~ expression
  ~~~~ name
 ```
 
-### Keyword argument splat
+#### Named keyword splat argument
 
+Format:
 ```
 (kwsplat :foo)
 "**foo"
@@ -320,50 +442,20 @@ No need to catch "*"?
    ~~~ name
 ```
 
-## Actual argument
+#### Unnamed keyword splat argument
 
-May be used in argument list.
-
-### Splat argument
-
-Used in argument lists like `foo(bar, *baz)`
-Also used in array literals like `[*foo]`
-
+Format:
 ```
-(splat (lvar :foo))
-"*foo"
- ^ operator
- ~~~~ expression
-
+(kwsplat)
+"**"
+ ~~ expression
 ```
-
-### Block pass
-
-Used when passing expression as block `foo(&bar)`
-
-```
-(block-pass (lvar :foo))
-"&foo"
- ^ operator
- ~~~~ expression
-```
-
-TODO: rename to block-reference and also use as block-capture?
 
 ## Send
 
 ### To self
 
-#### Without arguments
-
-```
-(send nil :foo nil)
-`foo`
- ~~~ expression
-```
-
-#### With arguments
-
+Format:
 ```
 (send nil :foo (lvar :bar))
 "foo(bar)"
@@ -373,84 +465,181 @@ TODO: rename to block-reference and also use as block-capture?
 
 ### To receiver
 
-#### Without arguments
-
+Format:
 ```
-(send (lvar :foo) :bar)
-"foo.bar"
-     ~~~ selector
- ~~~~~~~ expression
-```
-
-#### With arguments
-
-```
-(send (lvar :foo) :bar (lit 1))
+(send (lvar :foo) :bar (int 1))
 "foo.bar(1)"
      ~~~ selector
  ~~~~~~~~~~ expression
-```
 
-#### Attribute assignment (just a send also)
+(send (lvar :foo) :+ (int 1))
+"foo + 1"
+     ^ selector
+ ~~~~~~~ expression
 
-```
-(send (lvar :foo) :bar= (lvar :baz))
-"foo.bar = baz"
-     ~~~~~ selector
- ~~~~~~~~~~~~~ expression
-```
-
-#### Element assignment (also just a plain send)
-
-```
-(send (lvar :bar) :[]= (lit 1) (lvar :bar))
-"foo[i] = bar"
-    ~~~~~ selector (for the ease of implementation no extra ref to "[" and "]")
- ~~~~~~~~~~~~ expression
-```
-
-#### Element reference
-
-```
-(send (lvar :foo) :[] (lit 1))
-"foo[i]"
-    ~~~ selector
- ~~~~~~ expression
-```
-
-#### Binary "Method"-Operators, just like send to receiver
-
-```
-(send (lvar :receiver) :+ (lit 1))
-"receiver + 1"
-          ^ selector
- ~~~~~~~~~~~~ expression
-```
-
-#### Unary "Method"-Operators, just like send
-
-```
-(send (lvar :foo) :@-)
+(send (lvar :foo) :-@)
 "-foo"
  ^ selector
  ~~~~ expression
-````
 
-## Blocks
+(send (lvar :foo) :a= (int 1))
+"foo.a = 1"
+     ~~~ selector
+       ^ operator
+ ~~~~~~~~~ expression
+
+(send (lvar :foo) :[] (int 1))
+"foo[i]"
+    ~~~ selector
+    ^ begin
+      ^ end
+ ~~~~~~ expression
+
+(send (lvar :bar) :[]= (int 1) (int 2) (lvar :baz))
+"bar[1, 2] = baz"
+    ~~~~~~~~ selector
+    ^ begin
+        ^ end
+           ^ operator
+ ~~~~~~~~~~~~~~~ expression
+
+```
+
+### Passing a literal block
 
 ```
 (block (send nil :foo) (args (arg :bar)) (begin ...))
 "foo do |bar|; end"
-     ~~ open
-               ~~~ close
- ~~~~~~~~~~~~~~~~~ expression
+     ~~ begin
+               ~~~ end
+     ~~~~~~~~~~~~~ expression
 ```
 
+### Passing expression as block
+
+Used when passing expression as block `foo(&bar)`
+
+```
+(send nil :foo (int 1) (block-pass (lvar :foo)))
+"foo(1, &foo)"
+        ^ operator
+        ~~~~ expression
+```
 
 ## Control flow
 
-### Ternary operator
+### Logical operators
 
+#### Binary (and or && ||)
+
+Format:
+```
+(and (lvar :foo) (lvar :bar))
+"foo and bar"
+     ~~~ operator
+ ~~~~~~~~~~~ expression
+```
+
+#### Unary (! not) (1.8)
+
+Format:
+```
+(not (lvar :foo))
+"!foo"
+ ^ operator
+"not foo"
+ ~~~ operator
+```
+
+### Branching
+
+#### Without else
+
+Format:
+```
+(if (lvar :cond) (lvar :iftrue) nil)
+"if cond then iftrue; end"
+ ~~ keyword
+         ~~~~ begin
+                      ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+"if cond; iftrue; end"
+ ~~ keyword
+                  ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~ expression
+
+"iftrue if cond"
+        ~~ keyword
+ ~~~~~~~~~~~~~~ expression
+
+(if (lvar :cond) nil (lvar :iftrue))
+"unless cond then iftrue; end"
+ ~~~~~~ keyword
+             ~~~~ begin
+                          ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+"unless cond; iftrue; end"
+ ~~~~~~ keyword
+                      ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+"iftrue unless cond"
+        ~~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~ expression
+```
+
+#### With else
+
+Format:
+```
+(if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
+"if cond then iftrue; else; iffalse; end"
+ ~~ keyword
+         ~~~~ begin
+                      ~~~~ else
+                                 ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+"if cond; iftrue; else; iffalse; end"
+ ~~ keyword
+                  ~~~~ else
+                                 ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+(if (lvar :cond) (lvar :iffalse) (lvar :iftrue))
+"unless cond then iftrue; else; iffalse; end"
+ ~~~~~~ keyword
+             ~~~~ begin
+                          ~~~~ else
+                                     ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+"unless cond; iftrue; else; iffalse; end"
+ ~~~~~~ keyword
+                      ~~~~ else
+                                     ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+```
+
+#### With elsif
+
+Format:
+```
+(if (lvar :cond1) (int 1) (if (lvar :cond2 (int 2) (int 3))))
+"if cond1; 1; elsif cond2; 2; else 3; end"
+ ~~ keyword (left)
+              ~~~~~ else (left)
+                                      ~~~ end (left)
+              ~~~~~ keyword (right)
+                              ~~~~ else (right)
+                                      ~~~ end (right)
+```
+
+#### Ternary
+
+Format:
 ```
 (if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
 "cond ? iftrue : iffalse"
@@ -459,97 +648,46 @@ TODO: rename to block-reference and also use as block-capture?
  ~~~~~~~~~~~~~~~~~~~~~~~ expression
 ```
 
-### if
+### Looping
 
-#### With else
+#### With precondition
 
-```
-(if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
-"if cond; iftrue; else; iffalse; end"
- ~~ keyword
-                  ~~~~ else
-                                 ~~~ close
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
-
-#### Without else
-
-```
-(if (lvar :cond) (lvar :iftrue) nil)
-"if cond; iftrue; end"
- ~~ keyword
-                  ~~~ close
- ~~~~~~~~~~~~~~~~~~~~ expression
-```
-
-### unless
-
-#### with else
-
-```
-(unless (lvar :cond) (lvar :iftrue) (lvar :iffalse))
-"unless cond; iftrue; else; iffalse; end"
- ~~~~~~ keyword
-                      ~~~~ else
-                                     ~~~ close
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
-
-#### without else
-
-```
-(unless (lvar :cond) (lvar :iftrue) nil)
-"unless cond; iftrue; end"
- ~~~~~~ keyword
-                      ~~~ close
- ~~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
-
-### while
-
+Format:
 ```
 (while (lvar :condition) (send nil :foo))
-"while condition; do; foo; end"
+"while condition do foo; end"
  ~~~~~ keyword
-                  ~~ open
-                           ~~~ close
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
+                 ~~ begin
+                         ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
 
-### until
+"while condition; foo; end"
+ ~~~~~ keyword
+                       ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~ expression
 
-```
+"foo while condition"
+     ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~ expression
+
 (until (lvar :condition) (send nil :foo))
-"until condition; do; foo; end"
+"until condition do foo; end"
  ~~~~~ keyword
-                  ~~ open
-                           ~~~ close
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+                 ~~ begin
+                         ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+(until (lvar :condition) (send nil :foo))
+"until condition; foo; end"
+ ~~~~~ keyword
+                       ~~~ end
+~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+"foo until condition"
+     ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~ expression
 ```
 
-## Define method
+#### With postcondition
 
-### Instance method
-
-```
-(def :foo (args) nil)
-"def foo; end"
- ~~~ keyword
-     ~~~ name
-          ~~~ close
- ~~~~~~~~~~~~ expression
-```
-Do we need to track open and close here. Is there a diagnostics case?
-
-### Singleton method
-
-This includes the define on singleton `def self.foo` case!
-
-```
-(defs (self) (args) nil)
-"def self.foo; end"
- ~~~
-          ~~~ name
-               ~~~ close
- ~~~~~~~~~~~~~~~~~ expression
-```
+TODO handle `begin end while foo`. `while-post`, `until-post`?
