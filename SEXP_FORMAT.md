@@ -4,11 +4,6 @@ Location and Sexp RFC
 # Open questions:
 
  * Incomplete:
-   1. How to handle constant paths?
-   1. How to handle class/module definition?
-   1. How to handle class-<<-self?
-   1. How to handle begin-rescue-else-ensure-end?
-   1. How to handle retry?
    1. How to handle binary operator-assignment?
    1. How to handle indexing operator-assignment?
    1. How to handle logical operator-assignment?
@@ -147,7 +142,7 @@ Format:
 
 Format:
 ```
-(regexp (regopt :i :m) "source")
+(regexp "source" (regopt :i :m))
 "/source/im"
  ^ begin
         ^ end
@@ -158,7 +153,7 @@ Format:
 
 Format:
 ```
-(dregexp (regopt :i) (lit "foo") (lvar bar))
+(dregexp (lit "foo") (lvar bar) (regopt :i))
 "/foo#{bar}/i"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression
@@ -301,7 +296,35 @@ Format:
 
 ### Constant
 
-TODO
+#### Top-level constant
+
+Format:
+```
+(const (cbase) :Foo)
+"::Foo"
+   ~~~ name
+ ~~~~~ expression
+```
+
+#### Scoped constant
+
+Format:
+```
+(const (lvar :a) :Foo)
+"a::Foo"
+    ~~~ name
+ ~~~~~~ expression
+```
+
+#### Unscoped constant
+
+Format:
+```
+(const nil :Foo)
+"Foo"
+ ~~~ name
+ ~~~ expression
+```
 
 ### defined?
 
@@ -369,7 +392,39 @@ Format:
 
 ### To constant
 
-TODO
+#### Top-level constant
+
+Format:
+```
+(cdecl (cbase) :Foo (int 1))
+"::Foo = 1"
+   ~~~ name
+       ~ operator
+ ~~~~~~~ expression
+```
+
+#### Scoped constant
+
+Format:
+```
+(cdecl (lvar :a) :Foo (int 1))
+"a::Foo = 1"
+    ~~~ name
+        ~ operator
+ ~~~~~~~~ expression
+```
+
+#### Unscoped constant
+
+Format:
+```
+(cdecl nil :Foo (int 1))
+"Foo = 1"
+ ~~~ name
+     ~ operator
+ ~~~~~~~ expression
+```
+
 
 ### Multiple assignment
 
@@ -418,6 +473,42 @@ TODO
 ### Logical operator-assignment
 
 TODO
+
+## Class and module definition
+
+### Module
+
+Format:
+```
+(module (const nil :Foo) (begin))
+"module Foo < Bar; end"
+ ~~~~~~ keyword    ~~~ end
+```
+
+### Class
+
+Format:
+```
+(class (const nil :Foo) (const nil :Bar) (begin))
+"class Foo < Bar; end"
+ ~~~~~ keyword    ~~~ end
+
+(class (const nil :Foo) nil (begin))
+"class Foo; end"
+ ~~~~~ keyword
+            ~~~ end
+```
+
+### Singleton class
+
+Format:
+```
+(sclass (lvar :a) (begin))
+"class << a; end"
+ ~~~~~ keyword
+       ~~ operator
+             ~~~ end
+```
 
 ## Method (un)definition
 
@@ -822,7 +913,7 @@ Format:
 
 Format:
 ```
-(when (regexp (regopt) "foo") (begin (lvar :bar)))
+(when (regexp "foo" (regopt)) (begin (lvar :bar)))
 "when /foo/; bar"
  ~~~~ keyword
  ~~~~~~~~~~ expression
@@ -956,7 +1047,80 @@ Format:
 
 ### Exception handling
 
-TODO
+#### Rescue body
+
+Format:
+```
+(resbody (array (const nil :Exception) (const nil :A)) (lvasgn :bar) (int 1))
+"rescue Exception, A => bar; 1"
+ ~~~~~~ keyword      ~~ operator
+
+(resbody (array (const nil :Exception)) (ivasgn :bar) (int 1))
+"rescue Exception => @bar; 1"
+ ~~~~~~ keyword   ~~ operator
+
+(resbody nil (lvasgn :bar) (int 1))
+"rescue => bar; 1"
+ ~~~~~~ keyword
+        ~~ operator
+
+(resbody nil nil (int 1))
+"rescue; 1"
+ ~~~~~~ keyword
+```
+
+#### Rescue statement
+
+##### Without else
+
+Format:
+```
+(rescue (send nil :foo) (resbody ...) (resbody ...) nil)
+"begin; foo; rescue Exception; rescue; end"
+ ~~~~~ begin                           ~~~ end
+```
+
+##### With else
+
+Format:
+```
+(rescue (send nil :foo) (resbody ...) (resbody ...) (true))
+"begin; foo; rescue Exception; rescue; else true end"
+ ~~~~~ begin                           ~~~~ else ~~~ end
+```
+
+#### Ensure statement
+
+Format:
+```
+(ensure (send nil :foo) (send nil :bar))
+"begin; foo; ensure; bar; end"
+ ~~~~~ begin ~~~~~~ keyword
+                          ~~~ end
+
+#### Rescue with ensure
+
+Format:
+```
+(ensure (rescue (send nil :foo) (resbody ...) (int 1)) (send nil :bar))
+"begin; foo; rescue; nil; else; 1; ensure; bar; end"
+ ~~~~~ begin (rescue)
+ ~~~~~ begin (ensure)
+                          ~~~~ else (rescue)
+                                   ~~~~~~ keyword (ensure)
+                                                ~~~ end (rescue)
+                                                ~~~ end (ensure)
+```
+
+#### Retry
+
+Format:
+```
+(retry)
+"retry"
+ ~~~~~ keyword
+ ~~~~~ expression
+```
 
 ### BEGIN and END
 
