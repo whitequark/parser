@@ -7,10 +7,6 @@ Location and Sexp RFC
    1. How to handle binary operator-assignment?
    1. How to handle indexing operator-assignment?
    1. How to handle logical operator-assignment?
-   1. How to handle Ruby 2.0 **interpolation?
- * Less interesting and more obscure parts:
-   1. How to handle begin-end-until/while?
-   1. How to handle for-in-do-end?
  * Should we handle these at all? Looks like a job for an Sexp processor.
    1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
    1. How to handle magic match (`foo if /bar/`)?
@@ -197,11 +193,34 @@ Format:
 
 ### Hash
 
+#### Pair
+
+##### With hashrocket
+
+Format:
+```
+(pair (int 1) (int 2))
+"1 => 2"
+   ~~ operator
+ ~~~~~~ expression
+```
+
+##### With label (1.9)
+
+Format:
+```
+(pair (sym :answer) (int 42))
+"answer: 42"
+       ^ operator (pair)
+ ~~~~~~ expression (sym)
+ ~~~~~~~~~~ expression (pair)
+```
+
 #### Plain
 
 Format:
 ```
-(hash (int 1) (int 2) (int 3) (int 4))
+(hash (pair (int 1) (int 2)) (pair (int 3) (int 4)))
 "{1 => 2, 3 => 4}"
  ^ begin        ^ end
  ~~~~~~~~~~~~~~~~ expression
@@ -221,11 +240,13 @@ Format:
 
 #### With interpolation (2.0)
 
-TODO: Ruby 2.0's kwargs break (hash) children iteration with
-.children.each_slice(2). This is bad. Let's make it
-(hash (pair (int 1) (int 2)) (kwsplat (lvar :a))) ?
-Also allows to distinguish `a:` from `a =>`, which enables many
-source-level introspections.
+Format:
+```
+(hash (pair (sym :foo) (int 2)) (kwsplat (lvar :bar)))
+"{ foo: 2, **bar }"
+ ^ begin         ^ end
+ ~~~~~~~~~~~~~~~~~ expression
+```
 
 ### Range
 
@@ -1001,7 +1022,37 @@ Format:
 
 #### With postcondition
 
-TODO handle `begin end while foo`. `while-post`, `until-post`?
+Format:
+```
+(while-post (lvar :condition) (begin (send nil :foo)))
+"begin; foo; end while condition"
+ ~~~~~ begin (begin)
+             ~~~ end (begin)
+                 ~~~~~ keyword (while-post)
+
+(until-post (lvar :condition) (begin (send nil :foo)))
+"begin; foo; end until condition"
+ ~~~~~ begin (begin)
+             ~~~ end (begin)
+                 ~~~~~ keyword (until-post)
+```
+
+#### For-in
+
+Format:
+```
+(for (lvar :a) (lvar :array) (send nil :p (lvar :a)))
+"for a in array do p a; end"
+ ~~~ keyword
+       ~~ in
+                ~~ begin
+                        ~~~ end
+
+"for a in array; p a; end"
+ ~~~ keyword
+       ~~ in
+                      ~~~ end
+```
 
 #### Break
 
