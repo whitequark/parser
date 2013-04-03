@@ -13,9 +13,29 @@ Parser is a Ruby parser written in pure Ruby.
 
 TODO: Write usage instructions here
 
+## Features
+
+ * Precise source location reporting.
+ * [Documented](SEXP_FORMAT.md) Sexp format.
+ * A simple interface (`Parser::Ruby19.parse("just parse this")`) and a powerful, tweakable one.
+ * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible Sexp formats (WIP, no, not really yet).
+ * Improved diagnostic messages.
+ * Written in pure Ruby, runs on MRI >=1.9.2, JRuby and Rubinius in 1.9 mode.
+ * Single runtime dependency: the [ast][] gem.
+ * RubyParser compatibility (WIP, no, not really yet).
+ * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
+
+  [ast]: http://rubygems.org/gems/ast
+  [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+
+## Anti-features
+
+ * Line number values are not slightly off.
+ * No swearing in the source code or comments.
+
 ## Acknowledgements
 
-The lexer testsuite is derived from [ruby_parser](http://github.com/seattlerb/ruby_parser).
+The lexer testsuite and ruby_parser compatibility testsuite are derived from [ruby_parser](http://github.com/seattlerb/ruby_parser).
 
 The Bison parser rules are derived from [Ruby MRI](http://github.com/ruby/ruby) parse.y.
 
