@@ -125,7 +125,8 @@ Format:
 ```
 (dregexp (regopt :i) (lit "foo") (lvar bar))
 "/foo#{bar}/i"
- ~~~~~~~~~~ expression
+ ^ begin   ^ end
+ ~~~~~~~~~~~ expression
 ```
 
 ### Array
