@@ -57,6 +57,13 @@ module ParseHelper
     end
   end
 
+  LOCATION_DESCRIPTION_RE =
+      /^(?<skip>\s*)
+       (?<hilight>[~\^]+)
+       \s+
+       (?<location_field>[a-z]+)
+       (\s+\((?<ast_path>[a-z0-9.\/]+)\))?$/x
+
   def parse_location_descriptions(description)
     unless block_given?
       return to_enum(:parse_location_descriptions, description)
@@ -68,17 +75,13 @@ module ParseHelper
 
       next if line.empty?
 
-      if /^(?<tok_skip>\s*)
-           (?<tok_hilight>[~\^]+)
-           \s+
-           (?<location_field>[a-z]+)
-           (\s+\((?<tok_ast_path>[a-z0-9.\/]+)\))?$/x =~ line
+      if (match = LOCATION_DESCRIPTION_RE.match(line))
+        begin_pos      = match[:skip].length
+        end_pos        = begin_pos + match[:hilight].length - 1
+        location_field = match[:location_field]
 
-        begin_pos = tok_skip.length
-        end_pos   = begin_pos + tok_hilight.length - 1
-
-        if tok_ast_path
-          ast_path = tok_ast_path.split('.')
+        if match[:ast_path]
+          ast_path = match[:ast_path].split('.')
         else
           ast_path = []
         end
