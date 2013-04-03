@@ -31,7 +31,7 @@ TODO: Write usage instructions here
 ## Anti-features
 
  * Line number values are not slightly off.
- * No swearing in the source code or comments.
+ * No unreadable source code or comments. (And no swearing!)
 
 ## Acknowledgements
 
