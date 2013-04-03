@@ -1,18 +1,13 @@
-Location and Sexp RFC
-=====================
+AST and Source Location RFC
+===========================
 
 # Open questions:
 
- * Incomplete:
-   1. How to handle binary operator-assignment?
-   1. How to handle indexing operator-assignment?
-   1. How to handle logical operator-assignment?
- * Should we handle these at all? Looks like a job for an Sexp processor.
+ * Should we handle these cases at all? They do not have special syntax associated.
    1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
    1. How to handle magic match (`foo if /bar/`)?
    1. How to handle sed-like flip-flop?
    1. How to handle awk-like flip-flop?
- * I think the lists above are complete.
 
 ## Literals
 
@@ -177,7 +172,6 @@ Format:
 "*foo"
  ^ operator
  ~~~~ expression
-
 ```
 
 #### With interpolation
@@ -489,11 +483,122 @@ Format:
 
 ### Binary operator-assignment
 
-TODO
+Binary operator-assignment features the same "incomplete assignments" and "incomplete calls" as [multiple assignment](#assignment-1).
+
+#### Variable binary operator-assignment
+
+Format:
+```
+(var-op-asgn (lvar :a) :+ (lit 1))
+"a += 1"
+   ~~ operator
+ ~~~~~~ expression
+
+(var-op-asgn (ivar :a) :+ (lit 1))
+"@a += 1"
+```
+
+Ruby_parser output for reference:
+```
+"a += 1"
+s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:lit, 1)))
+
+"@a += 1"
+s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:lit, 1)))
+```
+
+#### Method binary operator-assignment
+
+Format:
+```
+(op-asgn (send (ivar :@a) :b) :+ (lit 1))
+"@a.b += 1"
+    ~ selector (send)
+ ~~~~ expression (send)
+      ~~ operator (op-asgn)
+ ~~~~~~~~~ expression (op-asgn)
+
+(op-asgn (send (ivar :@a) :[] (lit 0) (lit 1))) :+ (lit 1))
+"@a[0, 1] += 1"
+   ~~~~~~ selector (send)
+ ~~~~~~~~ expression (send)
+          ~~ operator (op-asgn)
+ ~~~~~~~~~~~~~ expression (op-asgn)
+```
+
+Ruby_parser output for reference:
+```
+"@a.b += 1"
+s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:lit, 1))
+
+"@a[0, 1] += 1"
+s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:lit, 0), s(:lit, 1)), :+, s(:lit, 1))
+```
 
 ### Logical operator-assignment
 
-TODO
+Logical operator-assignment features the same "incomplete assignments" and "incomplete calls" as [multiple assignment](#assignment-1).
+
+#### Variable logical operator-assignment
+
+Format:
+```
+(var-or-asgn (ivar :@a) (lit 1))
+"@a ||= 1"
+    ~~~ operator
+ ~~~~~~~~ expression
+
+(var-and-asgn (lvar :a) (lit 1))
+"a &&= 1"
+   ~~~ operator
+ ~~~~~~~ expression
+```
+
+Ruby_parser output for reference:
+```
+"@a ||= 1"
+s(:op_asgn_or, s(:ivar, :@a), s(:iasgn, :@a, s(:lit, 1)))
+
+"a &&= 1"
+s(:op_asgn_and, s(:lvar, :a), s(:lasgn, :a, s(:lit, 1)))
+```
+
+#### Method logical operator-assignment
+
+Format:
+```
+(or-asgn (send (ivar :@foo) :bar) (lit 1))
+"@foo.bar ||= 1"
+      ~~~ selector (send)
+ ~~~~~~~~ expr (send)
+          ~~~ operator (or-asgn)
+ ~~~~~~~~~~~~~~ expression (or-asgn)
+
+(and-asgn (send (lvar :@foo) :bar) (lit 1))
+"foo.bar &&= 1"
+     ~~~ selector (send)
+ ~~~~~~~ expr (send)
+         ~~~ operator (and-asgn)
+ ~~~~~~~~~~~~~ expression (and-asgn)
+
+(or-asgn (send (ivar :@foo) :[] (lit 1) (lit 2)) (lit 1))
+"@foo[1, 2] ||= 1"
+     ~~~~~~ selector (send)
+ ~~~~~~~~~~ expr (send)
+            ~~~ operator (or-asgn)
+ ~~~~~~~~~~~~~~~~ expression (or-asgn)
+
+```
+
+Ruby_parser output for reference:
+```
+"@foo.bar &&= 1"
+s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:lit, 1))
+
+"@foo[0] ||= 1"
+s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:lit, 0)), :"||", s(:lit, 1))
+
+```
 
 ## Class and module definition
 
@@ -1148,6 +1253,7 @@ Format:
 "begin; foo; ensure; bar; end"
  ~~~~~ begin ~~~~~~ keyword
                           ~~~ end
+```
 
 #### Rescue with ensure
 
