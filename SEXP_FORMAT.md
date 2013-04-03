@@ -3,18 +3,27 @@ Location and Sexp RFC
 
 # Open questions:
 
- * None?
+ * Incomplete:
+   1. How to handle constant paths?
+   1. How to handle class/module definition?
+   1. How to handle class-<<-self?
+   1. How to handle begin-rescue-else-ensure-end?
+   1. How to handle retry?
+   1. How to handle binary operator-assignment?
+   1. How to handle indexing operator-assignment?
+   1. How to handle logical operator-assignment?
+   1. How to handle Ruby 2.0 **interpolation?
+ * Less interesting and more obscure parts:
+   1. How to handle begin-end-until/while?
+   1. How to handle for-in-do-end?
+ * Should we handle these at all? Looks like a job for an Sexp processor.
+   1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
+   1. How to handle magic match (`foo if /bar/`)?
+   1. How to handle sed-like flip-flop?
+   1. How to handle awk-like flip-flop?
+ * I think the lists above are complete.
 
 ## Literals
-
-### Self
-
-Format:
-```
-(self)
-"self"
- ~~~~ expression
-```
 
 ### Singletons
 
@@ -72,6 +81,32 @@ Format:
 '"foo#{bar}baz"'
  ^ begin      ^ end
  ~~~~~~~~~~~~~~ expression
+```
+
+### Symbol
+
+#### Plain
+
+Format:
+```
+(sym :foo)
+":foo"
+ ~~~~ expresion
+
+":'foo'"
+  ^ begin
+      ^ end
+ ~~~~~~ expression
+```
+
+#### With interpolation
+
+Format:
+```
+(dsym (str "foo") (lvar bar) (str "baz"))
+':"foo#{bar}baz"'
+  ^ begin      ^ end
+ ~~~~~~~~~~~~~~~ expression
 ```
 
 ### Execute-string
@@ -217,9 +252,18 @@ Format:
  ~~~~~ expression
 ```
 
-## Variables
+## Access
 
-### Local
+### Self
+
+Format:
+```
+(self)
+"self"
+ ~~~~ expression
+```
+
+### Local variable
 
 Format:
 ```
@@ -228,7 +272,7 @@ Format:
  ~~~ expression
 ```
 
-### Instance
+### Instance variable
 
 Format:
 ```
@@ -237,13 +281,36 @@ Format:
  ~~~~ expression
 ```
 
-### Global
+### Class variable
+
+Format:
+```
+(cvar :$foo)
+"$foo"
+ ~~~~ expression
+```
+
+### Global variable
 
 Format:
 ```
 (gvar :$foo)
 "$foo"
  ~~~~ expression
+```
+
+### Constant
+
+TODO
+
+### defined?
+
+Format:
+```
+(defined? (lvar :a))
+"defined? a"
+ ~~~~~~~~ operator
+ ~~~~~~~~~~ expression
 ```
 
 ## Assignment
@@ -270,6 +337,18 @@ Format:
 
 ### To class variable
 
+#### Inside a class scope
+
+Format:
+```
+(cvdecl :@@foo (lvar :bar))
+"@@foo = bar"
+       ^ operator
+ ~~~~~~~~~~~ expression
+```
+
+#### Inside a method scope
+
 Format:
 ```
 (cvasgn :@@foo (lvar :bar))
@@ -287,6 +366,10 @@ Format:
       ^ operator
  ~~~~~~~~~~ expression
 ```
+
+### To constant
+
+TODO
 
 ### Multiple assignment
 
@@ -336,7 +419,7 @@ TODO
 
 TODO
 
-## Method definition
+## Method (un)definition
 
 ### Instance methods
 
@@ -362,7 +445,44 @@ Format:
  ~~~~~~~~~~~~~~~~~ expression
 ```
 
-### Formal arguments
+### Undefinition
+
+Format:
+```
+(undef (sym :foo) (sym :bar) (dsym (str "foo") (int 1)))
+"undef foo :bar :"foo#{1}""
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+```
+
+## Aliasing
+
+### Method aliasing
+
+Format:
+```
+(alias (sym :foo) (dsym (str "foo") (int 1)))
+"alias foo :"foo#{1}""
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~~ expression
+```
+
+### Global variable aliasing
+
+Format:
+```
+(alias (gvar :$foo) (gvar :$bar))
+"alias $foo $bar"
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~ expression
+
+(alias (gvar :$foo) (back-ref :$&))
+"alias $foo $&"
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~ expression
+```
+
+## Formal arguments
 
 Format:
 ```
@@ -371,7 +491,7 @@ Format:
  ~~~~~ expression
 ```
 
-#### Required argument
+### Required argument
 
 Format:
 ```
@@ -381,7 +501,7 @@ Format:
  ~~~ name
 ```
 
-#### Optional argument
+### Optional argument
 
 Format:
 ```
@@ -392,7 +512,7 @@ Format:
  ~~~ name
 ```
 
-#### Named splat argument
+### Named splat argument
 
 Format:
 ```
@@ -404,7 +524,7 @@ Format:
 
 Begin of the `expression` points to `*`.
 
-#### Unnamed splat argument
+### Unnamed splat argument
 
 Format:
 ```
@@ -413,7 +533,17 @@ Format:
  ^ expression
 ```
 
-#### Decomposition
+### Block argument
+
+Format:
+```
+(blockarg :foo)
+"&foo"
+  ~~~ name
+ ~~~~ expression
+```
+
+### Decomposition
 
 Format:
 ```
@@ -423,7 +553,7 @@ Format:
           ~~~~~~~~~~~ expression
 ```
 
-#### Keyword argument
+### Keyword argument
 
 Format:
 ```
@@ -433,7 +563,7 @@ Format:
  ~~~~ name
 ```
 
-#### Named keyword splat argument
+### Named keyword splat argument
 
 Format:
 ```
@@ -443,7 +573,7 @@ Format:
    ~~~ name
 ```
 
-#### Unnamed keyword splat argument
+### Unnamed keyword splat argument
 
 Format:
 ```
@@ -504,6 +634,43 @@ Format:
            ^ operator
  ~~~~~~~~~~~~~~~ expression
 
+```
+
+### To superclass
+
+Format of super with arguments:
+```
+(super (lvar :a))
+"super a"
+ ~~~~~ keyword
+ ~~~~~~~ expression
+
+(super)
+"super()"
+      ^ begin
+       ^ end
+ ~~~~~ keyword
+ ~~~~~~~ expression
+```
+
+Format of super without arguments (**z**ero-arity):
+```
+(zsuper)
+"super"
+ ~~~~~ keyword
+ ~~~~~ expression
+```
+
+### To block argument
+
+Format:
+```
+(yield (lvar :foo))
+"yield(foo)"
+ ~~~~~ keyword
+      ^ begin
+          ^ end
+ ~~~~~~~~~~ expression
 ```
 
 ### Passing a literal block
@@ -649,6 +816,58 @@ Format:
  ~~~~~~~~~~~~~~~~~~~~~~~ expression
 ```
 
+### Case matching
+
+#### When clause
+
+Format:
+```
+(when (regexp (regopt) "foo") (begin (lvar :bar)))
+"when /foo/; bar"
+ ~~~~ keyword
+ ~~~~~~~~~~ expression
+```
+
+#### Case-expression clause
+
+##### Without else
+
+Format:
+```
+(case (lvar :foo) (when (str "bar") (lvar :bar)) nil)
+"case foo; when "bar"; bar; end"
+ ~~~~ keyword               ~~~ end
+```
+
+##### With else
+
+Format:
+```
+(case (lvar :foo) (when (str "bar") (lvar :bar)) (lvar :baz))
+"case foo; when "bar"; bar; else baz; end"
+ ~~~~ keyword               ~~~~ else ~~~ end
+```
+
+#### Case-conditions clause
+
+##### Without else
+
+Format:
+```
+(case nil (when (lvar :bar) (lvar :bar)) nil)
+"case; when bar; bar; end"
+ ~~~~ keyword         ~~~ end
+```
+
+##### With else
+
+Format:
+```
+(case nil (when (lvar :bar) (lvar :bar)) (lvar :baz))
+"case; when bar; bar; else baz; end"
+ ~~~~ keyword         ~~~~ else ~~~ end
+```
+
 ### Looping
 
 #### With precondition
@@ -692,3 +911,67 @@ Format:
 #### With postcondition
 
 TODO handle `begin end while foo`. `while-post`, `until-post`?
+
+#### Break
+
+Format:
+```
+(break (int 1))
+"break 1"
+ ~~~~~ keyword
+ ~~~~~~~ expression
+```
+
+#### Next
+
+Format:
+```
+(next (int 1))
+"next 1"
+ ~~~~ keyword
+ ~~~~~~ expression
+```
+
+#### Redo
+
+Format:
+```
+(redo)
+"redo"
+ ~~~~ keyword
+ ~~~~ expression
+```
+
+### Returning
+
+Format:
+```
+(return (lvar :foo))
+"return(foo)"
+ ~~~~~~ keyword
+       ^ begin
+           ^ end
+ ~~~~~~~~~~~ expression
+```
+
+### Exception handling
+
+TODO
+
+### BEGIN and END
+
+Format:
+```
+(preexe (send nil :puts (str "foo")))
+"BEGIN { puts "foo" }"
+ ~~~~~ keyword
+       ^ begin      ^ end
+ ~~~~~~~~~~~~~~~~~~~~ expression
+
+(postexe (send nil :puts (str "bar")))
+"END { puts "bar" }"
+ ~~~ keyword
+     ^ begin      ^ end
+ ~~~~~~~~~~~~~~~~~~ expression
+```
+
