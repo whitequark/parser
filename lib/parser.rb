@@ -5,9 +5,14 @@ require 'ast'
 
 # Library namespace
 module Parser
-  require 'parser/syntax_error'
   require 'parser/source_range'
   require 'parser/source_file'
+
+  require 'parser/location'
+  require 'parser/location/operator'
+  require 'parser/location/variable_assignment'
+
+  require 'parser/syntax_error'
   require 'parser/diagnostic'
   require 'parser/diagnostics_engine'
 

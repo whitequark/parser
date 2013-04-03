@@ -28,15 +28,20 @@ module Parser::Builders
       t(token, :lit, value(token).to_sym)
     end
 
-    def build_numeric(token, negate=false)
+    def build_numeric(token, type, negate)
       val = value(token)
       val = -val if negate
 
-      t(token, :lit, val)
+      t(token, type, val)
     end
 
-    alias build_integer build_numeric
-    alias build_float   build_numeric
+    def build_integer(token, negate=false)
+      build_numeric(token, :int, negate)
+    end
+
+    def build_float(token, negate=false)
+      build_numeric(token, :float, negate)
+    end
 
     def build_readable(node)
       case node.type
@@ -64,10 +69,10 @@ module Parser::Builders
         end
 
       when :ivar
-        node.updated(:iasgn)
+        node.updated(:ivasgn)
 
       when :gvar
-        node.updated(:gasgn)
+        node.updated(:gvasgn)
 
       when :const
         node.updated(:cdecl)
@@ -76,7 +81,7 @@ module Parser::Builders
         name, = *node
         @parser.static_env.declare(name)
 
-        node.updated(:lasgn)
+        node.updated(:lvasgn)
 
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
         message = Parser::ERRORS[:invalid_assignment] % { node: node.type }
@@ -93,8 +98,11 @@ module Parser::Builders
 
     def build_assign(lhs, token, rhs)
       case lhs.type
-      when :gasgn, :iasgn, :lasgn, :masgn, :cdecl, :cvdecl, :cvasgn
-        lhs << rhs
+      when :gvasgn, :ivasgn, :lvasgn, :masgn, :cdecl, :cvdecl, :cvasgn
+        (lhs << rhs).updated(nil, nil,
+            location: Parser::Location::VariableAssignment.new(
+                        lhs.loc.expression, location(token),
+                        lhs.loc.expression.join(rhs.loc.expression)))
 
       when :attrasgn, :call
         raise NotImplementedError
@@ -122,13 +130,17 @@ module Parser::Builders
     end
 
     def build_compstmt(statements)
-      s(:begin, *statements)
+      if statements.one?
+        statements.first
+      else
+        s(:begin, *statements)
+      end
     end
 
     protected
 
     def t(token, type, *args)
-      s(type, *args, location: location(token))
+      s(type, *args, location: Parser::Location.new(location(token)))
     end
 
     def value(token)

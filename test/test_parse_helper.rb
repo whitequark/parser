@@ -20,29 +20,29 @@ class TestParseHelper < MiniTest::Unit::TestCase
   end
 
   def test_parse_location_description
-    assert_equal [[0, 3, 'expr', []]],
+    assert_equal [[0, 3, 'expr', [], '~~~~ expr']],
                  parse_loc('~~~~ expr')
 
-    assert_equal [[0, 3, 'expr', []]],
+    assert_equal [[0, 3, 'expr', [], '^~~~ expr']],
                  parse_loc('^~~~ expr')
 
-    assert_equal [[0, 3, 'expr', []]],
+    assert_equal [[0, 3, 'expr', [], '^^^^ expr']],
                  parse_loc('^^^^ expr')
 
-    assert_equal [[2, 2, 'op', []]],
+    assert_equal [[2, 2, 'op', [], '  ^ op']],
                  parse_loc('  ^ op')
 
-    assert_equal [[2, 2, 'op', ['foo'] ]],
+    assert_equal [[2, 2, 'op', ['foo'], '  ~ op (foo)']],
                  parse_loc('  ~ op (foo)')
 
-    assert_equal [[2, 3, 'op', ['foo', 'bar'] ]],
+    assert_equal [[2, 3, 'op', ['foo', 'bar'], '  ~~ op (foo.bar)']],
                  parse_loc('  ~~ op (foo.bar)')
 
-    assert_equal [[2, 3, 'op', ['foo/2', 'bar'] ]],
+    assert_equal [[2, 3, 'op', ['foo/2', 'bar'], '  ~~ op (foo/2.bar)']],
                  parse_loc('  ~~ op (foo/2.bar)')
 
-    assert_equal [[0, 3, 'expr', []],
-                  [5, 6, 'op', ['str']]],
+    assert_equal [[0, 3, 'expr', [], '~~~~ expr'],
+                  [5, 6, 'op', ['str'], '     ~~ op (str)']],
                  parse_loc(%{
                             |~~~~ expr
                             |     ~~ op (str)

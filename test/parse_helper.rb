@@ -22,7 +22,7 @@ module ParseHelper
                    "(#{version}) AST equality"
 
       parse_location_descriptions(location) \
-          do |begin_pos, end_pos, loc_field, ast_path|
+          do |begin_pos, end_pos, loc_field, ast_path, line|
 
         astlet = traverse_ast(result, ast_path)
 
@@ -31,13 +31,19 @@ module ParseHelper
           raise "No entity with AST path #{ast_path} in #{result.inspect}"
         end
 
+        assert astlet.location.respond_to?(loc_field),
+               "(#{version}) location.respond_to?(#{loc_field.inspect}) for #{line.inspect}"
+
         range = astlet.location.send(loc_field)
 
+        assert range.is_a?(Parser::SourceRange),
+               "(#{version}) #{loc_field}.is_a?(SourceRange) for #{line.inspect}"
+
         assert_equal begin_pos, range.begin,
-                     "(#{version}) begin of #{loc_field} at #{ast_path.join('.')}"
+                     "(#{version}) begin of #{line.inspect}"
 
         assert_equal end_pos, range.end,
-                     "(#{version}) end of #{loc_field} at #{ast_path.join('.')}"
+                     "(#{version}) end of #{line.inspect}"
       end
     end
   end
@@ -77,7 +83,7 @@ module ParseHelper
           ast_path = []
         end
 
-        yield begin_pos, end_pos, location_field, ast_path
+        yield begin_pos, end_pos, location_field, ast_path, line
       else
         raise "Cannot parse location description line: #{line.inspect}."
       end
