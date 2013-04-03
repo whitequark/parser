@@ -21,5 +21,8 @@ rule '.rb' => '.rl' do |t|
 end
 
 rule '.rb' => '.y' do |t|
-  sh "racc --superclass=Parser::Base #{t.source} -o #{t.name}"
+  # `bundle exec` to use the racc from git (specified in Gemfile),
+  # to avoid installation error on JRuby. See also the issue
+  # https://github.com/tenderlove/racc/issues/22.
+  sh "bundle exec racc --superclass=Parser::Base #{t.source} -o #{t.name}"
 end
