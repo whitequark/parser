@@ -10,40 +10,40 @@ module Parser::Builders
   class Sexp
     attr_accessor :parser
 
-    def build_nil(token);   t(token, :nil);   end
-    def build_self(token);  t(token, :self);  end
-    def build_true(token);  t(token, :true);  end
-    def build_false(token); t(token, :false); end
+    def nil(token);   t(token, :nil);   end
+    def self(token);  t(token, :self);  end
+    def true(token);  t(token, :true);  end
+    def false(token); t(token, :false); end
 
-    def build_ident(token); t(token, :ident, value(token).to_sym); end
-    def build_ivar(token);  t(token, :ivar,  value(token).to_sym); end
-    def build_gvar(token);  t(token, :gvar,  value(token).to_sym); end
-    def build_cvar(token);  t(token, :cvar,  value(token).to_sym); end
-    def build_const(token); t(token, :const, value(token).to_sym); end
+    def ident(token); t(token, :ident, value(token).to_sym); end
+    def ivar(token);  t(token, :ivar,  value(token).to_sym); end
+    def gvar(token);  t(token, :gvar,  value(token).to_sym); end
+    def cvar(token);  t(token, :cvar,  value(token).to_sym); end
+    def const(token); t(token, :const, value(token).to_sym); end
 
-    def build_back_ref(token); t(token, :back_ref, value(token).to_sym); end
-    def build_nth_ref(token);  t(token, :nth_ref,  value(token).to_sym); end
+    def back_ref(token); t(token, :back_ref, value(token).to_sym); end
+    def nth_ref(token);  t(token, :nth_ref,  value(token).to_sym); end
 
-    def build_func_name(token)
+    def function_name(token)
       t(token, :lit, value(token).to_sym)
     end
 
-    def build_numeric(token, type, negate)
+    def numeric(token, type, negate)
       val = value(token)
       val = -val if negate
 
       t(token, type, val)
     end
 
-    def build_integer(token, negate=false)
+    def integer(token, negate=false)
       build_numeric(token, :int, negate)
     end
 
-    def build_float(token, negate=false)
+    def float(token, negate=false)
       build_numeric(token, :float, negate)
     end
 
-    def build_readable(node)
+    def readable(node)
       case node.type
       when :ident
         name, = *node
@@ -59,7 +59,7 @@ module Parser::Builders
       end
     end
 
-    def build_assignable(node)
+    def assignable(node)
       case node.type
       when :cvar
         if @parser.in_def?
@@ -96,7 +96,7 @@ module Parser::Builders
       end
     end
 
-    def build_assign(lhs, token, rhs)
+    def assign(lhs, token, rhs)
       case lhs.type
       when :gvasgn, :ivasgn, :lvasgn, :masgn, :cdecl, :cvdecl, :cvasgn
         (lhs << rhs).updated(nil, nil,
@@ -115,11 +115,11 @@ module Parser::Builders
       end
     end
 
-    def build_alias(token, to, from)
+    def alias(token, to, from)
       t(token, :alias, to, from)
     end
 
-    def build_keyword_cmd(type, token, args=nil)
+    def keyword_cmd(type, token, args=nil)
       case type
       when :return, :break, :next, :redo, :retry, :yield, :defined
         t(token, type, *args)
@@ -129,7 +129,7 @@ module Parser::Builders
       end
     end
 
-    def build_compstmt(statements)
+    def compstmt(statements)
       if statements.one?
         statements.first
       else

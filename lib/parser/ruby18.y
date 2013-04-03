@@ -55,7 +55,7 @@ rule
 
         compstmt: stmts opt_terms
                     {
-                      result = @builder.build_compstmt(val[0])
+                      result = @builder.compstmt(val[0])
                     }
 
            stmts: none
@@ -81,19 +81,19 @@ rule
                     }
                     fitem
                     {
-                      result = @builder.build_alias(val[0], val[1], val[3])
+                      result = @builder.alias(val[0], val[1], val[3])
                     }
                 | kALIAS tGVAR tGVAR
                     {
-                      result = @builder.build_alias(val[0],
-                                  @builder.build_gvar(val[1]),
-                                  @builder.build_gvar(val[2]))
+                      result = @builder.alias(val[0],
+                                  @builder.gvar(val[1]),
+                                  @builder.gvar(val[2]))
                     }
                 | kALIAS tGVAR tBACK_REF
                     {
-                      result = @builder.build_alias(val[0],
-                                  @builder.build_gvar(val[1]),
-                                  @builder.build_back_ref(val[2]))
+                      result = @builder.alias(val[0],
+                                  @builder.gvar(val[1]),
+                                  @builder.back_ref(val[2]))
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
@@ -142,7 +142,7 @@ rule
                     }
                 | lhs tEQL command_call
                     {
-                      result = @builder.build_assign(*val)
+                      result = @builder.assign(*val)
                     }
                 | mlhs tEQL command_call
                     {
@@ -170,7 +170,7 @@ rule
                     }
                 | backref tOP_ASGN command_call
                     {
-                      @builder.build_operator_assign(*val)
+                      @builder.operator_assign(*val)
                     }
                 | lhs tEQL mrhs
                     {
@@ -214,15 +214,15 @@ rule
                 | block_command
                 | kRETURN call_args
                     {
-                      result = @builder.build_keyword_cmd(:return, val[0], val[1])
+                      result = @builder.keyword_cmd(:return, val[0], val[1])
                     }
                 | kBREAK call_args
                     {
-                      result = @builder.build_keyword_cmd(:break, val[0], val[1])
+                      result = @builder.keyword_cmd(:break, val[0], val[1])
                     }
                 | kNEXT call_args
                     {
-                      result = @builder.build_keyword_cmd(:next, val[0], val[1])
+                      result = @builder.keyword_cmd(:next, val[0], val[1])
                     }
 
    block_command: block_call
@@ -356,7 +356,7 @@ rule
 
        mlhs_node: variable
                     {
-                      result = @builder.build_assignable(val[0])
+                      result = @builder.assignable(val[0])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
@@ -388,12 +388,12 @@ rule
                     }
                 | backref
                     {
-                      result = @builder.build_assignable(val[0])
+                      result = @builder.assignable(val[0])
                     }
 
              lhs: variable
                     {
-                      result = @builder.build_assignable(val[0])
+                      result = @builder.assignable(val[0])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
@@ -425,7 +425,7 @@ rule
                     }
                 | backref
                     {
-                      result = @builder.build_assignable(val[0])
+                      result = @builder.assignable(val[0])
                     }
 
            cname: tIDENTIFIER
@@ -453,7 +453,7 @@ rule
 
             fsym: fname
                     {
-                      result = @builder.build_func_name(val[0])
+                      result = @builder.func_name(val[0])
                     }
                 | symbol
 
@@ -489,7 +489,7 @@ rule
 
              arg: lhs tEQL arg
                     {
-                      result = @builder.build_assign(*val)
+                      result = @builder.assign(*val)
                     }
                 | lhs tEQL arg kRESCUE_MOD arg
                     {
@@ -527,7 +527,7 @@ rule
                     }
                 | backref tOP_ASGN arg
                     {
-                      result = @builder.build_operator_assign(*val)
+                      result = @builder.operator_assign(*val)
                     }
                 | arg tDOT2 arg
                     {
@@ -949,23 +949,23 @@ rule
                     }
                 | kRETURN
                     {
-                      result = @builder.build_keyword_cmd(:return, val[0])
+                      result = @builder.keyword_cmd(:return, val[0])
                     }
                 | kYIELD tLPAREN2 call_args tRPAREN
                     {
-                      result = @builder.build_keyword_cmd(:yield, val[0], val[2])
+                      result = @builder.keyword_cmd(:yield, val[0], val[2])
                     }
                 | kYIELD tLPAREN2 tRPAREN
                     {
-                      result = @builder.build_keyword_cmd(:yield, val[0])
+                      result = @builder.keyword_cmd(:yield, val[0])
                     }
                 | kYIELD
                     {
-                      result = @builder.build_keyword_cmd(:yield, val[0])
+                      result = @builder.keyword_cmd(:yield, val[0])
                     }
                 | kDEFINED opt_nl tLPAREN2 expr tRPAREN
                     {
-                      result = @builder.build_keyword_cmd(:defined, val[3])
+                      result = @builder.keyword_cmd(:defined, val[3])
                     }
                 | operation brace_block
                     {
@@ -1117,19 +1117,19 @@ rule
                     }
                 | kBREAK
                     {
-                      result = @builder.build_keyword_cmd(:break, val[0])
+                      result = @builder.keyword_cmd(:break, val[0])
                     }
                 | kNEXT
                     {
-                      result = @builder.build_keyword_cmd(:next, val[0])
+                      result = @builder.keyword_cmd(:next, val[0])
                     }
                 | kREDO
                     {
-                      result = @builder.build_keyword_cmd(:redo, val[0])
+                      result = @builder.keyword_cmd(:redo, val[0])
                     }
                 | kRETRY
                     {
-                      result = @builder.build_keyword_cmd(:retry, val[0])
+                      result = @builder.keyword_cmd(:retry, val[0])
                     }
 
    primary_value: primary
@@ -1506,7 +1506,7 @@ xstring_contents: none
 
           symbol: tSYMBOL
                     {
-                      result = @builder.build_symbol(val[0])
+                      result = @builder.symbol(val[0])
                     }
 
             dsym: tSYMBEG xstring_contents tSTRING_END
@@ -1528,39 +1528,39 @@ xstring_contents: none
 
          numeric: tINTEGER
                     {
-                      result = @builder.build_integer(val[0])
+                      result = @builder.integer(val[0])
                     }
                 | tFLOAT
                     {
-                      result = @builder.build_float(val[0])
+                      result = @builder.float(val[0])
                     }
                 | tUMINUS_NUM tINTEGER =tLOWEST
                     {
-                      result = @builder.build_integer(val[0], true)
+                      result = @builder.integer(val[0], true)
                     }
                 | tUMINUS_NUM tFLOAT   =tLOWEST
                     {
-                      result = @builder.build_float(val[0], true)
+                      result = @builder.float(val[0], true)
                     }
 
-        variable: tIDENTIFIER { result = @builder.build_ident(val[0])    }
-                | tIVAR       { result = @builder.build_ivar(val[0])     }
-                | tGVAR       { result = @builder.build_gvar(val[0])     }
-                | tCVAR       { result = @builder.build_cvar(val[0])     }
-                | tCONSTANT   { result = @builder.build_const(val[0])    }
-                | kNIL        { result = @builder.build_nil(val[0])      }
-                | kSELF       { result = @builder.build_self(val[0])     }
-                | kTRUE       { result = @builder.build_true(val[0])     }
-                | kFALSE      { result = @builder.build_false(val[0])    }
-                | k__FILE__   { result = @builder.build___FILE__(val[0]) }
-                | k__LINE__   { result = @builder.build___LINE__(val[0]) }
+        variable: tIDENTIFIER { result = @builder.ident(val[0])    }
+                | tIVAR       { result = @builder.ivar(val[0])     }
+                | tGVAR       { result = @builder.gvar(val[0])     }
+                | tCVAR       { result = @builder.cvar(val[0])     }
+                | tCONSTANT   { result = @builder.const(val[0])    }
+                | kNIL        { result = @builder.nil(val[0])      }
+                | kSELF       { result = @builder.self(val[0])     }
+                | kTRUE       { result = @builder.true(val[0])     }
+                | kFALSE      { result = @builder.false(val[0])    }
+                | k__FILE__   { result = @builder.__FILE__(val[0]) }
+                | k__LINE__   { result = @builder.__LINE__(val[0]) }
 
-         var_ref: variable    { result = @builder.build_readable(val[0])   }
+         var_ref: variable    { result = @builder.readable(val[0])   }
 
-         var_lhs: variable    { result = @builder.build_assignable(val[0]) }
+         var_lhs: variable    { result = @builder.assignable(val[0]) }
 
-         backref: tNTH_REF    { result = @builder.build_nth_ref(val[0])    }
-                | tBACK_REF   { result = @builder.build_back_ref(val[0])   }
+         backref: tNTH_REF    { result = @builder.nth_ref(val[0])    }
+                | tBACK_REF   { result = @builder.back_ref(val[0])   }
 
       superclass: term
                     {
