@@ -4,5 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'racc', github: 'whitequark/racc', branch: 'master'
+  gem 'racc', github: 'whitequark/racc', branch: 'master', platform: :jruby
 end
