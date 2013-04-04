@@ -43,196 +43,196 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_nil
     assert_parses(
-        "nil",
-      %q{~~~ expression},
-        s(:nil))
+      s(:nil),
+      %q{nil},
+      %q{~~~ expression})
   end
 
   def test_true
     assert_parses(
-        "true",
-      %q{~~~~ expression},
-        s(:true))
+      s(:true),
+      %q{true},
+      %q{~~~~ expression})
   end
 
   def test_false
     assert_parses(
-        "false",
-      %q{~~~~~ expression},
-        s(:false))
+      s(:false),
+      %q{false},
+      %q{~~~~~ expression})
   end
 
   def test_int
     assert_parses(
-        "42",
-      %q{~~ expression},
-        s(:int, 42))
+      s(:int, 42),
+      %q{42},
+      %q{~~ expression})
   end
 
   def test_float
     assert_parses(
-        "1.33",
-      %q{~~~~ expression},
-        s(:float, 1.33))
+      s(:float, 1.33),
+      %q{1.33},
+      %q{~~~~ expression})
   end
 
   # Strings
 
   def test_string_plain
     assert_parses(
-        "'foobar'",
+      s(:str, 'foobar'),
+      %q{'foobar'},
       %q{^ begin
         |       ^ end
-        |~~~~~~~~ expression},
-        s(:str, 'foobar'))
+        |~~~~~~~~ expression})
   end
 
   def test_string_interp
     assert_parses(
+      s(:dstr,
+        s(:str, 'foo'),
+        s(:lvar, :bar),
+        s(:str, 'baz')),
       %q{"foo#{bar}baz"},
       %q{^ begin
         |             ^ end
-        |~~~~~~~~~~~~~~ expression},
-        s(:dstr,
-          s(:str, 'foo'),
-          s(:lvar, :bar),
-          s(:str, 'baz')))
+        |~~~~~~~~~~~~~~ expression})
   end
 
   # Symbols
 
   def test_symbol_plain
     assert_parses(
-        ":foo",
-      %q{~~~~ expression},
-        s(:sym, :foo))
+      s(:sym, :foo),
+      %q{:foo},
+      %q{~~~~ expression})
 
     assert_parses(
-        ":'foo'",
+      s(:sym, :foo),
+      %q{:'foo'},
       %q{ ^ begin
         |     ^ end
-        |~~~~~~ expression},
-        s(:sym, :foo))
+        |~~~~~~ expression})
   end
 
   def test_symbol_interp
     assert_parses(
+      s(:dsym,
+        s(:str, 'foo'),
+        s(:lvar, :bar),
+        s(:str, 'baz')),
       %q{:"foo#{bar}baz"},
       %q{ ^ begin
         |              ^ end
-        | ~~~~~~~~~~~~~~ expression},
-        s(:dsym,
-          s(:str, 'foo'),
-          s(:lvar, :bar),
-          s(:str, 'baz')))
+        | ~~~~~~~~~~~~~~ expression})
   end
 
   # Execute-strings
 
   def test_xstring_plain
     assert_parses(
-        "`foobar`",
+      s(:xstr, 'foobar'),
+      %q{`foobar`},
       %q{^ begin
         |       ^ end
-        |~~~~~~~~ expression},
-        s(:xstr, 'foobar'))
+        |~~~~~~~~ expression})
   end
 
   def test_xstring_interp
     assert_parses(
+      s(:dxstr,
+        s(:str, 'foo'),
+        s(:lvar, :bar),
+        s(:str, 'baz')),
       %q{`foo#{bar}baz`},
       %q{^ begin
         |             ^ end
-        |~~~~~~~~~~~~~~ expression},
-        s(:dxstr,
-          s(:str, 'foo'),
-          s(:lvar, :bar),
-          s(:str, 'baz')))
+        |~~~~~~~~~~~~~~ expression})
   end
 
   # Regexp
 
   def test_regex_plain
     assert_parses(
-        "/source/im",
+      s(:regexp, s(:regopt, :i, :m), 'source'),
+      %q{/source/im},
       %q{^ begin
         |       ^ end
         |        ~~ expression (regopt)
-        |~~~~~~~~~~ expression},
-        s(:regexp, s(:regopt, :i, :m), 'source'))
+        |~~~~~~~~~~ expression})
   end
 
   def test_regex_interp
     assert_parses(
+      s(:dregexp,
+        s(:str, 'foo'),
+        s(:lvar, :bar),
+        s(:str, 'baz')),
       %q{/foo#{bar}baz/},
       %q{^ begin
         |             ^ end
-        |~~~~~~~~~~~~~~ expression},
-        s(:dregexp,
-          s(:str, 'foo'),
-          s(:lvar, :bar),
-          s(:str, 'baz')))
+        |~~~~~~~~~~~~~~ expression})
   end
 
   # Arrays
 
   def test_array_plain
     assert_parses(
-        "[1, 2]",
+      s(:array, s(:int, 1), s(:int, 2)),
+      %q{[1, 2]},
       %q{^ begin
         |     ^ end
-        |~~~~~~ expression},
-        s(:array, s(:int, 1), s(:int, 2)))
+        |~~~~~~ expression})
   end
 
   def test_array_splat
     assert_parses(
-        "[1, *foo, 2]",
+      s(:array,
+        s(:int, 1),
+        s(:splat, s(:lvar, :foo)),
+        s(:int, 2)),
+      %q{[1, *foo, 2]},
       %q{^ begin
         |           ^ end
         |    ^ operator (splat)
         |    ~~~~ expression (splat)
-        |~~~~~~~~~~~~ expression},
-        s(:array,
-          s(:int, 1),
-          s(:splat, s(:lvar, :foo)),
-          s(:int, 2)))
+        |~~~~~~~~~~~~ expression})
   end
 
   # Hashes
 
   def test_hash_hashrocket
     assert_parses(
-        "{ 1 => 2 }",
+      s(:hash, s(:pair, s(:int, 1), s(:int, 2))),
+      %q[{ 1 => 2 }],
       %q{^ begin
         |         ^ end
         |    ^^ operator (pair)
         |  ~~~~~~ expression (pair)
-        |~~~~~~~~~~ expression},
-        s(:hash, s(:pair, s(:int, 1), s(:int, 2))))
+        |~~~~~~~~~~ expression})
   end
 
   # def test_hash_label
   #   assert_parses(
-  #       "{ foo: 2 }",
+  #     s(:hash, s(:pair, s(:symbol, :foo), s(:int, 2))),
+  #     %q[{ foo: 2 }],
   #     %q{^ begin
   #       |         ^ end
   #       |     ^ operator (pair)
   #       |  ~~~ expression (pair.symbol)
   #       |  ~~~~~~ expression (pair)
   #       |~~~~~~~~~~ expression},
-  #       s(:hash, s(:pair, s(:symbol, :foo), s(:int, 2))),
   #       %w(1.9 2.0))
   # end
 
   # def test_hash_kwsplat
   #   assert_parses(
-  #       "{ foo: 2, **bar }",
+  #     s(:hash,
+  #       s(:pair, s(:symbol, :foo), s(:int, 2))
+  #       s(:kwsplat, s(:lvar, :bar))),
+  #     %q[{ foo: 2, **bar }],
   #     %q{          ^^ operator (kwsplat)
   #       |          ~~~~~ expression (kwsplat)},
-  #       s(:hash,
-  #         s(:pair, s(:symbol, :foo), s(:int, 2))
-  #         s(:kwsplat, s(:lvar, :bar))),
   #       %w(2.0))
   # end
 
@@ -240,18 +240,18 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_range_inclusive
     assert_parses(
-        "1..2",
+      s(:irange, s(:int, 1), s(:int, 2)),
+      %q{1..2},
       %q{ ~~ operator
-        |~~~~ expression},
-        s(:irange, s(:int, 1), s(:int, 2)))
+        |~~~~ expression})
   end
 
   def test_range_exclusive
     assert_parses(
-        "1...2",
+      s(:erange, s(:int, 1), s(:int, 2)),
+      %q{1...2},
       %q{ ~~~ operator
-        |~~~~~ expression},
-        s(:erange, s(:int, 1), s(:int, 2)))
+        |~~~~~ expression})
   end
 
   #
@@ -262,23 +262,23 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_self
     assert_parses(
-        "self",
-      %q{~~~~ expression},
-        s(:self))
+      s(:self),
+      %q{self},
+      %q{~~~~ expression})
   end
 
   def test_lvar
     assert_parses(
-        "foo",
-      %q{~~~ expression},
-        s(:lvar, :foo))
+      s(:lvar, :foo),
+      %q{foo},
+      %q{~~~ expression})
   end
 
   def test_ivar
     assert_parses(
-        "@foo",
-      %q{~~~~ expression},
-        s(:ivar, :@foo))
+      s(:ivar, :@foo),
+      %q{@foo},
+      %q{~~~~ expression})
   end
 
   def test_cvar
@@ -290,53 +290,53 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_gvar
     assert_parses(
-        "$foo",
-      %q{~~~~ expression},
-        s(:gvar, :$foo))
+      s(:gvar, :$foo),
+      %q{$foo},
+      %q{~~~~ expression})
   end
 
   # Constants
 
   def test_const_toplevel
     assert_parses(
-        "::Foo",
+      s(:const, s(:cbase), :Foo),
+      %q{::Foo},
       %q{  ~~~ name
-        |~~~~~ expression},
-        s(:const, s(:cbase), :Foo))
+        |~~~~~ expression})
   end
 
   def test_const_scoped
     assert_parses(
-        "bar::Foo",
+      s(:const, s(:lvar, :bar), :Foo),
+      %q{bar::Foo},
       %q{     ~~~ name
-        |~~~~~~~~ expression},
-        s(:const, s(:lvar, :bar), :Foo))
+        |~~~~~~~~ expression})
   end
 
   def test_const_unscoped
     assert_parses(
-        "Foo",
+      s(:const, nil, :Foo),
+      %q{Foo},
       %q{~~~ name
-        |~~~ expression},
-        s(:const, nil, :Foo))
+        |~~~ expression})
   end
 
   # defined?
 
   def test_defined
     assert_parses(
-        "defined? foo",
+      s(:defined?, s(:lvar, :foo)),
+      %q{defined? foo},
       %q{~~~~~~~~ keyword
-        |~~~~~~~~~~~~ expression},
-        s(:defined?, s(:lvar, :foo)))
+        |~~~~~~~~~~~~ expression})
 
     assert_parses(
-        "defined?(foo)",
+      s(:defined?, s(:lvar, :foo)),
+      %q{defined?(foo)},
       %q{~~~~~~~~ keyword
         |        ^ begin
         |            ^ end
-        |~~~~~~~~~~~~~ expression},
-        s(:defined?, s(:lvar, :foo)))
+        |~~~~~~~~~~~~~ expression})
   end
 
   #
@@ -347,150 +347,149 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_lvasgn
     assert_parses(
-        "var = 10; var",
+      s(:begin,
+        s(:lvasgn, :var, s(:int, 10)),
+        s(:lvar, :var)),
+      %q{var = 10; var},
       %q{~~~ name (lvasgn)
         |    ^ operator (lvasgn)
         |~~~~~~~~ expression (lvasgn)
-        },
-        s(:begin,
-          s(:lvasgn, :var, s(:int, 10)),
-          s(:lvar, :var)))
+        })
   end
 
   def test_ivasgn
     assert_parses(
-        "@var = 10",
+      s(:ivasgn, :@var, s(:int, 10)),
+      %q{@var = 10},
       %q{~~~~ name
         |     ^ operator
         |~~~~~~~~~ expression
-        },
-        s(:ivasgn, :@var, s(:int, 10)))
+        })
   end
 
   def test_cvdecl
     assert_parses(
-        "@@var = 10",
+      s(:cvdecl, :@@var, s(:int, 10)),
+      %q{@@var = 10},
       %q{~~~~~ name
         |      ^ operator
         |~~~~~~~~~~ expression
-        },
-        s(:cvdecl, :@@var, s(:int, 10)))
+        })
   end
 
   def test_cvasgn
     assert_parses(
-        "def a; @@var = 10; end",
+      s(:def, :a, s(:args),
+        s(:cvasgn, :@@var, s(:int, 10))),
+      %q{def a; @@var = 10; end},
       %q{       ~~~~~ name (cvasgn)
         |             ^ operator (cvasgn)
         |       ~~~~~~~~~~ expression (cvasgn)
-        },
-        s(:def, :a, s(:args),
-          s(:cvasgn, :@@var, s(:int, 10))))
+        })
   end
 
   def test_gvasgn
     assert_parses(
-        "$var = 10",
+      s(:gvasgn, :$var, s(:int, 10)),
+      %q{$var = 10},
       %q{~~~~ name
         |     ^ operator
         |~~~~~~~~~ expression
-        },
-        s(:gvasgn, :$var, s(:int, 10)))
+        })
   end
 
   # Constants
 
   def test_cdecl_toplevel
     assert_parses(
-        "::Foo = 10",
+      s(:cdecl, s(:cbase), :Foo, s(:int, 10)),
+      %q{::Foo = 10},
       %q{  ~~~ name
         |      ^ operator
         |~~~~~~~~~~ expression
-        },
-        s(:cdecl, s(:cbase), :Foo, s(:int, 10)))
+        })
   end
 
   def test_cdecl_scoped
     assert_parses(
-        "foo::Foo = 10",
+      s(:cdecl, s(:lvar, :foo), :Foo, s(:int, 10)),
+      %q{foo::Foo = 10},
       %q{     ~~~ name
         |         ^ operator
         |~~~~~~~~~~~~~ expression
-        },
-        s(:cdecl, s(:lvar, :foo), :Foo, s(:int, 10)))
+        })
   end
 
   def test_cdecl_unscoped
     assert_parses(
-        "Foo = 10",
+      s(:cdecl, nil, :Foo, s(:int, 10)),
+      %q{Foo = 10},
       %q{~~~ name
         |    ^ operator
         |~~~~~~~~ expression
-        },
-        s(:cdecl, nil, :Foo, s(:int, 10)))
+        })
   end
 
   # Multiple assignment
 
   def test_masgn
     assert_parses(
-        "foo, bar = 1, 2",
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :foo), s(:lvasgn, :bar)),
+        s(:array, s(:int, 1), s(:int, 2))),
+      %q{foo, bar = 1, 2},
       %q{         ^ operator
         |~~~~~~~~ expression (mlhs)
         |           ~~~~ expression (array)
         |~~~~~~~~~~~~~~~ expression
-        },
-        s(:masgn,
-          s(:mlhs, s(:lvasgn, :foo), s(:lvasgn, :bar)),
-          s(:array, s(:int, 1), s(:int, 2))))
+        })
   end
 
   def test_masgn_splat
     assert_parses(
-        "@foo, @@bar = *foo",
+      s(:masgn,
+        s(:mlhs, s(:ivasgn, :foo), s(:cvdecl, :bar)),
+        s(:splat, s(:lvar, :foo))),
+      %q{@foo, @@bar = *foo},
       %q{              ^ operator (splat)
         |              ~~~~ expression (splat)
-        },
-        s(:masgn,
-          s(:mlhs, s(:ivasgn, :foo), s(:cvdecl, :bar)),
-          s(:splat, s(:lvar, :foo))))
+        })
 
     assert_parses(
-        "a, b = *foo, bar",
-      %q{},
-        s(:masgn,
-          s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
-          s(:array, s(:splat, s(:lvar, :foo), s(:lvar, :bar)))))
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
+        s(:array, s(:splat, s(:lvar, :foo), s(:lvar, :bar)))),
+      %q{a, b = *foo, bar})
   end
 
   def test_masgn_nested
     assert_parses(
-        "a, (b, c) = foo",
+      s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :a),
+          s(:mlhs,
+            s(:lvasgn, :b),
+            s(:lvasgn, :c))),
+        s(:lvar, :foo)),
+      %q{a, (b, c) = foo},
       %q{   ^ begin (mlhs.mlhs)
         |        ^ end (mlhs.mlhs)
         |   ~~~~~~ expression (mlhs.mlhs)
-        },
-        s(:masgn,
-          s(:mlhs,
-            s(:lvasgn, :a),
-            s(:mlhs,
-              s(:lvasgn, :b),
-              s(:lvasgn, :c))),
-          s(:lvar, :foo)))
+        })
   end
 
   def test_masgn_attr
     assert_parses(
-        "self.a, self[1, 2] = foo",
+      s(:masgn,
+        s(:mlhs,
+          s(:send, s(:self), :a=),
+          s(:send, s(:self), :[]=, s(:int, 1), s(:int, 2))),
+        s(:lvar, :foo)),
+      %q{self.a, self[1, 2] = foo},
       %q{~~~~~~ expression (mlhs.send/1)
         |     ~ selector (mlhs.send/1)
         |            ~~~~~~ selector (mlhs.send/2)
-        |        ~~~~~~~~~~ expression (mlhs.send/2)},
-        s(:masgn,
-          s(:mlhs,
-            s(:send, s(:self), :a=),
-            s(:send, s(:self), :[]=, s(:int, 1), s(:int, 2))),
-          s(:lvar, :foo)))
+        |        ~~~~~~~~~~ expression (mlhs.send/2)})
   end
 
   # Variable binary operator-assignment

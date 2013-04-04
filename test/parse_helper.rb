@@ -6,16 +6,16 @@ module ParseHelper
   # Use like this:
   # ```
   # assert_parses(
-  #     "10 + 20",
+  #   s(:send, s(:lit, 10), :+, s(:lit, 20))
+  #   %q{10 + 20},
   #   %q{~~~~~~~ expression
   #     |   ^ operator
-  #     |~~ expression (lit)
-  #     }
-  #     s(:send, s(:lit, 10), :+, s(:lit, 20)),
+  #     |     ~~ expression (lit)
+  #     },
   #     %w(1.8 1.9) # optional
   # )
   # ```
-  def assert_parses(code, source_maps, ast, versions=%w(1.8))
+  def assert_parses(ast, code, source_maps='', versions=%w(1.8))
     source_file = Parser::Source::Buffer.new('(assert_parses)')
     source_file.source = code
 
