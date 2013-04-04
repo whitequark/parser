@@ -509,6 +509,7 @@ class TestParser < MiniTest::Unit::TestCase
   end
 
   def test_var_and_asgn
+  end
 
   # Method logical operator-assignment
 
