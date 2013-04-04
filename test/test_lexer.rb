@@ -1,7 +1,6 @@
 # encoding: ascii-8bit
 
-require 'minitest/autorun'
-require 'parser'
+require_relative 'helper'
 
 class TestLexer < MiniTest::Unit::TestCase
   def setup_lexer(version)

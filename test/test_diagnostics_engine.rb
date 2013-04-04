@@ -1,5 +1,4 @@
-require 'minitest/autorun'
-require 'parser'
+require_relative 'helper'
 
 class TestDiagnosticsEngine < MiniTest::Unit::TestCase
   def setup

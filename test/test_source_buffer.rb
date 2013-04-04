@@ -1,6 +1,4 @@
-require 'minitest/autorun'
-require 'tempfile'
-require 'parser'
+require_relative 'helper'
 
 class TestSourceBuffer < MiniTest::Unit::TestCase
   def setup

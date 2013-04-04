@@ -1,5 +1,4 @@
-require 'minitest/autorun'
-require 'parser'
+require_relative 'helper'
 
 class TestStaticEnvironment < MiniTest::Unit::TestCase
   def setup

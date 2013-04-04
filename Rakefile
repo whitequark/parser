@@ -1,12 +1,10 @@
-require "bundler/gem_tasks"
+require 'bundler/gem_tasks'
+require 'rake/testtask'
 
 task :default => [:generate, :test]
 
-task :test do
-  $LOAD_PATH << File.expand_path('../lib/', __FILE__)
-  Dir['test/test_*.rb'].each do |file|
-    load file
-  end
+Rake::TestTask.new do |t|
+  t.test_files = FileList["test/**/test_*.rb"]
 end
 
 desc 'Generate the Ragel lexer and Bison parser.'

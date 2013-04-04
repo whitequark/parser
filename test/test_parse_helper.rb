@@ -1,4 +1,4 @@
-require 'minitest/autorun'
+require_relative 'helper'
 require_relative 'parse_helper'
 
 class TestParseHelper < MiniTest::Unit::TestCase
