@@ -144,7 +144,7 @@ Format:
 
 Format:
 ```
-(dregexp (lit "foo") (lvar bar) (regopt :i))
+(dregexp (str "foo") (lvar :bar) (regopt :i))
 "/foo#{bar}/i"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression
@@ -497,36 +497,36 @@ Binary operator-assignment features the same "incomplete assignments" and "incom
 
 Format:
 ```
-(var-op-asgn (lvar :a) :+ (lit 1))
+(var-op-asgn (lvar :a) :+ (int 1))
 "a += 1"
    ~~ operator
  ~~~~~~ expression
 
-(var-op-asgn (ivar :a) :+ (lit 1))
+(var-op-asgn (ivar :a) :+ (int 1))
 "@a += 1"
 ```
 
 Ruby_parser output for reference:
 ```
 "a += 1"
-s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:lit, 1)))
+s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:int, 1)))
 
 "@a += 1"
-s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:lit, 1)))
+s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:int, 1)))
 ```
 
 #### Method binary operator-assignment
 
 Format:
 ```
-(op-asgn (send (ivar :@a) :b) :+ (lit 1))
+(op-asgn (send (ivar :@a) :b) :+ (int 1))
 "@a.b += 1"
     ~ selector (send)
  ~~~~ expression (send)
       ~~ operator (op-asgn)
  ~~~~~~~~~ expression (op-asgn)
 
-(op-asgn (send (ivar :@a) :[] (lit 0) (lit 1))) :+ (lit 1))
+(op-asgn (send (ivar :@a) :[] (int 0) (int 1))) :+ (int 1))
 "@a[0, 1] += 1"
    ~~~~~~ selector (send)
  ~~~~~~~~ expression (send)
@@ -537,10 +537,10 @@ Format:
 Ruby_parser output for reference:
 ```
 "@a.b += 1"
-s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:lit, 1))
+s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:int, 1))
 
 "@a[0, 1] += 1"
-s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:lit, 0), s(:lit, 1)), :+, s(:lit, 1))
+s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:int, 0), s(:int, 1)), :+, s(:int, 1))
 ```
 
 ### Logical operator-assignment
@@ -551,12 +551,12 @@ Logical operator-assignment features the same "incomplete assignments" and "inco
 
 Format:
 ```
-(var-or-asgn (ivar :@a) (lit 1))
+(var-or-asgn (ivar :@a) (int 1))
 "@a ||= 1"
     ~~~ operator
  ~~~~~~~~ expression
 
-(var-and-asgn (lvar :a) (lit 1))
+(var-and-asgn (lvar :a) (int 1))
 "a &&= 1"
    ~~~ operator
  ~~~~~~~ expression
@@ -565,31 +565,31 @@ Format:
 Ruby_parser output for reference:
 ```
 "@a ||= 1"
-s(:op_asgn_or, s(:ivar, :@a), s(:iasgn, :@a, s(:lit, 1)))
+s(:op_asgn_or, s(:ivar, :@a), s(:iasgn, :@a, s(:int, 1)))
 
 "a &&= 1"
-s(:op_asgn_and, s(:lvar, :a), s(:lasgn, :a, s(:lit, 1)))
+s(:op_asgn_and, s(:lvar, :a), s(:lasgn, :a, s(:int, 1)))
 ```
 
 #### Method logical operator-assignment
 
 Format:
 ```
-(or-asgn (send (ivar :@foo) :bar) (lit 1))
+(or-asgn (send (ivar :@foo) :bar) (int 1))
 "@foo.bar ||= 1"
       ~~~ selector (send)
  ~~~~~~~~ expr (send)
           ~~~ operator (or-asgn)
  ~~~~~~~~~~~~~~ expression (or-asgn)
 
-(and-asgn (send (lvar :@foo) :bar) (lit 1))
+(and-asgn (send (lvar :@foo) :bar) (int 1))
 "foo.bar &&= 1"
      ~~~ selector (send)
  ~~~~~~~ expr (send)
          ~~~ operator (and-asgn)
  ~~~~~~~~~~~~~ expression (and-asgn)
 
-(or-asgn (send (ivar :@foo) :[] (lit 1) (lit 2)) (lit 1))
+(or-asgn (send (ivar :@foo) :[] (int 1) (int 2)) (int 1))
 "@foo[1, 2] ||= 1"
      ~~~~~~ selector (send)
  ~~~~~~~~~~ expr (send)
@@ -601,10 +601,10 @@ Format:
 Ruby_parser output for reference:
 ```
 "@foo.bar &&= 1"
-s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:lit, 1))
+s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:int, 1))
 
 "@foo[0] ||= 1"
-s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:lit, 0)), :"||", s(:lit, 1))
+s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
 
 ```
 
@@ -615,8 +615,9 @@ s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:lit, 0)), :"||", s(:lit, 1))
 Format:
 ```
 (module (const nil :Foo) (begin))
-"module Foo < Bar; end"
- ~~~~~~ keyword    ~~~ end
+"module Foo; end"
+ ~~~~~~ keyword
+             ~~~ end
 ```
 
 ### Class

@@ -495,27 +495,108 @@ class TestParser < MiniTest::Unit::TestCase
   # Variable binary operator-assignment
 
   def test_var_op_asgn
+    assert_parses(
+      s(:var_op_asgn, s(:lvar, :a), :+, s(:lit, 1)),
+      %q{a += 1},
+      %q{  ^^ operator
+        |~~~~~~ expression})
+
+    assert_parses(
+      s(:var_op_asgn, s(:ivar, :a), :+, s(:lit, 1)),
+      %q{@a += 1},
+      %q{   ^^ operator
+        |~~~~~~~ expression})
   end
 
   # Method binary operator-assignment
 
   def test_op_asgn
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :a), :+,
+        s(:int, 1)),
+      %q{foo.a += 1},
+      %q{      ^^ operator
+        |    ~ selector (send)
+        |~~~~~ expression (send)
+        |~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :[],
+          s(:int, 0), s(:int, 1)), :+,
+        s(:int, 2)),
+      %q{foo[0, 1] += 2},
+      %q{          ^^ operator
+        |   ~~~~~~ selector (send)
+        |~~~~~~~~~ expression (send)
+        |~~~~~~~~~~~~~~ expression})
   end
 
   # Variable logical operator-assignment
 
   def test_var_or_asgn
+    assert_parses(
+      s(:var_or_asgn, s(:lvar, :a), s(:lit, 1)),
+      %q{a ||= 1},
+      %q{  ^^^ operator
+        |~~~~~~~ expression})
   end
 
   def test_var_and_asgn
+    assert_parses(
+      s(:var_and_asgn, s(:lvar, :a), s(:lit, 1)),
+      %q{a &&= 1},
+      %q{  ^^^ operator
+        |~~~~~~~ expression})
   end
 
   # Method logical operator-assignment
 
   def test_or_asgn
+    assert_parses(
+      s(:or_asgn,
+        s(:send, s(:lvar, :foo), :a),
+        s(:lit, 1)),
+      %q{foo.a ||= 1},
+      %q{      ^^^ operator
+        |    ~ selector (send)
+        |~~~~~ expression (send)
+        |~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:or_asgn,
+        s(:send, s(:lvar, :foo), :[],
+          s(:int, 0), s(:int, 1)),
+        s(:lit, 2)),
+      %q{foo[0, 1] ||= 1},
+      %q{          ^^^ operator
+        |   ~~~~~~ selector (send)
+        |~~~~~~~~~ expression (send)
+        |~~~~~~~~~~~~~~~ expression})
   end
 
   def test_and_asgn
+    assert_parses(
+      s(:and_asgn,
+        s(:send, s(:lvar, :foo), :a),
+        s(:lit, 1)),
+      %q{foo.a &&= 1},
+      %q{      ^^^ operator
+        |    ~ selector (send)
+        |~~~~~ expression (send)
+        |~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:and_asgn,
+        s(:send, s(:lvar, :foo), :[],
+          s(:int, 0), s(:int, 1)),
+        s(:lit, 2)),
+      %q{foo[0, 1] &&= 1},
+      %q{          ^^^ operator
+        |   ~~~~~~ selector (send)
+        |~~~~~~~~~ expression (send)
+        |~~~~~~~~~~~~~~~ expression})
   end
 
   #
@@ -523,15 +604,47 @@ class TestParser < MiniTest::Unit::TestCase
   #
 
   def test_module
+    assert_parses(
+      s(:module,
+        s(:const, nil, :Foo),
+        s(:nil)),
+      %q{module Foo; nil; end},
+      %q{~~~~~~ keyword
+        |                 ~~~ end})
   end
 
   def test_class
+    assert_parses(
+      s(:class,
+        s(:const, nil, :Foo),
+        nil,
+        s(:nil)),
+      %q{class Foo; nil; end},
+      %q{~~~~~ keyword
+        |                ~~~ end})
   end
 
   def test_class_super
+    assert_parses(
+      s(:class,
+        s(:const, nil, :Foo),
+        s(:const, nil, :Bar),
+        s(:nil)),
+      %q{class Foo < Bar; nil; end},
+      %q{~~~~~ keyword
+        |          ^ operator
+        |                      ~~~ end})
   end
 
   def test_sclass
+    assert_parses(
+      s(:sclass,
+        s(:lvar, :foo),
+        s(:nil)),
+      %q{class << foo; nil; end},
+      %q{~~~~~ keyword
+        |      ^^ operator
+        |                   ~~~ end})
   end
 
   #
@@ -539,12 +652,31 @@ class TestParser < MiniTest::Unit::TestCase
   #
 
   def test_def
+    assert_parses(
+      s(:def, :foo, s(:args), s(:nil)),
+      %q{def foo; nil; end},
+      %q{~~~ keyword
+        |    ~~~ name
+        |              ~~~ end})
   end
 
   def test_defs
+    assert_parses(
+      s(:defs, s(:self), :foo, s(:args), s(:nil)),
+      %q{def self.foo; nil; end},
+      %q{~~~ keyword
+        |        ^ operator
+        |         ~~~ name
+        |                   ~~~ end})
   end
 
   def test_undef
+    assert_parses(
+      s(:undef, s(:sym, :foo), s(:sym, :bar)),
+      %q{undef foo :bar},
+      %q{~~~~~ keyword
+        |      ~~~ expression (sym/1)
+        |          ~~~~ expression (sym/2)})
   end
 
   #
