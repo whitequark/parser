@@ -5,8 +5,10 @@ require 'ast'
 
 # Library namespace
 module Parser
-  require 'parser/source/buffer'
-  require 'parser/source/range'
+  module Source
+    require 'parser/source/buffer'
+    require 'parser/source/range'
+  end
 
   require 'parser/location'
   require 'parser/location/operator'

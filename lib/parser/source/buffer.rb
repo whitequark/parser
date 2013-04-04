@@ -1,6 +1,6 @@
-module Parser::Source
+module Parser
 
-  class Buffer
+  class Source::Buffer
     attr_reader :name, :first_line
 
     def initialize(name, first_line = 1)
