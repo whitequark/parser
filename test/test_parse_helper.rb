@@ -15,35 +15,35 @@ class TestParseHelper < MiniTest::Unit::TestCase
     #                    parser_for_ruby_version('2.0')
   end
 
-  def parse_loc(what)
-    parse_location_descriptions(what).to_a
+  def parse_maps(what)
+    parse_source_map_descriptions(what).to_a
   end
 
-  def test_parse_location_description
+  def test_parse_mapsation_description
     assert_equal [[0, 3, 'expr', [], '~~~~ expr']],
-                 parse_loc('~~~~ expr')
+                 parse_maps('~~~~ expr')
 
     assert_equal [[0, 3, 'expr', [], '^~~~ expr']],
-                 parse_loc('^~~~ expr')
+                 parse_maps('^~~~ expr')
 
     assert_equal [[0, 3, 'expr', [], '^^^^ expr']],
-                 parse_loc('^^^^ expr')
+                 parse_maps('^^^^ expr')
 
     assert_equal [[2, 2, 'op', [], '  ^ op']],
-                 parse_loc('  ^ op')
+                 parse_maps('  ^ op')
 
     assert_equal [[2, 2, 'op', ['foo'], '  ~ op (foo)']],
-                 parse_loc('  ~ op (foo)')
+                 parse_maps('  ~ op (foo)')
 
     assert_equal [[2, 3, 'op', ['foo', 'bar'], '  ~~ op (foo.bar)']],
-                 parse_loc('  ~~ op (foo.bar)')
+                 parse_maps('  ~~ op (foo.bar)')
 
     assert_equal [[2, 3, 'op', ['foo/2', 'bar'], '  ~~ op (foo/2.bar)']],
-                 parse_loc('  ~~ op (foo/2.bar)')
+                 parse_maps('  ~~ op (foo/2.bar)')
 
     assert_equal [[0, 3, 'expr', [], '~~~~ expr'],
                   [5, 6, 'op', ['str'], '     ~~ op (str)']],
-                 parse_loc(%{
+                 parse_maps(%{
                             |~~~~ expr
                             |     ~~ op (str)
                             })

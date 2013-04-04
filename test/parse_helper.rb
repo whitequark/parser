@@ -15,7 +15,7 @@ module ParseHelper
   #     %w(1.8 1.9) # optional
   # )
   # ```
-  def assert_parses(code, location, ast, versions=%w(1.8))
+  def assert_parses(code, source_maps, ast, versions=%w(1.8))
     source_file = Parser::Source::Buffer.new('(assert_parses)')
     source_file.source = code
 
@@ -26,8 +26,8 @@ module ParseHelper
       assert_equal ast, parsed_ast,
                    "(#{version}) AST equality"
 
-      parse_location_descriptions(location) \
-          do |begin_pos, end_pos, loc_field, ast_path, line|
+      parse_source_map_descriptions(source_maps) \
+          do |begin_pos, end_pos, map_field, ast_path, line|
 
         astlet = traverse_ast(parsed_ast, ast_path)
 
@@ -36,13 +36,13 @@ module ParseHelper
           raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
         end
 
-        assert astlet.location.respond_to?(loc_field),
-               "(#{version}) location.respond_to?(#{loc_field.inspect}) for #{line.inspect}"
+        assert astlet.source_map.respond_to?(map_field),
+               "(#{version}) source_map.respond_to?(#{map_field.inspect}) for #{line.inspect}"
 
-        range = astlet.location.send(loc_field)
+        range = astlet.source_map.send(map_field)
 
         assert range.is_a?(Parser::Source::Range),
-               "(#{version}) #{loc_field}.is_a?(Source::Range) for #{line.inspect}"
+               "(#{version}) #{map_field}.is_a?(Source::Range) for #{line.inspect}"
 
         assert_equal begin_pos, range.begin,
                      "(#{version}) begin of #{line.inspect}"
@@ -62,28 +62,28 @@ module ParseHelper
     end
   end
 
-  LOCATION_DESCRIPTION_RE =
+  SOURCE_MAP_DESCRIPTION_RE =
       /^(?<skip>\s*)
        (?<hilight>[~\^]+)
        \s+
-       (?<location_field>[a-z]+)
+       (?<source_map_field>[a-z]+)
        (\s+\((?<ast_path>[a-z0-9.\/]+)\))?$/x
 
-  def parse_location_descriptions(description)
+  def parse_source_map_descriptions(descriptions)
     unless block_given?
-      return to_enum(:parse_location_descriptions, description)
+      return to_enum(:parse_source_map_descriptions, descriptions)
     end
 
-    description.each_line do |line|
+    descriptions.each_line do |line|
       # Remove trailing "     |", if it exists.
       line = line.sub(/^\s*\|/, '').rstrip
 
       next if line.empty?
 
-      if (match = LOCATION_DESCRIPTION_RE.match(line))
-        begin_pos      = match[:skip].length
-        end_pos        = begin_pos + match[:hilight].length - 1
-        location_field = match[:location_field]
+      if (match = SOURCE_MAP_DESCRIPTION_RE.match(line))
+        begin_pos        = match[:skip].length
+        end_pos          = begin_pos + match[:hilight].length - 1
+        source_map_field = match[:source_map_field]
 
         if match[:ast_path]
           ast_path = match[:ast_path].split('.')
@@ -91,9 +91,9 @@ module ParseHelper
           ast_path = []
         end
 
-        yield begin_pos, end_pos, location_field, ast_path, line
+        yield begin_pos, end_pos, source_map_field, ast_path, line
       else
-        raise "Cannot parse location description line: #{line.inspect}."
+        raise "Cannot parse source map description line: #{line.inspect}."
       end
     end
   end

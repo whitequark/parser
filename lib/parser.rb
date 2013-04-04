@@ -8,11 +8,11 @@ module Parser
   module Source
     require 'parser/source/buffer'
     require 'parser/source/range'
-  end
 
-  require 'parser/location'
-  require 'parser/location/operator'
-  require 'parser/location/variable_assignment'
+    require 'parser/source/map'
+    require 'parser/source/map/operator'
+    require 'parser/source/map/variable_assignment'
+  end
 
   require 'parser/syntax_error'
   require 'parser/diagnostic'
@@ -24,7 +24,11 @@ module Parser
   require 'parser/lexer/literal'
 
   require 'parser/node'
-  require 'parser/builders/default'
+
+  module Builders
+    require 'parser/builders/default'
+  end
+
   require 'parser/base'
 
   ERRORS = {

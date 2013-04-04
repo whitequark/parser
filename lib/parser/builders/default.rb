@@ -1,5 +1,6 @@
-module Parser::Builders
-  class Default
+module Parser
+
+  class Builders::Default
     attr_accessor :parser
 
     def nil(token);   t(token, :nil);   end
@@ -77,11 +78,11 @@ module Parser::Builders
         node.updated(:lvasgn)
 
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
-        message = Parser::ERRORS[:invalid_assignment] % { node: node.type }
+        message = ERRORS[:invalid_assignment] % { node: node.type }
         diagnostic :error, message, node.loc
 
       when :back_ref, :nth_ref
-        message = Parser::ERRORS[:backref_assignment]
+        message = ERRORS[:backref_assignment]
         diagnostic :error, message, node.loc
 
       else
@@ -93,9 +94,9 @@ module Parser::Builders
       case lhs.type
       when :gvasgn, :ivasgn, :lvasgn, :masgn, :cdecl, :cvdecl, :cvasgn
         (lhs << rhs).updated(nil, nil,
-            location: Parser::Location::VariableAssignment.new(
-                        lhs.loc.expression, location(token),
-                        lhs.loc.expression.join(rhs.loc.expression)))
+            source_map: Source::Map::VariableAssignment.new(
+                        lhs.src.expression, location(token),
+                        lhs.src.expression.join(rhs.src.expression)))
 
       when :attrasgn, :call
         raise NotImplementedError
@@ -133,7 +134,7 @@ module Parser::Builders
     protected
 
     def t(token, type, *args)
-      s(type, *args, location: Parser::Location.new(location(token)))
+      s(type, *args, source_map: Source::Map.new(location(token)))
     end
 
     def value(token)
@@ -151,16 +152,17 @@ module Parser::Builders
         metadata = {}
       end
 
-      Parser::Node.new(type, args, metadata)
+      Node.new(type, args, metadata)
     end
 
     def diagnostic(type, message, location, highlights=[])
       @parser.diagnostics.process(
-          Parser::Diagnostic.new(type, message, location, highlights))
+          Diagnostic.new(type, message, location, highlights))
 
       if type == :error
         @parser.yyerror
       end
     end
   end
+
 end
