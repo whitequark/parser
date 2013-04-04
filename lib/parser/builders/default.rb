@@ -26,6 +26,7 @@ module Parser::Builders
 
       t(token, type, val)
     end
+    private :numeric
 
     def integer(token, negate=false)
       numeric(token, :int, negate)
@@ -35,7 +36,7 @@ module Parser::Builders
       numeric(token, :float, negate)
     end
 
-    def readable(node)
+    def accessible(node)
       case node.type
       when :ident
         name, = *node
