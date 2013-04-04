@@ -1,6 +1,6 @@
 module Parser
 
-  class DiagnosticsEngine
+  class Diagnostic::Engine
     attr_accessor :consumer
 
     attr_accessor :all_errors_are_fatal

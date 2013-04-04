@@ -24,7 +24,7 @@ module Parser
     attr_reader :source_buffer
 
     def initialize(builder=Parser::Builders::Default.new)
-      @diagnostics = DiagnosticsEngine.new
+      @diagnostics = Diagnostic::Engine.new
 
       @static_env  = StaticEnvironment.new
 

@@ -17,7 +17,7 @@ module Parser
 
   require 'parser/syntax_error'
   require 'parser/diagnostic'
-  require 'parser/diagnostics_engine'
+  require 'parser/diagnostic/engine'
 
   require 'parser/static_environment'
 

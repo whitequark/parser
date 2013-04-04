@@ -1,11 +1,11 @@
 require_relative 'helper'
 
-class TestDiagnosticsEngine < MiniTest::Unit::TestCase
+class TestDiagnosticEngine < MiniTest::Unit::TestCase
   def setup
     @buffer  = Parser::Source::Buffer.new('(source)')
     @buffer.source = 'foobar'
 
-    @engine = Parser::DiagnosticsEngine.new
+    @engine = Parser::Diagnostic::Engine.new
 
     @queue  = []
     @engine.consumer = ->(diag) { @queue << diag }
