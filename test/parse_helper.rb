@@ -67,7 +67,7 @@ module ParseHelper
        (?<hilight>[~\^]+)
        \s+
        (?<source_map_field>[a-z]+)
-       (\s+\((?<ast_path>[a-z0-9.\/]+)\))?$/x
+       (\s+\((?<ast_path>[a-z_.\/0-9]+)\))?$/x
 
   def parse_source_map_descriptions(descriptions)
     unless block_given?

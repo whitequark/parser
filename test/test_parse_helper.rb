@@ -42,10 +42,10 @@ class TestParseHelper < MiniTest::Unit::TestCase
                  parse_maps('  ~~ op (foo/2.bar)')
 
     assert_equal [[0, 3, 'expr', [], '~~~~ expr'],
-                  [5, 6, 'op', ['str'], '     ~~ op (str)']],
+                  [5, 6, 'op', ['str.e_h'], '     ~~ op (str.e_h)']],
                  parse_maps(%{
                             |~~~~ expr
-                            |     ~~ op (str)
+                            |     ~~ op (str.e_h)
                             })
   end
 

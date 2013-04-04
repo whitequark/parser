@@ -734,7 +734,7 @@ Format:
 (optarg :foo (int 1))
 "foo = 1"
  ~~~~~~~ expression
-     ^ assignment
+     ^ operator
  ~~~ name
 ```
 
@@ -768,6 +768,8 @@ Format:
   ~~~ name
  ~~~~ expression
 ```
+
+Begin of the `expression` points to `&`.
 
 ### Decomposition
 

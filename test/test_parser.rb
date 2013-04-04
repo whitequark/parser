@@ -672,11 +672,15 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_undef
     assert_parses(
-      s(:undef, s(:sym, :foo), s(:sym, :bar)),
-      %q{undef foo :bar},
+      s(:undef,
+        s(:sym, :foo),
+        s(:sym, :bar),
+        s(:dsym, s(:str, "foo"), s(:int, 1))),
+      %q{undef foo :bar :"foo#{1}"},
       %q{~~~~~ keyword
         |      ~~~ expression (sym/1)
-        |          ~~~~ expression (sym/2)})
+        |          ~~~~ expression (sym/2)
+        |~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   #
@@ -684,9 +688,24 @@ class TestParser < MiniTest::Unit::TestCase
   #
 
   def test_alias
+    assert_parses(
+      s(:alias, s(:sym, :foo), s(:sym, :bar)),
+      %q{alias :foo bar},
+      %q{~~~~~ keyword
+        |      ~~~~ expression (sym/1)
+        |           ~~~ expression (sym/2)})
   end
 
   def test_alias_gvar
+    assert_parses(
+      s(:alias, s(:gvar, :$a), s(:gvar, :$b)),
+      %q{alias $a $b},
+      %q{      ~~ expression (gvar/1)})
+
+    assert_parses(
+      s(:alias, s(:gvar, :$a), s(:back_ref, :$+)),
+      %q{alias $a $+},
+      %q{         ~~ expression (back_ref)})
   end
 
   #
@@ -694,22 +713,89 @@ class TestParser < MiniTest::Unit::TestCase
   #
 
   def test_arg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:arg, :foo)),
+        s(:nil)),
+      %q{def f(foo); nil; end},
+      %q{      ~~~ name (args.arg)
+        |      ~~~ expression (args.arg)
+        |     ^ begin (args)
+        |         ^ end (args)
+        |     ~~~~~ expression (args)})
   end
 
   def test_optarg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:optarg, :foo, s(:int, 1))),
+        s(:nil)),
+      %q{def f foo = 1; nil; end},
+      %q{      ~~~ name (args.optarg)
+        |          ^ operator (args.optarg)
+        |      ~~~~~~~ expression (args.optarg)
+        |      ~~~~~~~ expression (args)})
   end
 
   def test_splatarg_named
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:splatarg, :foo)),
+        s(:nil)),
+      %q{def f(*foo); nil; end},
+      %q{       ~~~ name (args.splatarg)
+        |      ~~~~ expression (args.splatarg)})
   end
 
   def test_splatarg_unnamed
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:splatarg)),
+        s(:nil)),
+      %q{def f(*); nil; end},
+      %q{      ~ expression (args.splatarg)})
   end
 
   def test_blockarg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:blockarg, :foo)),
+        s(:nil)),
+      %q{def f(&block); nil; end},
+      %q{       ~~~~~ name (args.blockarg)
+        |      ~~~~~~ expression (args.blockarg)})
   end
 
   def test_arg_mlhs
+    assert_parses(
+      s(:def, :f,
+        s(:args,
+          s(:mlhs,
+            s(:arg, :a),
+            s(:arg, :b),
+            s(:splatarg)),
+          s(:arg, :c)),
+        s(:nil)),
+      %q{def f((a, b, *f), c); nil; end},
+      %q{      ^ begin (args.mlhs)
+        |               ^ end (args.mlhs)
+        |      ~~~~~~~~~~ expression (args.mlhs)
+        |       ~ expression (args.mlhs.arg)
+        |              ~ name (args.mlhs.splatarg)
+        |             ~~ expression (args.mlhs.splatarg)})
   end
+
+  # def test_kwoptarg
+  #   flunk
+  # end
+
+  # def test_kwsplat_named
+  #   flunk
+  # end
+
+  # def test_kwsplat_unnamed
+  #   flunk
+  # end
 
   #
   # Sends
@@ -718,26 +804,75 @@ class TestParser < MiniTest::Unit::TestCase
   # To self
 
   def test_send_self
+    assert_parses(
+      s(:send, nil, :fun),
+      %q{fun},
+      %q{~~~ selector
+        |~~~ expression})
+
+    assert_parses(
+      s(:send, nil, :fun, s(:int, 1)),
+      %q{fun(1)},
+      %q{~~~ selector
+        |   ^ begin
+        |     ^ end
+        |~~~~~~ expression})
   end
 
   # To receiver
 
   def test_send_plain
+    assert_parses(
+      s(:send, s(:lvar, :foo), :fun),
+      %q{foo.fun},
+      %q{    ~~~ selector
+        |~~~~~~~ expression})
   end
 
   def test_send_binary_op
+    assert_parses(
+      s(:send, s(:lvar, :foo), :+, s(:int, 1)),
+      %q{foo + 1},
+      %q{    ~ selector
+        |~~~~~~~ expression})
   end
 
   def test_send_unary_op
+    assert_parses(
+      s(:send, s(:lvar, :foo), :-@),
+      %q{-foo},
+      %q{~ selector
+        |~~~~ expression})
   end
 
   def test_send_attr_asgn
+    assert_parses(
+      s(:send, s(:lvar, :foo), :a=, s(:int, 1)),
+      %q{foo.a = 1},
+      %q{    ~~~ selector
+        |~~~~~~~~~ expression})
   end
 
   def test_send_index
+    assert_parses(
+      s(:send, s(:lvar, :foo), :[],
+        s(:int, 1), s(:int, 2)),
+      %q{foo[1, 2]},
+      %q{   ~~~~~~ selector
+        |   ^ begin
+        |        ^ end
+        |~~~~~~~~~ expression})
   end
 
   def test_send_index_asgn
+    assert_parses(
+      s(:send, s(:lvar, :foo), :[]=,
+        s(:int, 1), s(:int, 2), s(:int, 3)),
+      %q{foo[1, 2] = 3},
+      %q{    ~~~~~~~ selector
+        |   ^ begin
+        |        ^ end
+        |~~~~~~~~~~~~~ expression})
   end
 
   # To superclass
