@@ -5,14 +5,14 @@ class TestParseHelper < MiniTest::Unit::TestCase
   include ParseHelper
 
   def test_parser_for_ruby_version
-    assert_equal Parser::Ruby18,
-                 parser_for_ruby_version('1.8')
+    assert_instance_of Parser::Ruby18,
+                       parser_for_ruby_version('1.8')
 
-    # assert_equal Parser::Ruby19,
-    #              parser_for_ruby_version('1.9')
+    # assert_instance_of Parser::Ruby19,
+    #                    parser_for_ruby_version('1.9')
 
-    # assert_equal Parser::Ruby20,
-    #              parser_for_ruby_version('2.0')
+    # assert_instance_of Parser::Ruby20,
+    #                    parser_for_ruby_version('2.0')
   end
 
   def parse_loc(what)

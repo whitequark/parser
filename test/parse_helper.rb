@@ -16,19 +16,24 @@ module ParseHelper
   # )
   # ```
   def assert_parses(code, location, ast, versions=%w(1.8))
+    source_file = Parser::SourceFile.new('(assert_parses)')
+    source_file.source = code
+
     versions.each do |version|
-      result = parser_for_ruby_version(version).parse(code)
-      assert_equal ast, result,
+      parser     = parser_for_ruby_version(version)
+      parsed_ast = parser.parse(source_file)
+
+      assert_equal ast, parsed_ast,
                    "(#{version}) AST equality"
 
       parse_location_descriptions(location) \
           do |begin_pos, end_pos, loc_field, ast_path, line|
 
-        astlet = traverse_ast(result, ast_path)
+        astlet = traverse_ast(parsed_ast, ast_path)
 
         if astlet.nil?
           # This is a testsuite bug.
-          raise "No entity with AST path #{ast_path} in #{result.inspect}"
+          raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
         end
 
         assert astlet.location.respond_to?(loc_field),
@@ -50,7 +55,7 @@ module ParseHelper
 
   def parser_for_ruby_version(version)
     case version
-    when '1.8'; Parser::Ruby18
+    when '1.8'; Parser::Ruby18.new
     # when '1.9'; Parser::Ruby19 # not yet
     # when '2.0'; Parser::Ruby20 # not yet
     else raise "Unrecognized Ruby version #{version}"

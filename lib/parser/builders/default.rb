@@ -1,13 +1,5 @@
-module Parser
-  class Sexp < AST::Node
-    attr_reader :location
-
-    alias loc location
-  end
-end
-
 module Parser::Builders
-  class Sexp
+  class Default
     attr_accessor :parser
 
     def nil(token);   t(token, :nil);   end
@@ -36,11 +28,11 @@ module Parser::Builders
     end
 
     def integer(token, negate=false)
-      build_numeric(token, :int, negate)
+      numeric(token, :int, negate)
     end
 
     def float(token, negate=false)
-      build_numeric(token, :float, negate)
+      numeric(token, :float, negate)
     end
 
     def readable(node)
@@ -158,7 +150,7 @@ module Parser::Builders
         metadata = {}
       end
 
-      Parser::Sexp.new(type, args, metadata)
+      Parser::Node.new(type, args, metadata)
     end
 
     def diagnostic(type, message, location, highlights=[])

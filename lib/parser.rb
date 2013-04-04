@@ -21,7 +21,8 @@ module Parser
   require 'parser/lexer'
   require 'parser/lexer/literal'
 
-  require 'parser/builders/sexp'
+  require 'parser/node'
+  require 'parser/builders/default'
   require 'parser/base'
 
   ERRORS = {

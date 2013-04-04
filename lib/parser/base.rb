@@ -22,7 +22,7 @@ module Parser
     # The source file currently being parsed.
     attr_reader :source_file
 
-    def initialize(builder=Parser::Builders::Sexp.new)
+    def initialize(builder=Parser::Builders::Default.new)
       @diagnostics = DiagnosticsEngine.new
 
       @static_env  = StaticEnvironment.new

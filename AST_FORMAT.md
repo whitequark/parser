@@ -250,6 +250,7 @@ Format:
 ```
 (irange (int 1) (int 2))
 "1..2"
+  ~~ operator
  ~~~~ expression
 ```
 
@@ -259,6 +260,7 @@ Format:
 ```
 (erange (int 1) (int 2))
 "1...2"
+  ~~~ operator
  ~~~~~ expression
 ```
 
@@ -347,8 +349,14 @@ Format:
 ```
 (defined? (lvar :a))
 "defined? a"
- ~~~~~~~~ operator
+ ~~~~~~~~ keyword
  ~~~~~~~~~~ expression
+
+"defined?(a)"
+ ~~~~~~~~ keyword
+         ^ begin
+           ^ end
+ ~~~~~~~~~~~ expression
 ```
 
 ## Assignment

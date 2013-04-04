@@ -16,9 +16,9 @@ TODO: Write usage instructions here
 ## Features
 
  * Precise source location reporting.
- * [Documented](SEXP_FORMAT.md) Sexp format.
+ * [Documented](AST_FORMAT.md) AST format.
  * A simple interface (`Parser::Ruby19.parse("just parse this")`) and a powerful, tweakable one.
- * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible Sexp formats (WIP, no, not really yet).
+ * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, no, not really yet).
  * Improved diagnostic messages.
  * Written in pure Ruby, runs on MRI >=1.9.2, JRuby and Rubinius in 1.9 mode.
  * Single runtime dependency: the [ast][] gem.
