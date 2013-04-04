@@ -353,8 +353,8 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~ expression (lvasgn)
         },
         s(:begin,
-          s(:lvasgn, :var, s(:int, 10),
-          s(:lvar, :var))))
+          s(:lvasgn, :var, s(:int, 10)),
+          s(:lvar, :var)))
   end
 
   def test_ivasgn
@@ -372,7 +372,7 @@ class TestParser < MiniTest::Unit::TestCase
         "@@var = 10",
       %q{~~~~~ name
         |      ^ operator
-        |~~~~~~~~~ expression
+        |~~~~~~~~~~ expression
         },
         s(:cvdecl, :@@var, s(:int, 10)))
   end
@@ -441,7 +441,7 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~~ expression
         },
         s(:masgn,
-          s(:mlhs, s(:lasgn, :foo), s(:lasgn, :bar)),
+          s(:mlhs, s(:lvasgn, :foo), s(:lvasgn, :bar)),
           s(:array, s(:int, 1), s(:int, 2))))
   end
 
@@ -459,7 +459,7 @@ class TestParser < MiniTest::Unit::TestCase
         "a, b = *foo, bar",
       %q{},
         s(:masgn,
-          s(:mlhs, s(:lasgn, :a), s(:lasgn, :b)),
+          s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
           s(:array, s(:splat, s(:lvar, :foo), s(:lvar, :bar)))))
   end
 
@@ -472,10 +472,10 @@ class TestParser < MiniTest::Unit::TestCase
         },
         s(:masgn,
           s(:mlhs,
-            s(:lasgn, :a),
+            s(:lvasgn, :a),
             s(:mlhs,
-              s(:lasgn, :b),
-              s(:lasgn, :c))),
+              s(:lvasgn, :b),
+              s(:lvasgn, :c))),
           s(:lvar, :foo)))
   end
 
