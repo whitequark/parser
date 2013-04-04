@@ -141,7 +141,7 @@ class TestLexer < MiniTest::Unit::TestCase
     util_escape_bad 'u{123 f0'
   end
 
-  def test_yylex_ambiguous_uminus
+  def test_ambiguous_uminus
     util_lex_token("m -3",
                    :tIDENTIFIER, "m",
                    :tUMINUS_NUM, "-",
@@ -149,30 +149,30 @@ class TestLexer < MiniTest::Unit::TestCase
     # TODO: verify warning
   end
 
-  def test_yylex_ambiguous_uplus
+  def test_ambiguous_uplus
     util_lex_token("m +3",
                    :tIDENTIFIER, "m",
                    :tINTEGER, 3)
     # TODO: verify warning
   end
 
-  def test_yylex_and
+  def test_and
     util_lex_token "&", :tAMPER, "&"
   end
 
-  def test_yylex_and2
+  def test_and2
     @lex.state = :expr_end
 
     util_lex_token "&&", :tANDOP, "&&"
   end
 
-  def test_yylex_and2_equals
+  def test_and2_equals
     @lex.state = :expr_end
 
     util_lex_token "&&=", :tOP_ASGN, "&&"
   end
 
-  def test_yylex_and_arg
+  def test_and_arg
     @lex.state = :expr_arg
 
     util_lex_token(" &y",
@@ -180,13 +180,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, "y")
   end
 
-  def test_yylex_and_equals
+  def test_and_equals
     @lex.state = :expr_end
 
     util_lex_token "&=", :tOP_ASGN, "&"
   end
 
-  def test_yylex_and_expr
+  def test_and_expr
     @lex.state = :expr_arg
 
     util_lex_token("x & y",
@@ -195,22 +195,22 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, "y")
   end
 
-  def test_yylex_and_meth
+  def test_and_meth
     util_lex_fname "&", :tAMPER2
   end
 
-  def test_yylex_assoc
+  def test_assoc
     util_lex_token "=>", :tASSOC, "=>"
   end
 
-  def test_yylex_label__18
+  def test_label__18
     util_lex_token("{a:b",
                    :tLBRACE,     "{",
                    :tIDENTIFIER, "a",
                    :tSYMBOL,     "b")
   end
 
-  def test_yylex_label_in_params__18
+  def test_label_in_params__18
     util_lex_token("foo(a:b",
                    :tIDENTIFIER, "foo",
                    :tLPAREN2,    "(",
@@ -218,7 +218,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSYMBOL,     "b")
   end
 
-  def test_yylex_label__19
+  def test_label__19
     setup_lexer 19
 
     util_lex_token("{a:b",
@@ -227,7 +227,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, "b")
   end
 
-  def test_yylex_label_in_params__19
+  def test_label_in_params__19
     setup_lexer 19
 
     util_lex_token("foo(a:b",
@@ -237,7 +237,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, "b")
   end
 
-  def test_yylex_command_start__19
+  def test_command_start__19
     setup_lexer 19
 
     %w[case elsif for in until when while
@@ -252,7 +252,7 @@ class TestLexer < MiniTest::Unit::TestCase
     end
   end
 
-  def test_yylex_mod_not_command_start__19
+  def test_mod_not_command_start__19
     setup_lexer 19
 
     %w[if unless while until rescue].each do |keyword|
@@ -266,7 +266,7 @@ class TestLexer < MiniTest::Unit::TestCase
     end
   end
 
-  def test_yylex_back_ref
+  def test_back_ref
     util_lex_token("[$&, $`, $', $+]",
                    :tLBRACK,   "[",
                    :tBACK_REF, "$&", :tCOMMA, ",",
@@ -276,33 +276,33 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRBRACK,   "]")
   end
 
-  def test_yylex_backslash
+  def test_backslash
     util_lex_token("1 \\\n+ 2",
                    :tINTEGER, 1,
                    :tPLUS, "+",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_backslash_bad
+  def test_backslash_bad
     util_bad_token("1 \\ + 2",
                    :tINTEGER, 1)
   end
 
-  def test_yylex_backtick
+  def test_backtick
     util_lex_token("`ls`",
                    :tXSTRING_BEG, "`",
                    :tSTRING_CONTENT, "ls",
                    :tSTRING_END, "`")
   end
 
-  def test_yylex_backtick_cmdarg
+  def test_backtick_cmdarg
     @lex.state = :expr_dot
     util_lex_token("\n`", :tBACK_REF2, "`") # \n ensures expr_cmd
 
     assert_equal :expr_arg, @lex.state
   end
 
-  def test_yylex_backtick_dot
+  def test_backtick_dot
     @lex.state = :expr_dot
     util_lex_token("a.`(3)",
                    :tIDENTIFIER, "a",
@@ -313,54 +313,54 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRPAREN, ")")
   end
 
-  def test_yylex_backtick_method
+  def test_backtick_method
     @lex.state = :expr_fname
     util_lex_token("`", :tBACK_REF2, "`")
     assert_equal :expr_end, @lex.state
   end
 
-  def test_yylex_bad_char
+  def test_bad_char
     util_bad_token(" \010 ")
   end
 
-  def test_yylex_bang
+  def test_bang
     util_lex_token "!", :tBANG, "!"
   end
 
-  def test_yylex_bang_equals
+  def test_bang_equals
     util_lex_token "!=", :tNEQ, "!="
   end
 
-  def test_yylex_bang_tilde
+  def test_bang_tilde
     util_lex_token "!~", :tNMATCH, "!~"
   end
 
-  def test_yylex_carat
+  def test_carat
     util_lex_token "^", :tCARET, "^"
   end
 
-  def test_yylex_carat_equals
+  def test_carat_equals
     util_lex_token "^=", :tOP_ASGN, "^"
   end
 
-  def test_yylex_colon2
+  def test_colon2
     util_lex_token("A::B",
                    :tCONSTANT, "A",
                    :tCOLON2,   "::",
                    :tCONSTANT, "B")
   end
 
-  def test_yylex_colon3
+  def test_colon3
     util_lex_token("::Array",
                    :tCOLON3, "::",
                    :tCONSTANT, "Array")
   end
 
-  def test_yylex_comma
+  def test_comma
     util_lex_token ",", :tCOMMA, ","
   end
 
-  def test_yylex_comment
+  def test_comment
     util_lex_token("1 # one\n# two\n2",
                    :tINTEGER, 1,
                    :tNL, nil,
@@ -368,17 +368,17 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal "# one\n# two\n", @lex.comments
   end
 
-  def test_yylex_comment_begin
+  def test_comment_begin
     util_lex_token("=begin\nblah\nblah\n=end\n42",
                    :tINTEGER, 42)
     assert_equal "=begin\nblah\nblah\n=end\n", @lex.comments
   end
 
-  def test_yylex_comment_begin_bad
+  def test_comment_begin_bad
     util_bad_token("=begin\nblah\nblah\n")
   end
 
-  def test_yylex_comment_begin_not_comment
+  def test_comment_begin_not_comment
     util_lex_token("beginfoo = 5\np x \\\n=beginfoo",
                    :tIDENTIFIER, "beginfoo",
                    :tEQL,          "=",
@@ -390,54 +390,54 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, "beginfoo")
   end
 
-  def test_yylex_comment_begin_space
+  def test_comment_begin_space
     util_lex_token("=begin blah\nblah\n=end\n")
     assert_equal "=begin blah\nblah\n=end\n", @lex.comments
   end
 
-  def test_yylex_comment_end_space_and_text
+  def test_comment_end_space_and_text
     util_lex_token("=begin blah\nblah\n=end blab\n")
     assert_equal "=begin blah\nblah\n=end blab\n", @lex.comments
   end
 
-  def test_yylex_comment_eos
+  def test_comment_eos
     util_lex_token("# comment")
   end
 
-  def test_yylex_constant
+  def test_constant
     util_lex_token("ArgumentError",
                    :tCONSTANT, "ArgumentError")
   end
 
-  def test_yylex_constant_semi
+  def test_constant_semi
     util_lex_token("ArgumentError;",
                    :tCONSTANT, "ArgumentError",
                    :tSEMI, ";")
   end
 
-  def test_yylex_cvar
+  def test_cvar
     util_lex_token "@@blah", :tCVAR, "@@blah"
   end
 
-  def test_yylex_cvar_bad
+  def test_cvar_bad
     util_bad_token "@@1"
   end
 
-  def test_yylex_div
+  def test_div
     util_lex_token("a / 2",
                    :tIDENTIFIER, "a",
                    :tDIVIDE, "/",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_div_equals
+  def test_div_equals
     util_lex_token("a /= 2",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "/",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_do
+  def test_do
     util_lex_token("x do 42 end",
                    :tIDENTIFIER, "x",
                    :kDO, "do",
@@ -445,7 +445,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND, "end")
   end
 
-  def test_yylex_do_block
+  def test_do_block
     @lex.state = :expr_endarg
 
     util_lex_token("do 42 end",
@@ -455,7 +455,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   # TODO
-  # def test_yylex_do_cond
+  # def test_do_cond
   #   @lex.cond.push true
 
   #   util_lex_token("x do 42 end",
@@ -465,149 +465,149 @@ class TestLexer < MiniTest::Unit::TestCase
   #                  :kEND, "end")
   # end
 
-  def test_yylex_dot
+  def test_dot
     util_lex_token ".", :tDOT, "."
   end
 
-  def test_yylex_dot2
+  def test_dot2
     util_lex_token "..", :tDOT2, ".."
   end
 
-  def test_yylex_dot3
+  def test_dot3
     util_lex_token "...", :tDOT3, "..."
   end
 
-  def test_yylex_equals
+  def test_equals
     util_lex_token "=", :tEQL, "="
   end
 
-  def test_yylex_equals2
+  def test_equals2
     util_lex_token "==", :tEQ, "=="
   end
 
-  def test_yylex_equals3
+  def test_equals3
     util_lex_token "===", :tEQQ, "==="
   end
 
-  def test_yylex_equals_tilde
+  def test_equals_tilde
     util_lex_token "=~", :tMATCH, "=~"
   end
 
-  def test_yylex_float
+  def test_float
     util_lex_token "1.0", :tFLOAT, 1.0
   end
 
-  def test_yylex_float_bad_no_underscores
+  def test_float_bad_no_underscores
     util_bad_token "1__0.0"
   end
 
-  def test_yylex_float_bad_no_zero_leading
+  def test_float_bad_no_zero_leading
     util_bad_token ".0"
   end
 
-  def test_yylex_float_bad_trailing_underscore
+  def test_float_bad_trailing_underscore
     util_bad_token "123_.0"
   end
 
-  def test_yylex_float_call
+  def test_float_call
     util_lex_token("1.0.to_s",
                    :tFLOAT, 1.0,
                    :tDOT, ".",
                    :tIDENTIFIER, "to_s")
   end
 
-  def test_yylex_float_dot_E
+  def test_float_dot_E
     util_lex_token "1.0E10", :tFLOAT, 1.0e10
   end
 
-  def test_yylex_float_dot_E_neg
+  def test_float_dot_E_neg
     util_lex_token("-1.0E10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1.0e10)
   end
 
-  def test_yylex_float_dot_e
+  def test_float_dot_e
     util_lex_token "1.0e10", :tFLOAT, 1.0e10
   end
 
-  def test_yylex_float_dot_e_neg
+  def test_float_dot_e_neg
     util_lex_token("-1.0e10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1.0e10)
   end
 
-  def test_yylex_float_e
+  def test_float_e
     util_lex_token "1e10", :tFLOAT, 1e10
   end
 
-  def test_yylex_float_e_bad_trailing_underscore
+  def test_float_e_bad_trailing_underscore
     util_bad_token "123_e10"
   end
 
-  def test_yylex_float_e_minus
+  def test_float_e_minus
     util_lex_token "1e-10", :tFLOAT, 1e-10
   end
 
-  def test_yylex_float_e_neg
+  def test_float_e_neg
     util_lex_token("-1e10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1e10)
   end
 
-  def test_yylex_float_e_neg_minus
+  def test_float_e_neg_minus
     util_lex_token("-1e-10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1e-10)
   end
 
-  def test_yylex_float_e_neg_plus
+  def test_float_e_neg_plus
     util_lex_token("-1e+10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1e10)
   end
 
-  def test_yylex_float_e_plus
+  def test_float_e_plus
     util_lex_token "1e+10", :tFLOAT, 1e10
   end
 
-  def test_yylex_float_e_zero
+  def test_float_e_zero
     util_lex_token "0e0", :tFLOAT, 0e0
   end
 
-  def test_yylex_float_neg
+  def test_float_neg
     util_lex_token("-1.0",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1.0)
   end
 
-  def test_yylex_ge
+  def test_ge
     util_lex_token("a >= 2",
                    :tIDENTIFIER, "a",
                    :tGEQ, ">=",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_global
+  def test_global
     util_lex_token("$blah", :tGVAR, "$blah")
   end
 
-  def test_yylex_global_backref
+  def test_global_backref
     util_lex_token("$`", :tBACK_REF, "$`")
   end
 
-  def test_yylex_global_dash_nothing
+  def test_global_dash_nothing
     util_lex_token("$- ", :tGVAR, "$-")
   end
 
-  def test_yylex_global_dash_something
+  def test_global_dash_something
     util_lex_token("$-x", :tGVAR, "$-x")
   end
 
-  def test_yylex_global_number
+  def test_global_number
     util_lex_token("$10", :tNTH_REF, "$10")
   end
 
-  def test_yylex_global_other
+  def test_global_other
     util_lex_token("[$~, $*, $$, $?, $!, $@, $/, $\\, $;, $,, $., $=, $:, $<, $>, $\"]",
                    :tLBRACK, "[",
                    :tGVAR,   "$~",  :tCOMMA, ",",
@@ -629,28 +629,28 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRBRACK, "]")
   end
 
-  def test_yylex_global_underscore
+  def test_global_underscore
     util_lex_token("$_",
                    :tGVAR,     "$_")
   end
 
-  def test_yylex_global_wierd
+  def test_global_wierd
     util_lex_token("$__blah",
                    :tGVAR,     "$__blah")
   end
 
-  def test_yylex_global_zero
+  def test_global_zero
     util_lex_token("$0", :tGVAR, "$0")
   end
 
-  def test_yylex_gt
+  def test_gt
     util_lex_token("a > 2",
                    :tIDENTIFIER, "a",
                    :tGT, ">",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_heredoc_backtick
+  def test_heredoc_backtick
     util_lex_token("a = <<`EOF`\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -660,7 +660,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_double
+  def test_heredoc_double
     util_lex_token("a = <<\"EOF\"\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -670,7 +670,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_double_dash
+  def test_heredoc_double_dash
     util_lex_token("a = <<-\"EOF\"\n  blah blah\n  EOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -680,21 +680,21 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_double_eos
+  def test_heredoc_double_eos
     util_bad_token("a = <<\"EOF\"\nblah",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"")
   end
 
-  def test_yylex_heredoc_double_eos_nl
+  def test_heredoc_double_eos_nl
     util_bad_token("a = <<\"EOF\"\nblah\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"")
   end
 
-  def test_yylex_heredoc_double_interp
+  def test_heredoc_double_interp
     util_lex_token("a = <<\"EOF\"\n#x a \#@a b \#$b c \#{3} \nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -714,7 +714,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_empty
+  def test_heredoc_empty
     util_lex_token("<<\"\"\n\#{x}\nblah2\n\n",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_DBEG,    "\#{",
@@ -726,7 +726,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_none
+  def test_heredoc_none
     util_lex_token("a = <<EOF\nblah\nblah\nEOF",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -737,7 +737,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_none_dash
+  def test_heredoc_none_dash
     util_lex_token("a = <<-EOF\nblah\nblah\n  EOF",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -748,7 +748,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_single
+  def test_heredoc_single
     util_lex_token("a = <<'EOF'\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -758,14 +758,14 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_heredoc_single_bad_eos_body
+  def test_heredoc_single_bad_eos_body
     util_bad_token("a = <<'EOF'\nblah",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "'")
   end
 
-  def test_yylex_heredoc_single_dash
+  def test_heredoc_single_dash
     util_lex_token("a = <<-'EOF'\n  blah blah\n  EOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
@@ -775,59 +775,59 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
-  def test_yylex_identifier
+  def test_identifier
     util_lex_token("identifier", :tIDENTIFIER, "identifier")
   end
 
-  def test_yylex_identifier_bang
+  def test_identifier_bang
     util_lex_token("identifier!", :tFID, "identifier!")
   end
 
-  def test_yylex_identifier_cmp
+  def test_identifier_cmp
     util_lex_fname "<=>", :tCMP
   end
 
-  def test_yylex_identifier_def
+  def test_identifier_def
     util_lex_fname "identifier", :tIDENTIFIER, :expr_end
   end
 
-  def test_yylex_identifier_eh
+  def test_identifier_eh
     util_lex_token("identifier?", :tFID, "identifier?")
   end
 
-  def test_yylex_identifier_equals_arrow
+  def test_identifier_equals_arrow
     util_lex_token(":blah==>",
                    :tSYMBOL, "blah=",
                    :tASSOC, "=>")
   end
 
-  def test_yylex_identifier_equals3
+  def test_identifier_equals3
     util_lex_token(":a===b",
                    :tSYMBOL, "a",
                    :tEQQ, "===",
                    :tIDENTIFIER, "b")
   end
 
-  def test_yylex_identifier_equals_equals_arrow
+  def test_identifier_equals_equals_arrow
     util_lex_token(":a==>b",
                    :tSYMBOL, "a=",
                    :tASSOC, "=>",
                    :tIDENTIFIER, "b")
   end
 
-  def test_yylex_identifier_equals_caret
+  def test_identifier_equals_caret
     util_lex_fname "^", :tCARET
   end
 
-  def test_yylex_identifier_equals_def
+  def test_identifier_equals_def
     util_lex_fname "identifier=", :tIDENTIFIER, :expr_end
   end
 
-  def test_yylex_identifier_equals_def2
+  def test_identifier_equals_def2
     util_lex_fname "==", :tEQ
   end
 
-  def test_yylex_identifier_equals_expr
+  def test_identifier_equals_expr
     @lex.state = :expr_dot
     util_lex_token("y = arg",
                    :tIDENTIFIER, "y",
@@ -837,193 +837,193 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_arg, @lex.state
   end
 
-  def test_yylex_identifier_equals_or
+  def test_identifier_equals_or
     util_lex_fname "|", :tPIPE
   end
 
-  def test_yylex_identifier_equals_slash
+  def test_identifier_equals_slash
     util_lex_fname "/", :tDIVIDE
   end
 
-  def test_yylex_identifier_equals_tilde
+  def test_identifier_equals_tilde
     @lex.state = :expr_fname # can only set via parser's defs
     util_lex_token("identifier=~",
                    :tIDENTIFIER, "identifier",
                    :tMATCH, "=~")
   end
 
-  def test_yylex_identifier_gt
+  def test_identifier_gt
     util_lex_fname ">", :tGT
   end
 
-  def test_yylex_identifier_le
+  def test_identifier_le
     util_lex_fname "<=", :tLEQ
   end
 
-  def test_yylex_identifier_lt
+  def test_identifier_lt
     util_lex_fname "<", :tLT
   end
 
-  def test_yylex_identifier_tilde
+  def test_identifier_tilde
     util_lex_fname "~", :tTILDE
   end
 
-  def test_yylex_index
+  def test_index
     util_lex_fname "[]", :tAREF
   end
 
-  def test_yylex_index_equals
+  def test_index_equals
     util_lex_fname "[]=", :tASET
   end
 
-  def test_yylex_integer
+  def test_integer
     util_lex_token "42", :tINTEGER, 42
   end
 
-  def test_yylex_integer_bin
+  def test_integer_bin
     util_lex_token "0b101010", :tINTEGER, 42
   end
 
-  def test_yylex_integer_bin_bad_none
+  def test_integer_bin_bad_none
     util_bad_token "0b "
   end
 
-  def test_yylex_integer_bin_bad_underscores
+  def test_integer_bin_bad_underscores
     util_bad_token "0b10__01"
   end
 
-  def test_yylex_integer_dec
+  def test_integer_dec
     util_lex_token "42", :tINTEGER, 42
   end
 
-  def test_yylex_integer_dec_bad_underscores
+  def test_integer_dec_bad_underscores
     util_bad_token "42__24"
   end
 
-  def test_yylex_integer_dec_d
+  def test_integer_dec_d
     util_lex_token "0d42", :tINTEGER, 42
   end
 
-  def test_yylex_integer_dec_d_bad_none
+  def test_integer_dec_d_bad_none
     util_bad_token "0d"
   end
 
-  def test_yylex_integer_dec_d_bad_underscores
+  def test_integer_dec_d_bad_underscores
     util_bad_token "0d42__24"
   end
 
-  def test_yylex_question_eh_a__18
+  def test_question_eh_a__18
     setup_lexer 18
 
     util_lex_token "?a", :tINTEGER, 97
   end
 
-  def test_yylex_question_eh_a__19
+  def test_question_eh_a__19
     setup_lexer 19
 
     util_lex_token '?a', :tSTRING, "a"
   end
 
-  def test_yylex_question_eh_escape_M_escape_C__18
+  def test_question_eh_escape_M_escape_C__18
     setup_lexer 18
 
     util_lex_token '?\M-\C-a', :tINTEGER, 129
   end
 
-  def test_yylex_question_eh_escape_M_escape_C__19
+  def test_question_eh_escape_M_escape_C__19
     setup_lexer 19
 
     util_lex_token '?\M-\C-a', :tSTRING, "\M-\C-a"
   end
 
-  def test_yylex_integer_hex
+  def test_integer_hex
     util_lex_token "0x2a", :tINTEGER, 42
   end
 
-  def test_yylex_integer_hex_bad_none
+  def test_integer_hex_bad_none
     util_bad_token "0x "
   end
 
-  def test_yylex_integer_hex_bad_underscores
+  def test_integer_hex_bad_underscores
     util_bad_token "0xab__cd"
   end
 
-  def test_yylex_integer_oct
+  def test_integer_oct
     util_lex_token "052", :tINTEGER, 42
   end
 
-  def test_yylex_integer_oct_bad_range
+  def test_integer_oct_bad_range
     util_bad_token "08"
   end
 
-  def test_yylex_integer_oct_bad_underscores
+  def test_integer_oct_bad_underscores
     util_bad_token "01__23"
   end
 
-  def test_yylex_integer_oct_O
+  def test_integer_oct_O
     util_lex_token "0O52", :tINTEGER, 42
   end
 
-  def test_yylex_integer_oct_O_bad_range
+  def test_integer_oct_O_bad_range
     util_bad_token "0O1238"
   end
 
-  def test_yylex_integer_oct_O_bad_underscores
+  def test_integer_oct_O_bad_underscores
     util_bad_token "0O1__23"
   end
 
-  def test_yylex_integer_oct_O_not_bad_none
+  def test_integer_oct_O_not_bad_none
     util_lex_token "0O ", :tINTEGER, 0
   end
 
-  def test_yylex_integer_oct_o
+  def test_integer_oct_o
     util_lex_token "0o52", :tINTEGER, 42
   end
 
-  def test_yylex_integer_oct_o_bad_range
+  def test_integer_oct_o_bad_range
     util_bad_token "0o1283"
   end
 
-  def test_yylex_integer_oct_o_bad_underscores
+  def test_integer_oct_o_bad_underscores
     util_bad_token "0o1__23"
   end
 
-  def test_yylex_integer_oct_o_not_bad_none
+  def test_integer_oct_o_not_bad_none
     util_lex_token "0o ", :tINTEGER, 0
   end
 
-  def test_yylex_integer_trailing
+  def test_integer_trailing
     util_lex_token("1.to_s",
                    :tINTEGER, 1,
                    :tDOT, '.',
                    :tIDENTIFIER, 'to_s')
   end
 
-  def test_yylex_integer_underscore
+  def test_integer_underscore
     util_lex_token "4_2", :tINTEGER, 42
   end
 
-  def test_yylex_integer_underscore_bad
+  def test_integer_underscore_bad
     util_bad_token "4__2"
   end
 
-  def test_yylex_integer_zero
+  def test_integer_zero
     util_lex_token "0", :tINTEGER, 0
   end
 
-  def test_yylex_ivar
+  def test_ivar
     util_lex_token "@blah", :tIVAR, "@blah"
   end
 
-  def test_yylex_ivar_bad
+  def test_ivar_bad
     util_bad_token "@1"
   end
 
-  def test_yylex_ivar_bad_0_length
+  def test_ivar_bad_0_length
     util_bad_token "1+@\n", :tINTEGER, 1, :tPLUS, "+"
   end
 
-  def test_yylex_keyword_expr
+  def test_keyword_expr
     @lex.state = :expr_endarg
 
     util_lex_token("if", :kIF_MOD, "if")
@@ -1031,11 +1031,11 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_beg, @lex.state
   end
 
-  def test_yylex_lt
+  def test_lt
     util_lex_token "<", :tLT, "<"
   end
 
-  def test_yylex_lt2
+  def test_lt2
     util_lex_token("a <\< b",
                    :tIDENTIFIER, "a",
                    :tLSHFT, "<\<",
@@ -1043,47 +1043,47 @@ class TestLexer < MiniTest::Unit::TestCase
 
   end
 
-  def test_yylex_lt2_equals
+  def test_lt2_equals
     util_lex_token("a <\<= b",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "<\<",
                    :tIDENTIFIER, "b")
   end
 
-  def test_yylex_lt_equals
+  def test_lt_equals
     util_lex_token "<=", :tLEQ, "<="
   end
 
-  def test_yylex_minus
+  def test_minus
     util_lex_token("1 - 2",
                    :tINTEGER, 1,
                    :tMINUS, "-",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_minus_equals
+  def test_minus_equals
     @lex.state = :expr_end
 
     util_lex_token "-=", :tOP_ASGN, "-"
   end
 
-  def test_yylex_minus_method
+  def test_minus_method
     @lex.state = :expr_fname
     util_lex_token "-", :tMINUS, "-"
   end
 
-  def test_yylex_minus_unary_method
+  def test_minus_unary_method
     @lex.state = :expr_fname
     util_lex_token "-@", :tUMINUS, "-@"
   end
 
-  def test_yylex_minus_unary_number
+  def test_minus_unary_number
     util_lex_token("-42",
                    :tUMINUS_NUM, "-",
                    :tINTEGER, 42)
   end
 
-  def test_yylex_nth_ref
+  def test_nth_ref
     util_lex_token('[$1, $2, $3]',
                    :tLBRACK,  "[",
                    :tNTH_REF, "$1", :tCOMMA, ",",
@@ -1092,26 +1092,26 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRBRACK,  "]")
   end
 
-  def test_yylex_open_bracket
+  def test_open_bracket
     util_lex_token("(", :tLPAREN, "(")
   end
 
-  def test_yylex_open_bracket_cmdarg
+  def test_open_bracket_cmdarg
     util_lex_token("m (", :tIDENTIFIER, "m",
                           :tLPAREN_ARG, "(")
   end
 
-  def test_yylex_open_bracket_exprarg
+  def test_open_bracket_exprarg
     util_lex_token("m(", :tIDENTIFIER, "m",
                           :tLPAREN2, "(")
   end
 
-  def test_yylex_open_curly_bracket
+  def test_open_curly_bracket
     util_lex_token("{",
                    :tLBRACE, "{")
   end
 
-  def test_yylex_open_curly_bracket_arg
+  def test_open_curly_bracket_arg
     util_lex_token("m { 3 }",
                    :tIDENTIFIER, "m",
                    :tLCURLY, "{",
@@ -1119,7 +1119,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRCURLY, "}")
   end
 
-  def test_yylex_open_curly_bracket_block
+  def test_open_curly_bracket_block
     @lex.state = :expr_endarg # seen m(3)
 
     util_lex_token("{ 4 }",
@@ -1128,7 +1128,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRCURLY, "}")
   end
 
-  def test_yylex_open_square_bracket_arg
+  def test_open_square_bracket_arg
     util_lex_token("m [ 3 ]",
                    :tIDENTIFIER, "m",
                    :tLBRACK, "[",
@@ -1136,7 +1136,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRBRACK, "]")
   end
 
-  def test_yylex_open_square_bracket_ary
+  def test_open_square_bracket_ary
     util_lex_token("[1, 2, 3]",
                    :tLBRACK, "[",
                    :tINTEGER, 1,
@@ -1147,7 +1147,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRBRACK, "]")
   end
 
-  def test_yylex_open_square_bracket_meth
+  def test_open_square_bracket_meth
     util_lex_token("m[3]",
                    :tIDENTIFIER, "m",
                    :tLBRACK2, "[",
@@ -1155,60 +1155,60 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tRBRACK, "]")
   end
 
-  def test_yylex_or
+  def test_or
     util_lex_token "|", :tPIPE, "|"
   end
 
-  def test_yylex_or2
+  def test_or2
     util_lex_token "||", :tOROP, "||"
   end
 
-  def test_yylex_or2_equals
+  def test_or2_equals
     util_lex_token "||=", :tOP_ASGN, "||"
   end
 
-  def test_yylex_or_equals
+  def test_or_equals
     util_lex_token "|=", :tOP_ASGN, "|"
   end
 
-  def test_yylex_percent
+  def test_percent
     util_lex_token("a % 2",
                    :tIDENTIFIER, "a",
                    :tPERCENT, "%",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_percent_equals
+  def test_percent_equals
     util_lex_token("a %= 2",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "%",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_plus
+  def test_plus
     util_lex_token("1 + 1", # TODO state?
                    :tINTEGER, 1,
                    :tPLUS, "+",
                    :tINTEGER, 1)
   end
 
-  def test_yylex_plus_equals
+  def test_plus_equals
     @lex.state = :expr_end
 
     util_lex_token "+=", :tOP_ASGN, "+"
   end
 
-  def test_yylex_plus_method
+  def test_plus_method
     @lex.state = :expr_fname
     util_lex_token "+", :tPLUS, "+"
   end
 
-  def test_yylex_plus_unary_method
+  def test_plus_unary_method
     @lex.state = :expr_fname
     util_lex_token "+@", :tUPLUS, "+@"
   end
 
-  def test_yylex_numbers
+  def test_numbers
     util_lex_token "0b10", :tINTEGER, 2
     util_lex_token "0B10", :tINTEGER, 2
 
@@ -1247,28 +1247,28 @@ class TestLexer < MiniTest::Unit::TestCase
     util_bad_token "1__1"
   end
 
-  def test_yylex_plus_unary_number
+  def test_plus_unary_number
     util_lex_token("+42",
                    :tINTEGER, 42)
   end
 
-  def test_yylex_question__18
+  def test_question__18
     setup_lexer 18
 
     util_lex_token "?*", :tINTEGER, 42
   end
 
-  def test_yylex_question__19
+  def test_question__19
     setup_lexer 19
 
     util_lex_token "?*", :tSTRING, "*"
   end
 
-  def test_yylex_question_bad_eos
+  def test_question_bad_eos
     util_bad_token "?"
   end
 
-  def test_yylex_question_bad_ws
+  def test_question_bad_ws
     util_lex_token "? ",  :tEH, "?"
     util_lex_token "?\n", :tEH, "?"
     util_lex_token "?\t", :tEH, "?"
@@ -1277,7 +1277,7 @@ class TestLexer < MiniTest::Unit::TestCase
     util_lex_token "?\f", :tEH, "?"
   end
 
-  def test_yylex_question_ws_backslashed__18
+  def test_question_ws_backslashed__18
     setup_lexer 18
 
     @lex.state = :expr_beg
@@ -1294,7 +1294,7 @@ class TestLexer < MiniTest::Unit::TestCase
     util_lex_token "?\\f", :tINTEGER, 12
   end
 
-  def test_yylex_question_ws_backslashed__19
+  def test_question_ws_backslashed__19
     setup_lexer 19
 
     @lex.state = :expr_beg
@@ -1311,15 +1311,15 @@ class TestLexer < MiniTest::Unit::TestCase
     util_lex_token "?\\f", :tSTRING, "\f"
   end
 
-  def test_yylex_rbracket
+  def test_rbracket
     util_lex_token "]", :tRBRACK, "]"
   end
 
-  def test_yylex_rcurly
+  def test_rcurly
     util_lex_token "}", :tRCURLY, "}"
   end
 
-  def test_yylex_regexp
+  def test_regexp
     util_lex_token("/regexp/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regexp",
@@ -1327,7 +1327,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_ambiguous
+  def test_regexp_ambiguous
     util_lex_token("method /regexp/",
                    :tIDENTIFIER,     "method",
                    :tREGEXP_BEG,     "/",
@@ -1336,13 +1336,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_bad
+  def test_regexp_bad
     util_bad_token("/.*/xyz",
                    :tREGEXP_BEG, "/",
                    :tSTRING_CONTENT, ".*")
   end
 
-  def test_yylex_regexp_escape_C
+  def test_regexp_escape_C
     util_lex_token('/regex\\C-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\C-x",
@@ -1350,7 +1350,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_C_M
+  def test_regexp_escape_C_M
     util_lex_token('/regex\\C-\\M-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\C-\\M-x",
@@ -1358,7 +1358,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_C_M_craaaazy
+  def test_regexp_escape_C_M_craaaazy
     util_lex_token("/regex\\C-\\\n\\M-x/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\C-\\M-x",
@@ -1366,27 +1366,27 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_C_bad_dash
+  def test_regexp_escape_C_bad_dash
     util_bad_token '/regex\\Cx/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_C_bad_dash_eos
+  def test_regexp_escape_C_bad_dash_eos
     util_bad_token '/regex\\C-/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_C_bad_dash_eos2
+  def test_regexp_escape_C_bad_dash_eos2
     util_bad_token '/regex\\C-', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_C_bad_eos
+  def test_regexp_escape_C_bad_eos
     util_bad_token '/regex\\C/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_C_bad_eos2
+  def test_regexp_escape_C_bad_eos2
     util_bad_token '/regex\\c', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_M
+  def test_regexp_escape_M
     util_lex_token('/regex\\M-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\M-x",
@@ -1394,7 +1394,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_M_C
+  def test_regexp_escape_M_C
     util_lex_token('/regex\\M-\\C-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\M-\\C-x",
@@ -1402,23 +1402,23 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_M_bad_dash
+  def test_regexp_escape_M_bad_dash
     util_bad_token '/regex\\Mx/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_M_bad_dash_eos
+  def test_regexp_escape_M_bad_dash_eos
     util_bad_token '/regex\\M-/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_M_bad_dash_eos2
+  def test_regexp_escape_M_bad_dash_eos2
     util_bad_token '/regex\\M-', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_M_bad_eos
+  def test_regexp_escape_M_bad_eos
     util_bad_token '/regex\\M/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_backslash_slash
+  def test_regexp_escape_backslash_slash
     util_lex_token('/\\//',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, '\\/',
@@ -1426,7 +1426,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_backslash_terminator
+  def test_regexp_escape_backslash_terminator
     util_lex_token('%r%blah\\%blah%',
                    :tREGEXP_BEG,     "%r",
                    :tSTRING_CONTENT, "blah\\%blah",
@@ -1434,7 +1434,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_backslash_terminator_meta1
+  def test_regexp_escape_backslash_terminator_meta1
     util_lex_token('%r{blah\\}blah}',
                    :tREGEXP_BEG,     "%r",
                    :tSTRING_CONTENT, "blah\\}blah",
@@ -1442,7 +1442,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_backslash_terminator_meta2
+  def test_regexp_escape_backslash_terminator_meta2
     util_lex_token('%r/blah\\/blah/',
                    :tREGEXP_BEG,     "%r",
                    :tSTRING_CONTENT, "blah\\/blah",
@@ -1450,7 +1450,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_backslash_terminator_meta3
+  def test_regexp_escape_backslash_terminator_meta3
     util_lex_token('%r/blah\\%blah/',
                    :tREGEXP_BEG,     "%r",
                    :tSTRING_CONTENT, "blah\\%blah",
@@ -1458,11 +1458,11 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_bad_eos
+  def test_regexp_escape_bad_eos
     util_bad_token '/regex\\', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_bs
+  def test_regexp_escape_bs
     util_lex_token('/regex\\\\regex/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\\\regex",
@@ -1470,7 +1470,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_c
+  def test_regexp_escape_c
     util_lex_token('/regex\\cxxx/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\cxxx",
@@ -1478,7 +1478,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_c_backslash
+  def test_regexp_escape_c_backslash
     util_lex_token('/regex\\c\\n/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\c\\n",
@@ -1486,7 +1486,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_chars
+  def test_regexp_escape_chars
     util_lex_token('/re\\tge\\nxp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "re\\tge\\nxp",
@@ -1494,7 +1494,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_double_backslash
+  def test_regexp_escape_double_backslash
     regexp = '/[\\/\\\\]$/'
     util_lex_token(regexp,
                    :tREGEXP_BEG,     "/",
@@ -1503,7 +1503,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_hex
+  def test_regexp_escape_hex
     util_lex_token('/regex\\x61xp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\x61xp",
@@ -1511,11 +1511,11 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_hex_bad
+  def test_regexp_escape_hex_bad
     util_bad_token '/regex\\xzxp/', :tREGEXP_BEG, "/"
   end
 
-  def test_yylex_regexp_escape_hex_one
+  def test_regexp_escape_hex_one
     util_lex_token('/^[\\xd\\xa]{2}/on',
                    :tREGEXP_BEG,     '/',
                    :tSTRING_CONTENT, '^[\\xd\\xa]{2}',
@@ -1523,7 +1523,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     'on')
   end
 
-  def test_yylex_regexp_escape_oct1
+  def test_regexp_escape_oct1
     util_lex_token('/regex\\0xp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\0xp",
@@ -1531,7 +1531,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_oct2
+  def test_regexp_escape_oct2
     util_lex_token('/regex\\07xp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\07xp",
@@ -1539,7 +1539,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_oct3
+  def test_regexp_escape_oct3
     util_lex_token('/regex\\10142/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\10142",
@@ -1547,7 +1547,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_escape_return
+  def test_regexp_escape_return
     util_lex_token("/regex\\\nregex/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regexregex",
@@ -1555,7 +1555,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
-  def test_yylex_regexp_nm
+  def test_regexp_nm
     util_lex_token("/.*/nm",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, ".*",
@@ -1563,25 +1563,25 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "nm")
   end
 
-  def test_yylex_rparen
+  def test_rparen
     util_lex_token ")", :tRPAREN, ")"
   end
 
-  def test_yylex_rshft
+  def test_rshft
     util_lex_token("a >> 2",
                    :tIDENTIFIER, "a",
                    :tRSHFT, ">>",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_rshft_equals
+  def test_rshft_equals
     util_lex_token("a >>= 2",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, ">>",
                    :tINTEGER, 2)
   end
 
-  def test_yylex_star
+  def test_star
     util_lex_token("a * ",
                    :tIDENTIFIER, "a",
                    :tSTAR2, "*")
@@ -1589,7 +1589,7 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_beg, @lex.state
   end
 
-  def test_yylex_star2
+  def test_star2
     util_lex_token("a ** ",
                    :tIDENTIFIER, "a",
                    :tPOW, "**")
@@ -1597,7 +1597,7 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_beg, @lex.state
   end
 
-  def test_yylex_star2_equals
+  def test_star2_equals
     util_lex_token("a **= ",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "**")
@@ -1605,7 +1605,7 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_beg, @lex.state
   end
 
-  def test_yylex_star_arg
+  def test_star_arg
     @lex.state = :expr_arg
 
     util_lex_token(" *a",
@@ -1615,7 +1615,7 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_arg, @lex.state
   end
 
-  def test_yylex_star_arg_beg
+  def test_star_arg_beg
     @lex.state = :expr_beg
 
     util_lex_token("*a",
@@ -1625,7 +1625,7 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_arg, @lex.state
   end
 
-  def test_yylex_star_arg_beg_fname
+  def test_star_arg_beg_fname
     @lex.state = :expr_fname
 
     util_lex_token("*a",
@@ -1635,7 +1635,7 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_arg, @lex.state
   end
 
-  def test_yylex_star_equals
+  def test_star_equals
     util_lex_token("a *= ",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "*")
@@ -1643,97 +1643,97 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_beg, @lex.state
   end
 
-  def test_yylex_string_bad_eos
+  def test_string_bad_eos
     util_bad_token('%',
                    :tSTRING_BEG,     '%')
   end
 
-  def test_yylex_string_bad_eos_quote
+  def test_string_bad_eos_quote
     util_bad_token('%{nest',
                    :tSTRING_BEG,     '%}')
   end
 
-  def test_yylex_string_double
+  def test_string_double
     util_lex_token('"string"',
                    :tSTRING, "string")
   end
 
-  def test_yylex_string_double_escape_C
+  def test_string_double_escape_C
     util_lex_token('"\\C-a"',
                    :tSTRING, "\001")
   end
 
-  def test_yylex_string_double_escape_C_backslash
+  def test_string_double_escape_C_backslash
     util_lex_token('"\\C-\\\\"',
                    :tSTRING, "\034")
   end
 
-  def test_yylex_string_double_escape_C_escape
+  def test_string_double_escape_C_escape
     util_lex_token('"\\C-\\M-a"',
                    :tSTRING, "\201")
   end
 
-  def test_yylex_string_double_escape_C_question
+  def test_string_double_escape_C_question
     util_lex_token('"\\C-?"',
                    :tSTRING, "\177")
   end
 
-  def test_yylex_string_double_escape_M
+  def test_string_double_escape_M
     util_lex_token('"\\M-a"',
                    :tSTRING, "\341")
   end
 
-  def test_yylex_string_double_escape_M_backslash
+  def test_string_double_escape_M_backslash
     util_lex_token('"\\M-\\\\"',
                    :tSTRING, "\334")
   end
 
-  def test_yylex_string_double_escape_M_escape
+  def test_string_double_escape_M_escape
     util_lex_token('"\\M-\\C-a"',
                    :tSTRING, "\201")
   end
 
-  def test_yylex_string_double_escape_bs1
+  def test_string_double_escape_bs1
     util_lex_token('"a\\a\\a"',
                    :tSTRING, "a\a\a")
   end
 
-  def test_yylex_string_double_escape_bs2
+  def test_string_double_escape_bs2
     util_lex_token('"a\\\\a"',
                    :tSTRING, "a\\a")
   end
 
-  def test_yylex_string_double_escape_c
+  def test_string_double_escape_c
     util_lex_token('"\\ca"',
                    :tSTRING, "\001")
   end
 
-  def test_yylex_string_double_escape_c_escape
+  def test_string_double_escape_c_escape
     util_lex_token('"\\c\\M-a"',
                    :tSTRING, "\201")
   end
 
-  def test_yylex_string_double_escape_c_question
+  def test_string_double_escape_c_question
     util_lex_token('"\\c?"',
                    :tSTRING, "\177")
   end
 
-  def test_yylex_string_double_escape_chars
+  def test_string_double_escape_chars
     util_lex_token('"s\\tri\\ng"',
                    :tSTRING, "s\tri\ng")
   end
 
-  def test_yylex_string_double_escape_hex
+  def test_string_double_escape_hex
     util_lex_token('"n = \\x61\\x62\\x63"',
                    :tSTRING, "n = abc")
   end
 
-  def test_yylex_string_double_escape_octal
+  def test_string_double_escape_octal
     util_lex_token('"n = \\101\\102\\103"',
                    :tSTRING, "n = ABC")
   end
 
-  def test_yylex_string_double_interp
+  def test_string_double_interp
     util_lex_token("\"blah #x a \#@a b \#$b c \#{3} # \"",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_CONTENT, "blah #x a ",
@@ -1750,12 +1750,12 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     "\"")
   end
 
-  def test_yylex_string_double_nested_curlies
+  def test_string_double_nested_curlies
     util_lex_token('%{nest{one{two}one}nest}',
                    :tSTRING, "nest{one{two}one}nest")
   end
 
-  def test_yylex_string_double_no_interp
+  def test_string_double_no_interp
     util_lex_token("\"# blah\"",                                # pound first
                    :tSTRING, "# blah")
 
@@ -1763,17 +1763,17 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING, "blah # blah")
   end
 
-  def test_yylex_string_escape_x_single
+  def test_string_escape_x_single
     util_lex_token('"\\x0"',
                    :tSTRING, "\000")
   end
 
-  def test_yylex_string_pct_Q
+  def test_string_pct_Q
     util_lex_token("%Q[s1 s2]",
                    :tSTRING, "s1 s2")
   end
 
-  def test_yylex_string_pct_W
+  def test_string_pct_W
     util_lex_token("%W[s1 s2\ns3]", # TODO: add interpolation to these
                    :tWORDS_BEG,      "%W",
                    :tSTRING_CONTENT, "s1",
@@ -1785,7 +1785,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     ']')
   end
 
-  def test_yylex_string_pct_W_bs_nl
+  def test_string_pct_W_bs_nl
     util_lex_token("%W[s1 \\\ns2]", # TODO: add interpolation to these
                    :tWORDS_BEG,      "%W",
                    :tSTRING_CONTENT, "s1",
@@ -1795,17 +1795,17 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     ']')
   end
 
-  def test_yylex_string_pct_angle
+  def test_string_pct_angle
     util_lex_token("%<blah>",
                    :tSTRING, "blah")
   end
 
-  def test_yylex_string_pct_other
+  def test_string_pct_other
     util_lex_token("%%blah%",
                    :tSTRING, "blah")
   end
 
-  def test_yylex_string_pct_w
+  def test_string_pct_w
     util_bad_token("%w[s1 s2 ",
                    :tQWORDS_BEG,     "%w",
                    :tSTRING_CONTENT, "s1",
@@ -1814,7 +1814,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSPACE,              nil)
   end
 
-  def test_yylex_string_pct_w_bs_nl
+  def test_string_pct_w_bs_nl
     util_lex_token("%w[s1 \\\ns2]",
                    :tQWORDS_BEG,     "%w",
                    :tSTRING_CONTENT, "s1",
@@ -1824,7 +1824,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     ']')
   end
 
-  def test_yylex_string_pct_w_bs_sp
+  def test_string_pct_w_bs_sp
     util_lex_token("%w[s\\ 1 s\\ 2]",
                    :tQWORDS_BEG,     "%w",
                    :tSTRING_CONTENT, "s 1",
@@ -1834,7 +1834,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     ']')
   end
 
-  def test_yylex_string_pct_w_tab
+  def test_string_pct_w_tab
     util_lex_token("%w[abc\tdef]",
                    :tQWORDS_BEG,      "%w",
                    :tSTRING_CONTENT, "abc",
@@ -1844,42 +1844,42 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     ']')
   end
 
-  def test_yylex_string_single
+  def test_string_single
     util_lex_token("'string'",
                    :tSTRING, "string")
   end
 
-  def test_yylex_string_single_escape_chars
+  def test_string_single_escape_chars
     util_lex_token("'s\\tri\\ng'",
                    :tSTRING, "s\\tri\\ng")
   end
 
-  def test_yylex_string_single_nl
+  def test_string_single_nl
     util_lex_token("'blah\\\nblah'",
                    :tSTRING, "blah\\\nblah")
   end
 
-  def test_yylex_symbol
+  def test_symbol
     util_lex_token(":symbol",
                    :tSYMBOL, "symbol")
   end
 
-  def test_yylex_symbol_bad_zero
+  def test_symbol_bad_zero
     util_bad_token(":\"blah\0\"",
                    :tSYMBEG, ":")
   end
 
-  def test_yylex_symbol_double
+  def test_symbol_double
     util_lex_token(":\"symbol\"",
                    :tSYMBOL, "symbol")
   end
 
-  def test_yylex_symbol_single
+  def test_symbol_single
     util_lex_token(":'symbol'",
                    :tSYMBOL, "symbol")
   end
 
-  def test_yylex_ternary
+  def test_ternary
     util_lex_token("a ? b : c",
                    :tIDENTIFIER, "a",
                    :tEH,         "?",
@@ -1905,27 +1905,27 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tEH,         "?")
   end
 
-  def test_yylex_tilde
+  def test_tilde
     util_lex_token "~", :tTILDE, "~"
   end
 
-  def test_yylex_tilde_unary
+  def test_tilde_unary
     @lex.state = :expr_fname
     util_lex_token "~@", :tTILDE, "~@"
   end
 
-  def test_yylex_uminus
+  def test_uminus
     util_lex_token("-blah",
                    :tUMINUS, "-",
                    :tIDENTIFIER, "blah")
   end
 
-  def test_yylex_underscore
+  def test_underscore
     util_lex_token("_var", :tIDENTIFIER, "_var")
   end
 
-  def test_yylex_underscore_end
-    source_buffer = Parser::Source::Buffer.new('(yylex_underscore_end)')
+  def test_underscore_end
+    source_buffer = Parser::Source::Buffer.new('(underscore_end)')
     source_buffer.source = "__END__\n"
 
     @lex.source_buffer = source_buffer
@@ -1934,13 +1934,13 @@ class TestLexer < MiniTest::Unit::TestCase
     refute tok
   end
 
-  def test_yylex_uplus
+  def test_uplus
     util_lex_token("+blah",
                    :tUPLUS, "+",
                    :tIDENTIFIER, "blah")
   end
 
-  def test_yylex_if_unless_mod
+  def test_if_unless_mod
     util_lex_token("return if true unless false",
                    :kRETURN,      "return",
                    :kIF_MOD,      "if",
@@ -1949,7 +1949,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kFALSE,       "false")
   end
 
-  def test_yylex_if_stmt
+  def test_if_stmt
     util_lex_token("if true\n return end",
                    :kIF,          "if",
                    :kTRUE,        "true",
@@ -1958,7 +1958,7 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND,         "end")
   end
 
-  def test_yylex_static_env
+  def test_static_env
     env = Parser::StaticEnvironment.new
     env.declare "a"
 
