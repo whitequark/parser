@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files`.split($/) + %w(
                           lib/parser/lexer.rb
+                          lib/parser/ruby18.rb
                        )
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
@@ -21,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency             'ast',      '~> 1.0'
 
-  #spec.add_development_dependency 'bundler',  '~> 1.3'
+  spec.add_development_dependency 'bundler',  '~> 1.3'
   spec.add_development_dependency 'rake',     '~> 10.0'
   spec.add_development_dependency 'racc'
   spec.add_development_dependency 'minitest', '~> 4.7.0'
