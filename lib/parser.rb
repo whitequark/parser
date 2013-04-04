@@ -5,14 +5,15 @@ require 'ast'
 
 # Library namespace
 module Parser
-  module Source
-    require 'parser/source/buffer'
-    require 'parser/source/range'
+  require 'parser/ast/node'
+  require 'parser/ast/processor'
 
-    require 'parser/source/map'
-    require 'parser/source/map/operator'
-    require 'parser/source/map/variable_assignment'
-  end
+  require 'parser/source/buffer'
+  require 'parser/source/range'
+
+  require 'parser/source/map'
+  require 'parser/source/map/operator'
+  require 'parser/source/map/variable_assignment'
 
   require 'parser/syntax_error'
   require 'parser/diagnostic'
@@ -22,8 +23,6 @@ module Parser
 
   require 'parser/lexer'
   require 'parser/lexer/literal'
-
-  require 'parser/node'
 
   module Builders
     require 'parser/builders/default'

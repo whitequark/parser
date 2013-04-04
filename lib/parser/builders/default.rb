@@ -152,7 +152,7 @@ module Parser
         metadata = {}
       end
 
-      Node.new(type, args, metadata)
+      AST::Node.new(type, args, metadata)
     end
 
     def diagnostic(type, message, location, highlights=[])
