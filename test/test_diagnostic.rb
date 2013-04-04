@@ -3,11 +3,11 @@ require 'parser'
 
 class TestDiagnostic < MiniTest::Unit::TestCase
   def setup
-    @sfile = Parser::SourceFile.new('(string)')
-    @sfile.source = "if (this is some bad code + bugs)"
+    @buffer = Parser::Source::Buffer.new('(string)')
+    @buffer.source = "if (this is some bad code + bugs)"
 
-    @range1 = Parser::SourceRange.new(@sfile, 0, 1) # if
-    @range2 = Parser::SourceRange.new(@sfile, 4, 7) # this
+    @range1 = Parser::Source::Range.new(@buffer, 0, 1) # if
+    @range2 = Parser::Source::Range.new(@buffer, 4, 7) # this
   end
 
   def test_verifies_levels
@@ -30,11 +30,11 @@ class TestDiagnostic < MiniTest::Unit::TestCase
   end
 
   def test_render
-    location = Parser::SourceRange.new(@sfile, 26, 26)
+    location = Parser::Source::Range.new(@buffer, 26, 26)
 
     highlights = [
-      Parser::SourceRange.new(@sfile, 21, 24),
-      Parser::SourceRange.new(@sfile, 28, 31)
+      Parser::Source::Range.new(@buffer, 21, 24),
+      Parser::Source::Range.new(@buffer, 28, 31)
     ]
 
     diag  = Parser::Diagnostic.new(:error, "code far too bad",

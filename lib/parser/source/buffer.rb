@@ -1,7 +1,7 @@
-module Parser
+module Parser::Source
 
-  class SourceFile
-    attr_reader   :name, :first_line
+  class Buffer
+    attr_reader :name, :first_line
 
     def initialize(name, first_line = 1)
       @name       = name
@@ -24,7 +24,9 @@ module Parser
     end
 
     def source=(source)
-      @source = source
+      @source = source.freeze
+
+      freeze
     end
 
     def decompose_position(position)

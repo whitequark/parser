@@ -1,6 +1,6 @@
-module Parser
+module Parser::Source
 
-  class SourceRange
+  class Range
     attr_reader :source_file, :begin, :end
 
     def initialize(source_file, begin_, end_)
@@ -47,7 +47,7 @@ module Parser
 
     def join(other)
       if other.source_file == @source_file
-        SourceRange.new(@source_file,
+        Range.new(@source_file,
             [@begin, other.begin].min,
             [@end, other.end].max)
       else

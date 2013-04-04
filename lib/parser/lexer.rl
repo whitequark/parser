@@ -74,7 +74,7 @@ class Parser::Lexer
   %% write data nofinal;
   # %
 
-  attr_reader   :source_file
+  attr_reader   :source_buffer
 
   attr_accessor :diagnostics
   attr_accessor :static_env
@@ -126,10 +126,10 @@ class Parser::Lexer
     @lambda_stack  = []
   end
 
-  def source_file=(source_file)
-    @source_file = source_file
+  def source_buffer=(source_buffer)
+    @source_buffer = source_buffer
 
-    if @source_file
+    if @source_buffer
       # Heredoc processing coupled with weird newline quirks
       # require three '\0' (EOF) chars to be appended; after
       # `p = @heredoc_s`, if `p` points at EOF, the FSM could
@@ -137,7 +137,7 @@ class Parser::Lexer
       #
       # Patches accepted.
       #
-      @source = @source_file.source.gsub(/\r\n/, "\n") + "\0\0\0"
+      @source = @source_buffer.source.gsub(/\r\n/, "\n") + "\0\0\0"
     else
       @source = nil
     end
@@ -221,7 +221,7 @@ class Parser::Lexer
   end
 
   def range(s = @ts, e = @te)
-    Parser::SourceRange.new(@source_file, s, e - 1)
+    Parser::Source::Range.new(@source_buffer, s, e - 1)
   end
 
   def emit(type, value = tok, s = @ts, e = @te)

@@ -10,17 +10,17 @@ module Parser
         $stderr.puts(diagnostic.render)
       end
 
-      source_file = SourceFile.new(file, line)
-      source_file.source = string
+      source_buffer = Source::Buffer.new(file, line)
+      source_buffer.source = string
 
-      parser.parse(source_file)
+      parser.parse(source_buffer)
     end
 
     attr_reader :diagnostics
     attr_reader :static_env
 
     # The source file currently being parsed.
-    attr_reader :source_file
+    attr_reader :source_buffer
 
     def initialize(builder=Parser::Builders::Default.new)
       @diagnostics = DiagnosticsEngine.new
@@ -44,7 +44,7 @@ module Parser
     end
 
     def reset
-      @source_file = nil
+      @source_buffer = nil
       @def_level   = 0 # count of nested def's.
 
       @lexer.reset
@@ -53,15 +53,15 @@ module Parser
       self
     end
 
-    def parse(source_file)
-      @source_file       = source_file
-      @lexer.source_file = source_file
+    def parse(source_buffer)
+      @source_buffer       = source_buffer
+      @lexer.source_buffer = source_buffer
 
       do_parse
     ensure
       # Don't keep references to the source file.
-      @source_file       = nil
-      @lexer.source_file = nil
+      @source_buffer       = nil
+      @lexer.source_buffer = nil
     end
 
     def in_def?

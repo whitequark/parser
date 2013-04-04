@@ -16,7 +16,7 @@ module ParseHelper
   # )
   # ```
   def assert_parses(code, location, ast, versions=%w(1.8))
-    source_file = Parser::SourceFile.new('(assert_parses)')
+    source_file = Parser::Source::Buffer.new('(assert_parses)')
     source_file.source = code
 
     versions.each do |version|
@@ -41,8 +41,8 @@ module ParseHelper
 
         range = astlet.location.send(loc_field)
 
-        assert range.is_a?(Parser::SourceRange),
-               "(#{version}) #{loc_field}.is_a?(SourceRange) for #{line.inspect}"
+        assert range.is_a?(Parser::Source::Range),
+               "(#{version}) #{loc_field}.is_a?(Source::Range) for #{line.inspect}"
 
         assert_equal begin_pos, range.begin,
                      "(#{version}) begin of #{line.inspect}"

@@ -27,11 +27,11 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def util_escape(expected, input)
-    source_file = Parser::SourceFile.new('(util_escape)')
-    source_file.source = "%Q[\\#{input}]"
+    source_buffer = Parser::Source::Buffer.new('(util_escape)')
+    source_buffer.source = "%Q[\\#{input}]"
 
     @lex.reset
-    @lex.source_file = source_file
+    @lex.source_buffer = source_buffer
 
     lex_token, (lex_value, *) = @lex.advance
 
@@ -41,7 +41,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
     assert_equal [:tSTRING, expected],
                  [lex_token, lex_value],
-                 source_file.source
+                 source_buffer.source
   end
 
   def util_escape_bad(input)
@@ -58,11 +58,11 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def util_lex_token(input, *args)
-    source_file = Parser::SourceFile.new('(util_lex_token)')
-    source_file.source = input
+    source_buffer = Parser::Source::Buffer.new('(util_lex_token)')
+    source_buffer.source = input
 
     @lex.reset(false)
-    @lex.source_file = source_file
+    @lex.source_buffer = source_buffer
 
     until args.empty? do
       token, value = args.shift(2)
@@ -1925,10 +1925,10 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_yylex_underscore_end
-    source_file = Parser::SourceFile.new('(yylex_underscore_end)')
-    source_file.source = "__END__\n"
+    source_buffer = Parser::Source::Buffer.new('(yylex_underscore_end)')
+    source_buffer.source = "__END__\n"
 
-    @lex.source_file = source_file
+    @lex.source_buffer = source_buffer
 
     tok, = @lex.advance
     refute tok
