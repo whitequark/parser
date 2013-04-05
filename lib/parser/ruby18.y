@@ -132,7 +132,9 @@ rule
                     }
                 | klBEGIN
                     {
-                      syntax_error(:begin_in_method, val[0]) if in_def?
+                      if in_def?
+                        syntax_error(:begin_in_method, val[0])
+                      end
 
                       @static_env.extend
                     }
@@ -143,7 +145,9 @@ rule
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
-                      syntax_error(:end_in_method, val[0]) if in_def?
+                      if in_def?
+                        syntax_error(:end_in_method, val[0])
+                      end
 
                       result = new_iter s(:postexe), nil, val[2]
                     }
@@ -383,13 +387,17 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      yyerror "dynamic constant assignment" if in_def?
+                      if in_def?
+                        yyerror "dynamic constant assignment"
+                      end
 
                       result = s(:const, s(:colon2, val[0], val[2].to_sym), nil)
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      yyerror "dynamic constant assignment" if in_def?
+                      if in_def?
+                        yyerror "dynamic constant assignment"
+                      end
 
                       result = s(:const, nil, s(:colon3, val[1].to_sym))
                     }
@@ -420,13 +428,17 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      yyerror "dynamic constant assignment" if in_def?
+                      if in_def?
+                        yyerror "dynamic constant assignment"
+                      end
 
                       result = s(:const, s(:colon2, val[0], val[2].to_sym))
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      yyerror "dynamic constant assignment" if in_def?
+                      if in_def?
+                        yyerror "dynamic constant assignment"
+                      end
 
                       result = s(:const, s(:colon3, val[1].to_sym))
                     }
@@ -1049,7 +1061,9 @@ rule
                     }
                 | kCLASS cpath superclass
                     {
-                      yyerror "class definition in method body" if in_def?
+                      if in_def?
+                        yyerror "class definition in method body"
+                      end
 
                       @comments.push @lexer.clear_comments
                       @static_env.extend
@@ -1079,9 +1093,11 @@ rule
                     }
                 | kMODULE cpath
                     {
-                      @comments.push @lexer.clear_comments
-                      yyerror "module definition in method body" if in_def?
+                      if in_def?
+                        yyerror "module definition in method body"
+                      end
 
+                      @comments.push @lexer.clear_comments
                       @static_env.extend_static
                     }
                     bodystmt kEND
@@ -1508,7 +1524,9 @@ xstring_contents: # nothing # TODO: replace with string_contents?
 
           symbol: tSYMBOL
                     {
-                      syntax_error(:empty_symbol, val[0]) if val[0][0].empty?
+                      if val[0][0].empty?
+                        syntax_error(:empty_symbol, val[0])
+                      end
 
                       result = @builder.symbol(val[0])
                     }

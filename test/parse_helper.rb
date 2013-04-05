@@ -11,6 +11,21 @@ module ParseHelper
     super if defined?(super)
   end
 
+  def parser_for_ruby_version(version)
+    case version
+    when '1.8'; parser = Parser::Ruby18.new
+    # when '1.9'; Parser::Ruby19 # not yet
+    # when '2.0'; Parser::Ruby20 # not yet
+    else raise "Unrecognized Ruby version #{version}"
+    end
+
+    parser.diagnostics.consumer = lambda do |diagnostic|
+      @diagnostics << diagnostic
+    end
+
+    parser
+  end
+
   def with_versions(code, versions)
     versions.each do |version|
       @diagnostics.clear
@@ -123,21 +138,6 @@ module ParseHelper
         end
       end
     end
-  end
-
-  def parser_for_ruby_version(version)
-    case version
-    when '1.8'; parser = Parser::Ruby18.new
-    # when '1.9'; Parser::Ruby19 # not yet
-    # when '2.0'; Parser::Ruby20 # not yet
-    else raise "Unrecognized Ruby version #{version}"
-    end
-
-    parser.diagnostics.consumer = lambda do |diagnostic|
-      @diagnostics << diagnostic
-    end
-
-    parser
   end
 
   SOURCE_MAP_DESCRIPTION_RE =

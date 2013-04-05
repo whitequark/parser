@@ -939,7 +939,7 @@ class TestParser < MiniTest::Unit::TestCase
         s(:blockarg, :b)),
       %q{&b})
 
-    # none
+    # (nothing)
     assert_parses_args(
       s(:args),
       %q{})
