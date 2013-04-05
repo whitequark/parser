@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'racc'
   spec.add_development_dependency 'minitest',  '~> 4.7.0'
   spec.add_development_dependency 'simplecov', '~> 0.7'
+  spec.add_development_dependency 'coveralls'
 end

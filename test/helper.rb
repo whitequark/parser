@@ -13,6 +13,9 @@ if SimpleCov.usable?
     at_exit { RaccCoverage.stop }
   end
 
+  require 'coveralls'
+  Coveralls.wear!
+
   SimpleCov.start do
     add_filter "/test/"
 
