@@ -39,7 +39,7 @@ module Parser
       t(token, :str, value(token))
     end
 
-    def string_compose(t_begin, parts, t_end)
+    def string_compose(begin_t, parts, end_t)
       if parts.one?
         parts.first
       else
@@ -57,13 +57,13 @@ module Parser
       t(token, :sym, value(token).to_sym)
     end
 
-    def symbol_compose(t_begin, parts, t_end)
+    def symbol_compose(begin_t, parts, end_t)
       s(:dsym, *parts)
     end
 
     # Executable strings
 
-    def xstring_compose(t_begin, parts, t_end)
+    def xstring_compose(begin_t, parts, end_t)
       s(:xstr, *parts)
     end
 
@@ -73,14 +73,45 @@ module Parser
       t(token, :regopt, *value(token).each_char.sort.uniq.map(&:to_sym))
     end
 
-    def regexp_compose(t_begin, parts, t_end, options)
+    def regexp_compose(begin_t, parts, end_t, options)
       s(:regexp, *parts, options)
     end
 
     # Arrays
 
-    def words_compose(t_begin, parts, t_end)
+    def array(begin_t, elements, end_t)
+      s(:array, *elements)
+    end
+
+    def splat(star_t, arg)
+      s(:splat, arg)
+    end
+
+    def words_compose(begin_t, parts, end_t)
       s(:array, *parts)
+    end
+
+    # Hashes
+
+    def pair(key, assoc_t, value)
+      s(:pair, key, value)
+    end
+
+    def pair_list_18(list)
+      if list.size % 2 != 0
+        # TODO better location info here
+        message = ERRORS[:odd_hash]
+        diagnostic :error, message, list.last.src.expression
+      else
+        list.
+          each_slice(2).map do |key, value|
+            s(:pair, key, value)
+          end
+      end
+    end
+
+    def associate(begin_t, pairs, end_t)
+      s(:hash, *pairs)
     end
 
     # Ranges
@@ -91,6 +122,14 @@ module Parser
 
     def range_exclusive(lhs, token, rhs)
       s(:erange, lhs, rhs)
+    end
+
+    #
+    # Expression grouping
+    #
+
+    def paren(begin_t, expr, end_t)
+      expr
     end
 
     #
@@ -155,6 +194,11 @@ module Parser
         node.updated(:gvasgn)
 
       when :const
+        if @parser.in_def?
+          message = ERRORS[:dynamic_const]
+          diagnostic :error, message, node.src.expression
+        end
+
         node.updated(:cdecl)
 
       when :ident
@@ -178,11 +222,10 @@ module Parser
 
     def assign(lhs, token, rhs)
       case lhs.type
-      when :gvasgn, :ivasgn, :lvasgn, :masgn, :cdecl, :cvdecl, :cvasgn
-        (lhs << rhs).updated(nil, nil,
-            source_map: Source::Map::VariableAssignment.new(
-                        lhs.src.expression, location(token),
-                        lhs.src.expression.join(rhs.src.expression)))
+      when :lvasgn, :masgn, :gvasgn, :ivasgn, :cvdecl,
+           :cvasgn, :cdecl,
+           :send
+        lhs << rhs
 
       when :const
         (lhs << rhs).updated(:cdecl)
@@ -192,18 +235,18 @@ module Parser
       end
     end
 
-    def op_assign(lhs, token, rhs)
+    def op_assign(lhs, operator_t, rhs)
       case lhs.type
-      when :gvasgn, :ivasgn, :lvasgn
-        operator = value(token)[0..-1].to_sym
+      when :gvasgn, :ivasgn, :lvasgn, :send
+        operator = value(operator_t)[0..-1].to_sym
 
         case operator
         when :'&&'
-          s(:var_and_asgn, lhs, rhs)
+          s(:and_asgn, lhs, rhs)
         when :'||'
-          s(:var_or_asgn, lhs, rhs)
+          s(:or_asgn, lhs, rhs)
         else
-          s(:var_op_asgn, lhs, operator, rhs)
+          s(:op_asgn, lhs, operator, rhs)
         end
 
       when :back_ref, :nth_ref
@@ -213,6 +256,14 @@ module Parser
       else
         raise NotImplementedError, "build op_assign #{lhs.inspect}"
       end
+    end
+
+    def multi_lhs(begin_t, items, end_t)
+      s(:mlhs, *items)
+    end
+
+    def multi_assign(lhs, eql_t, rhs)
+      s(:masgn, lhs, rhs)
     end
 
     #
@@ -239,8 +290,24 @@ module Parser
     # Method (un)definition
     #
 
-    def def_method(def_t, name, args, body, end_t, comments)
+    def def_method(def_t, name, args,
+                   body, end_t, comments)
       s(:def, value(name).to_sym, args, body)
+    end
+
+    def def_singleton(def_t, definee, dot_t,
+                      name, args,
+                      body, end_t, comments)
+      case definee.type
+      when :int, :str, :dstr, :sym, :dsym,
+           :regexp, :array, :hash
+
+        message = ERRORS[:singleton_literal]
+        diagnostic :error, message, nil # TODO definee.src.expression
+
+      else
+        s(:defs, definee, value(name).to_sym, args, body)
+      end
     end
 
     def undef_method(token, names)
@@ -297,6 +364,37 @@ module Parser
     # Method calls
     #
 
+    def call_method(receiver, dot_t, selector_t,
+                    begin_t=nil, args=nil, end_t=nil)
+      s(:send, receiver, value(selector_t).to_sym, *args)
+    end
+
+    def attr_asgn(receiver, dot_t, selector_t,
+                  value=nil)
+      method_name = (value(selector_t) + '=').to_sym
+
+      if value.nil?
+        # Incomplete attr_asgn, used in e.g. masgn.
+        s(:send, receiver, method_name)
+      else
+        s(:send, receiver, method_name, value)
+      end
+    end
+
+    def index(receiver, lbrack_t, indexes, rbrack_t)
+      s(:send, receiver, :[], *indexes)
+    end
+
+    def index_asgn(receiver, lbrack_t, indexes, rbrack_t,
+                   value=nil)
+      if value.nil?
+        # Incomplete index_asgn, used in e.g. masgn.
+        s(:send, receiver, :[]=, *indexes)
+      else
+        s(:send, receiver, :[]=, *indexes, value)
+      end
+    end
+
     def binary_op(receiver, token, arg)
       if @parser.version == 18
         if value(token) == '!='
@@ -307,6 +405,23 @@ module Parser
       end
 
       s(:send, receiver, value(token).to_sym, arg)
+    end
+
+    def old_op_assign(receiver, dot_t, selector_t,
+                  operator_t, value)
+      operator = value(operator_t).to_sym
+      incomplete_send = s(:send, receiver, value(selector_t).to_sym)
+
+      case operator
+      when :'&&'
+        s(:and_asgn, incomplete_send, value)
+
+      when :'||'
+        s(:or_asgn, incomplete_send, value)
+
+      else
+        s(:op_asgn, incomplete_send, operator, value)
+      end
     end
 
     def unary_op(token, receiver)

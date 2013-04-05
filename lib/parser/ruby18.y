@@ -185,15 +185,17 @@ rule
                     }
                 | lhs tEQL mrhs
                     {
-                      result = node_assign val[0], s(:svalue, val[2])
+                      result = @builder.assign(val[0], val[1],
+                                  @builder.array(nil, val[2], nil))
                     }
                 | mlhs tEQL arg_value
                     {
-                      result = new_masgn val[0], val[2], :wrap
+                      result = @builder.multi_assign(val[0], val[1], val[2])
                     }
                 | mlhs tEQL mrhs
                     {
-                      result = new_masgn val[0], val[2]
+                      result = @builder.multi_assign(val[0], val[1],
+                                  @builder.array(nil, val[2], nil))
                     }
                 | expr
 
@@ -208,11 +210,11 @@ rule
                     }
                 | kNOT expr
                     {
-                      result = s(:not, val[1])
+                      result = @builder.not_op(val[0], val[1])
                     }
                 | tBANG command_call
                     {
-                      result = s(:not, val[1])
+                      result = @builder.not_op(val[0], val[1])
                     }
                 | arg
 
@@ -314,55 +316,61 @@ rule
                     }
 
             mlhs: mlhs_basic
+                    {
+                      result = @builder.multi_lhs(nil, val[0], nil)
+                    }
                 | tLPAREN mlhs_entry tRPAREN
                     {
-                      result = val[1]
+                      result = @builder.paren(val[0], val[1], val[2])
                     }
 
       mlhs_entry: mlhs_basic
+                    {
+                      result = @builder.multi_lhs(nil, val[0], nil)
+                    }
                 | tLPAREN mlhs_entry tRPAREN
                     {
-                      result = s(:masgn, s(:array, val[1]))
+                      result = @builder.multi_lhs(val[0], val[1], val[2])
                     }
 
       mlhs_basic: mlhs_head
                     {
-                      result = s(:masgn, val[0])
+                      result = val[0]
                     }
                 | mlhs_head mlhs_item
                     {
-                      result = s(:masgn, val[0] << val[1].compact)
+                      result = val[0] << val[1]
                     }
                 | mlhs_head tSTAR mlhs_node
                     {
-                      result = s(:masgn, val[0] << s(:splat, val[2]))
+                      result = val[0] << @builder.splat(val[1], val[2])
                     }
                 | mlhs_head tSTAR
                     {
-                      result = s(:masgn, val[0] << s(:splat))
+                      result = val[0] << @builder.splat(val[1])
                     }
                 | tSTAR mlhs_node
                     {
-                      result = s(:masgn, s(:array, s(:splat, val[1])))
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
                 | tSTAR
                     {
-                      result = s(:masgn, s(:array, s(:splat)))
+                      result = [ @builder.splat(val[0]) ]
                     }
 
        mlhs_item: mlhs_node
                 | tLPAREN mlhs_entry tRPAREN
                     {
-                      result = val[1]
+                      result = @builder.paren(val[0], val[1], val[2])
                     }
 
        mlhs_head: mlhs_item tCOMMA
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | mlhs_head mlhs_item tCOMMA
                     {
-                      result = val[0] << val[1].compact
+                      result = val[0] << val[1]
                     }
 
        mlhs_node: variable
@@ -371,35 +379,37 @@ rule
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
-                      result = aryset val[0], val[2]
+                      result = @builder.index_asgn(val[0], val[1], val[2], val[3])
                     }
                 | primary_value tDOT tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
                       if in_def?
-                        yyerror "dynamic constant assignment"
+                        syntax_error :dynamic_const, val[2]
                       end
 
-                      result = s(:const, s(:colon2, val[0], val[2].to_sym), nil)
+                      result = @builder.assignable(
+                                  @builder.const_fetch(val[0], val[1], val[2]))
                     }
                 | tCOLON3 tCONSTANT
                     {
                       if in_def?
-                        yyerror "dynamic constant assignment"
+                        syntax_error :dynamic_const, val[1]
                       end
 
-                      result = s(:const, nil, s(:colon3, val[1].to_sym))
+                      result = @builder.assignable(
+                                  @builder.const_global(val[0], val[1]))
                     }
                 | backref
                     {
@@ -412,24 +422,24 @@ rule
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
-                      result = aryset val[0], val[2]
+                      result = @builder.index_asgn(val[0], val[1], val[2], val[3])
                     }
                 | primary_value tDOT tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
                       if in_def?
-                        yyerror "dynamic constant assignment"
+                        syntax_error :dynamic_const, val[2]
                       end
 
                       result = @builder.assignable(
@@ -438,7 +448,7 @@ rule
                 | tCOLON3 tCONSTANT
                     {
                       if in_def?
-                        yyerror "dynamic constant assignment"
+                        syntax_error :dynamic_const, val[1]
                       end
 
                       result = @builder.assignable(
@@ -523,28 +533,39 @@ rule
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK tOP_ASGN arg
                     {
-                      result = s(:op_asgn1, val[0], val[2], val[4].to_sym, val[5])
-                      val[2][0] = :arglist
+                      result = @builder.op_assign(
+                                  @builder.index(
+                                    val[0], val[1], val[2], val[3]),
+                                  val[4], val[5])
                     }
                 | primary_value tDOT tIDENTIFIER tOP_ASGN arg
                     {
-                      result = s(:op_asgn2, val[0], :"#{val[2]}=", val[3].to_sym, val[4])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN arg
-                    {
-                      result = s(:op_asgn2, val[0], :"#{val[2]}=", val[3].to_sym, val[4])
+                    { # TODO: Unused with the Ragel lexer. Remove?
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN arg
                     {
-                      yyerror "constant re-assignment"
+                      syntax_error :dynamic_const, val[2], [ val[3] ]
                     }
                 | tCOLON3 tCONSTANT tOP_ASGN arg
                     {
-                      yyerror "constant re-assignment"
+                      syntax_error :dynamic_const, val[1], [ val[2] ]
                     }
                 | backref tOP_ASGN arg
                     {
@@ -707,24 +728,24 @@ rule
                     }
                 | args tCOMMA tSTAR arg opt_nl
                     {
-                      result = arg_concat val[0], val[3]
+                      result = val[0] << @builder.splat(val[2], val[3])
                     }
                 | assocs trailer
                     {
-                      result = s(:array, s(:hash, *val[0].values))
+                      result = [ @builder.associate(nil, val[0], nil) ]
                     }
                 | tSTAR arg opt_nl
                     {
-                      result = s(:array, s(:splat, val[1]))
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
 
       paren_args: tLPAREN2 none tRPAREN
                     {
-                      result = val[1]
+                      result = [ val[0], val[1], val[2] ]
                     }
                 | tLPAREN2 call_args opt_nl tRPAREN
                     {
-                      result = val[1]
+                      result = [ val[0], val[1], val[3] ]
                     }
                 | tLPAREN2 block_call opt_nl tRPAREN
                     {
@@ -892,11 +913,11 @@ rule
                     }
                 | args tCOMMA tSTAR arg_value
                     {
-                      result = arg_concat val[0], val[3]
+                      result = val[0] << @builder.splat(val[2], val[3])
                     }
                 | tSTAR arg_value
                     {
-                      result = s(:splat, val[1])
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
 
          primary: literal
@@ -943,15 +964,15 @@ rule
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
-                      result = new_aref val
+                      result = @builder.index(val[0], val[1], val[2], val[3])
                     }
                 | tLBRACK aref_args tRBRACK
                     {
-                      result = val[1] || s(:array)
+                      result = @builder.array(val[0], val[1], val[2])
                     }
                 | tLBRACE assoc_list tRCURLY
                     {
-                      result = s(:hash, *val[1].values)
+                      result = @builder.associate(val[0], val[1], val[2])
                     }
                 | kRETURN
                     {
@@ -1127,10 +1148,11 @@ rule
                     }
                     f_arglist bodystmt kEND
                     {
-                      result = new_defs val
+                      result = @builder.def_singleton(val[0], val[1], val[2],
+                                  val[4], val[6], val[7], val[8], @comments.pop)
 
                       @static_env.unextend
-                      @dev_level -= 1
+                      @def_level -= 1
                       @lexer.clear_comments
                     }
                 | kBREAK
@@ -1286,19 +1308,25 @@ rule
 
      method_call: operation paren_args
                     {
-                      result = new_call nil, val[0].to_sym, val[1]
+                      lparen_t, args, rparen_t = val[1]
+                      result = @builder.call_method(nil, nil, val[0],
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tDOT operation2 opt_paren_args
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tCOLON2 operation2 paren_args
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tCOLON2 operation3
                     {
-                      result = new_call val[0], val[2].to_sym
+                      result = @builder.call_method(val[0], val[1], val[2])
                     }
                 | kSUPER paren_args
                     {
@@ -1755,39 +1783,33 @@ xstring_contents: # nothing # TODO: replace with string_contents?
                 | tLPAREN2 expr opt_nl tRPAREN
                     {
                       result = val[1]
-                      yyerror "Can't define single method for literals." if
-                        result[0] == :lit
                     }
 
-      assoc_list: none # [!nil]
+      assoc_list: none
                     {
-                      result = s(:array)
+                      result = []
                     }
-                | assocs trailer # [!nil]
+                | assocs trailer
                     {
                       result = val[0]
                     }
                 | args trailer
                     {
-                      size = val[0].size
-                      if (size % 2 != 1) then # != 1 because of leading :array
-                        yyerror "Odd number (#{size}) list for Hash. #{val[0].inspect}"
-                      end
-                      result = val[0]
+                      result = @builder.pair_list_18(val[0])
                     }
 
           assocs: assoc
+                    {
+                      result = [ val[0] ]
+                    }
                 | assocs tCOMMA assoc
                     {
-                      list = val[0].dup
-                      more = val[2][1..-1]
-                      list.push(*more) unless more.empty?
-                      result = list
+                      result = val[0] << val[2]
                     }
 
            assoc: arg_value tASSOC arg_value
                     {
-                      result = s(:array, val[0], val[2])
+                      result = @builder.pair(val[0], val[1], val[2])
                     }
 
        operation: tIDENTIFIER | tCONSTANT | tFID

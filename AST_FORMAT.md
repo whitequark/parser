@@ -455,7 +455,7 @@ Format:
           ^ operator
  ~~~~~~~~~~~~~~~ expression
 
-(masgn (mlhs (ivasgn :@a) (cvasgn :@@b)) (splat (lvar :c)))
+(masgn (mlhs (ivasgn :@a) (cvasgn :@@b)) (array (splat (lvar :c))))
 "@a, @@b = *c"
 
 (masgn (mlhs (mlhs (lvasgn :a) (lvasgn :b)) (lvasgn :c)) (lvar :d))
@@ -473,12 +473,12 @@ Binary operator-assignment features the same "incomplete assignments" and "incom
 
 Format:
 ```
-(var-op-asgn (lasgn :a) :+ (int 1))
+(op-asgn (lvasgn :a) :+ (int 1))
 "a += 1"
    ~~ operator
  ~~~~~~ expression
 
-(var-op-asgn (iasgn :a) :+ (int 1))
+(op-asgn (ivasgn :a) :+ (int 1))
 "@a += 1"
 ```
 
@@ -527,12 +527,12 @@ Logical operator-assignment features the same "incomplete assignments" and "inco
 
 Format:
 ```
-(var-or-asgn (iasgn :@a) (int 1))
+(or-asgn (iasgn :@a) (int 1))
 "@a ||= 1"
     ~~~ operator
  ~~~~~~~~ expression
 
-(var-and-asgn (lasgn :a) (int 1))
+(and-asgn (lasgn :a) (int 1))
 "a &&= 1"
    ~~~ operator
  ~~~~~~~ expression
