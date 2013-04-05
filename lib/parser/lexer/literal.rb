@@ -34,7 +34,8 @@ module Parser
       @nesting     = 1
 
       unless TYPES.include?(str_type)
-        lexer.send(:diagnostic, :error, "#{str_type}: unknown type of %string", str_s..str_s)
+        lexer.send(:diagnostic, :error, "#{str_type}: unknown type of %string",
+                   @lexer.send(:range, str_s, str_s + 2))
       end
 
       # String type. For :'foo', it is :'

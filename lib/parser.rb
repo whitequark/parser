@@ -66,6 +66,7 @@ module Parser
     argument_ivar:           "formal argument cannot be an instance variable",
     argument_gvar:           "formal argument cannot be a global variable",
     argument_cvar:           "formal argument cannot be a class variable",
+    empty_symbol:            "empty symbol literal"
   }
 
   ERRORS.default_proc = ->(hash, key) do

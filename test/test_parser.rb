@@ -99,6 +99,23 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~ expression})
   end
 
+  def test_string_concat
+    assert_parses(
+      s(:dstr,
+        s(:dstr,
+          s(:str, 'foo'),
+          s(:ivar, :@a)),
+        s(:str, 'bar')),
+      %q{"foo#@a" "bar"},
+      %q{^ begin
+        |^ begin (dstr)
+        |       ^ end (dstr)
+        |         ^ begin (str)
+        |             ^ end (str)
+        |             ^ end
+        |~~~~~~~~~~~~~~ expression})
+  end
+
   # Symbols
 
   def test_symbol_plain
@@ -127,11 +144,23 @@ class TestParser < MiniTest::Unit::TestCase
         | ~~~~~~~~~~~~~~ expression})
   end
 
+  # def test_symbol_empty
+  #   assert_diagnostic(
+  #     :error, "empty symbol literal",
+  #     %q{:''},
+  #     %w(1.8))
+
+  #   assert_diagnostic(
+  #     :error, "empty symbol literal",
+  #     %q{:""},
+  #     %w(1.8))
+  # end
+
   # Execute-strings
 
   def test_xstring_plain
     assert_parses(
-      s(:xstr, 'foobar'),
+      s(:xstr, s(:str, 'foobar')),
       %q{`foobar`},
       %q{^ begin
         |       ^ end
@@ -140,7 +169,7 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_xstring_interp
     assert_parses(
-      s(:dxstr,
+      s(:xstr,
         s(:str, 'foo'),
         s(:lvar, :bar),
         s(:str, 'baz')),
@@ -154,7 +183,7 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_regex_plain
     assert_parses(
-      s(:regexp, s(:regopt, :i, :m), 'source'),
+      s(:regexp, s(:str, 'source'), s(:regopt, :i, :m)),
       %q{/source/im},
       %q{^ begin
         |       ^ end
@@ -164,10 +193,11 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_regex_interp
     assert_parses(
-      s(:dregexp,
+      s(:regexp,
         s(:str, 'foo'),
         s(:lvar, :bar),
-        s(:str, 'baz')),
+        s(:str, 'baz'),
+        s(:regopt)),
       %q{/foo#{bar}baz/},
       %q{^ begin
         |             ^ end
@@ -197,6 +227,43 @@ class TestParser < MiniTest::Unit::TestCase
         |    ^ operator (splat)
         |    ~~~~ expression (splat)
         |~~~~~~~~~~~~ expression})
+  end
+
+  def test_array_words
+    assert_parses(
+      s(:array, s(:str, "foo"), s(:str, "bar")),
+      %q{%w[foo bar]},
+      %q{^^^ begin
+        |          ^ end
+        |   ~~~ expression (str)
+        |~~~~~~~~~~~ expression})
+  end
+
+  def test_array_words_interp
+    assert_parses(
+      s(:array, s(:str, "foo"), s(:lvar, :bar)),
+      %q{%W[foo #{bar}]},
+      %q{^^^ begin
+        |             ^ end
+        |   ~~~ expression (str)
+        |         ~~~ expression (lvar)
+        |~~~~~~~~~~~~~~ expression})
+  end
+
+  def test_array_words_empty
+    assert_parses(
+      s(:array),
+      %q{%w[]},
+      %q{^^^ begin
+        |   ^ end
+        |~~~~ expression})
+
+    assert_parses(
+      s(:array),
+      %q{%W()},
+      %q{^^^ begin
+        |   ^ end
+        |~~~~ expression})
   end
 
   # Hashes
@@ -234,6 +301,25 @@ class TestParser < MiniTest::Unit::TestCase
   #     %q{          ^^ operator (kwsplat)
   #       |          ~~~~~ expression (kwsplat)},
   #       %w(2.0))
+  # end
+
+  # def test_hash_no_hashrocket
+  #   assert_parses(
+  #     s(:hash, s(:pair, s(:int, 1), s(:int, 2))),
+  #     %q[{ 1, 2 }],
+  #     %q{^ begin
+  #       |       ^ end
+  #       |   ^ operator (pair)
+  #       |  ~~~~ expression (pair)
+  #       |~~~~~~~~ expression},
+  #     %w(1.8))
+  # end
+
+  # def test_hash_no_hashrocket
+  #   assert_diagnostic(
+  #     :error, "odd number of arguments for Hash"
+  #     %q[{ 1, 2 }],
+  #     %w(1.8))
   # end
 
   # Range
@@ -693,7 +779,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q{alias :foo bar},
       %q{~~~~~ keyword
         |      ~~~~ expression (sym/1)
-        |           ~~~ expression (sym/2)})
+        |           ~~~ expression (sym/2)
+        |~~~~~~~~~~~~~~ expression})
   end
 
   def test_alias_gvar
@@ -759,30 +846,104 @@ class TestParser < MiniTest::Unit::TestCase
   def test_blockarg
     assert_parses(
       s(:def, :f,
-        s(:args, s(:blockarg, :foo)),
+        s(:args, s(:blockarg, :block)),
         s(:nil)),
       %q{def f(&block); nil; end},
       %q{       ~~~~~ name (args.blockarg)
         |      ~~~~~~ expression (args.blockarg)})
   end
 
-  def test_arg_mlhs
+  # def test_arg_mlhs
+  #   assert_parses(
+  #     s(:def, :f,
+  #       s(:args,
+  #         s(:mlhs,
+  #           s(:arg, :a),
+  #           s(:arg, :b),
+  #           s(:splatarg)),
+  #         s(:arg, :c)),
+  #       s(:nil)),
+  #     %q{def f((a, b, *f), c); nil; end},
+  #     %q{      ^ begin (args.mlhs)
+  #       |               ^ end (args.mlhs)
+  #       |      ~~~~~~~~~~ expression (args.mlhs)
+  #       |       ~ expression (args.mlhs.arg)
+  #       |              ~ name (args.mlhs.splatarg)
+  #       |             ~~ expression (args.mlhs.splatarg)},
+  #     %w(1.9 2.0))
+  # end
+
+  def assert_parses_args(ast, code)
     assert_parses(
-      s(:def, :f,
-        s(:args,
-          s(:mlhs,
-            s(:arg, :a),
-            s(:arg, :b),
-            s(:splatarg)),
-          s(:arg, :c)),
-        s(:nil)),
-      %q{def f((a, b, *f), c); nil; end},
-      %q{      ^ begin (args.mlhs)
-        |               ^ end (args.mlhs)
-        |      ~~~~~~~~~~ expression (args.mlhs)
-        |       ~ expression (args.mlhs.arg)
-        |              ~ name (args.mlhs.splatarg)
-        |             ~~ expression (args.mlhs.splatarg)})
+      s(:def, :f, ast, s(:nil)),
+      %Q{def f #{code}; nil; end})
+  end
+
+  def test_arg_combinations
+    # f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:blockarg, :b)),
+      %q{a, o=1, *r, &b})
+
+    # f_arg tCOMMA f_optarg                   opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:blockarg, :b)),
+      %q{a, o=1, &b})
+
+    # f_arg tCOMMA                 f_rest_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:splatarg, :r),
+        s(:blockarg, :b)),
+      %q{a, *r, &b})
+
+    # f_arg                                   opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:blockarg, :b)),
+      %q{a, &b})
+
+    #              f_optarg tCOMMA f_rest_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:blockarg, :b)),
+      %q{o=1, *r, &b})
+
+    #              f_optarg                   opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:blockarg, :b)),
+      %q{o=1, &b})
+
+    #                              f_rest_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:splatarg, :r),
+        s(:blockarg, :b)),
+      %q{*r, &b})
+
+    #                                             f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:blockarg, :b)),
+      %q{&b})
+
+    # none
+    assert_parses_args(
+      s(:args),
+      %q{})
   end
 
   # def test_kwoptarg

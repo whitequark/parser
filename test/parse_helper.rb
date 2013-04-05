@@ -37,7 +37,7 @@ module ParseHelper
         end
 
         assert astlet.source_map.respond_to?(map_field),
-               "(#{version}) source_map.respond_to?(#{map_field.inspect}) for #{line.inspect}"
+               "(#{version}) source_map.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
 
         range = astlet.source_map.send(map_field)
 

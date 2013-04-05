@@ -97,22 +97,9 @@ Format:
 
 ### Execute-string
 
-#### Plain
-
 Format:
 ```
-(xstr "foo")
-"`foo`"
- ^ begin
-     ^ end
- ~~~~~ expression
-```
-
-#### With interpolation
-
-Format:
-```
-(dxstr (str "foo") (lvar bar))
+(xstr (str "foo") (lvar bar))
 "`foo#{bar}`"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression
@@ -129,22 +116,11 @@ Format:
  ~~ expression
 ```
 
-#### Plain
+#### Regexp
 
 Format:
 ```
-(regexp "source" (regopt :i :m))
-"/source/im"
- ^ begin
-        ^ end
- ~~~~~~~~~~ expression
-```
-
-#### With interpolation
-
-Format:
-```
-(dregexp (str "foo") (lvar :bar) (regopt :i))
+(regexp (str "foo") (lvar :bar) (regopt :i))
 "/foo#{bar}/i"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression

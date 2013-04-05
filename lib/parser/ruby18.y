@@ -50,7 +50,14 @@ rule
 
         bodystmt: compstmt opt_rescue opt_else opt_ensure
                     {
-                      result = new_body val
+                      rescue_, t_rescue = val[1]
+                      else_,   t_else   = val[2]
+                      ensure_, t_ensure = val[3]
+
+                      result = @builder.begin(val[0],
+                                  rescue_, t_rescue,
+                                  else_,   t_else,
+                                  ensure_, t_ensure)
                     }
 
         compstmt: stmts opt_terms
@@ -453,7 +460,7 @@ rule
 
             fsym: fname
                     {
-                      result = @builder.func_name(val[0])
+                      result = @builder.symbol(val[0])
                     }
                 | symbol
 
@@ -1091,7 +1098,8 @@ rule
                     }
                     f_arglist bodystmt kEND
                     {
-                      result = new_defn val
+                      result = @builder.def_method(val[0], val[1],
+                                  val[3], val[4], val[5], @comments.pop)
 
                       @static_env.unextend
                       @def_level -= 1
@@ -1354,17 +1362,13 @@ rule
 
          exc_var: tASSOC lhs
                     {
-                      result = val[1]
+                      result = val
                     }
                 | none
 
       opt_ensure: kENSURE compstmt
                     {
-                      if (val[1] != nil) then
-                        result = val[1]
-                      else
-                        result = s(:nil)
-                      end
+                      result = val
                     }
                 | none
 
@@ -1374,104 +1378,105 @@ rule
 
          strings: string
                     {
-                      val[0] = s(:dstr, val[0].value) if val[0][0] == :evstr
-                      result = val[0]
+                      result = @builder.string_compose(nil, val[0], nil)
                     }
 
           string: string1
+                    {
+                      result = [ val[0] ]
+                    }
                 | string string1
                     {
-                      result = literal_concat val[0], val[1]
+                      result = val[0] << val[1]
                     }
 
          string1: tSTRING_BEG string_contents tSTRING_END
                     {
-                      result = val[1]
+                      result = @builder.string_compose(val[0], val[1], val[2])
                     }
                 | tSTRING
                     {
-                      result = s(:str, val[0])
+                      result = @builder.string(val[0])
                     }
 
          xstring: tXSTRING_BEG xstring_contents tSTRING_END
                     {
-                      result = new_xstring val[1]
+                      result = @builder.xstring_compose(val[0], val[1], val[2])
                     }
 
           regexp: tREGEXP_BEG xstring_contents tSTRING_END tREGEXP_OPT
                     {
-                      result = new_regexp val
+                      opts   = @builder.regexp_options(val[3])
+                      result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
 
            words: tWORDS_BEG tSPACE tSTRING_END
                     {
-                      result = s(:array)
+                      result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tWORDS_BEG word_list tSTRING_END
                     {
-                      result = val[1]
+                      result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
        word_list: none
                     {
-                      result = s(:array)
+                      result = []
                     }
                 | word_list word tSPACE
                     {
-                      word = val[1][0] == :evstr ? s(:dstr, "", val[1]) : val[1]
-                      result = val[0] << word
+                      result = val[0] << val[1]
                     }
 
             word: string_content
-                | word string_content
+                | word string_content # TODO: test this rule, remove if unused
                     {
-                      result = literal_concat val[0], val[1]
+                      raise "unused 'word string_content'"
                     }
 
           qwords: tQWORDS_BEG tSPACE tSTRING_END
                     {
-                      result = s(:array)
+                      result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tQWORDS_BEG qword_list tSTRING_END
                     {
-                      result = val[1]
+                      result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
       qword_list: none
                     {
-                      result = s(:array)
+                      result = []
                     }
                 | qword_list tSTRING_CONTENT tSPACE
                     {
-                      result = val[0] << s(:str, val[1])
+                      result = val[0] << @builder.string(val[1])
                     }
 
  string_contents: none
                     {
-                      result = s(:str, "")
+                      result = []
                     }
                 | string_contents string_content
                     {
-                      result = literal_concat(val[0], val[1])
+                      result = val[0] << val[1]
                     }
 
-xstring_contents: none
+xstring_contents: none # TODO: replace with string_contents?
                     {
-                      result = nil
+                      result = []
                     }
                 | xstring_contents string_content
                     {
-                      result = literal_concat(val[0], val[1])
+                      result = val[0] << val[1]
                     }
 
   string_content: tSTRING_CONTENT
                     {
-                      result = s(:str, val[0])
+                      result = @builder.string(val[0])
                     }
-                | tSTRING_DVAR
-                    string_dvar
+                | tSTRING_DVAR string_dvar
                     {
-                      result = s(:evstr, val[1])
+                      result = val[1]
                     }
                 | tSTRING_DBEG
                     {
@@ -1483,47 +1488,25 @@ xstring_contents: none
                       #lexer.cond.lexpop
                       #lexer.cmdarg.lexpop
 
-                      case val[2]
-                      when Sexp then
-                        case val[2][0]
-                        when :str, :dstr, :evstr then
-                          result = val[2]
-                        else
-                          result = s(:evstr, val[2])
-                        end
-                      when nil then
-                        result = s(:evstr)
-                      else
-                        raise "unknown rescue body: #{val[2].inspect}"
-                      end
+                      result = val[2]
                     }
 
-     string_dvar: tGVAR { result = s(:gvar, val[0].to_sym) }
-                | tIVAR { result = s(:ivar, val[0].to_sym) }
-                | tCVAR { result = s(:cvar, val[0].to_sym) }
+     string_dvar: tGVAR { result = @builder.gvar(val[0]) }
+                | tIVAR { result = @builder.ivar(val[0]) }
+                | tCVAR { result = @builder.cvar(val[0]) }
                 | backref
 
 
           symbol: tSYMBOL
                     {
+                      syntax_error(:empty_symbol, val[0]) if val[0][0].empty?
+
                       result = @builder.symbol(val[0])
                     }
 
             dsym: tSYMBEG xstring_contents tSTRING_END
                     {
-                      result = val[1]
-
-                      yyerror "empty symbol literal" if
-                        result.nil? or result.empty?
-
-                      case result[0]
-                      when :dstr then
-                        result[0] = :dsym
-                      when :str then
-                        result = s(:lit, result.last.intern)
-                      else
-                        result = s(:dsym, "", result)
-                      end
+                      result = @builder.symbol_compose(val[0], val[1], val[2])
                     }
 
          numeric: tINTEGER
@@ -1568,7 +1551,7 @@ xstring_contents: none
                     }
                 | tLT expr_value term
                     {
-                      result = val[1]
+                      result = [ val[0], val[1] ]
                     }
                 | error term
                     {
@@ -1579,7 +1562,7 @@ xstring_contents: none
        f_arglist: tLPAREN2 f_args opt_nl tRPAREN
                     {
                       result = val[1]
-                      lexer.state = :expr_beg
+                      @lexer.state = :expr_beg
                     }
                 | f_args term
                     {
@@ -1588,39 +1571,39 @@ xstring_contents: none
 
           f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args(val[0], val[2], val[4], val[5])
                     }
                 | f_arg tCOMMA f_optarg                   opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args(val[0], val[2], [], val[3])
                     }
                 | f_arg tCOMMA                 f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args(val[0], [], val[2], val[3])
                     }
                 | f_arg                                   opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args(val[0], [], [], val[1])
                     }
                 |              f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args([], val[0], val[2], val[3])
                     }
-                |           f_optarg                      opt_f_block_arg
+                |              f_optarg                   opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args([], val[0], [], val[1])
                     }
                 |                              f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = @builder.args([], [], val[0], val[1])
                     }
                 |                                             f_block_arg
                     {
-                      result = args val
+                      result = @builder.args([], [], [], [ val[0] ])
                     }
-                |
+                | none
                     {
-                      result = args val
+                      result = @builder.args([], [], [], [])
                     }
 
       f_norm_arg: tCONSTANT
@@ -1641,67 +1624,65 @@ xstring_contents: none
                     }
                 | tIDENTIFIER
                     {
-                      @static_env.declare val[0]
+                      @static_env.declare val[0][0]
 
-                      result = val[0].to_sym
+                      result = @builder.arg(val[0])
                     }
 
            f_arg: f_norm_arg
                     {
-                      result = s(:args)
-                      result << val[0].to_sym
+                      result = [ val[0] ]
                     }
                 | f_arg tCOMMA f_norm_arg
                     {
-                      val[0] << val[2].to_sym
-                      result = val[0]
+                      result = val[0] << val[2]
                     }
 
            f_opt: tIDENTIFIER tEQL arg_value
                     {
-                      result = assignable val[0], val[2]
-                      # TODO: detect duplicate names
+                      @static_env.declare val[0][0]
+
+                      result = @builder.optarg(val[0], val[1], val[2])
                     }
 
         f_optarg: f_opt
                     {
-                      result = s(:block, val[0])
+                      result = [ val[0] ]
                     }
                 | f_optarg tCOMMA f_opt
                     {
-                      result = block_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
 
     restarg_mark: tSTAR2 | tSTAR
 
       f_rest_arg: restarg_mark tIDENTIFIER
                     {
-                      # TODO: differs from parse.y - needs tests
-                      name = val[1].to_sym
-                      assignable name
-                      result = :"*#{name}"
+                      @static_env.declare val[1][0]
+
+                      result = [ @builder.splatarg(val[0], val[1]) ]
                     }
                 | restarg_mark
                     {
-                      name = :"*"
-                      result = name
+                      result = [ @builder.splatarg(val[0]) ]
                     }
 
      blkarg_mark: tAMPER2 | tAMPER
 
      f_block_arg: blkarg_mark tIDENTIFIER
                     {
-                      @static_env.declare val[1]
-                      result = s(:block_arg, val[1].to_sym)
+                      @static_env.declare val[1][0]
+
+                      result = @builder.blockarg(val[0], val[1])
                     }
 
  opt_f_block_arg: tCOMMA f_block_arg
                     {
-                      result = val[1]
+                      result = [ val[1] ]
                     }
-                |
+                | none
                     {
-                      result = nil
+                      result = []
                     }
 
        singleton: var_ref
