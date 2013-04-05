@@ -896,7 +896,7 @@ class Parser::Lexer
       global_var
       => {
         if    tok =~ /^\$([1-9][0-9]*)$/
-          emit(:tNTH_REF)
+          emit(:tNTH_REF, tok(@ts + 1).to_i)
         elsif tok =~ /^\$([&`'+])$/
           emit(:tBACK_REF)
         else

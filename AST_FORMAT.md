@@ -473,12 +473,12 @@ Binary operator-assignment features the same "incomplete assignments" and "incom
 
 Format:
 ```
-(var-op-asgn (lvar :a) :+ (int 1))
+(var-op-asgn (lasgn :a) :+ (int 1))
 "a += 1"
    ~~ operator
  ~~~~~~ expression
 
-(var-op-asgn (ivar :a) :+ (int 1))
+(var-op-asgn (iasgn :a) :+ (int 1))
 "@a += 1"
 ```
 
@@ -527,12 +527,12 @@ Logical operator-assignment features the same "incomplete assignments" and "inco
 
 Format:
 ```
-(var-or-asgn (ivar :@a) (int 1))
+(var-or-asgn (iasgn :@a) (int 1))
 "@a ||= 1"
     ~~~ operator
  ~~~~~~~~ expression
 
-(var-and-asgn (lvar :a) (int 1))
+(var-and-asgn (lasgn :a) (int 1))
 "a &&= 1"
    ~~~ operator
  ~~~~~~~ expression

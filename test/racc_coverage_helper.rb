@@ -38,7 +38,7 @@ module RaccCoverage
   # or lines with just comments, `end` keywords, and correctly handles
   # multi-line statements of the following form:
   #
-  #  * All lines of the statement except the last must end with `,`.
+  #  * All lines of the statement except the last must end with `,` or `(`.
   #
   # Also, for best results, all actions should be delimited by at least
   # one non-action line.
@@ -70,6 +70,9 @@ module RaccCoverage
       source.text.each_line.with_index do |line, index|
         line = line.strip
 
+        continues = line.end_with?(',') ||
+                        line.end_with?('(')
+
         case state
         when :first_line
           next if line.empty?   ||
@@ -78,12 +81,12 @@ module RaccCoverage
 
           lines[first_line + index - 1] = 0
 
-          if line.end_with?(',')
+          if continues
             state = :mid_line
           end
 
         when :mid_line
-          unless line.end_with?(',')
+          unless continues
             state = :first_line
           end
         end

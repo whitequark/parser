@@ -29,6 +29,10 @@ module Parser
       t(token, :float, val)
     end
 
+    def __LINE__(token)
+      t(token, :int, location(token).line)
+    end
+
     # Strings
 
     def string(token)
@@ -41,6 +45,10 @@ module Parser
       else
         s(:dstr, *parts)
       end
+    end
+
+    def __FILE__(token)
+      t(token, :str, location(token).source_buffer.name)
     end
 
     # Symbols
@@ -75,6 +83,16 @@ module Parser
       s(:array, *parts)
     end
 
+    # Ranges
+
+    def range_inclusive(lhs, token, rhs)
+      s(:irange, lhs, rhs)
+    end
+
+    def range_exclusive(lhs, token, rhs)
+      s(:erange, lhs, rhs)
+    end
+
     #
     # Access
     #
@@ -85,10 +103,9 @@ module Parser
     def ivar(token);  t(token, :ivar,  value(token).to_sym); end
     def gvar(token);  t(token, :gvar,  value(token).to_sym); end
     def cvar(token);  t(token, :cvar,  value(token).to_sym); end
-    def const(token); t(token, :const, value(token).to_sym); end
 
     def back_ref(token); t(token, :back_ref, value(token).to_sym); end
-    def nth_ref(token);  t(token, :nth_ref,  value(token).to_sym); end
+    def nth_ref(token);  t(token, :nth_ref,  value(token));        end
 
     def accessible(node)
       case node.type
@@ -99,11 +116,23 @@ module Parser
           node.updated(:lvar)
         else
           name, = *node
-          node.updated(:call, [ nil, name ])
+          node.updated(:send, [ nil, name ])
         end
       else
         node
       end
+    end
+
+    def const(token)
+      t(token, :const, nil, value(token).to_sym)
+    end
+
+    def const_global(t_colon3, token)
+      s(:const, s(:cbase), value(token).to_sym)
+    end
+
+    def const_fetch(scope, t_colon2, token)
+      s(:const, scope, value(token).to_sym)
     end
 
     #
@@ -155,14 +184,34 @@ module Parser
                         lhs.src.expression, location(token),
                         lhs.src.expression.join(rhs.src.expression)))
 
-      when :attrasgn, :call
-        raise NotImplementedError
-
       when :const
         (lhs << rhs).updated(:cdecl)
 
       else
-        raise NotImplementedError, "build_assign #{lhs.inspect}"
+        raise NotImplementedError, "build assign #{lhs.inspect}"
+      end
+    end
+
+    def op_assign(lhs, token, rhs)
+      case lhs.type
+      when :gvasgn, :ivasgn, :lvasgn
+        operator = value(token)[0..-1].to_sym
+
+        case operator
+        when :'&&'
+          s(:var_and_asgn, lhs, rhs)
+        when :'||'
+          s(:var_or_asgn, lhs, rhs)
+        else
+          s(:var_op_asgn, lhs, operator, rhs)
+        end
+
+      when :back_ref, :nth_ref
+        message = ERRORS[:backref_assignment]
+        diagnostic :error, message, lhs.src.expression
+
+      else
+        raise NotImplementedError, "build op_assign #{lhs.inspect}"
       end
     end
 
@@ -170,12 +219,32 @@ module Parser
     # Class and module definition
     #
 
+    def def_class(class_t, name,
+                  lt_t, superclass,
+                  body, end_t)
+      s(:class, name, superclass, body)
+    end
+
+    def def_sclass(class_t, lshft_t, expr,
+                   body, end_t)
+      s(:sclass, expr, body)
+    end
+
+    def def_module(module_t, name,
+                   body, end_t)
+      s(:module, name, body)
+    end
+
     #
     # Method (un)definition
     #
 
     def def_method(def_t, name, args, body, end_t, comments)
       s(:def, value(name).to_sym, args, body)
+    end
+
+    def undef_method(token, names)
+      s(:undef, *names)
     end
 
     #
@@ -186,9 +255,9 @@ module Parser
       t(token, :alias, to, from)
     end
 
-    def keyword_cmd(type, token, args=nil)
+    def keyword_cmd(type, token, lparen_t=nil, args=nil, rparen_t=nil)
       case type
-      when :return, :break, :next, :redo, :retry, :yield, :defined
+      when :return, :break, :next, :redo, :retry, :yield, :defined?
         t(token, type, *args)
 
       else
@@ -222,6 +291,41 @@ module Parser
 
     def blockarg(amper_t, token)
       s(:blockarg, value(token).to_sym)
+    end
+
+    #
+    # Method calls
+    #
+
+    def binary_op(receiver, token, arg)
+      if @parser.version == 18
+        if value(token) == '!='
+          return s(:not, s(:send, receiver, :==, arg))
+        elsif value(token) == '!~'
+          return s(:not, s(:send, receiver, :=~, arg))
+        end
+      end
+
+      s(:send, receiver, value(token).to_sym, arg)
+    end
+
+    def unary_op(token, receiver)
+      case value(token)
+      when '+', '-'
+        method = value(token) + '@'
+      else
+        method = value(token)
+      end
+
+      s(:send, receiver, method.to_sym)
+    end
+
+    def not_op(token, receiver)
+      if @parser.version == 18
+        s(:not, receiver)
+      else
+        s(:send, receiver, :!)
+      end
     end
 
     #

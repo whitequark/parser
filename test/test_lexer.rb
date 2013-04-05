@@ -603,7 +603,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_global_number
-    util_lex_token("$10", :tNTH_REF, "$10")
+    util_lex_token("$10", :tNTH_REF, 10)
   end
 
   def test_global_other
@@ -1085,9 +1085,9 @@ class TestLexer < MiniTest::Unit::TestCase
   def test_nth_ref
     util_lex_token('[$1, $2, $3]',
                    :tLBRACK,  "[",
-                   :tNTH_REF, "$1", :tCOMMA, ",",
-                   :tNTH_REF, "$2", :tCOMMA, ",",
-                   :tNTH_REF, "$3",
+                   :tNTH_REF, 1, :tCOMMA, ",",
+                   :tNTH_REF, 2, :tCOMMA, ",",
+                   :tNTH_REF, 3,
                    :tRBRACK,  "]")
   end
 

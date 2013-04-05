@@ -64,6 +64,18 @@ class TestParser < MiniTest::Unit::TestCase
       s(:int, 42),
       %q{42},
       %q{~~ expression})
+
+    assert_parses(
+      s(:int, -42),
+      %q{-42},
+      %q{~~~ expression})
+  end
+
+  def test_int___LINE__
+    assert_parses(
+      s(:int, 1),
+      %q{__LINE__},
+      %q{~~~~~~~~ expression})
   end
 
   def test_float
@@ -71,6 +83,11 @@ class TestParser < MiniTest::Unit::TestCase
       s(:float, 1.33),
       %q{1.33},
       %q{~~~~ expression})
+
+    assert_parses(
+      s(:float, -1.33),
+      %q{-1.33},
+      %q{~~~~~ expression})
   end
 
   # Strings
@@ -96,6 +113,17 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~ expression})
   end
 
+  def test_string_dvar
+    assert_parses(
+      s(:dstr,
+        s(:ivar, :@a),
+        s(:str, ' '),
+        s(:cvar, :@@a),
+        s(:str, ' '),
+        s(:gvar, :$a)),
+      %q{"#@a #@@a #$a"})
+  end
+
   def test_string_concat
     assert_parses(
       s(:dstr,
@@ -111,6 +139,13 @@ class TestParser < MiniTest::Unit::TestCase
         |             ^ end (str)
         |             ^ end
         |~~~~~~~~~~~~~~ expression})
+  end
+
+  def test_string___FILE__
+    assert_parses(
+      s(:str, '(assert_parses)'),
+      %q{__FILE__},
+      %q{~~~~~~~~ expression})
   end
 
   # Symbols
@@ -259,10 +294,7 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_parses(
       s(:array),
-      %q{%W()},
-      %q{^^^ begin
-        |   ^ end
-        |~~~~ expression})
+      %q{%W()})
   end
 
   # Hashes
@@ -278,18 +310,18 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~ expression})
   end
 
-  # def test_hash_label
-  #   assert_parses(
-  #     s(:hash, s(:pair, s(:symbol, :foo), s(:int, 2))),
-  #     %q[{ foo: 2 }],
-  #     %q{^ begin
-  #       |         ^ end
-  #       |     ^ operator (pair)
-  #       |  ~~~ expression (pair.symbol)
-  #       |  ~~~~~~ expression (pair)
-  #       |~~~~~~~~~~ expression},
-  #       %w(1.9 2.0))
-  # end
+  def test_hash_label
+    assert_parses(
+      s(:hash, s(:pair, s(:symbol, :foo), s(:int, 2))),
+      %q[{ foo: 2 }],
+      %q{^ begin
+        |         ^ end
+        |     ^ operator (pair)
+        |  ~~~ expression (pair.symbol)
+        |  ~~~~~~ expression (pair)
+        |~~~~~~~~~~ expression},
+        ALL_VERSIONS - %w(1.8))
+  end
 
   # def test_hash_kwsplat
   #   assert_parses(
@@ -314,12 +346,13 @@ class TestParser < MiniTest::Unit::TestCase
   #     %w(1.8))
   # end
 
-  # def test_hash_no_hashrocket
-  #   assert_diagnostic(
-  #     :error, "odd number of arguments for Hash"
-  #     %q[{ 1, 2 }],
-  #     %w(1.8))
-  # end
+  def test_hash_no_hashrocket
+    assert_diagnoses(
+      [:error, :odd_hash],
+      %q[{ 1, 2, 3 }],
+      %q(~~~~~~~~~~~ location),
+      %w(1.8))
+  end
 
   # Range
 
@@ -368,9 +401,9 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_cvar
     assert_parses(
-        "@@foo",
-      %q{~~~~~ expression},
-        s(:cvar, :@@foo))
+      s(:cvar, :@@foo),
+      %q{@@foo},
+      %q{~~~~~ expression})
   end
 
   def test_gvar
@@ -378,6 +411,20 @@ class TestParser < MiniTest::Unit::TestCase
       s(:gvar, :$foo),
       %q{$foo},
       %q{~~~~ expression})
+  end
+
+  def test_back_ref
+    assert_parses(
+      s(:back_ref, :$+),
+      %q{$+},
+      %q{~~ expression})
+  end
+
+  def test_nth_ref
+    assert_parses(
+      s(:nth_ref, 10),
+      %q{$10},
+      %q{~~~ expression})
   end
 
   # Constants
@@ -392,8 +439,8 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_const_scoped
     assert_parses(
-      s(:const, s(:lvar, :bar), :Foo),
-      %q{bar::Foo},
+      s(:const, s(:const, nil, :Bar), :Foo),
+      %q{Bar::Foo},
       %q{     ~~~ name
         |~~~~~~~~ expression})
   end
@@ -422,6 +469,10 @@ class TestParser < MiniTest::Unit::TestCase
         |        ^ begin
         |            ^ end
         |~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:defined?, s(:ivar, :@foo)),
+      %q{defined? @foo})
   end
 
   #
@@ -581,14 +632,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_var_op_asgn
     assert_parses(
-      s(:var_op_asgn, s(:lvar, :a), :+, s(:lit, 1)),
+      s(:var_op_asgn, s(:lvasgn, :a), :+, s(:int, 1)),
       %q{a += 1},
       %q{  ^^ operator
         |~~~~~~ expression})
 
     assert_parses(
-      s(:var_op_asgn, s(:ivar, :a), :+, s(:lit, 1)),
-      %q{@a += 1},
+      s(:var_op_asgn, s(:ivasgn, :@a), :|, s(:int, 1)),
+      %q{@a |= 1},
       %q{   ^^ operator
         |~~~~~~~ expression})
   end
@@ -618,11 +669,23 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~ expression})
   end
 
+  def test_op_asgn_invalid
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$1 |= 1},
+      %q{~~ location})
+
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$+ |= 1},
+      %q{~~ location})
+  end
+
   # Variable logical operator-assignment
 
   def test_var_or_asgn
     assert_parses(
-      s(:var_or_asgn, s(:lvar, :a), s(:lit, 1)),
+      s(:var_or_asgn, s(:lvasgn, :a), s(:int, 1)),
       %q{a ||= 1},
       %q{  ^^^ operator
         |~~~~~~~ expression})
@@ -630,7 +693,7 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_var_and_asgn
     assert_parses(
-      s(:var_and_asgn, s(:lvar, :a), s(:lit, 1)),
+      s(:var_and_asgn, s(:lvasgn, :a), s(:int, 1)),
       %q{a &&= 1},
       %q{  ^^^ operator
         |~~~~~~~ expression})
@@ -683,6 +746,19 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~ expression (send)
         |~~~~~~~~~~~~~~~ expression})
   end
+
+  def test_log_asgn_invalid
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$1 &&= 1},
+      %q{~~ location})
+
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$+ ||= 1},
+      %q{~~ location})
+  end
+
 
   #
   # Class and module definitions
@@ -761,7 +837,7 @@ class TestParser < MiniTest::Unit::TestCase
         s(:sym, :foo),
         s(:sym, :bar),
         s(:dsym, s(:str, "foo"), s(:int, 1))),
-      %q{undef foo :bar :"foo#{1}"},
+      %q{undef foo, :bar, :"foo#{1}"},
       %q{~~~~~ keyword
         |      ~~~ expression (sym/1)
         |          ~~~~ expression (sym/2)
@@ -794,6 +870,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{         ~~ expression (back_ref)})
   end
 
+  def test_alias_nth_ref
+    assert_diagnoses(
+      [:error, :nth_ref_alias],
+      %q{alias $a $1},
+      %q{         ~~ location})
+  end
+
   #
   # Formal arguments
   #
@@ -809,6 +892,12 @@ class TestParser < MiniTest::Unit::TestCase
         |     ^ begin (args)
         |         ^ end (args)
         |     ~~~~~ expression (args)})
+
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:arg, :foo), s(:arg, :bar)),
+        s(:nil)),
+      %q{def f(foo, bar); nil; end})
   end
 
   def test_optarg
@@ -821,6 +910,14 @@ class TestParser < MiniTest::Unit::TestCase
         |          ^ operator (args.optarg)
         |      ~~~~~~~ expression (args.optarg)
         |      ~~~~~~~ expression (args)})
+
+    assert_parses(
+      s(:def, :f,
+        s(:args,
+          s(:optarg, :foo, s(:int, 1)),
+          s(:optarg, :bar, s(:int, 2))),
+        s(:nil)),
+      %q{def f(foo=1, bar=2); nil; end})
   end
 
   def test_splatarg_named
@@ -852,25 +949,25 @@ class TestParser < MiniTest::Unit::TestCase
         |      ~~~~~~ expression (args.blockarg)})
   end
 
-  # def test_arg_mlhs
-  #   assert_parses(
-  #     s(:def, :f,
-  #       s(:args,
-  #         s(:mlhs,
-  #           s(:arg, :a),
-  #           s(:arg, :b),
-  #           s(:splatarg)),
-  #         s(:arg, :c)),
-  #       s(:nil)),
-  #     %q{def f((a, b, *f), c); nil; end},
-  #     %q{      ^ begin (args.mlhs)
-  #       |               ^ end (args.mlhs)
-  #       |      ~~~~~~~~~~ expression (args.mlhs)
-  #       |       ~ expression (args.mlhs.arg)
-  #       |              ~ name (args.mlhs.splatarg)
-  #       |             ~~ expression (args.mlhs.splatarg)},
-  #     %w(1.9 2.0))
-  # end
+  def test_arg_mlhs
+    assert_parses(
+      s(:def, :f,
+        s(:args,
+          s(:mlhs,
+            s(:arg, :a),
+            s(:arg, :b),
+            s(:splatarg)),
+          s(:arg, :c)),
+        s(:nil)),
+      %q{def f((a, b, *f), c); nil; end},
+      %q{      ^ begin (args.mlhs)
+        |               ^ end (args.mlhs)
+        |      ~~~~~~~~~~ expression (args.mlhs)
+        |       ~ expression (args.mlhs.arg)
+        |              ~ name (args.mlhs.splatarg)
+        |             ~~ expression (args.mlhs.splatarg)},
+      ALL_VERSIONS - %w(1.8))
+  end
 
   def assert_parses_args(ast, code)
     assert_parses(
@@ -945,6 +1042,28 @@ class TestParser < MiniTest::Unit::TestCase
       %q{})
   end
 
+  def test_arg_invalid
+    assert_diagnoses(
+      [:error, :argument_const],
+      %q{def foo(Abc); end},
+      %q{        ~~~ location})
+
+    assert_diagnoses(
+      [:error, :argument_ivar],
+      %q{def foo(@abc); end},
+      %q{        ~~~~ location})
+
+    assert_diagnoses(
+      [:error, :argument_gvar],
+      %q{def foo($abc); end},
+      %q{        ~~~~ location})
+
+    assert_diagnoses(
+      [:error, :argument_cvar],
+      %q{def foo(@@abc); end},
+      %q{        ~~~~~ location})
+  end
+
   # def test_kwoptarg
   #   flunk
   # end
@@ -995,6 +1114,102 @@ class TestParser < MiniTest::Unit::TestCase
       %q{foo + 1},
       %q{    ~ selector
         |~~~~~~~ expression})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :-, s(:int, 1)),
+      %q{foo - 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :*, s(:int, 1)),
+      %q{foo * 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :/, s(:int, 1)),
+      %q{foo / 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :%, s(:int, 1)),
+      %q{foo % 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :**, s(:int, 1)),
+      %q{foo ** 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :|, s(:int, 1)),
+      %q{foo | 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :^, s(:int, 1)),
+      %q{foo ^ 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :&, s(:int, 1)),
+      %q{foo & 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :<=>, s(:int, 1)),
+      %q{foo <=> 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :<, s(:int, 1)),
+      %q{foo < 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :<=, s(:int, 1)),
+      %q{foo <= 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :>, s(:int, 1)),
+      %q{foo > 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :>=, s(:int, 1)),
+      %q{foo >= 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :==, s(:int, 1)),
+      %q{foo == 1})
+
+    assert_parses(
+      s(:not, s(:send, s(:lvar, :foo), :==, s(:int, 1))),
+      %q{foo != 1},
+      %q{},
+      %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :!=, s(:int, 1)),
+      %q{foo != 1},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :===, s(:int, 1)),
+      %q{foo === 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :=~, s(:int, 1)),
+      %q{foo =~ 1})
+
+    assert_parses(
+      s(:not, s(:send, s(:lvar, :foo), :=~, s(:int, 1))),
+      %q{foo !~ 1},
+      %q{},
+      %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :!~, s(:int, 1)),
+      %q{foo !~ 1},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :<<, s(:int, 1)),
+      %q{foo << 1})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :>>, s(:int, 1)),
+      %q{foo >> 1})
   end
 
   def test_send_unary_op
@@ -1003,6 +1218,36 @@ class TestParser < MiniTest::Unit::TestCase
       %q{-foo},
       %q{~ selector
         |~~~~ expression})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :+@),
+      %q{+foo})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :~),
+      %q{~foo})
+
+    assert_parses(
+      s(:not, s(:lvar, :foo)),
+      %q{!foo},
+      %{},
+      %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :!),
+      %q{!foo},
+      %{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_pow_precedence
+    assert_parses(
+      s(:send, s(:send, s(:int, 2), :**, s(:int, 10)), :-@),
+      %q{-2 ** 10})
+
+    assert_parses(
+      s(:send, s(:send, s(:float, 2.0), :**, s(:int, 10)), :-@),
+      %q{-2.0 ** 10})
   end
 
   def test_send_attr_asgn

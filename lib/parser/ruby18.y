@@ -108,7 +108,7 @@ rule
                     }
                 | kUNDEF undef_list
                     {
-                      result = val[1]
+                      result = @builder.undef_method(val[0], val[1])
                     }
                 | stmt kIF_MOD expr_value
                     {
@@ -153,7 +153,7 @@ rule
                     }
                 | lhs tEQL command_call
                     {
-                      result = @builder.assign(*val)
+                      result = @builder.assign(val[0], val[1], val[2])
                     }
                 | mlhs tEQL command_call
                     {
@@ -161,7 +161,7 @@ rule
                     }
                 | var_lhs tOP_ASGN command_call
                     {
-                      result = new_op_asgn val
+                      result = @builder.op_assign(val[0], val[1], val[2])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK tOP_ASGN command_call
                     {
@@ -432,7 +432,8 @@ rule
                         yyerror "dynamic constant assignment"
                       end
 
-                      result = s(:const, s(:colon2, val[0], val[2].to_sym))
+                      result = @builder.assignable(
+                                  @builder.const_fetch(val[0], val[1], val[2]))
                     }
                 | tCOLON3 tCONSTANT
                     {
@@ -440,7 +441,8 @@ rule
                         yyerror "dynamic constant assignment"
                       end
 
-                      result = s(:const, s(:colon3, val[1].to_sym))
+                      result = @builder.assignable(
+                                  @builder.const_global(val[0], val[1]))
                     }
                 | backref
                     {
@@ -455,15 +457,15 @@ rule
 
            cpath: tCOLON3 cname
                     {
-                      result = s(:colon3, val[1].to_sym)
+                      result = @builder.const_global(val[0], val[1])
                     }
                 | cname
                     {
-                      result = val[0].to_sym
+                      result = @builder.const(val[0])
                     }
                 | primary_value tCOLON2 cname
                     {
-                      result = s(:colon2, val[0], val[2].to_sym)
+                      result = @builder.const_fetch(val[0], val[1], val[2])
                     }
 
            fname: tIDENTIFIER | tCONSTANT | tFID
@@ -481,15 +483,15 @@ rule
 
       undef_list: fitem
                     {
-                      result = new_undef val[0]
+                      result = [ val[0] ]
                     }
                 | undef_list tCOMMA
                     {
-                      lexer.state = :expr_fname
+                      @lexer.state = :expr_fname
                     }
                     fitem
                     {
-                      result = new_undef val[0], val[3]
+                      result = val[0] << val[3]
                     }
 
               op: tPIPE    | tCARET     | tAMPER2 | tCMP   | tEQ     | tEQQ
@@ -508,7 +510,7 @@ rule
 
              arg: lhs tEQL arg
                     {
-                      result = @builder.assign(*val)
+                      result = @builder.assign(val[0], val[1], val[2])
                     }
                 | lhs tEQL arg kRESCUE_MOD arg
                     {
@@ -517,7 +519,7 @@ rule
                     }
                 | var_lhs tOP_ASGN arg
                     {
-                      result = new_op_asgn val
+                      result = @builder.op_assign(val[0], val[1], val[2])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK tOP_ASGN arg
                     {
@@ -546,144 +548,129 @@ rule
                     }
                 | backref tOP_ASGN arg
                     {
-                      result = @builder.operator_assign(*val)
+                      result = @builder.op_assign(val[0], val[1], val[2])
                     }
                 | arg tDOT2 arg
                     {
-                      v1, v2 = val[0], val[2]
-                      if v1.node_type == :lit and v2.node_type == :lit and Fixnum === v1.last and Fixnum === v2.last then
-                        result = s(:lit, (v1.last)..(v2.last))
-                      else
-                        result = s(:dot2, v1, v2)
-                      end
+                      result = @builder.range_inclusive(val[0], val[1], val[2])
                     }
                 | arg tDOT3 arg
                     {
-                      v1, v2 = val[0], val[2]
-                      if v1.node_type == :lit and v2.node_type == :lit and Fixnum === v1.last and Fixnum === v2.last then
-                        result = s(:lit, (v1.last)...(v2.last))
-                      else
-                        result = s(:dot3, v1, v2)
-                      end
+                      result = @builder.range_exclusive(val[0], val[1], val[2])
                     }
                 | arg tPLUS arg
                     {
-                      result = new_call val[0], :+, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tMINUS arg
                     {
-                      result = new_call val[0], :-, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tSTAR2 arg
                     {
-                      result = new_call val[0], :*, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tDIVIDE arg
                     {
-                      result = new_call val[0], :"/", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tPERCENT arg
                     {
-                      result = new_call val[0], :"%", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tPOW arg
                     {
-                      result = new_call val[0], :**, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | tUMINUS_NUM tINTEGER tPOW arg
                     {
-                      result = new_call(new_call(s(:lit, val[1]), :"**", argl(val[3])), :"-@")
+                      result = @builder.unary_op(val[0],
+                                  @builder.binary_op(
+                                    @builder.integer(val[1]),
+                                      val[2], val[3]))
                     }
                 | tUMINUS_NUM tFLOAT tPOW arg
                     {
-                      result = new_call(new_call(s(:lit, val[1]), :"**", argl(val[3])), :"-@")
+                      result = @builder.unary_op(val[0],
+                                  @builder.binary_op(
+                                    @builder.float(val[1]),
+                                      val[2], val[3]))
                     }
                 | tUPLUS arg
                     {
-                      if val[1][0] == :lit then
-                        result = val[1]
-                      else
-                        result = new_call val[1], :"+@"
-                      end
+                      result = @builder.unary_op(val[0], val[1])
                     }
                 | tUMINUS arg
                     {
-                      result = new_call val[1], :"-@"
+                      result = @builder.unary_op(val[0], val[1])
                     }
                 | arg tPIPE arg
                     {
-                      result = new_call val[0], :"|", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tCARET arg
                     {
-                      result = new_call val[0], :"^", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tAMPER2 arg
                     {
-                      result = new_call val[0], :"&", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tCMP arg
                     {
-                      result = new_call val[0], :"<=>", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tGT arg
                     {
-                      result = new_call val[0], :">", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tGEQ arg
                     {
-                      result = new_call val[0], :">=", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tLT arg
                     {
-                      result = new_call val[0], :"<", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tLEQ arg
                     {
-                      result = new_call val[0], :"<=", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tEQ arg
                     {
-                      result = new_call val[0], :"==", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tEQQ arg
                     {
-                      result = new_call val[0], :"===", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tNEQ arg
                     {
-                      val[0] = value_expr val[0] # TODO: port call_op and clean these
-                      val[2] = value_expr val[2]
-                      result = s(:not, new_call(val[0], :"==", argl(val[2])))
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tMATCH arg
                     {
-                      result = get_match_node val[0], val[2]
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tNMATCH arg
                     {
-                      result = s(:not, get_match_node(val[0], val[2]))
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | tBANG arg
                     {
-                      result = s(:not, val[1])
+                      result = @builder.not_op(val[0], val[1])
                     }
                 | tTILDE arg
                     {
-                      val[2] = value_expr val[2]
-                      result = new_call val[1], :"~"
+                      result = @builder.unary_op(val[0], val[1])
                     }
                 | arg tLSHFT arg
                     {
-                      val[0] = value_expr val[0]
-                      val[2] = value_expr val[2]
-                      result = new_call val[0], :"\<\<", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tRSHFT arg
                     {
-                      val[0] = value_expr val[0]
-                      val[2] = value_expr val[2]
-                      result = new_call val[0], :">>", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tANDOP arg
                     {
@@ -695,7 +682,7 @@ rule
                     }
                 | kDEFINED opt_nl arg
                     {
-                      result = s(:defined, val[2])
+                      result = @builder.keyword_cmd(:defined?, val[0], nil, [ val[2] ], nil)
                     }
                 | arg tEH arg tCOLON arg
                     {
@@ -948,11 +935,11 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      result = s(:colon2, val[0], val[2].to_sym)
+                      result = @builder.const_fetch(val[0], val[1], val[2])
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      result = s(:colon3, val[1].to_sym)
+                      result = @builder.const_global(val[0], val[1])
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK
                     {
@@ -972,11 +959,11 @@ rule
                     }
                 | kYIELD tLPAREN2 call_args tRPAREN
                     {
-                      result = @builder.keyword_cmd(:yield, val[0], val[2])
+                      result = @builder.keyword_cmd(:yield, val[0], val[1], val[2], val[3])
                     }
                 | kYIELD tLPAREN2 tRPAREN
                     {
-                      result = @builder.keyword_cmd(:yield, val[0])
+                      result = @builder.keyword_cmd(:yield, val[0], val[1], nil, val[2])
                     }
                 | kYIELD
                     {
@@ -984,7 +971,8 @@ rule
                     }
                 | kDEFINED opt_nl tLPAREN2 expr tRPAREN
                     {
-                      result = @builder.keyword_cmd(:defined, val[3])
+                      result = @builder.keyword_cmd(:defined?, val[0],
+                                                    val[2], [ val[3] ], val[4])
                     }
                 | operation brace_block
                     {
@@ -1066,11 +1054,14 @@ rule
                       end
 
                       @comments.push @lexer.clear_comments
-                      @static_env.extend
+                      @static_env.extend_static
                     }
                     bodystmt kEND
                     {
-                      result = new_class val
+                      lt_t, superclass = val[2]
+                      result = @builder.def_class(val[0], val[1],
+                                                  lt_t, superclass,
+                                                  val[4], val[5])
 
                       @static_env.unextend
                       @lexer.clear_comments
@@ -1080,11 +1071,12 @@ rule
                       result = @def_level
                       @def_level = 0
 
-                      @static_env.extend
+                      @static_env.extend_static
                     }
                     bodystmt kEND
                     {
-                      result = new_sclass val
+                      result = @builder.def_sclass(val[0], val[1], val[2],
+                                                   val[5], val[6])
 
                       @static_env.unextend
                       @lexer.clear_comments
@@ -1102,7 +1094,9 @@ rule
                     }
                     bodystmt kEND
                     {
-                      result = new_module val
+                      result = @builder.def_module(val[0], val[1],
+                                                   val[3], val[4])
+
                       @static_env.unextend
                       @lexer.clear_comments
                     }
@@ -1124,7 +1118,7 @@ rule
                 | kDEF singleton dot_or_colon
                     {
                       @comments.push @lexer.clear_comments
-                      lexer.state = :expr_fname
+                      @lexer.state = :expr_fname
                     }
                     fname
                     {
@@ -1426,7 +1420,7 @@ rule
                       result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
 
-           words: tWORDS_BEG tSPACE tSTRING_END
+           words: tWORDS_BEG tSPACE tSTRING_END # TODO: unused with Ragel lexer; remove?
                     {
                       result = @builder.words_compose(val[0], [], val[2])
                     }
@@ -1450,7 +1444,7 @@ rule
                       raise "unused 'word string_content'"
                     }
 
-          qwords: tQWORDS_BEG tSPACE tSTRING_END
+          qwords: tQWORDS_BEG tSPACE tSTRING_END # TODO: unused with Ragel lexer; remove?
                     {
                       result = @builder.words_compose(val[0], [], val[2])
                     }
@@ -1546,11 +1540,11 @@ xstring_contents: # nothing # TODO: replace with string_contents?
                     }
                 | tUMINUS_NUM tINTEGER =tLOWEST
                     {
-                      result = @builder.integer(val[0], true)
+                      result = @builder.integer(val[1], true)
                     }
                 | tUMINUS_NUM tFLOAT   =tLOWEST
                     {
-                      result = @builder.float(val[0], true)
+                      result = @builder.float(val[1], true)
                     }
 
         variable: tIDENTIFIER
@@ -1812,9 +1806,6 @@ xstring_contents: # nothing # TODO: replace with string_contents?
 
            terms: term
                 | terms tSEMI
-                    {
-                      yyerrok
-                    }
 
             none: # nothing
                     {
