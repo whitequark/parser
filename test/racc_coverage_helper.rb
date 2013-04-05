@@ -40,6 +40,9 @@ module RaccCoverage
   #
   #  * All lines of the statement except the last must end with `,`.
   #
+  # Also, for best results, all actions should be delimited by at least
+  # one non-action line.
+  #
   def self.extract_interesting_lines(parser, base_path)
     grammar_source = File.join(@base_path, parser)
     grammar_file   = Racc::GrammarFileParser.parse_file(grammar_source)

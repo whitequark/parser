@@ -1419,7 +1419,7 @@ rule
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
-       word_list: none
+       word_list: # nothing
                     {
                       result = []
                     }
@@ -1443,7 +1443,7 @@ rule
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
-      qword_list: none
+      qword_list: # nothing
                     {
                       result = []
                     }
@@ -1452,7 +1452,7 @@ rule
                       result = val[0] << @builder.string(val[1])
                     }
 
- string_contents: none
+ string_contents: # nothing
                     {
                       result = []
                     }
@@ -1461,7 +1461,7 @@ rule
                       result = val[0] << val[1]
                     }
 
-xstring_contents: none # TODO: replace with string_contents?
+xstring_contents: # nothing # TODO: replace with string_contents?
                     {
                       result = []
                     }
@@ -1491,9 +1491,18 @@ xstring_contents: none # TODO: replace with string_contents?
                       result = val[2]
                     }
 
-     string_dvar: tGVAR { result = @builder.gvar(val[0]) }
-                | tIVAR { result = @builder.ivar(val[0]) }
-                | tCVAR { result = @builder.cvar(val[0]) }
+     string_dvar: tGVAR
+                    {
+                      result = @builder.gvar(val[0])
+                    }
+                | tIVAR
+                    {
+                      result = @builder.ivar(val[0])
+                    }
+                | tCVAR
+                    {
+                      result = @builder.cvar(val[0])
+                    }
                 | backref
 
 
@@ -1526,24 +1535,69 @@ xstring_contents: none # TODO: replace with string_contents?
                       result = @builder.float(val[0], true)
                     }
 
-        variable: tIDENTIFIER { result = @builder.ident(val[0])    }
-                | tIVAR       { result = @builder.ivar(val[0])     }
-                | tGVAR       { result = @builder.gvar(val[0])     }
-                | tCVAR       { result = @builder.cvar(val[0])     }
-                | tCONSTANT   { result = @builder.const(val[0])    }
-                | kNIL        { result = @builder.nil(val[0])      }
-                | kSELF       { result = @builder.self(val[0])     }
-                | kTRUE       { result = @builder.true(val[0])     }
-                | kFALSE      { result = @builder.false(val[0])    }
-                | k__FILE__   { result = @builder.__FILE__(val[0]) }
-                | k__LINE__   { result = @builder.__LINE__(val[0]) }
+        variable: tIDENTIFIER
+                    {
+                      result = @builder.ident(val[0])
+                    }
+                | tIVAR
+                    {
+                      result = @builder.ivar(val[0])
+                    }
+                | tGVAR
+                    {
+                      result = @builder.gvar(val[0])
+                    }
+                | tCVAR
+                    {
+                      result = @builder.cvar(val[0])
+                    }
+                | tCONSTANT
+                    {
+                      result = @builder.const(val[0])
+                    }
+                | kNIL
+                    {
+                      result = @builder.nil(val[0])
+                    }
+                | kSELF
+                    {
+                      result = @builder.self(val[0])
+                    }
+                | kTRUE
+                    {
+                      result = @builder.true(val[0])
+                    }
+                | kFALSE
+                    {
+                      result = @builder.false(val[0])
+                    }
+                | k__FILE__
+                    {
+                      result = @builder.__FILE__(val[0])
+                    }
+                | k__LINE__
+                    {
+                      result = @builder.__LINE__(val[0])
+                    }
 
-         var_ref: variable    { result = @builder.accessible(val[0])   }
+         var_ref: variable
+                    {
+                      result = @builder.accessible(val[0])
+                    }
 
-         var_lhs: variable    { result = @builder.assignable(val[0]) }
+         var_lhs: variable
+                    {
+                      result = @builder.assignable(val[0])
+                    }
 
-         backref: tNTH_REF    { result = @builder.nth_ref(val[0])    }
-                | tBACK_REF   { result = @builder.back_ref(val[0])   }
+         backref: tNTH_REF
+                    {
+                      result = @builder.nth_ref(val[0])
+                    }
+                | tBACK_REF
+                    {
+                      result = @builder.back_ref(val[0])
+                    }
 
       superclass: term
                     {
@@ -1680,7 +1734,7 @@ xstring_contents: none # TODO: replace with string_contents?
                     {
                       result = [ val[1] ]
                     }
-                | none
+                | # nothing
                     {
                       result = []
                     }
@@ -1732,13 +1786,22 @@ xstring_contents: none # TODO: replace with string_contents?
           opt_nl:  | tNL
          trailer:  | tNL | tCOMMA
 
-            term: tSEMI { yyerrok }
+            term: tSEMI
+                    {
+                      yyerrok
+                    }
                 | tNL
 
            terms: term
-                | terms tSEMI { yyerrok }
+                | terms tSEMI
+                    {
+                      yyerrok
+                    }
 
-            none: { result = nil }
+            none: # nothing
+                    {
+                      result = nil
+                    }
 
 end
 
