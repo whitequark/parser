@@ -407,23 +407,6 @@ module Parser
       s(:send, receiver, value(token).to_sym, arg)
     end
 
-    def old_op_assign(receiver, dot_t, selector_t,
-                  operator_t, value)
-      operator = value(operator_t).to_sym
-      incomplete_send = s(:send, receiver, value(selector_t).to_sym)
-
-      case operator
-      when :'&&'
-        s(:and_asgn, incomplete_send, value)
-
-      when :'||'
-        s(:or_asgn, incomplete_send, value)
-
-      else
-        s(:op_asgn, incomplete_send, operator, value)
-      end
-    end
-
     def unary_op(token, receiver)
       case value(token)
       when '+', '-'
