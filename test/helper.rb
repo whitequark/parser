@@ -8,6 +8,9 @@ if SimpleCov.usable?
 
     RaccCoverage.start(%w(ruby18.y),
                        File.expand_path('../../lib/parser', __FILE__))
+
+    # Report results faster.
+    at_exit { RaccCoverage.stop }
   end
 
   SimpleCov.start do

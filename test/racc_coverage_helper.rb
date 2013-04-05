@@ -6,6 +6,7 @@ require 'racc/grammarfileparser'
 module RaccCoverage
   @coverage  = {}
   @base_path = nil
+  @trace     = nil
 
   def self.start(parsers, base_path)
     @base_path = base_path
@@ -14,7 +15,7 @@ module RaccCoverage
       @coverage[parser] = extract_interesting_lines(parser, base_path)
     end
 
-    TracePoint.trace(:line) do |trace|
+    @trace = TracePoint.trace(:line) do |trace|
       lineno = trace.lineno - 1
 
       if (line_coverage = @coverage[trace.path])
@@ -23,6 +24,10 @@ module RaccCoverage
         end
       end
     end
+  end
+
+  def self.stop
+    @trace.disable
   end
 
   # Ruby's TracePoint#lineno will point only on "interesting" lines,
