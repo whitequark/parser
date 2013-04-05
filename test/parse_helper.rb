@@ -3,6 +3,34 @@ require 'parser/all'
 module ParseHelper
   include AST::Sexp
 
+  ALL_VERSIONS = %w(1.8)
+
+  def setup
+    @diagnostics = []
+
+    super if defined?(super)
+  end
+
+  def with_versions(code, versions)
+    versions.each do |version|
+      @diagnostics.clear
+
+      parser = parser_for_ruby_version(version)
+      yield version, parser
+    end
+  end
+
+  def assert_source_range(begin_pos, end_pos, range, version, what)
+    assert range.is_a?(Parser::Source::Range),
+           "(#{version}) is_a?(Source::Range) for #{what}"
+
+    assert_equal begin_pos, range.begin,
+                 "(#{version}) begin of #{what}"
+
+    assert_equal end_pos, range.end,
+                 "(#{version}) end of #{what}"
+  end
+
   # Use like this:
   # ```
   # assert_parses(
@@ -15,12 +43,11 @@ module ParseHelper
   #     %w(1.8 1.9) # optional
   # )
   # ```
-  def assert_parses(ast, code, source_maps='', versions=%w(1.8))
-    source_file = Parser::Source::Buffer.new('(assert_parses)')
-    source_file.source = code
+  def assert_parses(ast, code, source_maps='', versions=ALL_VERSIONS)
+    with_versions(code, versions) do |version, parser|
+      source_file = Parser::Source::Buffer.new('(assert_parses)')
+      source_file.source = code
 
-    versions.each do |version|
-      parser     = parser_for_ruby_version(version)
       parsed_ast = parser.parse(source_file)
 
       assert_equal ast, parsed_ast,
@@ -41,25 +68,76 @@ module ParseHelper
 
         range = astlet.source_map.send(map_field)
 
-        assert range.is_a?(Parser::Source::Range),
-               "(#{version}) #{map_field}.is_a?(Source::Range) for #{line.inspect}"
+        assert_source_range(begin_pos, end_pos, range, version, line.inspect)
+      end
+    end
+  end
 
-        assert_equal begin_pos, range.begin,
-                     "(#{version}) begin of #{line.inspect}"
+  # Use like this:
+  # ```
+  # assert_diagnoses(
+  #   [:warning, :ambiguous_prefix, { prefix: '*' }],
+  #   %q{foo *bar},
+  #   %q{    ^ location
+  #     |     ~~~ highlights (0)})
+  # ```
+  def assert_diagnoses(diagnostic, code, source_maps='', versions=ALL_VERSIONS)
+    with_versions(code, versions) do |version, parser|
+      source_file = Parser::Source::Buffer.new('(assert_diagnoses)')
+      source_file.source = code
 
-        assert_equal end_pos, range.end,
-                     "(#{version}) end of #{line.inspect}"
+      begin
+        parser = parser.parse(source_file)
+      rescue Parser::SyntaxError
+        # do nothing; the diagnostic was reported
+      end
+
+      assert_equal 1, @diagnostics.count, "(#{version}) emits a single diagnostic"
+
+      emitted_diagnostic = @diagnostics.first
+
+      level, kind, substitutions = diagnostic
+      message = Parser::ERRORS[kind] % substitutions
+
+      assert_equal level, emitted_diagnostic.level
+      assert_equal message, emitted_diagnostic.message
+
+      parse_source_map_descriptions(source_maps) \
+          do |begin_pos, end_pos, map_field, ast_path, line|
+
+        case map_field
+        when 'location'
+          assert_source_range begin_pos, end_pos,
+                              emitted_diagnostic.location,
+                              version, "location"
+
+        when 'highlights'
+          index = ast_path.first.to_i
+
+          assert_source_range begin_pos, end_pos,
+                              emitted_diagnostic.highlights[index],
+                              version, "#{index}th highlight"
+
+        else
+          raise "Unknown diagnostic range #{map_field}"
+        end
       end
     end
   end
 
   def parser_for_ruby_version(version)
     case version
-    when '1.8'; Parser::Ruby18.new
+    when '1.8'; parser = Parser::Ruby18.new
     # when '1.9'; Parser::Ruby19 # not yet
     # when '2.0'; Parser::Ruby20 # not yet
     else raise "Unrecognized Ruby version #{version}"
     end
+
+    parser.diagnostics.consumer = lambda do |diagnostic|
+      @diagnostics << diagnostic
+    end
+
+    parser
   end
 
   SOURCE_MAP_DESCRIPTION_RE =

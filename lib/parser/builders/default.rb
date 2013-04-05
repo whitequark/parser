@@ -79,6 +79,8 @@ module Parser
     # Access
     #
 
+    def self(token);  t(token, :self); end
+
     def ident(token); t(token, :ident, value(token).to_sym); end
     def ivar(token);  t(token, :ivar,  value(token).to_sym); end
     def gvar(token);  t(token, :gvar,  value(token).to_sym); end

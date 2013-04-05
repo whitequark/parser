@@ -33,9 +33,6 @@ class TestParser < MiniTest::Unit::TestCase
   #    source for no reason.
   #  * Don't forget to check for optional delimiters. `()`, `then`, etc.
   #  * When in doubt, look at existing assertions.
-  #
-  # TODO:
-  #  * Add assert_diagnostic.
 
   #
   # Literals
@@ -144,17 +141,19 @@ class TestParser < MiniTest::Unit::TestCase
         | ~~~~~~~~~~~~~~ expression})
   end
 
-  # def test_symbol_empty
-  #   assert_diagnostic(
-  #     :error, "empty symbol literal",
-  #     %q{:''},
-  #     %w(1.8))
+  def test_symbol_empty
+    assert_diagnoses(
+      [:error, :empty_symbol],
+      %q{:''},
+      %q{^^^ location},
+      %w(1.8))
 
-  #   assert_diagnostic(
-  #     :error, "empty symbol literal",
-  #     %q{:""},
-  #     %w(1.8))
-  # end
+    assert_diagnoses(
+      [:error, :empty_symbol],
+      %q{:""},
+      %q{^^^ location},
+      %w(1.8))
+  end
 
   # Execute-strings
 
