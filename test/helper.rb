@@ -1,6 +1,7 @@
 require 'tempfile'
 
 require 'simplecov'
+require 'coveralls'
 
 if SimpleCov.usable?
   if defined?(TracePoint)
@@ -13,10 +14,12 @@ if SimpleCov.usable?
     at_exit { RaccCoverage.stop }
   end
 
-  require 'coveralls'
-  Coveralls.wear!
-
   SimpleCov.start do
+    self.formatter = SimpleCov::Formatter::MultiFormatter[
+      SimpleCov::Formatter::HTMLFormatter,
+      Coveralls::SimpleCov::Formatter
+    ]
+
     add_filter "/test/"
 
     add_filter "/lib/parser/lexer.rb"
