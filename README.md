@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/whitequark/parser.png?branch=master)](https://travis-ci.org/whitequark/parser)
 [![Code Climate](https://codeclimate.com/github/whitequark/parser.png)](https://codeclimate.com/github/whitequark/parser)
+[![Coverage Status](https://coveralls.io/repos/whitequark/parser/badge.png?branch=master)](https://coveralls.io/r/whitequark/parser)
 
 Parser is a Ruby parser written in pure Ruby.
 
@@ -24,14 +25,10 @@ TODO: Write usage instructions here
  * Single runtime dependency: the [ast][] gem.
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
+ * Readable commented source code.
 
   [ast]: http://rubygems.org/gems/ast
   [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
-
-## Anti-features
-
- * Line number values are not slightly off.
- * No unreadable source code or comments. (And no swearing!)
 
 ## Acknowledgements
 
