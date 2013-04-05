@@ -20,12 +20,17 @@ if SimpleCov.usable?
       Coveralls::SimpleCov::Formatter
     ]
 
+    add_group "Grammars" do |source_file|
+      source_file.filename =~ %r{\.y$}
+    end
+
+    # Exclude the testsuite itself.
     add_filter "/test/"
 
-    add_filter "/lib/parser/lexer.rb"
-    add_filter "/lib/parser/ruby18.rb"
-    add_filter "/lib/parser/ruby19.rb"
-    add_filter "/lib/parser/ruby20.rb"
+    # Exclude generated files.
+    add_filter do |source_file|
+      source_file.filename =~ %r{/lib/parser/(lexer|ruby\d+)\.rb$}
+    end
   end
 end
 
