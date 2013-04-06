@@ -1093,7 +1093,9 @@ rule
                     }
                     compstmt kEND
                     {
-                      result = new_for val[4], val[1], val[7]
+                      result = @builder.for(val[0], val[1],
+                                            val[2], val[4],
+                                            val[5], val[7], val[8])
                     }
                 | kCLASS cpath superclass
                     {
@@ -1228,9 +1230,6 @@ rule
 
          for_var: lhs
                 | mlhs
-                    {
-                      val[0].delete_at 1 if val[0][1].nil? # HACK
-                    }
 
        block_par: mlhs_item
                     {

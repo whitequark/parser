@@ -1133,7 +1133,7 @@ Format:
 
 Format:
 ```
-(for (lvar :a) (lvar :array) (send nil :p (lvar :a)))
+(for (lasgn :a) (lvar :array) (send nil :p (lvar :a)))
 "for a in array do p a; end"
  ~~~ keyword
        ~~ in
@@ -1144,6 +1144,11 @@ Format:
  ~~~ keyword
        ~~ in
                       ~~~ end
+
+(for
+  (mlhs (lasgn :a) (lasgn :b)) (lvar :array)
+  (send nil :p (lvar :a) (lvar :b)))
+"for a, b in array; p a, b; end"
 ```
 
 #### Break

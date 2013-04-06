@@ -1946,14 +1946,13 @@ class TestParser < MiniTest::Unit::TestCase
   # Looping
 
   def test_while
-    # TODO: uncomment when lexer supports cond stack
-    # assert_parses(
-    #   s(:while, s(:lvar, :foo), s(:send, nil, :meth)),
-    #   %q{while foo do meth end},
-    #   %q{~~~~~ keyword
-    #     |          ~~ begin
-    #     |                  ~~~ end
-    #     |~~~~~~~~~~~~~~~~~~~~~ expression})
+    assert_parses(
+      s(:while, s(:lvar, :foo), s(:send, nil, :meth)),
+      %q{while foo do meth end},
+      %q{~~~~~ keyword
+        |          ~~ begin
+        |                  ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~ expression})
 
     assert_parses(
       s(:while, s(:lvar, :foo), s(:send, nil, :meth)),
@@ -1971,13 +1970,12 @@ class TestParser < MiniTest::Unit::TestCase
   end
 
   def test_until
-    # TODO: uncomment when lexer supports cond stack
-    # assert_parses(
-    #   s(:until, s(:lvar, :foo), s(:send, nil, :meth)),
-    #   %q{until foo do meth end},
-    #   %q{~~~~~ keyword
-    #     |          ~~ begin
-    #     |                  ~~~ end})
+    assert_parses(
+      s(:until, s(:lvar, :foo), s(:send, nil, :meth)),
+      %q{until foo do meth end},
+      %q{~~~~~ keyword
+        |          ~~ begin
+        |                  ~~~ end})
 
     assert_parses(
       s(:until, s(:lvar, :foo), s(:send, nil, :meth)),
@@ -1999,7 +1997,37 @@ class TestParser < MiniTest::Unit::TestCase
   def test_until_post
   end
 
-  def test_for_in
+  def test_for
+    assert_parses(
+      s(:for,
+        s(:lvasgn, :a),
+        s(:lvar, :foo),
+        s(:send, nil, :p, s(:lvar, :a))),
+      %q{for a in foo do p a; end},
+      %q{~~~ keyword
+        |      ~~ in
+        |             ~~ begin
+        |                     ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:for,
+        s(:lvasgn, :a),
+        s(:lvar, :foo),
+        s(:send, nil, :p, s(:lvar, :a))),
+      %q{for a in foo; p a; end})
+  end
+
+  def test_for_mlhs
+    assert_parses(
+      s(:for,
+        s(:mlhs,
+          s(:lvasgn, :a),
+          s(:lvasgn, :b)),
+        s(:lvar, :foo),
+        s(:send, nil, :p, s(:lvar, :a), s(:lvar, :b))),
+      %q{for a, b in foo; p a, b; end},
+      %q{    ~~~~ expression (mlhs)})
   end
 
   # Control flow commands

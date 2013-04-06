@@ -464,10 +464,15 @@ module Parser
       s(value(loop_t).to_sym, cond, body)
     end
 
+    def for(for_t, iterator, in_t, iteratee,
+            do_t, compstmt, end_t)
+      s(:for, iterator, iteratee, compstmt)
+    end
+
     def begin(compound_stmt,
-              rescue_, t_rescue,
-              else_,   t_else,
-              ensure_, t_ensure)
+              rescue_, rescue_t,
+              else_,   else_t,
+              ensure_, ensure_t)
       # TODO
       compound_stmt
     end

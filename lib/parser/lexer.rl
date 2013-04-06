@@ -292,7 +292,7 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
-    'do'  => :kDO
+    'do'  => :kDO_COND,
   }
 
   PUNCTUATION_BEGIN = {
@@ -1118,8 +1118,7 @@ class Parser::Lexer
   # `{` as `tLBRACE_ARG`.
   #
   # The default post-`expr_endarg` state is `expr_end`, so this state also handles
-  # `do` (as `kDO_BLOCK` in `expr_beg`). (I have no clue why the parser cannot
-  # just handle `kDO`.)
+  # `do` (as `kDO_BLOCK` in `expr_beg`).
   expr_endarg := |*
       e_lbrace
       => { emit(:tLBRACE_ARG)
