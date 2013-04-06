@@ -1939,15 +1939,108 @@ class TestParser < MiniTest::Unit::TestCase
   # Case matching
 
   def test_case_expr
+    assert_parses(
+      s(:case, s(:lvar, :foo),
+        s(:when, s(:str, 'bar'),
+          s(:lvar, :bar)),
+        nil),
+      %q{case foo; when 'bar'; bar; end},
+      %q{~~~~ keyword
+        |          ~~~~ keyword (when)
+        |                           ~~~ end
+        |          ~~~~~~~~~~~~~~~ expression (when)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_case_expr_else
+    assert_parses(
+      s(:case, s(:lvar, :foo),
+        s(:when, s(:str, 'bar'),
+          s(:lvar, :bar)),
+        s(:lvar, :baz)),
+      %q{case foo; when 'bar'; bar; else baz; end},
+      %q{~~~~ keyword
+        |          ~~~~ keyword (when)
+        |                           ~~~~ else
+        |                                     ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_case_cond
+    assert_parses(
+      s(:case, nil,
+        s(:when, s(:lvar, :foo),
+          s(:str, 'foo')),
+        nil),
+      %q{case; when foo; 'foo'; end},
+      %q{~~~~ keyword
+        |      ~~~~ keyword (when)
+        |                       ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_case_cond_else
+    assert_parses(
+      s(:case, nil,
+        s(:when, s(:lvar, :foo),
+          s(:str, 'foo')),
+        s(:str, 'bar')),
+      %q{case; when foo; 'foo'; else 'bar'; end},
+      %q{~~~~ keyword
+        |      ~~~~ keyword (when)
+        |                       ~~~~ else
+        |                                   ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+  end
+
+  def test_case_cond_just_else
+    assert_parses(
+      s(:case, nil,
+        s(:str, 'bar')),
+      %q{case; else 'bar'; end},
+      %q{~~~~ keyword
+        |      ~~~~ else
+        |                  ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~ expression})
+  end
+
+  def test_when_then
+    assert_parses(
+      s(:case, s(:lvar, :foo),
+        s(:when, s(:str, 'bar'),
+          s(:lvar, :bar)),
+        nil),
+      %q{case foo; when 'bar' then bar; end},
+      %q{          ~~~~ keyword (when)
+        |                     ~~~~ begin (when)
+        |          ~~~~~~~~~~~~~~~~~~~ expression (when)})
+  end
+
+  def test_when_multi
+    assert_parses(
+      s(:case, s(:lvar, :foo),
+        s(:when, s(:str, 'bar'), s(:str, 'baz'),
+          s(:lvar, :bar)),
+        nil),
+      %q{case foo; when 'bar', 'baz'; bar; end})
+  end
+
+  def test_when_splat
+    assert_parses(
+      s(:case, s(:lvar, :foo),
+        s(:when,
+          s(:int, 1),
+          s(:splat, s(:lvar, :baz)),
+          s(:lvar, :bar)),
+        s(:when,
+          s(:splat, s(:lvar, :foo)),
+          s(:nil)),
+        nil),
+      %q{case foo; when 1, *baz; bar; when *foo; end},
+      %q{                  ^ operator (when/1.splat)
+        |                  ~~~~ expression (when/1.splat)
+        |                                  ^ operator (when/2.splat)
+        |                                  ~~~~ expression (when/2.splat)})
   end
 
   # Looping

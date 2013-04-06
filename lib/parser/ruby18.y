@@ -1072,15 +1072,15 @@ rule
                     }
                 | kCASE expr_value opt_terms case_body kEND
                     {
-                      result = new_case val[1], val[3]
+                      result = @builder.case(val[0], val[1], val[3], val[4])
                     }
                 | kCASE            opt_terms case_body kEND
                     {
-                      result = new_case nil, val[2]
+                      result = @builder.case(val[0], nil, val[2], val[3])
                     }
-                | kCASE opt_terms kELSE compstmt kEND # TODO: need a test
+                | kCASE opt_terms kELSE compstmt kEND
                     {
-                      result = new_case nil, val[3]
+                      result = @builder.case(val[0], nil, [ val[3] ], val[4])
                     }
                 | kFOR for_var kIN
                     {
@@ -1388,21 +1388,25 @@ rule
 
        case_body: kWHEN when_args then compstmt cases
                     {
-                      result = new_when(val[2], val[4])
-                      result << val[5] if val[5]
+                      result = [ @builder.when(val[0], val[1], val[2], val[3]),
+                                 *val[4] ]
                     }
 
        when_args: args
                 | args tCOMMA tSTAR arg_value
                     {
-                      result = list_append val[0], s(:splat, val[3])
+                      result = val[0] << @builder.splat(val[2], val[3])
                     }
                 | tSTAR arg_value
                     {
-                      result = s(:array, s(:splat, val[1]))
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
 
-           cases: opt_else | case_body
+           cases: opt_else
+                    {
+                      result = [ val[0] ]
+                    }
+                | case_body
 
       opt_rescue: kRESCUE exc_list exc_var then compstmt opt_rescue
                     {

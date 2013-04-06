@@ -439,9 +439,13 @@ module Parser
     # Control flow
     #
 
+    # Logical operations: and, or
+
     def logical_op(type, lhs, token, rhs)
       s(type, lhs, rhs)
     end
+
+    # Conditionals
 
     def condition(cond_t, cond, then_t,
                   if_true, if_false, end_t)
@@ -456,6 +460,18 @@ module Parser
       s(:if, cond, if_true, if_false)
     end
 
+    # Case matching
+
+    def when(when_t, patterns, then_t, compstmt)
+      s(:when, *patterns, compstmt)
+    end
+
+    def case(case_t, expr, body, end_t)
+      s(:case, expr, *body)
+    end
+
+    # Loops
+
     def loop(loop_t, cond, do_t, body, end_t)
       s(value(loop_t).to_sym, cond, body)
     end
@@ -468,6 +484,8 @@ module Parser
             do_t, compstmt, end_t)
       s(:for, iterator, iteratee, compstmt)
     end
+
+    # Exception handling
 
     def begin(compound_stmt,
               rescue_, rescue_t,
@@ -487,6 +505,8 @@ module Parser
         s(:begin, *statements)
       end
     end
+
+    # BEGIN, END
 
     def preexe(preexe_t, lbrace_t, compstmt, rbrace_t)
       s(:preexe, compstmt)

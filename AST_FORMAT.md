@@ -1030,6 +1030,15 @@ Format:
 "when /foo/; bar"
  ~~~~ keyword
  ~~~~~~~~~~ expression
+
+(when (int 1) (int 2) (send nil :meth))
+"when 1, 2; meth"
+
+(when (int 1) (splat (lvar :foo)) (send nil :meth))
+"when 1, *foo; meth"
+
+(when (splat (lvar :foo)) (send nil :meth))
+"when *foo; meth"
 ```
 
 #### Case-expression clause
@@ -1070,6 +1079,12 @@ Format:
 (case nil (when (lvar :bar) (lvar :bar)) (lvar :baz))
 "case; when bar; bar; else baz; end"
  ~~~~ keyword         ~~~~ else ~~~ end
+
+(case nil (lvar :baz))
+"case; else baz; end"
+ ~~~~ keyword
+       ~~~~ else
+                 ~~~ end
 ```
 
 ### Looping
@@ -1181,7 +1196,7 @@ Format:
  ~~~~ expression
 ```
 
-### Returning
+### Return
 
 Format:
 ```
