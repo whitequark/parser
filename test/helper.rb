@@ -14,9 +14,12 @@ if SimpleCov.usable?
     at_exit { RaccCoverage.stop }
   end
 
+  require 'simplecov-sublime-ruby-coverage'
+
   SimpleCov.start do
     self.formatter = SimpleCov::Formatter::MultiFormatter[
       SimpleCov::Formatter::HTMLFormatter,
+      SimpleCov::Formatter::SublimeRubyCoverageFormatter,
       Coveralls::SimpleCov::Formatter
     ]
 
