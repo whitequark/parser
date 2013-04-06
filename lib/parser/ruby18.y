@@ -888,19 +888,20 @@ rule
                 | block_arg
 
     command_args:   {
-                      #result = lexer.cmdarg.stack.dup
-                      #lexer.cmdarg.push true
+                      result = @lexer.cmdarg.dup
+                      @lexer.cmdarg.push(true)
                     }
                     open_args
                     {
-                      #lexer.cmdarg.stack.replace val[0]
+                      @lexer.cmdarg = val[0]
+
                       result = val[1]
                     }
 
        open_args: call_args
                 | tLPAREN_ARG
                     {
-                      lexer.state = :expr_endarg
+                      @lexer.state = :expr_endarg
                     }
                     tRPAREN
                     {
@@ -909,7 +910,7 @@ rule
                     }
                 | tLPAREN_ARG call_args2
                     {
-                      lexer.state = :expr_endarg
+                      @lexer.state = :expr_endarg
                     }
                     tRPAREN
                     {
@@ -968,7 +969,7 @@ rule
                     }
                 | tLPAREN_ARG expr
                     {
-                      lexer.state = :expr_endarg
+                      @lexer.state = :expr_endarg
                     }
                     opt_nl tRPAREN
                     {
@@ -1053,11 +1054,11 @@ rule
                     }
                 | kWHILE
                     {
-                      #lexer.cond.push true
+                      @lexer.cond.push(true)
                     }
                     expr_value do
                     {
-                      #lexer.cond.pop
+                      @lexer.cond.pop
                     }
                     compstmt kEND
                     {
@@ -1066,11 +1067,11 @@ rule
                     }
                 | kUNTIL
                     {
-                      #lexer.cond.push true
+                      @lexer.cond.push(true)
                     }
                     expr_value do
                     {
-                      #lexer.cond.pop
+                      @lexer.cond.pop
                     }
                     compstmt kEND
                     {
@@ -1091,11 +1092,11 @@ rule
                     }
                 | kFOR for_var kIN
                     {
-                      #lexer.cond.push true
+                      @lexer.cond.push(true)
                     }
                     expr_value do
                     {
-                      #lexer.cond.pop
+                      @lexer.cond.pop
                     }
                     compstmt kEND
                     {
@@ -1565,13 +1566,13 @@ xstring_contents: # nothing # TODO: replace with string_contents?
                     }
                 | tSTRING_DBEG
                     {
-                      #lexer.cond.push false
-                      #lexer.cmdarg.push false
+                      @lexer.cond.push(false)
+                      @lexer.cmdarg.push(false)
                     }
                     compstmt tRCURLY
                     {
-                      #lexer.cond.lexpop
-                      #lexer.cmdarg.lexpop
+                      @lexer.cond.lexpop
+                      @lexer.cmdarg.lexpop
 
                       result = val[2]
                     }

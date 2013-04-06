@@ -436,14 +436,23 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tINTEGER, 2)
   end
 
-  # TODO uncomment when cond/cmdarg are ready
-  # def test_do
-  #   util_lex_token("x do 42 end",
-  #                  :tIDENTIFIER, "x",
-  #                  :kDO, "do",
-  #                  :tINTEGER, 42,
-  #                  :kEND, "end")
-  # end
+  def test_do
+    util_lex_token("x do 42 end",
+                   :tIDENTIFIER, "x",
+                   :kDO, "do",
+                   :tINTEGER, 42,
+                   :kEND, "end")
+  end
+
+  def test_do_cond
+    @lex.cond.push(true)
+
+    util_lex_token("x do 42 end",
+                   :tIDENTIFIER, "x",
+                   :kDO_COND, "do",
+                   :tINTEGER, 42,
+                   :kEND, "end")
+  end
 
   def test_do_block
     @lex.state = :expr_endarg

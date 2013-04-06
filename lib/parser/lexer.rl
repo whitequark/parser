@@ -59,6 +59,8 @@
 #    `c_lparen = '('` and a lexer action `e_lparen | c_lparen`, the result
 #    _will_ invoke the action `act`.
 #
+#    e_something stands for "something with **e**mbedded action".
+#
 #  * EOF is explicit and is matched by `c_eof`. If you want to introspect
 #    the state of the lexer, add this rule to the state:
 #
@@ -79,10 +81,13 @@ class Parser::Lexer
   attr_accessor :diagnostics
   attr_accessor :static_env
 
+  attr_accessor :cond, :cmdarg
+
   attr_reader   :comments
 
   def initialize(version)
-    @version = version
+    @version    = version
+    @static_env = nil
 
     reset
   end
@@ -91,7 +96,10 @@ class Parser::Lexer
     # Ragel-related variables:
     if reset_state
       # Unit tests set state prior to resetting lexer.
-      @cs  = self.class.lex_en_line_begin
+      @cs     = self.class.lex_en_line_begin
+
+      @cond   = StackState.new('cond')
+      @cmdarg = StackState.new('cmdarg')
     end
 
     @p             = 0   # stream position (saved manually in #advance)
@@ -292,7 +300,6 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
-    'do'  => :kDO_COND,
   }
 
   PUNCTUATION_BEGIN = {
@@ -763,6 +770,8 @@ class Parser::Lexer
   interp_code = '#{';
 
   e_lbrace = '{' % {
+    @cond.push(false); @cmdarg.push(false)
+
     if literal
       literal.start_interp_brace
     end
@@ -878,15 +887,24 @@ class Parser::Lexer
       '::'  %{ tm = p - 2 }    # A::B      A :: B
   ;
 
+  # Resolving kDO/kDO_COND/kDO_BLOCK ambiguity requires embegging
+  # @cond/@cmdarg-related code to e_lbrack, e_lparen and e_lbrace.
+
+  e_lbrack = '[' % {
+    @cond.push(false); @cmdarg.push(false)
+  };
+
   # Ruby 1.9 lambdas require parentheses counting in order to
   # emit correct opening kDO/tLBRACE.
 
   e_lparen = '(' % {
-      @paren_nest += 1
+    @cond.push(false); @cmdarg.push(false)
+
+    @paren_nest += 1
   };
 
   e_rparen = ')' % {
-      @paren_nest -= 1
+    @paren_nest -= 1
   };
 
   # Variable lexing code is accessed from both expressions and
@@ -1021,8 +1039,8 @@ class Parser::Lexer
 
       # meth [...]
       # Array argument. Compare with indexing `meth[...]`.
-      c_space+ '['
-      => { emit(:tLBRACK, '[', @te - 1, @te);
+      c_space+ e_lbrack
+      => { emit(:tLBRACK, '[', @te - 1, @te)
            fnext expr_beg; fbreak; };
 
       # cmd {}
@@ -1297,12 +1315,17 @@ class Parser::Lexer
       # KEYWORDS AND PUNCTUATION
       #
 
-      # a(+b)
-      punctuation_begin |
+      # a([1, 2])
+      e_lbrack    |
       # a({b=>c})
-      e_lbrace          |
+      e_lbrace    |
       # a()
       e_lparen
+      => { emit_table(PUNCTUATION_BEGIN)
+           fbreak; };
+
+      # a(+b)
+      punctuation_begin
       => { emit_table(PUNCTUATION_BEGIN)
            fbreak; };
 
@@ -1353,9 +1376,9 @@ class Parser::Lexer
         emit(:tIDENTIFIER)
 
         if @static_env && @static_env.declared?(tok)
-          fgoto expr_end;
+          fnext expr_end; fbreak;
         else
-          fgoto expr_arg;
+          fnext expr_arg; fbreak;
         end
       };
 
@@ -1408,11 +1431,21 @@ class Parser::Lexer
 
           if tok == '{'
             emit(:tLAMBEG)
-          else
+          else # 'do'
             emit(:kDO_LAMBDA)
           end
         else
-          emit_table(PUNCTUATION)
+          if tok == '{'
+            emit_table(PUNCTUATION)
+          else # 'do'
+            if @cond.active?
+              emit(:kDO_COND)
+            elsif @cmdarg.active?
+              emit(:kDO_BLOCK)
+            else
+              emit(:kDO)
+            end
+          end
         end
 
         fnext expr_value; fbreak;
@@ -1585,6 +1618,7 @@ class Parser::Lexer
 
       e_rbrace | e_rparen | ']'
       => { emit_table(PUNCTUATION)
+           @cond.lexpop; @cmdarg.lexpop
            fbreak; };
 
       operator_arithmetic '='
@@ -1594,6 +1628,10 @@ class Parser::Lexer
       '?'
       => { emit_table(PUNCTUATION)
            fnext expr_value; fbreak; };
+
+      e_lbrack
+      => { emit_table(PUNCTUATION)
+           fnext expr_beg; fbreak; };
 
       punctuation_end
       => { emit_table(PUNCTUATION)
