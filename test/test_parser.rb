@@ -1696,6 +1696,13 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~ expression})
   end
 
+  def test_send_index_cmd
+    assert_parses(
+      s(:send, s(:lvar, :foo), :[],
+        s(:send, nil, :m, s(:lvar, :bar))),
+      %q{foo[m bar]})
+  end
+
   def test_send_index_asgn
     assert_parses(
       s(:send, s(:lvar, :foo), :[]=,

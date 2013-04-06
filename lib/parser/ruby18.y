@@ -741,8 +741,7 @@ rule
        aref_args: none
                 | command opt_nl
                     {
-                      warning 'parenthesize argument(s) for future version'
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | args trailer
                     {
