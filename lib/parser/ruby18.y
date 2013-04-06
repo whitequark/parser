@@ -50,12 +50,12 @@ rule
 
         bodystmt: compstmt opt_rescue opt_else opt_ensure
                     {
-                      rescue_, t_rescue = val[1]
+                      rescue_bodies     = val[1]
                       else_,   t_else   = val[2]
                       ensure_, t_ensure = val[3]
 
                       result = @builder.begin_body(val[0],
-                                  rescue_, t_rescue,
+                                  rescue_bodies,
                                   else_,   t_else,
                                   ensure_, t_ensure)
                     }
@@ -130,7 +130,11 @@ rule
                     }
                 | stmt kRESCUE_MOD stmt
                     {
-                      result = s(:rescue, val[0], new_resbody(s(:array), val[2]))
+                      rescue_body = @builder.rescue_body(val[1],
+                                        nil, nil, nil,
+                                        nil, val[2])
+
+                      result = @builder.begin_body(val[0], [ rescue_body ])
                     }
                 | klBEGIN
                     {
@@ -545,8 +549,13 @@ rule
                     }
                 | lhs tEQL arg kRESCUE_MOD arg
                     {
-                      result = node_assign val[0], s(:rescue, val[2], new_resbody(s(:array), val[4]))
-                      # result.line = val[0].line
+                      rescue_body = @builder.rescue_body(val[3],
+                                        nil, nil, nil,
+                                        nil, val[4])
+
+                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
+
+                      result  = @builder.assign(val[0], val[1], rescue_)
                     }
                 | var_lhs tOP_ASGN arg
                     {
@@ -1030,15 +1039,17 @@ rule
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
+                      else_t, else_ = val[4]
                       result = @builder.condition(val[0], val[1], val[2],
-                                                  val[3], val[4],
-                                                  val[5])
+                                                  val[3], else_t,
+                                                  else_,  val[5])
                     }
                 | kUNLESS expr_value then compstmt opt_else kEND
                     {
+                      else_t, else_ = val[4]
                       result = @builder.condition(val[0], val[1], val[2],
-                                                  val[4], val[3],
-                                                  val[5])
+                                                  else_,  else_t,
+                                                  val[3], val[5])
                     }
                 | kWHILE
                     {
@@ -1213,14 +1224,18 @@ rule
          if_tail: opt_else
                 | kELSIF expr_value then compstmt if_tail
                     {
-                      result = @builder.condition(val[0], val[1], val[2],
-                                                  val[3], val[4], nil)
+                      else_t, else_ = val[4]
+                      result = [ val[0],
+                                 @builder.condition(val[0], val[1], val[2],
+                                                    val[3], else_t,
+                                                    else_,  nil),
+                               ]
                     }
 
         opt_else: none
                 | kELSE compstmt
                     {
-                      result = val[1]
+                      result = val
                     }
 
          for_var: lhs
@@ -1400,28 +1415,32 @@ rule
 
            cases: opt_else
                     {
-                      result = [ val[0] ]
+                      else_t, else_ = val[0]
+                      result = [ else_ ]
                     }
                 | case_body
 
       opt_rescue: kRESCUE exc_list exc_var then compstmt opt_rescue
                     {
-                      klasses, var, body, rest = val[1], val[2], val[4], val[5]
+                      assoc_t, exc_var = val[2]
 
-                      klasses ||= s(:array)
-                      klasses << node_assign(var, s(:gvar, :"$!")) if var
+                      if val[1]
+                        exc_list = @builder.array(nil, val[1], nil)
+                      end
 
-                      result = new_resbody(klasses, body)
-                      result << rest if rest # UGH, rewritten above
+                      result = [ @builder.rescue_body(val[0],
+                                      exc_list, assoc_t, exc_var,
+                                      val[3], val[4]),
+                                 *val[5] ]
                     }
                 |
                     {
-                      result = nil
+                      result = []
                     }
 
         exc_list: arg_value
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | mrhs
                 | none

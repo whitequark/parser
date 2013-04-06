@@ -1218,6 +1218,10 @@ Format:
 "rescue Exception, A => bar; 1"
  ~~~~~~ keyword      ~~ operator
 
+"rescue Exception, A => bar then 1"
+ ~~~~~~ keyword      ~~ operator
+                            ~~~~ begin
+
 (resbody (array (const nil :Exception)) (ivasgn :bar) (int 1))
 "rescue Exception => @bar; 1"
  ~~~~~~ keyword   ~~ operator

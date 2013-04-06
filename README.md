@@ -17,16 +17,17 @@ TODO: Write usage instructions here
 ## Features
 
  * Precise source location reporting.
- * [Documented](AST_FORMAT.md) AST format.
+ * [Documented](AST_FORMAT.md) AST format which is convenient to work with.
  * A simple interface (`Parser::Ruby19.parse("just parse this")`) and a powerful, tweakable one.
  * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, no, not really yet).
- * Improved diagnostic messages.
+ * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI >=1.9.2, JRuby and Rubinius in 1.9 mode.
  * Single runtime dependency: the [ast][] gem.
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
  * Readable commented source code.
 
+  [clang-like]: clang.llvm.org/diagnostics.html
   [ast]: http://rubygems.org/gems/ast
   [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 

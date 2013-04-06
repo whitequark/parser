@@ -2264,18 +2264,154 @@ class TestParser < MiniTest::Unit::TestCase
   # Exception handling
 
   def test_rescue
+    assert_parses(
+      s(:rescue, s(:send, nil, :meth),
+        s(:resbody, nil, nil, s(:lvar, :foo)),
+        nil),
+      %q{begin; meth; rescue; foo; end},
+      %q{~~~~~ begin
+        |                          ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_rescue_else
+    assert_parses(
+      s(:rescue, s(:send, nil, :meth),
+        s(:resbody, nil, nil, s(:lvar, :foo)),
+        s(:lvar, :bar)),
+      %q{begin; meth; rescue; foo; else; bar; end},
+      %q{~~~~~ begin
+        |                          ~~~~ else
+        |                                     ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_ensure
+    assert_parses(
+      s(:ensure, s(:send, nil, :meth),
+        s(:lvar, :bar)),
+      %q{begin; meth; ensure; bar; end},
+      %q{~~~~~ begin
+        |             ~~~~~~ keyword
+        |                          ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_rescue_ensure
+    assert_parses(
+      s(:ensure,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, nil, s(:lvar, :baz)),
+          nil),
+        s(:lvar, :bar)),
+      %q{begin; meth; rescue; baz; ensure; bar; end},
+      %q{~~~~~ begin
+        |~~~~~ begin (rescue)
+        |                          ~~~~~~ keyword
+        |             ~~~~~~ keyword (rescue)
+        |                                       ~~~ end
+        |                                       ~~~ end (rescue)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
   end
 
-  def test_rescue_ensure_else
+  def test_rescue_else_ensure
+    assert_parses(
+      s(:ensure,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, nil, s(:lvar, :baz)),
+          s(:lvar, :foo)),
+        s(:lvar, :bar)),
+      %q{begin; meth; rescue; baz; else foo; ensure; bar end},
+      %q{~~~~~ begin
+        |~~~~~ begin (rescue)
+        |                                    ~~~~~~ keyword
+        |             ~~~~~~ keyword (rescue)
+        |                          ~~~~ else (rescue)
+        |                                                ~~~ end
+        |                                                ~~~ end (rescue)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
+  end
+
+  def test_rescue_mod
+    assert_parses(
+      s(:rescue,
+        s(:send, nil, :meth),
+        s(:resbody, nil, nil, s(:lvar, :bar)),
+        nil),
+      %q{meth rescue bar},
+      %q{     ~~~~~~ keyword (resbody)
+        |~~~~~~~~~~~~~~~ expression})
+  end
+
+  def test_rescue_mod_asgn
+    assert_parses(
+      s(:lvasgn, :foo,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, nil, s(:lvar, :bar)),
+          nil)),
+      %q{foo = meth rescue bar},
+      %q{           ~~~~~~ keyword (rescue.resbody)
+        |      ~~~~~~~~~~~~~~~ expression (rescue)
+        |~~~~~~~~~~~~~~~~~~~~~ expression})
+  end
+
+  def test_resbody_list
+    assert_parses(
+      s(:rescue,
+        s(:send, nil, :meth),
+        s(:resbody,
+          s(:array, s(:const, nil, :Exception)),
+          nil,
+          s(:lvar, :bar)),
+        nil),
+      %q{begin; meth; rescue Exception; bar; end})
+  end
+
+  def test_resbody_list_mrhs
+    assert_parses(
+      s(:rescue,
+        s(:send, nil, :meth),
+        s(:resbody,
+          s(:array,
+            s(:const, nil, :Exception),
+            s(:lvar, :foo)),
+          nil,
+          s(:lvar, :bar)),
+        nil),
+      %q{begin; meth; rescue Exception, foo; bar; end})
+  end
+
+  def test_resbody_var
+    assert_parses(
+      s(:rescue,
+        s(:send, nil, :meth),
+        s(:resbody, nil, s(:lvasgn, :ex), s(:lvar, :bar)),
+        nil),
+      %q{begin; meth; rescue => ex; bar; end})
+
+    assert_parses(
+      s(:rescue,
+        s(:send, nil, :meth),
+        s(:resbody, nil, s(:ivasgn, :@ex), s(:lvar, :bar)),
+        nil),
+      %q{begin; meth; rescue => @ex; bar; end})
+  end
+
+  def test_resbody_list_var
+    assert_parses(
+      s(:rescue,
+        s(:send, nil, :meth),
+        s(:resbody,
+          s(:array, s(:lvar, :foo)),
+          s(:lvasgn, :ex),
+          s(:lvar, :bar)),
+        nil),
+      %q{begin; meth; rescue foo => ex; bar; end})
   end
 
   def test_retry

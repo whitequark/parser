@@ -448,7 +448,7 @@ module Parser
     # Conditionals
 
     def condition(cond_t, cond, then_t,
-                  if_true, if_false, end_t)
+                  if_true, else_t, if_false, end_t)
       s(:if, cond, if_true, if_false)
     end
 
@@ -462,8 +462,8 @@ module Parser
 
     # Case matching
 
-    def when(when_t, patterns, then_t, compstmt)
-      s(:when, *patterns, compstmt)
+    def when(when_t, patterns, then_t, body)
+      s(:when, *patterns, body)
     end
 
     def case(case_t, expr, body, end_t)
@@ -481,8 +481,8 @@ module Parser
     end
 
     def for(for_t, iterator, in_t, iteratee,
-            do_t, compstmt, end_t)
-      s(:for, iterator, iteratee, compstmt)
+            do_t, body, end_t)
+      s(:for, iterator, iteratee, body)
     end
 
     # Exception handling
@@ -491,11 +491,29 @@ module Parser
       body
     end
 
-    def begin_body(compound_stmt,
-              rescue_, rescue_t,
-              else_,   else_t,
-              ensure_, ensure_t)
-      # TODO
+    def rescue_body(rescue_t,
+                    exc_list, assoc_t, exc_var,
+                    then_t, compound_stmt)
+      s(:resbody, exc_list, exc_var, compound_stmt)
+    end
+
+    def begin_body(compound_stmt, rescue_bodies=[],
+                   else_t=nil,    else_=nil,
+                   ensure_t=nil,  ensure_=nil)
+      if rescue_bodies.any?
+        if else_t
+          compound_stmt = s(:rescue, compound_stmt,
+                            *rescue_bodies, else_)
+        else
+          compound_stmt = s(:rescue, compound_stmt,
+                            *rescue_bodies, nil)
+        end
+      end
+
+      if ensure_t
+        compound_stmt = s(:ensure, compound_stmt, ensure_)
+      end
+
       compound_stmt
     end
 
