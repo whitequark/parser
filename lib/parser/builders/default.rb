@@ -83,8 +83,12 @@ module Parser
       s(:array, *elements)
     end
 
-    def splat(star_t, arg)
-      s(:splat, arg)
+    def splat(star_t, arg=nil)
+      if arg.nil?
+        s(:splat)
+      else
+        s(:splat, arg)
+      end
     end
 
     def words_compose(begin_t, parts, end_t)
@@ -213,7 +217,7 @@ module Parser
 
       when :back_ref, :nth_ref
         message = ERRORS[:backref_assignment]
-        diagnostic :error, message, node.loc
+        diagnostic :error, message, node.src.expression
 
       else
         raise NotImplementedError, "build_assignable #{node.inspect}"
@@ -478,7 +482,7 @@ module Parser
           Diagnostic.new(type, message, location, highlights))
 
       if type == :error
-        @parser.yyerror
+        @parser.send :yyerror
       end
     end
   end

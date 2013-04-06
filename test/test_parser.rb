@@ -577,6 +577,13 @@ class TestParser < MiniTest::Unit::TestCase
         })
   end
 
+  def test_asgn_backref_invalid
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$1 = foo},
+      %q{~~ location})
+  end
+
   # Constants
 
   def test_cdecl_toplevel
@@ -639,6 +646,23 @@ class TestParser < MiniTest::Unit::TestCase
         |           ~~~~ expression (array)
         |~~~~~~~~~~~~~~~ expression
         })
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :foo), s(:lvasgn, :bar)),
+        s(:array, s(:int, 1), s(:int, 2))),
+      %q{(foo, bar) = 1, 2},
+      %q{^ begin
+        |         ^ end})
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :foo),
+          s(:lvasgn, :bar),
+          s(:lvasgn, :baz)),
+        s(:array, s(:int, 1), s(:int, 2))),
+      %q{foo, bar, baz = 1, 2})
   end
 
   def test_masgn_splat
@@ -658,6 +682,30 @@ class TestParser < MiniTest::Unit::TestCase
       %q{a, b = *foo, bar},
       %q{},
       ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :a), s(:splat, s(:lvasgn, :b))),
+        s(:lvar, :bar)),
+      %q{a, *b = bar})
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :a), s(:splat)),
+        s(:lvar, :bar)),
+      %q{a, * = bar})
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs, s(:splat, s(:lvasgn, :b))),
+        s(:lvar, :bar)),
+      %q{*b = bar})
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs, s(:splat)),
+        s(:lvar, :bar)),
+      %q{* = bar})
   end
 
   def test_masgn_nested
@@ -674,6 +722,15 @@ class TestParser < MiniTest::Unit::TestCase
         |        ^ end (mlhs.mlhs)
         |   ~~~~~~ expression (mlhs.mlhs)
         })
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :b)),
+        s(:lvar, :foo)),
+      %q{((b, )) = foo},
+      %q{^ begin (mlhs)
+        |      ^ end (mlhs)})
   end
 
   def test_masgn_attr
@@ -722,6 +779,13 @@ class TestParser < MiniTest::Unit::TestCase
           s(:lvasgn, :foo)),
         s(:lvar, :foo)),
       %q{::A, foo = foo})
+  end
+
+  def test_masgn_backref_invalid
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$1, = foo},
+      %q{~~ location})
   end
 
   def test_masgn_const_invalid
@@ -927,6 +991,32 @@ class TestParser < MiniTest::Unit::TestCase
         |                 ~~~ end})
   end
 
+  def test_module_invalid
+    assert_diagnoses(
+      [:error, :module_in_def],
+      %q{def a; module Foo; end; end})
+  end
+
+  def test_cpath
+    assert_parses(
+      s(:module,
+        s(:const, s(:cbase), :Foo),
+        s(:nil)),
+      %q{module ::Foo; nil; end})
+
+    assert_parses(
+      s(:module,
+        s(:const, s(:const, nil, :Bar), :Foo),
+        s(:nil)),
+      %q{module Bar::Foo; nil; end})
+  end
+
+  def test_cpath_invalid
+    assert_diagnoses(
+      [:error, :module_name_const],
+      %q{module foo; nil; end})
+  end
+
   def test_class
     assert_parses(
       s(:class,
@@ -948,6 +1038,12 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~~~~~ keyword
         |          ^ operator
         |                      ~~~ end})
+  end
+
+  def test_class_invalid
+    assert_diagnoses(
+      [:error, :class_in_def],
+      %q{def a; class Foo; end; end})
   end
 
   def test_sclass

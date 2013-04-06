@@ -390,7 +390,7 @@ rule
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    {
+                    { # TODO: unused with Ragel lexer, remove?
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
@@ -433,7 +433,7 @@ rule
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    {
+                    { # TODO: Unused with Ragel lexer, remove?
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
@@ -1071,7 +1071,7 @@ rule
                 | kCLASS cpath superclass
                     {
                       if in_def?
-                        yyerror "class definition in method body"
+                        syntax_error :class_in_def, val[0]
                       end
 
                       @comments.push @lexer.clear_comments
@@ -1107,7 +1107,7 @@ rule
                 | kMODULE cpath
                     {
                       if in_def?
-                        yyerror "module definition in method body"
+                        syntax_error :module_in_def, val[0]
                       end
 
                       @comments.push @lexer.clear_comments
