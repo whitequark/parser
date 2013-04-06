@@ -2436,7 +2436,8 @@ class TestParser < MiniTest::Unit::TestCase
   def test_preexe_invalid
     assert_diagnoses(
       [:error, :begin_in_method],
-      %q{def f; BEGIN{}; end})
+      %q{def f; BEGIN{}; end},
+      %q{       ~~~~~ location})
   end
 
   def test_postexe
@@ -2449,6 +2450,7 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_diagnoses(
       [:warning, :end_in_method],
-      %q{def f; END{}; end})
+      %q{def f; END{ 1 }; end},
+      %q{       ~~~ location})
   end
 end
