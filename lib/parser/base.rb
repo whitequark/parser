@@ -85,7 +85,7 @@ module Parser
       @lexer.advance
     end
 
-    def syntax_error(kind, location_tok, highlights_tok=[])
+    def diagnostic(level, kind, location_tok, highlights_tok=[])
       _, location = location_tok
 
       highlights = highlights_tok.map do |token|
@@ -95,7 +95,7 @@ module Parser
 
       message = ERRORS[kind]
       @diagnostics.process(
-          Diagnostic.new(:error, message, location, highlights))
+          Diagnostic.new(level, message, location, highlights))
 
       yyerror
     end

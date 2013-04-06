@@ -328,7 +328,12 @@ module Parser
 
     def keyword_cmd(type, token, lparen_t=nil, args=nil, rparen_t=nil)
       case type
-      when :return, :break, :next, :redo, :retry, :yield, :defined?
+      when :return,
+           :break, :next, :redo,
+           :retry,
+           :super, :zsuper, :yield,
+           :defined?
+
         t(token, type, *args)
 
       else
@@ -434,6 +439,10 @@ module Parser
     # Control flow
     #
 
+    def logical_op(type, lhs, token, rhs)
+      s(type, lhs, rhs)
+    end
+
     def begin(compound_stmt,
               rescue_, t_rescue,
               else_,   t_else,
@@ -451,6 +460,14 @@ module Parser
       else
         s(:begin, *statements)
       end
+    end
+
+    def preexe(preexe_t, lbrace_t, compstmt, rbrace_t)
+      s(:preexe, compstmt)
+    end
+
+    def postexe(postexe_t, lbrace_t, compstmt, rbrace_t)
+      s(:postexe, compstmt)
     end
 
     protected

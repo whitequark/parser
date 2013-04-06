@@ -577,6 +577,12 @@ class TestParser < MiniTest::Unit::TestCase
         })
   end
 
+  def test_asgn_cmd
+    assert_parses(
+      s(:lvasgn, :foo, s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo = m foo})
+  end
+
   def test_asgn_backref_invalid
     assert_diagnoses(
       [:error, :backref_assignment],
@@ -781,23 +787,14 @@ class TestParser < MiniTest::Unit::TestCase
       %q{::A, foo = foo})
   end
 
-  def test_masgn_backref_invalid
-    assert_diagnoses(
-      [:error, :backref_assignment],
-      %q{$1, = foo},
-      %q{~~ location})
-  end
-
-  def test_masgn_const_invalid
-    assert_diagnoses(
-      [:error, :dynamic_const],
-      %q{def f; self::A, foo = foo; end},
-      %q{             ~ location})
-
-    assert_diagnoses(
-      [:error, :dynamic_const],
-      %q{def f; ::A, foo = foo; end},
-      %q{         ~ location})
+  def test_masgn_cmd
+    assert_parses(
+      s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :foo),
+          s(:lvasgn, :bar)),
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo, bar = m foo})
   end
 
   def test_asgn_mrhs
@@ -821,6 +818,25 @@ class TestParser < MiniTest::Unit::TestCase
       %q{foo = baz, *bar})
   end
 
+  def test_masgn_backref_invalid
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$1, = foo},
+      %q{~~ location})
+  end
+
+  def test_masgn_const_invalid
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def f; self::A, foo = foo; end},
+      %q{             ~ location})
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def f; ::A, foo = foo; end},
+      %q{         ~ location})
+  end
+
   # Variable binary operator-assignment
 
   def test_var_op_asgn
@@ -835,6 +851,14 @@ class TestParser < MiniTest::Unit::TestCase
       %q{@a |= 1},
       %q{   ^^ operator
         |~~~~~~~ expression})
+  end
+
+  def test_var_op_asgn_cmd
+    assert_parses(
+      s(:op_asgn,
+        s(:lvasgn, :foo), :+,
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo += m foo})
   end
 
   # Method binary operator-assignment
@@ -863,6 +887,26 @@ class TestParser < MiniTest::Unit::TestCase
       %q{foo.A += 1})
   end
 
+  def test_op_asgn_cmd
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :a), :+,
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo.a += m foo})
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :a), :+,
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo::a += m foo})
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :A), :+,
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo.A += m foo})
+  end
+
   def test_op_asgn_index
     assert_parses(
       s(:op_asgn,
@@ -876,6 +920,15 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~ expression})
   end
 
+  def test_op_asgn_index_cmd
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :[],
+          s(:int, 0), s(:int, 1)), :+,
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo[0, 1] += m foo})
+  end
+
   def test_op_asgn_invalid
     assert_diagnoses(
       [:error, :backref_assignment],
@@ -885,6 +938,11 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :backref_assignment],
       %q{$+ |= 1},
+      %q{~~ location})
+
+    assert_diagnoses(
+      [:error, :backref_assignment],
+      %q{$+ |= m foo},
       %q{~~ location})
 
     assert_diagnoses(
@@ -1539,7 +1597,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~foo})
   end
 
-  def test_bang_lvar
+  def test_bang
     assert_parses(
       s(:not, s(:lvar, :foo)),
       %q{!foo},
@@ -1553,7 +1611,21 @@ class TestParser < MiniTest::Unit::TestCase
       ALL_VERSIONS - %w(1.8))
   end
 
-  def test_not_lvar
+  def test_bang_cmd
+    assert_parses(
+      s(:not, s(:send, nil, :m, s(:lvar, :foo))),
+      %q{!m foo},
+      %{},
+      %w(1.8))
+
+    assert_parses(
+      s(:send, s(:send, nil, :m, s(:lvar, :foo)), :!),
+      %q{!m foo},
+      %{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_not
     assert_parses(
       s(:not, s(:lvar, :foo)),
       %q{not foo},
@@ -1563,6 +1635,20 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:send, s(:lvar, :foo), :!),
       %q{not foo},
+      %{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_not_cmd
+    assert_parses(
+      s(:not, s(:send, nil, :m, s(:lvar, :foo))),
+      %q{not m foo},
+      %{},
+      %w(1.8))
+
+    assert_parses(
+      s(:send, s(:send, nil, :m, s(:lvar, :foo)), :!),
+      %q{not m foo},
       %{},
       ALL_VERSIONS - %w(1.8))
   end
@@ -1618,14 +1704,67 @@ class TestParser < MiniTest::Unit::TestCase
   # To superclass
 
   def test_super
+    assert_parses(
+      s(:super, s(:lvar, :foo)),
+      %q{super(foo)},
+      %q{~~~~~ keyword
+        |     ^ begin
+        |         ^ end
+        |~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:super, s(:lvar, :foo)),
+      %q{super foo},
+      %q{~~~~~ keyword
+        |~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:super),
+      %q{super()},
+      %q{~~~~~ keyword
+        |     ^ begin
+        |      ^ end
+        |~~~~~~~ expression})
   end
 
   def test_zsuper
+    assert_parses(
+      s(:zsuper),
+      %q{super},
+      %q{~~~~~ keyword
+        |~~~~~ expression})
   end
 
   # To block argument
 
   def test_yield
+    assert_parses(
+      s(:yield, s(:lvar, :foo)),
+      %q{yield(foo)},
+      %q{~~~~~ keyword
+        |     ^ begin
+        |         ^ end
+        |~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:yield, s(:lvar, :foo)),
+      %q{yield foo},
+      %q{~~~~~ keyword
+        |~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:yield),
+      %q{yield()},
+      %q{~~~~~ keyword
+        |     ^ begin
+        |      ^ end
+        |~~~~~~~ expression})
+
+    assert_parses(
+      s(:yield),
+      %q{yield},
+      %q{~~~~~ keyword
+        |~~~~~ expression})
   end
 
   # Send with a block
@@ -1645,12 +1784,31 @@ class TestParser < MiniTest::Unit::TestCase
   # Operators
 
   def test_and
+    assert_parses(
+      s(:and, s(:lvar, :foo), s(:lvar, :bar)),
+      %q{foo and bar},
+      %q{    ~~~ operator
+        |~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:and, s(:lvar, :foo), s(:lvar, :bar)),
+      %q{foo && bar},
+      %q{    ~~ operator
+        |~~~~~~~~~~ expression})
   end
 
   def test_or
-  end
+    assert_parses(
+      s(:or, s(:lvar, :foo), s(:lvar, :bar)),
+      %q{foo or bar},
+      %q{    ~~ operator
+        |~~~~~~~~~~ expression})
 
-  def test_not
+    assert_parses(
+      s(:or, s(:lvar, :foo), s(:lvar, :bar)),
+      %q{foo || bar},
+      %q{    ~~ operator
+        |~~~~~~~~~~ expression})
   end
 
   # Branching
@@ -1755,8 +1913,30 @@ class TestParser < MiniTest::Unit::TestCase
   # BEGIN and END
 
   def test_preexe
+    assert_parses(
+      s(:preexe, s(:int, 1)),
+      %q{BEGIN { 1 }},
+      %q{~~~~~ keyword
+        |      ^ begin
+        |          ^ end})
+  end
+
+  def test_preexe_invalid
+    assert_diagnoses(
+      [:error, :begin_in_method],
+      %q{def f; BEGIN{}; end})
   end
 
   def test_postexe
+    assert_parses(
+      s(:postexe, s(:int, 1)),
+      %q{END { 1 }},
+      %q{~~~ keyword
+        |    ^ begin
+        |        ^ end})
+
+    assert_diagnoses(
+      [:warning, :end_in_method],
+      %q{def f; END{}; end})
   end
 end

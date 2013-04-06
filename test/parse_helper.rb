@@ -14,8 +14,8 @@ module ParseHelper
   def parser_for_ruby_version(version)
     case version
     when '1.8'; parser = Parser::Ruby18.new
-    # when '1.9'; Parser::Ruby19 # not yet
-    # when '2.0'; Parser::Ruby20 # not yet
+    # when '1.9'; parser = Parser::Ruby19.new # not yet
+    # when '2.0'; parser = Parser::Ruby20.new # not yet
     else raise "Unrecognized Ruby version #{version}"
     end
 
@@ -157,7 +157,7 @@ module ParseHelper
     end
 
     descriptions.each_line do |line|
-      # Remove trailing "     |", if it exists.
+      # Remove leading "     |", if it exists.
       line = line.sub(/^\s*\|/, '').rstrip
 
       next if line.empty?

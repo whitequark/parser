@@ -104,7 +104,7 @@ rule
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
-                      syntax_error(:nth_ref_alias, val[2])
+                      diagnostic(:error, :nth_ref_alias, val[2])
                     }
                 | kUNDEF undef_list
                     {
@@ -133,23 +133,24 @@ rule
                 | klBEGIN
                     {
                       if in_def?
-                        syntax_error(:begin_in_method, val[0])
+                        diagnostic(:error, :begin_in_method, val[0])
                       end
 
-                      @static_env.extend
+                      @static_env.extend_static
                     }
                     tLCURLY compstmt tRCURLY
                     {
-                      result = new_iter s(:preexe), nil, val[3] # TODO: add test?
-                      result = nil # TODO: since it isn't supposed to go in the AST
+                      @static_env.unextend
+
+                      result = @builder.preexe(val[0], val[2], val[3], val[4])
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
                       if in_def?
-                        syntax_error(:end_in_method, val[0])
+                        diagnostic(:warning, :end_in_method, val[0])
                       end
 
-                      result = new_iter s(:postexe), nil, val[2]
+                      result = @builder.postexe(val[0], val[1], val[2], val[3])
                     }
                 | lhs tEQL command_call
                     {
@@ -157,7 +158,7 @@ rule
                     }
                 | mlhs tEQL command_call
                     {
-                      result = new_masgn val[0], val[2], :wrap
+                      result = @builder.multi_assign(val[0], val[1], val[2])
                     }
                 | var_lhs tOP_ASGN command_call
                     {
@@ -165,23 +166,35 @@ rule
                     }
                 | primary_value tLBRACK2 aref_args tRBRACK tOP_ASGN command_call
                     {
-                      result = s(:op_asgn1, val[0], val[2], val[4].to_sym, val[5])
+                      result = @builder.op_assign(
+                                  @builder.index(
+                                    val[0], val[1], val[2], val[3]),
+                                  val[4], val[5])
                     }
                 | primary_value tDOT tIDENTIFIER tOP_ASGN command_call
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN command_call
-                    {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                    { # TODO: unused with the ragel lexer, remove
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | backref tOP_ASGN command_call
                     {
-                      @builder.operator_assign(*val)
+                      @builder.op_assign(val[0], val[1], val[2])
                     }
                 | lhs tEQL mrhs
                     {
@@ -202,11 +215,11 @@ rule
             expr: command_call
                 | expr kAND expr
                     {
-                      result = logop(:and, val[0], val[2])
+                      result = @builder.logical_op(:and, val[0], val[1], val[2])
                     }
                 | expr kOR expr
                     {
-                      result = logop(:or, val[0], val[2])
+                      result = @builder.logical_op(:or, val[0], val[1], val[2])
                     }
                 | kNOT expr
                     {
@@ -261,7 +274,8 @@ rule
 
          command: operation command_args =tLOWEST
                     {
-                      result = new_call nil, val[0].to_sym, val[1]
+                      result = @builder.call_method(nil, nil, val[0],
+                                  nil, val[1], nil)
                     }
                 | operation command_args cmd_brace_block
                     {
@@ -308,11 +322,13 @@ rule
                     }
                 | kSUPER command_args
                     {
-                      result = new_super val[1]
+                      result = @builder.keyword_cmd(:super, val[0],
+                                  nil, val[1], nil)
                     }
                 | kYIELD command_args
                     {
-                      result = new_yield val[1]
+                      result = @builder.keyword_cmd(:yield, val[0],
+                                  nil, val[1], nil)
                     }
 
             mlhs: mlhs_basic
@@ -396,7 +412,7 @@ rule
                 | primary_value tCOLON2 tCONSTANT
                     {
                       if in_def?
-                        syntax_error :dynamic_const, val[2]
+                        diagnostic(:error, :dynamic_const, val[2])
                       end
 
                       result = @builder.assignable(
@@ -405,7 +421,7 @@ rule
                 | tCOLON3 tCONSTANT
                     {
                       if in_def?
-                        syntax_error :dynamic_const, val[1]
+                        diagnostic(:error, :dynamic_const, val[1])
                       end
 
                       result = @builder.assignable(
@@ -439,7 +455,7 @@ rule
                 | primary_value tCOLON2 tCONSTANT
                     {
                       if in_def?
-                        syntax_error :dynamic_const, val[2]
+                        diagnostic(:error, :dynamic_const, val[2])
                       end
 
                       result = @builder.assignable(
@@ -448,7 +464,7 @@ rule
                 | tCOLON3 tCONSTANT
                     {
                       if in_def?
-                        syntax_error :dynamic_const, val[1]
+                        diagnostic(:error, :dynamic_const, val[1])
                       end
 
                       result = @builder.assignable(
@@ -461,7 +477,7 @@ rule
 
            cname: tIDENTIFIER
                     {
-                      syntax_error(:module_name_const, val[0])
+                      diagnostic(:error, :module_name_const, val[0])
                     }
                 | tCONSTANT
 
@@ -561,11 +577,11 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN arg
                     {
-                      syntax_error :dynamic_const, val[2], [ val[3] ]
+                      diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
                     }
                 | tCOLON3 tCONSTANT tOP_ASGN arg
                     {
-                      syntax_error :dynamic_const, val[1], [ val[2] ]
+                      diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
                     }
                 | backref tOP_ASGN arg
                     {
@@ -695,11 +711,11 @@ rule
                     }
                 | arg tANDOP arg
                     {
-                      result = logop(:and, val[0], val[2])
+                      result = @builder.logical_op(:and, val[0], val[1], val[2])
                     }
                 | arg tOROP arg
                     {
-                      result = logop(:or, val[0], val[2])
+                      result = @builder.logical_op(:or, val[0], val[1], val[2])
                     }
                 | kDEFINED opt_nl arg
                     {
@@ -1071,7 +1087,7 @@ rule
                 | kCLASS cpath superclass
                     {
                       if in_def?
-                        syntax_error :class_in_def, val[0]
+                        diagnostic(:error, :class_in_def, val[0])
                       end
 
                       @comments.push @lexer.clear_comments
@@ -1107,7 +1123,7 @@ rule
                 | kMODULE cpath
                     {
                       if in_def?
-                        syntax_error :module_in_def, val[0]
+                        diagnostic(:error, :module_in_def, val[0])
                       end
 
                       @comments.push @lexer.clear_comments
@@ -1330,11 +1346,13 @@ rule
                     }
                 | kSUPER paren_args
                     {
-                      result = new_super val[1]
+                      lparen_t, args, rparen_t = val[1]
+                      result = @builder.keyword_cmd(:super, val[0],
+                                  lparen_t, args, rparen_t)
                     }
                 | kSUPER
                     {
-                      result = s(:zsuper)
+                      result = @builder.keyword_cmd(:zsuper, val[0])
                     }
 
      brace_block: tLCURLY
@@ -1547,7 +1565,7 @@ xstring_contents: # nothing # TODO: replace with string_contents?
           symbol: tSYMBOL
                     {
                       if val[0][0].empty?
-                        syntax_error(:empty_symbol, val[0])
+                        diagnostic(:error, :empty_symbol, val[0])
                       end
 
                       result = @builder.symbol(val[0])
@@ -1702,19 +1720,19 @@ xstring_contents: # nothing # TODO: replace with string_contents?
 
       f_norm_arg: tCONSTANT
                     {
-                      syntax_error(:argument_const, val[0])
+                      diagnostic(:error, :argument_const, val[0])
                     }
                 | tIVAR
                     {
-                      syntax_error(:argument_ivar, val[0])
+                      diagnostic(:error, :argument_ivar, val[0])
                     }
                 | tGVAR
                     {
-                      syntax_error(:argument_gvar, val[0])
+                      diagnostic(:error, :argument_gvar, val[0])
                     }
                 | tCVAR
                     {
-                      syntax_error(:argument_cvar, val[0])
+                      diagnostic(:error, :argument_cvar, val[0])
                     }
                 | tIDENTIFIER
                     {
