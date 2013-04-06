@@ -132,7 +132,7 @@ module Parser
     # Expression grouping
     #
 
-    def paren(begin_t, expr, end_t)
+    def parenthesize(begin_t, expr, end_t)
       expr
     end
 
@@ -441,6 +441,27 @@ module Parser
 
     def logical_op(type, lhs, token, rhs)
       s(type, lhs, rhs)
+    end
+
+    def condition(cond_t, cond, then_t,
+                  if_true, if_false, end_t)
+      s(:if, cond, if_true, if_false)
+    end
+
+    def condition_mod(if_true, if_false, cond_t, cond)
+      s(:if, cond, if_true, if_false)
+    end
+
+    def ternary(cond, question_t, if_true, colon_t, if_false)
+      s(:if, cond, if_true, if_false)
+    end
+
+    def loop(loop_t, cond, do_t, body, end_t)
+      s(value(loop_t).to_sym, cond, body)
+    end
+
+    def loop_mod(body, loop_t, cond)
+      s(value(loop_t).to_sym, cond, body)
     end
 
     def begin(compound_stmt,

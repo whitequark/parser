@@ -112,19 +112,21 @@ rule
                     }
                 | stmt kIF_MOD expr_value
                     {
-                      result = new_if val[2], val[0], nil
+                      result = @builder.condition_mod(val[0], nil,
+                                                      val[1], val[2])
                     }
                 | stmt kUNLESS_MOD expr_value
                     {
-                      result = new_if val[2], nil, val[0]
+                      result = @builder.condition_mod(nil, val[0],
+                                                      val[1], val[2])
                     }
                 | stmt kWHILE_MOD expr_value
                     {
-                      result = new_while val[0], val[2], true
+                      result = @builder.loop_mod(val[0], val[1], val[2])
                     }
                 | stmt kUNTIL_MOD expr_value
                     {
-                      result = new_until val[0], val[2], true
+                      result = @builder.loop_mod(val[0], val[1], val[2])
                     }
                 | stmt kRESCUE_MOD stmt
                     {
@@ -240,15 +242,18 @@ rule
                 | block_command
                 | kRETURN call_args
                     {
-                      result = @builder.keyword_cmd(:return, val[0], val[1])
+                      result = @builder.keyword_cmd(:return, val[0],
+                                  nil, val[1], nil)
                     }
                 | kBREAK call_args
                     {
-                      result = @builder.keyword_cmd(:break, val[0], val[1])
+                      result = @builder.keyword_cmd(:break, val[0],
+                                  nil, val[1], nil)
                     }
                 | kNEXT call_args
                     {
-                      result = @builder.keyword_cmd(:next, val[0], val[1])
+                      result = @builder.keyword_cmd(:next, val[0],
+                                  nil, val[1], nil)
                     }
 
    block_command: block_call
@@ -337,7 +342,7 @@ rule
                     }
                 | tLPAREN mlhs_entry tRPAREN
                     {
-                      result = @builder.paren(val[0], val[1], val[2])
+                      result = @builder.parenthesize(val[0], val[1], val[2])
                     }
 
       mlhs_entry: mlhs_basic
@@ -377,7 +382,7 @@ rule
        mlhs_item: mlhs_node
                 | tLPAREN mlhs_entry tRPAREN
                     {
-                      result = @builder.paren(val[0], val[1], val[2])
+                      result = @builder.parenthesize(val[0], val[1], val[2])
                     }
 
        mlhs_head: mlhs_item tCOMMA
@@ -723,7 +728,8 @@ rule
                     }
                 | arg tEH arg tCOLON arg
                     {
-                      result = s(:if, val[0], val[2], val[4])
+                      result = @builder.ternary(val[0], val[1],
+                                                val[2], val[3], val[4])
                     }
                 | primary
 
@@ -946,7 +952,7 @@ rule
                 | backref
                 | tFID
                     {
-                      result = new_call nil, val[0].to_sym
+                      result = @builder.call_method(nil, nil, val[0])
                     }
                 | kBEGIN bodystmt kEND
                     {
@@ -967,8 +973,7 @@ rule
                     }
                 | tLPAREN compstmt tRPAREN
                     {
-                      result = val[1]
-                      result.paren = true
+                      result = @builder.parenthesize(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
@@ -1030,11 +1035,15 @@ rule
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
-                      result = new_if val[1], val[3], val[4]
+                      result = @builder.condition(val[0], val[1], val[2],
+                                                  val[3], val[4],
+                                                  val[5])
                     }
                 | kUNLESS expr_value then compstmt opt_else kEND
                     {
-                      result = new_if val[1], val[4], val[3]
+                      result = @builder.condition(val[0], val[1], val[2],
+                                                  val[4], val[3],
+                                                  val[5])
                     }
                 | kWHILE
                     {
@@ -1046,7 +1055,8 @@ rule
                     }
                     compstmt kEND
                     {
-                      result = new_while val[5], val[2], true
+                      result = @builder.loop(val[0], val[2], val[3],
+                                             val[5], val[6])
                     }
                 | kUNTIL
                     {
@@ -1058,7 +1068,8 @@ rule
                     }
                     compstmt kEND
                     {
-                      result = new_until val[5], val[2], true
+                      result = @builder.loop(val[0], val[2], val[3],
+                                             val[5], val[6])
                     }
                 | kCASE expr_value opt_terms case_body kEND
                     {
@@ -1205,7 +1216,8 @@ rule
          if_tail: opt_else
                 | kELSIF expr_value then compstmt if_tail
                     {
-                      result = s(:if, val[1], val[3], val[4])
+                      result = @builder.condition(val[0], val[1], val[2],
+                                                  val[3], val[4], nil)
                     }
 
         opt_else: none
@@ -1466,8 +1478,8 @@ rule
                       result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
 
-           words: tWORDS_BEG tSPACE tSTRING_END # TODO: unused with Ragel lexer; remove?
-                    {
+           words: tWORDS_BEG tSPACE tSTRING_END
+                    { # TODO: unused with Ragel lexer; remove?
                       result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tWORDS_BEG word_list tSTRING_END
@@ -1485,13 +1497,13 @@ rule
                     }
 
             word: string_content
-                | word string_content # TODO: test this rule, remove if unused
-                    {
+                | word string_content
+                    { # TODO: test this rule, remove if unused
                       raise "unused 'word string_content'"
                     }
 
-          qwords: tQWORDS_BEG tSPACE tSTRING_END # TODO: unused with Ragel lexer; remove?
-                    {
+          qwords: tQWORDS_BEG tSPACE tSTRING_END
+                    { # TODO: unused with Ragel lexer; remove?
                       result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tQWORDS_BEG qword_list tSTRING_END

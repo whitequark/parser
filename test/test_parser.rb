@@ -1451,6 +1451,12 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~ expression})
 
     assert_parses(
+      s(:send, nil, :fun!),
+      %q{fun!},
+      %q{~~~~ selector
+        |~~~~ expression})
+
+    assert_parses(
       s(:send, nil, :fun, s(:int, 1)),
       %q{fun(1)},
       %q{~~~ selector
@@ -1814,27 +1820,113 @@ class TestParser < MiniTest::Unit::TestCase
   # Branching
 
   def test_if
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar), nil),
+      %q{if foo then bar; end},
+      %q{~~ keyword
+        |       ~~~~ begin
+        |                 ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar), nil),
+      %q{if foo; bar; end},
+      %q{~~ keyword
+        |             ~~~ end
+        |~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_if_mod
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar), nil),
+      %q{bar if foo},
+      %q{    ~~ keyword
+        |~~~~~~~~~~ expression})
   end
 
   def test_unless
+    assert_parses(
+      s(:if, s(:lvar, :foo), nil, s(:lvar, :bar)),
+      %q{unless foo then bar; end},
+      %q{~~~~~~ keyword
+        |           ~~~~ begin
+        |                     ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:if, s(:lvar, :foo), nil, s(:lvar, :bar)),
+      %q{unless foo; bar; end},
+      %q{~~~~~~ keyword
+        |                 ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_unless_mod
+    assert_parses(
+      s(:if, s(:lvar, :foo), nil, s(:lvar, :bar)),
+      %q{bar unless foo},
+      %q{    ~~~~~~ keyword
+        |~~~~~~~~~~~~~~ expression})
   end
 
   def test_if_else
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar), s(:lvar, :baz)),
+      %q{if foo then bar; else baz; end},
+      %q{~~ keyword
+        |       ~~~~ begin
+        |                 ~~~~ else
+        |                           ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar), s(:lvar, :baz)),
+      %q{if foo; bar; else baz; end},
+      %q{~~ keyword
+        |             ~~~~ else
+        |                       ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_unless_else
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :baz), s(:lvar, :bar)),
+      %q{unless foo then bar; else baz; end},
+      %q{~~~~~~ keyword
+        |           ~~~~ begin
+        |                     ~~~~ else
+        |                               ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :baz), s(:lvar, :bar)),
+      %q{unless foo; bar; else baz; end},
+      %q{~~~~~~ keyword
+        |                 ~~~~ else
+        |                           ~~~ end
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_if_elsif
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar),
+        s(:if, s(:lvar, :baz), s(:int, 1), s(:int, 2))),
+      %q{if foo; bar; elsif baz; 1; else 2; end},
+      %q{~~ keyword
+        |             ~~~~~ else
+        |             ~~~~~ keyword (if)
+        |                                   ~~~ end
+        |                                   ~~~ end (if)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_ternary
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:int, 1), s(:int, 2)),
+      %q{foo ? 1 : 2},
+      %q{    ^ question
+        |        ^ colon
+        |~~~~~~~~~~~ expression})
   end
 
   # Case matching
@@ -1854,15 +1946,51 @@ class TestParser < MiniTest::Unit::TestCase
   # Looping
 
   def test_while
+    # TODO: uncomment when lexer supports cond stack
+    # assert_parses(
+    #   s(:while, s(:lvar, :foo), s(:send, nil, :meth)),
+    #   %q{while foo do meth end},
+    #   %q{~~~~~ keyword
+    #     |          ~~ begin
+    #     |                  ~~~ end
+    #     |~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:while, s(:lvar, :foo), s(:send, nil, :meth)),
+      %q{while foo; meth end},
+      %q{~~~~~ keyword
+        |                ~~~ end
+        |~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_while_mod
+    assert_parses(
+      s(:while, s(:lvar, :foo), s(:send, nil, :meth)),
+      %q{meth while foo},
+      %q{     ~~~~~ keyword})
   end
 
   def test_until
+    # TODO: uncomment when lexer supports cond stack
+    # assert_parses(
+    #   s(:until, s(:lvar, :foo), s(:send, nil, :meth)),
+    #   %q{until foo do meth end},
+    #   %q{~~~~~ keyword
+    #     |          ~~ begin
+    #     |                  ~~~ end})
+
+    assert_parses(
+      s(:until, s(:lvar, :foo), s(:send, nil, :meth)),
+      %q{until foo; meth end},
+      %q{~~~~~ keyword
+        |                ~~~ end})
   end
 
   def test_until_mod
+    assert_parses(
+      s(:until, s(:lvar, :foo), s(:send, nil, :meth)),
+      %q{meth until foo},
+      %q{     ~~~~~ keyword})
   end
 
   def test_while_post
@@ -1874,20 +2002,125 @@ class TestParser < MiniTest::Unit::TestCase
   def test_for_in
   end
 
-  # Loop-specific control flow
+  # Control flow commands
 
   def test_break
+    assert_parses(
+      s(:break, s(:lvar, :foo)),
+      %q{break(foo)},
+      %q{~~~~~ keyword
+        |     ^ begin
+        |         ^ end
+        |~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:break, s(:lvar, :foo)),
+      %q{break(foo)},
+      %q{~~~~~ keyword
+        |~~~~~~~~~~ expression},
+      %w(1.8))
+
+    assert_parses(
+      s(:break, s(:lvar, :foo)),
+      %q{break foo},
+      %q{~~~~~ keyword
+        |~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:break),
+      %q{break()},
+      %q{~~~~~ keyword
+        |~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:break),
+      %q{break},
+      %q{~~~~~ keyword
+        |~~~~~ expression})
+  end
+
+  def test_return
+    assert_parses(
+      s(:return, s(:lvar, :foo)),
+      %q{return(foo)},
+      %q{~~~~~~ keyword
+        |      ^ begin
+        |          ^ end
+        |~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:return, s(:lvar, :foo)),
+      %q{return(foo)},
+      %q{~~~~~~ keyword
+        |~~~~~~~~~~~ expression},
+      %w(1.8))
+
+    assert_parses(
+      s(:return, s(:lvar, :foo)),
+      %q{return foo},
+      %q{~~~~~~ keyword
+        |~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:return),
+      %q{return()},
+      %q{~~~~~~ keyword
+        |~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:return),
+      %q{return},
+      %q{~~~~~~ keyword
+        |~~~~~~ expression})
   end
 
   def test_next
+    assert_parses(
+      s(:next, s(:lvar, :foo)),
+      %q{next(foo)},
+      %q{~~~~ keyword
+        |    ^ begin
+        |        ^ end
+        |~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:next, s(:lvar, :foo)),
+      %q{next(foo)},
+      %q{~~~~ keyword
+        |~~~~~~~~~ expression},
+      %w(1.8))
+
+    assert_parses(
+      s(:next, s(:lvar, :foo)),
+      %q{next foo},
+      %q{~~~~ keyword
+        |~~~~~~~~ expression})
+
+    assert_parses(
+      s(:next),
+      %q{next()},
+      %q{~~~~ keyword
+        |~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:next),
+      %q{next},
+      %q{~~~~ keyword
+        |~~~~ expression})
   end
 
   def test_redo
-  end
-
-  # Returning
-
-  def test_return
+    assert_parses(
+      s(:redo),
+      %q{redo},
+      %q{~~~~ keyword
+        |~~~~ expression})
   end
 
   # Exception handling
@@ -1908,6 +2141,11 @@ class TestParser < MiniTest::Unit::TestCase
   end
 
   def test_retry
+    assert_parses(
+      s(:retry),
+      %q{retry},
+      %q{~~~~~ keyword
+        |~~~~~ expression})
   end
 
   # BEGIN and END
