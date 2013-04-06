@@ -54,7 +54,7 @@ rule
                       else_,   t_else   = val[2]
                       ensure_, t_ensure = val[3]
 
-                      result = @builder.begin(val[0],
+                      result = @builder.begin_body(val[0],
                                   rescue_, t_rescue,
                                   else_,   t_else,
                                   ensure_, t_ensure)
@@ -955,11 +955,7 @@ rule
                     }
                 | kBEGIN bodystmt kEND
                     {
-                      unless val[1] then
-                        result = s(:nil)
-                      else
-                        result = s(:begin, val[1])
-                      end
+                      result = @builder.begin(val[0], val[1], val[2])
                     }
                 | tLPAREN_ARG expr
                     {

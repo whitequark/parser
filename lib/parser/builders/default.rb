@@ -487,7 +487,11 @@ module Parser
 
     # Exception handling
 
-    def begin(compound_stmt,
+    def begin(begin_t, body, end_t)
+      body
+    end
+
+    def begin_body(compound_stmt,
               rescue_, rescue_t,
               else_,   else_t,
               ensure_, ensure_t)

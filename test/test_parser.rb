@@ -2091,11 +2091,21 @@ class TestParser < MiniTest::Unit::TestCase
       %q{     ~~~~~ keyword})
   end
 
-  def test_while_post
-  end
+  # TODO implement this
+  # def test_while_post
+  #   assert_parses(
+  #     s(:while_post, s(:lvar, :foo), s(:send, nil, :meth)),
+  #     %q{begin meth end while foo},
+  #     %q{               ~~~~~ keyword})
+  # end
 
-  def test_until_post
-  end
+  # TODO implement this
+  # def test_until_post
+  #   assert_parses(
+  #     s(:until_post, s(:lvar, :foo), s(:send, nil, :meth)),
+  #     %q{begin meth end until foo},
+  #     %q{               ~~~~~ keyword})
+  # end
 
   def test_for
     assert_parses(
