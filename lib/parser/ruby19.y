@@ -45,9 +45,6 @@ preclow
 rule
 
          program:   top_compstmt
-                    {
-                      result = val[0]
-                    }
 
     top_compstmt: top_stmts opt_terms
                     {
@@ -395,9 +392,6 @@ rule
                     }
 
       mlhs_basic: mlhs_head
-                    {
-                      result = val[0]
-                    }
                 | mlhs_head mlhs_item
                     {
                       result = val[0] << val[1]
@@ -834,9 +828,6 @@ rule
 
        aref_args: none
                 | args trailer
-                    {
-                      result = val[0]
-                    }
                 | args tCOMMA assocs trailer
                     {
                       result = val[0] << s(:hash, *val[2].values)
@@ -859,21 +850,12 @@ rule
                       result = []
                     }
                 | call_args
-                    {
-                      result = val[0]
-                    }
                 | args tCOMMA
-                    {
-                      result = val[0]
-                    }
                 | args tCOMMA assocs tCOMMA
                     {
                       result = val[0] << @builder.associate(nil, val[2], nil)
                     }
                 | assocs tCOMMA
-                    {
-                      result = val[0]
-                    }
 
        call_args: command
                     {
@@ -1333,9 +1315,6 @@ rule
                                   concat(val[3])
                     }
                 | f_arg tCOMMA
-                    {
-                      result = val[0]
-                    }
                 | f_arg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = args val
@@ -1432,9 +1411,6 @@ rule
                       raise "not yet: #{val.inspect}" if val[2]
                     }
                 | f_args
-                    {
-                      result = val[0]
-                    }
 
      lambda_body: tLAMBEG compstmt tRCURLY
                     {
@@ -1735,9 +1711,9 @@ regexp_contents: none
 
 
           symbol: tSYMBEG sym # TODO: not used, delete.
-                  {
-                    result = nil
-                  }
+                    {
+                      result = nil
+                    }
                 | tSYMBOL
                     {
                       if val[0][0].empty?
@@ -1771,28 +1747,61 @@ regexp_contents: none
                       result = @builder.float(val[1], true)
                     }
 
-   user_variable: tIDENTIFIER { result = @builder.ident(val[0]) }
-                | tIVAR       { result = @builder.ivar(val[0]) }
-                | tGVAR       { result = @builder.gvar(val[0]) }
-                | tCONSTANT   { result = @builder.const(val[0]) }
-                | tCVAR       { result = @builder.cvar(val[0]) }
+   user_variable: tIDENTIFIER
+                    {
+                      result = @builder.ident(val[0])
+                    }
+                | tIVAR
+                    {
+                      result = @builder.ivar(val[0])
+                    }
+                | tGVAR
+                    {
+                      result = @builder.gvar(val[0])
+                    }
+                | tCONSTANT
+                    {
+                      result = @builder.const(val[0])
+                    }
+                | tCVAR
+                    {
+                      result = @builder.cvar(val[0])
+                    }
 
-keyword_variable: kNIL      { result = @builder.nil(val[0]) }
-                | kSELF     { result = @builder.self(val[0])  }
-                | kTRUE     { result = @builder.true(val[0])  }
-                | kFALSE    { result = @builder.false(val[0]) }
-                | k__FILE__ { result = @builder.__FILE__(val[0]) }
-                | k__LINE__ { result = @builder.__LINE__(val[0]) }
-                | k__ENCODING__ { result = 'todo' }
+keyword_variable: kNIL
+                    {
+                      result = @builder.nil(val[0])
+                    }
+                | kSELF
+                    {
+                      result = @builder.self(val[0])
+                    }
+                | kTRUE
+                    {
+                      result = @builder.true(val[0])
+                    }
+                | kFALSE
+                    {
+                      result = @builder.false(val[0])
+                    }
+                | k__FILE__
+                    {
+                      result = @builder.__FILE__(val[0])
+                    }
+                | k__LINE__
+                    {
+                      result = @builder.__LINE__(val[0])
+                    }
+                | k__ENCODING__
+                    {
+                      result = 'todo'
+                    }
 
          var_ref: user_variable
                     {
                       result = @builder.accessible(val[0])
                     }
                 | keyword_variable
-                    {
-                      result = val[0]
-                    }
 
          var_lhs: user_variable
                     {
@@ -1803,8 +1812,14 @@ keyword_variable: kNIL      { result = @builder.nil(val[0]) }
                       result = @builder.assignable(val[0])
                     }
 
-         backref: tNTH_REF  { result = @builder.nth_ref(val[0]) }
-                | tBACK_REF { result = @builder.back_ref(val[0]) }
+         backref: tNTH_REF
+                    {
+                      result = @builder.nth_ref(val[0])
+                    }
+                | tBACK_REF
+                    {
+                      result = @builder.back_ref(val[0])
+                    }
 
       superclass: term
                     {
@@ -2033,9 +2048,6 @@ keyword_variable: kNIL      { result = @builder.nil(val[0]) }
                       result = []
                     }
                 | assocs trailer # [!nil]
-                    {
-                      result = val[0]
-                    }
 
           assocs: assoc
                     {
