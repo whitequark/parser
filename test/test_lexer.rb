@@ -1977,11 +1977,24 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND,         "end")
   end
 
-  def test_sclass_joined
+  #
+  # Tests for bugs
+  #
+
+  def test_bug_sclass_joined
     util_lex_token("class<<self",
                    :kCLASS, "class",
                    :tLSHFT, "<<",
                    :kSELF,  "self")
+  end
+
+  def test_bug_expr_beg_div_eq
+    @lex.state = :expr_beg
+    util_lex_token("/=/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "=",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
   end
 
   def test_static_env

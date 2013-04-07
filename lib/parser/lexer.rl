@@ -1206,18 +1206,18 @@ class Parser::Lexer
 
       # a / 42
       # a % 42
-      # a %= 42 (disambiguation with %=string=)
-      [/%] c_space_nl | '%=' # /
+      [/%] c_space_nl # /
       => {
         fhold; fhold;
         fgoto expr_end;
       };
 
       # /regexp/oui
-      '/'
+      # /=/ (disambiguation with /=)
+      '/' c_any
       => {
-        type, delimiter = tok, tok
-        fgoto *push_literal(type, delimiter, @ts);
+        type = delimiter = tok[0].chr
+        fhold; fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %<string>
