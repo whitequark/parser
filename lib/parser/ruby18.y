@@ -185,7 +185,7 @@ rule
                                   val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN command_call
-                    { # TODO: unused with the ragel lexer, remove
+                    { # :nocov: TODO: unused with the ragel lexer, remove
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
@@ -417,7 +417,7 @@ rule
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    { # TODO: unused with Ragel lexer, remove?
+                    { # :nocov: TODO: unused with Ragel lexer, remove?
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
@@ -460,7 +460,7 @@ rule
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    { # TODO: Unused with Ragel lexer, remove?
+                    { # :nocov: TODO: Unused with Ragel lexer, remove?
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
@@ -578,7 +578,7 @@ rule
                                   val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN arg
-                    { # TODO: Unused with the Ragel lexer. Remove?
+                    { # :nocov: TODO: Unused with the Ragel lexer. Remove?
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
@@ -1503,7 +1503,7 @@ rule
                     }
 
            words: tWORDS_BEG tSPACE tSTRING_END
-                    { # TODO: unused with Ragel lexer; remove?
+                    { # :nocov: TODO: unused with Ragel lexer; remove?
                       result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tWORDS_BEG word_list tSTRING_END
@@ -1522,12 +1522,12 @@ rule
 
             word: string_content
                 | word string_content
-                    { # TODO: test this rule, remove if unused
+                    { # :nocov: TODO: test this rule, remove if unused
                       raise "unused 'word string_content'"
                     }
 
           qwords: tQWORDS_BEG tSPACE tSTRING_END
-                    { # TODO: unused with Ragel lexer; remove?
+                    { # :nocov: TODO: unused with Ragel lexer; remove?
                       result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tQWORDS_BEG qword_list tSTRING_END

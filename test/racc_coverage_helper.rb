@@ -38,7 +38,9 @@ module RaccCoverage
   # or lines with just comments, `end` keywords, and correctly handles
   # multi-line statements of the following form:
   #
-  #  * All lines of the statement except the last must end with `,` or `(`.
+  #  * All lines of the statement except the last must end with `,`, `.` or `(`.
+  #
+  # Coverage can be disabled for code regions with annotations :nocov: and :cov:.
   #
   # Also, for best results, all actions should be delimited by at least
   # one non-action line.
@@ -70,23 +72,32 @@ module RaccCoverage
       source.text.each_line.with_index do |line, index|
         line = line.strip
 
-        continues = line.end_with?(',') ||
-                        line.end_with?('(')
+        continues = line.end_with?(',')   ||
+                      line.end_with?('(') ||
+                      line.end_with?('.')
 
         case state
         when :first_line
-          next if line.empty?   ||
+          if line =~ /:nocov/
+            state = :nocov
+            next
+          elsif line.empty?   ||
                   line == 'end' ||
                   line.start_with?('#')
-
-          lines[first_line + index - 1] = 0
-
-          if continues
+            next
+          elsif continues
             state = :mid_line
           end
 
+          lines[first_line + index - 1] = 0
+
         when :mid_line
           unless continues
+            state = :first_line
+          end
+
+        when :nocov
+          if line =~ /:cov:/
             state = :first_line
           end
         end
