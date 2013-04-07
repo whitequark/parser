@@ -37,6 +37,10 @@ module Parser
       @builder = builder
       @builder.parser = self
 
+      if self.class::Racc_debug_parser && ENV['RACC_DEBUG']
+        @yydebug = true
+      end
+
       reset
     end
 

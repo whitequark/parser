@@ -56,6 +56,10 @@ module Parser
           raise ArgumentError, "Cannot join SourceRanges for different SourceFiles"
         end
       end
+
+      def inspect
+        "#<Source::Range #{@source_buffer.name} #{@begin}..#{@end}>"
+      end
     end
 
   end
