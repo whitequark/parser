@@ -212,7 +212,7 @@ module Parser
         node.updated(:lvasgn)
 
       when :nil, :self, :true, :false, :__FILE__, :__LINE__
-        message = ERRORS[:invalid_assignment] % { node: node.type }
+        message = ERRORS[:invalid_assignment] % { :node => node.type }
         diagnostic :error, message, node.loc
 
       when :back_ref, :nth_ref
@@ -326,7 +326,7 @@ module Parser
       t(token, :alias, to, from)
     end
 
-    def keyword_cmd(type, token, lparen_t=nil, args=nil, rparen_t=nil)
+    def keyword_cmd(type, token, lparen_t=nil, args=[], rparen_t=nil)
       case type
       when :return,
            :break, :next, :redo,
@@ -402,7 +402,7 @@ module Parser
     #
 
     def call_method(receiver, dot_t, selector_t,
-                    begin_t=nil, args=nil, end_t=nil)
+                    begin_t=nil, args=[], end_t=nil)
       s(:send, receiver, value(selector_t).to_sym, *args)
     end
 
@@ -467,7 +467,7 @@ module Parser
       if @parser.version == 18
         s(:not, receiver)
       else
-        s(:send, receiver, :!)
+        s(:send, receiver, :'!')
       end
     end
 

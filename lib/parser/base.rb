@@ -7,7 +7,7 @@ module Parser
       #parser.diagnostics.all_errors_are_fatal = true
 
       # Temporary, for manual testing convenience
-      parser.diagnostics.consumer = ->(diagnostic) do
+      parser.diagnostics.consumer = lambda do |diagnostic|
         $stderr.puts(diagnostic.render)
       end
 
@@ -106,7 +106,7 @@ module Parser
       _, location = error_value
 
       # TODO add "expected: ..." here
-      message = ERRORS[:unexpected_token] % { token: token_name }
+      message = ERRORS[:unexpected_token] % { :token => token_name }
       @diagnostics.process(
           Diagnostic.new(:error, message, location))
 

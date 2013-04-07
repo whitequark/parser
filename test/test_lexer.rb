@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-require_relative 'helper'
+require 'helper'
 
 class TestLexer < MiniTest::Unit::TestCase
   def setup_lexer(version)

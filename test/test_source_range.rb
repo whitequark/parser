@@ -1,4 +1,4 @@
-require_relative 'helper'
+require 'helper'
 
 class TestSourceRange < MiniTest::Unit::TestCase
   def setup

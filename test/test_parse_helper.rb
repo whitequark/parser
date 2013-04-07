@@ -1,5 +1,5 @@
-require_relative 'helper'
-require_relative 'parse_helper'
+require 'helper'
+require 'parse_helper'
 
 class TestParseHelper < MiniTest::Unit::TestCase
   include ParseHelper

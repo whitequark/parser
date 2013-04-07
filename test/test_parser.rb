@@ -1,5 +1,5 @@
-require_relative 'helper'
-require_relative 'parse_helper'
+require 'helper'
+require 'parse_helper'
 
 class TestParser < MiniTest::Unit::TestCase
   include ParseHelper
@@ -1805,7 +1805,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     assert_parses(
-      s(:send, s(:lvar, :foo), :!=, s(:int, 1)),
+      s(:send, s(:lvar, :foo), :'!=', s(:int, 1)),
       %q{foo != 1},
       %q{},
       ALL_VERSIONS - %w(1.8))
@@ -1825,7 +1825,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     assert_parses(
-      s(:send, s(:lvar, :foo), :!~, s(:int, 1)),
+      s(:send, s(:lvar, :foo), :'!~', s(:int, 1)),
       %q{foo !~ 1},
       %q{},
       ALL_VERSIONS - %w(1.8))
@@ -1863,7 +1863,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     assert_parses(
-      s(:send, s(:lvar, :foo), :!),
+      s(:send, s(:lvar, :foo), :'!'),
       %q{!foo},
       %{},
       ALL_VERSIONS - %w(1.8))
@@ -1877,7 +1877,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     assert_parses(
-      s(:send, s(:send, nil, :m, s(:lvar, :foo)), :!),
+      s(:send, s(:send, nil, :m, s(:lvar, :foo)), :'!'),
       %q{!m foo},
       %{},
       ALL_VERSIONS - %w(1.8))
@@ -1891,7 +1891,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     assert_parses(
-      s(:send, s(:lvar, :foo), :!),
+      s(:send, s(:lvar, :foo), :'!'),
       %q{not foo},
       %{},
       ALL_VERSIONS - %w(1.8))
@@ -1905,7 +1905,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     assert_parses(
-      s(:send, s(:send, nil, :m, s(:lvar, :foo)), :!),
+      s(:send, s(:send, nil, :m, s(:lvar, :foo)), :'!'),
       %q{not m foo},
       %{},
       ALL_VERSIONS - %w(1.8))
@@ -2999,14 +2999,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_unknown_percent_str
     assert_diagnoses(
-      [:error, :unexpected_percent_str, type: 'k'],
+      [:error, :unexpected_percent_str, { :type => 'k' }],
       %q{%k[foo]},
       %q{~~ location})
   end
 
   def test_on_error
     assert_diagnoses(
-      [:error, :unexpected_token, token: 'tIDENTIFIER'],
+      [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],
       %q{def foo(bar baz); end},
       %q{            ~~~ location})
   end

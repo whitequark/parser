@@ -1,4 +1,4 @@
-require_relative 'helper'
+require 'helper'
 
 class TestDiagnosticEngine < MiniTest::Unit::TestCase
   def setup
@@ -8,7 +8,7 @@ class TestDiagnosticEngine < MiniTest::Unit::TestCase
     @engine = Parser::Diagnostic::Engine.new
 
     @queue  = []
-    @engine.consumer = ->(diag) { @queue << diag }
+    @engine.consumer = lambda { |diag| @queue << diag }
   end
 
   def test_process_warnings

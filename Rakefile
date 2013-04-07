@@ -5,6 +5,7 @@ require 'rake/clean'
 task :default => [:generate, :test]
 
 Rake::TestTask.new do |t|
+  t.libs       = %w(test/ lib/)
   t.test_files = FileList["test/**/test_*.rb"]
 end
 

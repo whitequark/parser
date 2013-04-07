@@ -790,7 +790,7 @@ rule
                     }
                 | tLPAREN2 args tCOMMA block_call opt_nl tRPAREN
                     {
-                      result = [ val[0], [ *val[1], val[3] ], val[5] ]
+                      result = [ val[0], val[1] << val[3], val[5] ]
                     }
 
   opt_paren_args: none

@@ -846,7 +846,7 @@ class Parser::Lexer
       => {
         unknown_options = tok.scan(/[^imxouesn]/)
         if unknown_options.any?
-          message = Parser::ERRORS[:regexp_options] % { options: unknown_options.join }
+          message = Parser::ERRORS[:regexp_options] % { :options => unknown_options.join }
           diagnostic :error, message
         end
 
@@ -927,7 +927,7 @@ class Parser::Lexer
       class_var_v
       => {
         if tok =~ /^@@[0-9]/
-          message = Parser::ERRORS[:cvar_name] % { name: tok }
+          message = Parser::ERRORS[:cvar_name] % { :name => tok }
           diagnostic :error, message
         end
 
@@ -938,7 +938,7 @@ class Parser::Lexer
       instance_var_v
       => {
         if tok =~ /^@[0-9]/
-          message = Parser::ERRORS[:ivar_name] % { name: tok }
+          message = Parser::ERRORS[:ivar_name] % { :name => tok }
           diagnostic :error, message
         end
 
@@ -1085,7 +1085,7 @@ class Parser::Lexer
       # Ambiguous splat or block-pass.
       c_space+ [*&]
       => {
-        message = Parser::ERRORS[:ambiguous_prefix] % { prefix: tok(@te - 1, @te) }
+        message = Parser::ERRORS[:ambiguous_prefix] % { :prefix => tok(@te - 1, @te) }
         diagnostic :warning, message,
                    range(@te - 1, @te)
 
@@ -1290,7 +1290,7 @@ class Parser::Lexer
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
                    "\v" => '\v', "\f" => '\f' }[tok[@ts + 1]]
-        message = Parser::ERRORS[:invalid_escape_use] % { escape: escape }
+        message = Parser::ERRORS[:invalid_escape_use] % { :escape => escape }
         diagnostic :warning, message,
                    range(@ts, @ts + 1)
 
@@ -1663,7 +1663,7 @@ class Parser::Lexer
 
       c_any
       => {
-        message = Parser::ERRORS[:unexpected] % { character: tok.inspect }
+        message = Parser::ERRORS[:unexpected] % { :character => tok.inspect }
         diagnostic :fatal, message
       };
 
