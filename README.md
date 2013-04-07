@@ -4,7 +4,7 @@
 [![Code Climate](https://codeclimate.com/github/whitequark/parser.png)](https://codeclimate.com/github/whitequark/parser)
 [![Coverage Status](https://coveralls.io/repos/whitequark/parser/badge.png?branch=master)](https://coveralls.io/r/whitequark/parser)
 
-Parser is a Ruby parser written in pure Ruby.
+_Parser_ is a Ruby parser written in pure Ruby.
 
 ## Installation
 
@@ -12,20 +12,49 @@ Parser is a Ruby parser written in pure Ruby.
 
 ## Usage
 
-TODO: Write usage instructions here
+Parse a chunk of code:
+```
+require 'parser/ruby18'
+
+p Parser::Ruby18.parse("2 + 2")
+# (send
+#   (int 2) :+
+#   (int 2))
+```
+
+Parse a chunk of code and display all diagnostics:
+```
+parser = Parser::Ruby18.new
+parser.diagnostics.consumer = lambda do |diag|
+  puts diag.render
+end
+
+buffer = Parser::Source::Buffer.new('(string)')
+buffer.source = "foo *bar"
+
+p parser.parse(buffer)
+# (string):1:5: warning: `*' interpreted as argument prefix
+# foo *bar
+#     ^
+# (send nil :foo
+#   (splat
+#     (send nil :bar)))
+
+```
 
 ## Features
 
  * Precise source location reporting.
  * [Documented](AST_FORMAT.md) AST format which is convenient to work with.
- * A simple interface (`Parser::Ruby19.parse("just parse this")`) and a powerful, tweakable one.
- * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, no, not really yet).
+ * A simple interface and a powerful, tweakable one.
+ * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, only 1.8 yet).
  * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI >=1.9.2, JRuby and Rubinius in 1.9 mode.
  * Single runtime dependency: the [ast][] gem.
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
+ * 100% test coverage for Bison grammars (except error recovery).
  * Readable commented source code.
 
   [clang-like]: clang.llvm.org/diagnostics.html
