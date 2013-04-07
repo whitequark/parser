@@ -1388,11 +1388,15 @@ class Parser::Lexer
         end
       };
 
-      c_space_nl+;
+      c_space_nl;
 
       '#' c_line* c_eol
       => { @comments << tok
            fhold; };
+
+      c_nl '=begin' ( c_space | c_eol )
+      => { p = @ts - 1
+           fgoto line_begin; };
 
       # The following rules match most binary and all unary operators.
       # Rules for binary operators provide better error reporting.
@@ -1515,7 +1519,8 @@ class Parser::Lexer
                ( digit+ '_' )* digit* '_'?
       | '0' [Bb]  %{ @num_base = 2;  @num_digits_s = p }
                ( [01]+ '_' )* [01]* '_'?
-      | [1-9]     %{ @num_base = 10; @num_digits_s = @ts }
+      | [1-9] digit*
+                  %{ @num_base = 10; @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?
       | '0'       %{ @num_base = 8;  @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?

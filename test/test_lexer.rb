@@ -2030,6 +2030,19 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING, "=")
   end
 
+  def test_bug_expr_beg_document
+    @lex.state = :expr_beg
+    util_lex_token(" \n=begin\n=end\nend",
+                   :kEND,        "end")
+
+  end
+
+  def test_bug_expr_beg_number
+    @lex.state = :expr_beg
+    util_lex_token("86400_000_000",
+                   :tINTEGER,    86400000000)
+  end
+
   def test_bug_expr_arg_percent
     @lex.state = :expr_arg
     util_lex_token("%[",
