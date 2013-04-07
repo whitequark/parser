@@ -13,7 +13,7 @@ _Parser_ is a Ruby parser written in pure Ruby.
 ## Usage
 
 Parse a chunk of code:
-```
+``` ruby
 require 'parser/ruby18'
 
 p Parser::Ruby18.parse("2 + 2")
@@ -23,7 +23,7 @@ p Parser::Ruby18.parse("2 + 2")
 ```
 
 Parse a chunk of code and display all diagnostics:
-```
+``` ruby
 parser = Parser::Ruby18.new
 parser.diagnostics.consumer = lambda do |diag|
   puts diag.render
