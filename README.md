@@ -20,6 +20,7 @@ TODO: Write usage instructions here
  * [Documented](AST_FORMAT.md) AST format which is convenient to work with.
  * A simple interface (`Parser::Ruby19.parse("just parse this")`) and a powerful, tweakable one.
  * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, no, not really yet).
+ * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI >=1.9.2, JRuby and Rubinius in 1.9 mode.
  * Single runtime dependency: the [ast][] gem.
