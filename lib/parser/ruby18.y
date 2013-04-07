@@ -263,11 +263,15 @@ rule
    block_command: block_call
                 | block_call tDOT operation2 command_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | block_call tCOLON2 operation2 command_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
 
  cmd_brace_block: tLBRACE_ARG
@@ -1346,27 +1350,28 @@ rule
                     }
                     opt_block_var compstmt kEND
                     {
-                      vars   = val[2]
-                      body   = val[3]
-                      result = new_iter nil, vars, body
+                      result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
                     }
 
       block_call: command do_block
                     {
-                      block_dup_check val[0], val[1]
-
-                      result = val[1]
-                      result.insert 1, val[0]
+                      begin_t, block_args, body, end_t = val[1]
+                      result      = @builder.block(val[0],
+                                      begin_t, block_args, body, end_t)
                     }
                 | block_call tDOT operation2 opt_paren_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | block_call tCOLON2 operation2 opt_paren_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
 
      method_call: operation paren_args

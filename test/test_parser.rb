@@ -1525,6 +1525,52 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~ expression})
   end
 
+  def test_send_block_chain_cmd
+    assert_parses(
+      s(:send,
+        s(:block,
+          s(:send, nil, :meth, s(:int, 1)),
+          s(:args), s(:nil)),
+        :fun, s(:lvar, :bar)),
+      %q{meth 1 do end.fun bar},
+      %q{              ~~~ selector
+        |~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:send,
+        s(:block,
+          s(:send, nil, :meth, s(:int, 1)),
+          s(:args), s(:nil)),
+        :fun, s(:lvar, :bar)),
+      %q{meth 1 do end.fun(bar)},
+      %q{              ~~~ selector
+        |                 ^ begin
+        |                     ^ end
+        |~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:send,
+        s(:block,
+          s(:send, nil, :meth, s(:int, 1)),
+          s(:args), s(:nil)),
+        :fun, s(:lvar, :bar)),
+      %q{meth 1 do end::fun bar},
+      %q{               ~~~ selector
+        |~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:send,
+        s(:block,
+          s(:send, nil, :meth, s(:int, 1)),
+          s(:args), s(:nil)),
+        :fun, s(:lvar, :bar)),
+      %q{meth 1 do end::fun(bar)},
+      %q{               ~~~ selector
+        |                  ^ begin
+        |                      ^ end
+        |~~~~~~~~~~~~~~~~~~~~~~~ expression})
+  end
+
   def test_send_binary_op
     assert_parses(
       s(:send, s(:lvar, :foo), :+, s(:int, 1)),
