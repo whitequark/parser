@@ -299,7 +299,8 @@ rule
                     }
                 | primary_value tDOT operation2 command_args =tLOWEST
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  nil, val[3], nil)
                     }
                 | primary_value tDOT operation2 command_args cmd_brace_block
                     {
@@ -315,7 +316,8 @@ rule
                     }
                 | primary_value tCOLON2 operation2 command_args =tLOWEST
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  nil, val[3], nil)
                     }
                 | primary_value tCOLON2 operation2 command_args cmd_brace_block
                     {

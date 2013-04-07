@@ -1476,11 +1476,35 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_parses(
       s(:send, s(:lvar, :foo), :fun),
-      %q{foo::fun})
+      %q{foo::fun},
+      %q{     ~~~ selector
+        |~~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :Fun),
-      %q{foo::Fun()})
+      %q{foo::Fun()},
+      %q{     ~~~ selector
+        |~~~~~~~~~~ expression})
+  end
+
+  def test_send_plain_cmd
+    assert_parses(
+      s(:send, s(:lvar, :foo), :fun, s(:lvar, :bar)),
+      %q{foo.fun bar},
+      %q{    ~~~ selector
+        |~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :fun, s(:lvar, :bar)),
+      %q{foo::fun bar},
+      %q{     ~~~ selector
+        |~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :Fun, s(:lvar, :bar)),
+      %q{foo::Fun bar},
+      %q{     ~~~ selector
+        |~~~~~~~~~~~~ expression})
   end
 
   def test_send_binary_op
