@@ -345,8 +345,13 @@ module Parser
     # Formal arguments
     #
 
-    def args(args, optargs, restarg, blockarg)
-      s(:args, *(args + optargs + restarg + blockarg))
+    def arglist(begin_t, args, end_t)
+      args = s(:args) if args.nil?
+      args
+    end
+
+    def args(normargs, optargs, restarg, blockarg)
+      s(:args, *(normargs + optargs + restarg + blockarg))
     end
 
     def arg(token)
@@ -376,6 +381,10 @@ module Parser
     def call_method(receiver, dot_t, selector_t,
                     begin_t=nil, args=nil, end_t=nil)
       s(:send, receiver, value(selector_t).to_sym, *args)
+    end
+
+    def block(method_call, begin_t, args, body, end_t)
+      s(:block, method_call, args, body)
     end
 
     def attr_asgn(receiver, dot_t, selector_t,

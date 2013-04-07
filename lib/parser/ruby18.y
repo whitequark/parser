@@ -1025,20 +1025,18 @@ rule
                     }
                 | operation brace_block
                     {
-                      oper, iter = val[0], val[1]
-                      call = new_call(nil, oper.to_sym)
-                      iter.insert 1, call
-                      result = iter
-                      call.line = iter.line
+                      method_call = @builder.call_method(nil, nil, val[0])
+
+                      begin_t, args, body, end_t = val[1]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
                     }
                 | method_call
                 | method_call brace_block
                     {
-                      call, iter = val[0], val[1]
-                      block_dup_check call, iter
-
-                      iter.insert 1, call
-                      result = iter
+                      begin_t, args, body, end_t = val[1]
+                      result      = @builder.block(val[0],
+                                      begin_t, args, body, end_t)
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
@@ -1304,17 +1302,20 @@ rule
                 ;
 
    opt_block_var: none
+                    {
+                      result = @builder.arglist(nil, nil, nil)
+                    }
                 | tPIPE tPIPE
                     {
-                      result = 0
+                      result = @builder.arglist(val[0], nil, val[1])
                     }
                 | tOROP
                     {
-                      result = 0
+                      result = @builder.arglist(val[0], nil, val[0])
                     }
                 | tPIPE block_var tPIPE
                     {
-                      result = val[1]
+                      result = @builder.arglist(val[0], val[1], val[2])
                     }
 
         do_block: kDO_BLOCK
@@ -1385,7 +1386,7 @@ rule
                     }
                     opt_block_var compstmt tRCURLY
                     {
-                      result = new_iter nil, val[2], val[3]
+                      result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
                     }
@@ -1395,7 +1396,7 @@ rule
                     }
                     opt_block_var compstmt kEND
                     {
-                      result = new_iter nil, val[2], val[3]
+                      result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
                     }
@@ -1705,7 +1706,8 @@ xstring_contents: # nothing # TODO: replace with string_contents?
 
        f_arglist: tLPAREN2 f_args opt_nl tRPAREN
                     {
-                      result = val[1]
+                      result = @builder.arglist(val[0], val[1], val[3])
+
                       @lexer.state = :expr_beg
                     }
                 | f_args term

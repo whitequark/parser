@@ -1465,6 +1465,24 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~ expression})
   end
 
+  def test_send_plain_block
+    assert_parses(
+      s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
+      %q{fun { }})
+
+    assert_parses(
+      s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
+      %q{fun() { }})
+
+    assert_parses(
+      s(:block, s(:send, nil, :fun, s(:int, 1)), s(:args), s(:nil)),
+      %q{fun(1) { }})
+
+    assert_parses(
+      s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
+      %q{fun do end})
+  end
+
   # To receiver
 
   def test_send_plain
@@ -1802,16 +1820,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{yield},
       %q{~~~~~ keyword
         |~~~~~ expression})
-  end
-
-  # Send with a block
-
-  def test_block
-  end
-
-  # Passing a block
-
-  def test_block_pass
   end
 
   #
