@@ -50,7 +50,7 @@ p parser.parse(buffer)
  * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, only 1.8 yet).
  * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
- * Written in pure Ruby, runs on MRI >=1.9.2, JRuby and Rubinius in 1.9 mode.
+ * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8 and 1.9 mode.
  * Single runtime dependency: the [ast][] gem.
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
