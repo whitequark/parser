@@ -71,7 +71,7 @@ rule
 
                       @static_env.extend_static
                     }
-                    tLCURLY compstmt tRCURLY
+                    tLCURLY top_compstmt tRCURLY
                     {
                       @static_env.unextend
 
