@@ -1483,18 +1483,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{fun do end})
   end
 
-  def test_send_cmd_space_grouped_expr
-    assert_parses(
-      s(:send, nil, :fun,
-        s(:send, s(:int, 1), :to_i)),
-      %q{fun (1).to_i})
-
-    assert_diagnoses(
-      [:warning, :grouped_expression],
-      %q{fun (1).to_i},
-      %q{    ~~~ location})
-  end
-
   # To receiver
 
   def test_send_plain
@@ -1832,6 +1820,42 @@ class TestParser < MiniTest::Unit::TestCase
       %q{yield},
       %q{~~~~~ keyword
         |~~~~~ expression})
+  end
+
+  # Corner cases with spaces
+
+  def test_send_cmd_space_grouped_expr
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:send, s(:int, 1), :to_i)),
+      %q{fun (1).to_i})
+
+    assert_diagnoses(
+      [:warning, :grouped_expression],
+      %q{fun (1).to_i},
+      %q{    ~~~ location})
+  end
+
+  def test_send_cmd_space_arg_two
+    assert_parses(
+      s(:send, nil, :fun, s(:int, 1), s(:int, 2)),
+      %q{fun (1, 2)})
+
+    assert_diagnoses(
+      [:warning, :space_before_lparen],
+      %q{fun (1, 2)},
+      %q{    ^ location})
+  end
+
+  def test_send_cmd_space_arg_empty
+    assert_parses(
+      s(:send, nil, :fun),
+      %q{fun ()})
+
+    assert_diagnoses(
+      [:warning, :space_before_lparen],
+      %q{fun ()},
+      %q{    ^ location})
   end
 
   #

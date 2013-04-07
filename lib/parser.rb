@@ -45,7 +45,7 @@ module Parser
     regexp_options:          "unknown regexp options: %{options}",
     cvar_name:               "`%{name}' is not allowed as a class variable name",
     ivar_name:               "`%{name}' is not allowed as an instance variable name",
-    ambiguous_literal:       "ambiguous first argument; put parentheses or even spaces",
+    ambiguous_literal:       "ambiguous first argument; parenthesize arguments or add whitespace to the right",
     ambiguous_prefix:        "`%{prefix}' interpreted as argument prefix",
     trailing_underscore:     "trailing `_' in number",
     empty_numeric:           "numeric literal without digits",
@@ -73,7 +73,8 @@ module Parser
     dynamic_const:           "dynamic constant assignment",
     module_in_def:           "module definition in method body",
     class_in_def:            "class definition in method body",
-    grouped_expression:       "(...) interpreted as grouped expression",
+    grouped_expression:      "(...) interpreted as grouped expression",
+    space_before_lparen:     "don't put space before argument parentheses",
   }
 
   ERRORS.default_proc = ->(hash, key) do

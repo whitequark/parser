@@ -836,8 +836,7 @@ rule
 
       call_args2: arg_value tCOMMA args opt_block_arg
                     {
-                      args = list_prepend val[0], val[2]
-                      result = arg_blk_pass args, val[3]
+                      result = [ val[0], *val[2], *val[3] ]
                     }
                 | arg_value tCOMMA block_arg
                     {
@@ -907,8 +906,9 @@ rule
                     }
                     tRPAREN
                     {
-                      warning "don't put space before argument parentheses"
-                      result = nil
+                      diagnostic(:warning, :space_before_lparen, val[0])
+
+                      result = []
                     }
                 | tLPAREN_ARG call_args2
                     {
@@ -916,7 +916,8 @@ rule
                     }
                     tRPAREN
                     {
-                      warning "don't put space before argument parentheses"
+                      diagnostic(:warning, :space_before_lparen, val[0])
+
                       result = val[1]
                     }
 
