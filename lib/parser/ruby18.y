@@ -786,11 +786,11 @@ rule
                     }
                 | tLPAREN2 block_call opt_nl tRPAREN
                     {
-                      result = s(:array, val[1])
+                      result = [ val[0], [ val[1] ], val[3] ]
                     }
                 | tLPAREN2 args tCOMMA block_call opt_nl tRPAREN
                     {
-                      result = val[1].add val[3]
+                      result = [ val[0], [ *val[1], val[3] ], val[5] ]
                     }
 
   opt_paren_args: none

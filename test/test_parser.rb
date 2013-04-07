@@ -1571,6 +1571,23 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
+  def test_send_paren_block_cmd
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:block,
+          s(:send, nil, :meth, s(:int, 1)),
+          s(:args), s(:nil))),
+      %q{foo(meth 1 do end)})
+
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:int, 1),
+        s(:block,
+          s(:send, nil, :meth, s(:int, 1)),
+          s(:args), s(:nil))),
+      %q{foo(1, meth 1 do end)})
+  end
+
   def test_send_binary_op
     assert_parses(
       s(:send, s(:lvar, :foo), :+, s(:int, 1)),
