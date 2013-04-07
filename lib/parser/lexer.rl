@@ -841,6 +841,7 @@ class Parser::Lexer
   *|;
 
   plain_string := |*
+      '\\' c_nl   => extend_string_eol;
       e_bs c_any  => extend_string_escaped;
       c_eol       => extend_string_eol;
       c_any       => extend_string;

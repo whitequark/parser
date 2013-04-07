@@ -1875,7 +1875,10 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_single_nl
     util_lex_token("'blah\\\nblah'",
-                   :tSTRING, "blah\\\nblah")
+                   :tSTRING_BEG,     "'",
+                   :tSTRING_CONTENT, "blah\\\n",
+                   :tSTRING_CONTENT, "blah",
+                   :tSTRING_END,     "'")
   end
 
   def test_symbol
@@ -2135,6 +2138,14 @@ class TestLexer < MiniTest::Unit::TestCase
     util_lex_token("#foo\nfoo",
                    :tNL,          nil,
                    :tIDENTIFIER,  "foo")
+  end
+
+  def test_bug_heredoc_backspace_nl
+    util_lex_token(" <<'XXX'\nf \\\nXXX\n",
+                   :tSTRING_BEG,     "'",
+                   :tSTRING_CONTENT, "f \\\n",
+                   :tSTRING_END,     "XXX",
+                   :tNL,             nil)
   end
 
   def test_bug_ragel_stack
