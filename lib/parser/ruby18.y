@@ -843,7 +843,7 @@ rule
 
       call_args2: arg_value tCOMMA args opt_block_arg
                     {
-                      result = [ val[0], *val[2], *val[3] ]
+                      result = [ val[0], *val[2].concat(val[3]) ]
                     }
                 | arg_value tCOMMA block_arg
                     {
@@ -857,9 +857,10 @@ rule
                     }
                 | arg_value tCOMMA args tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result =  [ val[0], *val[2],
-                                  @builder.splat(val[4], val[5]),
-                                  *val[6] ]
+                      result =  [ val[0],
+                                  *val[2].
+                                    push(@builder.splat(val[4], val[5])).
+                                    concat(val[6]) ]
                     }
                 | assocs opt_block_arg
                     {
@@ -880,9 +881,10 @@ rule
                     }
                 | arg_value tCOMMA args tCOMMA assocs opt_block_arg
                     {
-                      result =  [ val[0], *val[2],
-                                  @builder.associate(nil, val[4], nil),
-                                  *val[5] ]
+                      result =  [ val[0],
+                                  *val[2].
+                                    push(@builder.associate(nil, val[4], nil)).
+                                    concat(val[5]) ]
                     }
                 | arg_value tCOMMA assocs tCOMMA tSTAR arg_value opt_block_arg
                     {
@@ -893,10 +895,11 @@ rule
                     }
                 | arg_value tCOMMA args tCOMMA assocs tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result =  [ val[0], *val[2],
-                                  @builder.associate(nil, val[4], nil),
-                                  @builder.splat(val[6], val[7]),
-                                  *val[8] ]
+                      result =  [ val[0],
+                                  *val[2].
+                                    push(@builder.associate(nil, val[4], nil)).
+                                    push(@builder.splat(val[6], val[7])).
+                                    concat(val[8]) ]
                     }
                 | tSTAR arg_value opt_block_arg
                     {
@@ -1284,30 +1287,30 @@ rule
                 | block_par tCOMMA
                 | block_par tCOMMA tAMPER lhs
                     {
-                      result =  [ *val[0],
-                                  @builder.blockarg_expr(val[2], val[3]) ]
+                      result =  val[0].
+                                  push(@builder.blockarg_expr(val[2], val[3]))
                     }
                 | block_par tCOMMA tSTAR lhs tCOMMA tAMPER lhs
                     {
-                      result =  [ *val[0],
-                                  @builder.splatarg_expr(val[2], val[3]),
-                                  @builder.blockarg_expr(val[5], val[6]) ]
+                      result =  val[0].
+                                  push(@builder.splatarg_expr(val[2], val[3])).
+                                  push(@builder.blockarg_expr(val[5], val[6]))
                     }
                 | block_par tCOMMA tSTAR tCOMMA tAMPER lhs
                     {
-                      result =  [ *val[0],
-                                  @builder.splatarg_expr(val[2]),
-                                  @builder.blockarg_expr(val[4], val[5]) ]
+                      result =  val[0].
+                                  push(@builder.splatarg_expr(val[2])).
+                                  push(@builder.blockarg_expr(val[4], val[5]))
                     }
                 | block_par tCOMMA tSTAR lhs
                     {
-                      result =  [ *val[0],
-                                  @builder.splatarg_expr(val[2], val[3]) ]
+                      result =  val[0].
+                                  push(@builder.splatarg_expr(val[2], val[3]))
                     }
                 | block_par tCOMMA tSTAR
                     {
-                      result =  [ *val[0],
-                                  @builder.splatarg_expr(val[2]) ]
+                      result =  val[0].
+                                  push(@builder.splatarg_expr(val[2]))
                     }
                 | tSTAR lhs tCOMMA tAMPER lhs
                     {
@@ -1750,31 +1753,43 @@ xstring_contents: # nothing # TODO: replace with string_contents?
 
           f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = [ *val[0], *val[2], *val[4], *val[5] ]
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg tCOMMA f_optarg                   opt_f_block_arg
                     {
-                      result = [ *val[0], *val[2], *val[3] ]
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_arg tCOMMA                 f_rest_arg opt_f_block_arg
                     {
-                      result = [ *val[0], *val[2], *val[3] ]
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_arg                                   opt_f_block_arg
                     {
-                      result = [ *val[0], *val[1] ]
+                      result = val[0].
+                                  concat(val[1])
                     }
                 |              f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = [ *val[0], *val[2], *val[3] ]
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 |              f_optarg                   opt_f_block_arg
                     {
-                      result = [ *val[0], *val[1] ]
+                      result = val[0].
+                                  concat(val[1])
                     }
                 |                              f_rest_arg opt_f_block_arg
                     {
-                      result = [ *val[0], *val[1] ]
+                      result = val[0].
+                                  concat(val[1])
                     }
                 |                                             f_block_arg
                     {

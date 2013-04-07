@@ -74,7 +74,7 @@ module Parser
     end
 
     def regexp_compose(begin_t, parts, end_t, options)
-      s(:regexp, *parts, options)
+      s(:regexp, *(parts << options))
     end
 
     # Arrays
@@ -436,7 +436,7 @@ module Parser
         # Incomplete index_asgn, used in e.g. masgn.
         s(:send, receiver, :[]=, *indexes)
       else
-        s(:send, receiver, :[]=, *indexes, value)
+        s(:send, receiver, :[]=, *(indexes << value))
       end
     end
 
@@ -499,7 +499,7 @@ module Parser
     # Case matching
 
     def when(when_t, patterns, then_t, body)
-      s(:when, *patterns, body)
+      s(:when, *(patterns << body))
     end
 
     def case(case_t, expr, body, end_t)
@@ -539,10 +539,10 @@ module Parser
       if rescue_bodies.any?
         if else_t
           compound_stmt = s(:rescue, compound_stmt,
-                            *rescue_bodies, else_)
+                            *(rescue_bodies << else_))
         else
           compound_stmt = s(:rescue, compound_stmt,
-                            *rescue_bodies, nil)
+                            *(rescue_bodies << nil))
         end
       end
 
@@ -577,7 +577,7 @@ module Parser
     protected
 
     def t(token, type, *args)
-      s(type, *args, source_map: Source::Map.new(location(token)))
+      s(type, *(args << { :source_map => Source::Map.new(location(token)) }))
     end
 
     def value(token)
