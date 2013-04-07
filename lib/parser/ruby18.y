@@ -904,6 +904,9 @@ rule
                                   *val[2] ]
                     }
                 | block_arg
+                    {
+                      result =  [ val[0] ]
+                    }
 
     command_args:   {
                       result = @lexer.cmdarg.dup
@@ -928,7 +931,7 @@ rule
                     {
                       diagnostic(:warning, :space_before_lparen, val[0])
 
-                      result = [ val[0], nil, val[1] ]
+                      result = [ val[0], [], val[2] ]
                     }
                 | tLPAREN_ARG call_args2
                     {
@@ -938,7 +941,7 @@ rule
                     {
                       diagnostic(:warning, :space_before_lparen, val[0])
 
-                      result = [ val[0], val[1], val[2] ]
+                      result = [ val[0], val[1], val[3] ]
                     }
 
        block_arg: tAMPER arg_value
@@ -1038,7 +1041,7 @@ rule
                     }
                 | kYIELD tLPAREN2 tRPAREN
                     {
-                      result = @builder.keyword_cmd(:yield, val[0], val[1], nil, val[2])
+                      result = @builder.keyword_cmd(:yield, val[0], val[1], [], val[2])
                     }
                 | kYIELD
                     {
@@ -1332,15 +1335,15 @@ rule
 
    opt_block_var: none
                     {
-                      result = @builder.args(nil, nil, nil)
+                      result = @builder.args(nil, [], nil)
                     }
                 | tPIPE tPIPE
                     {
-                      result = @builder.args(val[0], nil, val[1])
+                      result = @builder.args(val[0], [], val[1])
                     }
                 | tOROP
                     {
-                      result = @builder.args(val[0], nil, val[0])
+                      result = @builder.args(val[0], [], val[0])
                     }
                 | tPIPE block_var tPIPE
                     {
