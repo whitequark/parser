@@ -645,7 +645,7 @@ class Parser::Lexer
     # After every heredoc was parsed, @herebody_s contains the
     # position of next token after all heredocs.
     if @herebody_s
-      p = @herebody_s
+      p = @herebody_s - 1
       @herebody_s = nil
     end
   };
@@ -1071,6 +1071,15 @@ class Parser::Lexer
       c_space+ '?'
       => { fhold; fgoto expr_beg; };
 
+               # a %{1}, a %[1] (but not "a %=1=" or "a % foo")
+      c_space+ ( '%' [^= ]
+               # a /foo/ (but not "a / foo" or "a /=foo")
+               | '/' ( c_any - c_space_nl - '=' )
+               # a <<HEREDOC
+               | '<<'
+               )
+      => { fhold; fhold; fgoto expr_beg; };
+
       # x +1
       # Ambiguous unary operator or regexp literal.
       c_space+ [+\-/]
@@ -1113,7 +1122,7 @@ class Parser::Lexer
         fgoto expr_end;
       };
 
-      c_space* c_nl
+      c_space* ( '#' c_line* )? c_nl
       => { fhold; fgoto expr_end; };
 
       c_any
@@ -1204,14 +1213,6 @@ class Parser::Lexer
       # STRING AND REGEXP LITERALS
       #
 
-      # a / 42
-      # a % 42
-      [/%] c_space_nl # /
-      => {
-        fhold; fhold;
-        fgoto expr_end;
-      };
-
       # /regexp/oui
       # /=/ (disambiguation with /=)
       '/' c_any
@@ -1283,7 +1284,7 @@ class Parser::Lexer
           emit(:tSTRING, value)
         end
 
-        fbreak;
+        fnext expr_end; fbreak;
       };
 
       '?' c_space_nl

@@ -1977,26 +1977,6 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND,         "end")
   end
 
-  #
-  # Tests for bugs
-  #
-
-  def test_bug_sclass_joined
-    util_lex_token("class<<self",
-                   :kCLASS, "class",
-                   :tLSHFT, "<<",
-                   :kSELF,  "self")
-  end
-
-  def test_bug_expr_beg_div_eq
-    @lex.state = :expr_beg
-    util_lex_token("/=/",
-                   :tREGEXP_BEG,     "/",
-                   :tSTRING_CONTENT, "=",
-                   :tSTRING_END,     "/",
-                   :tREGEXP_OPT,     "")
-  end
-
   def test_static_env
     env = Parser::StaticEnvironment.new
     env.declare "a"
@@ -2009,4 +1989,139 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tINTEGER,    42,
                    :tRBRACK,     "]")
   end
+
+  #
+  # Tests for bugs.
+  #
+  # These tests should be moved from nursery and properly
+  # categorized when it's clear how to do that.
+  #
+
+  def test_bug_sclass_joined
+    util_lex_token("class<<self",
+                   :kCLASS, "class",
+                   :tLSHFT, "<<",
+                   :kSELF,  "self")
+  end
+
+  def test_bug_expr_beg_div
+    @lex.state = :expr_beg
+    util_lex_token("/=/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "=",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+
+    @lex.state = :expr_beg
+    util_lex_token("/ = /",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, " = ",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+  end
+
+  def test_bug_expr_beg_percent
+    @lex.state = :expr_beg
+    util_lex_token("%=foo=",
+                   :tSTRING, "foo")
+
+    @lex.state = :expr_beg
+    util_lex_token("% = ",
+                   :tSTRING, "=")
+  end
+
+  def test_bug_expr_arg_percent
+    @lex.state = :expr_arg
+    util_lex_token("%[",
+                   :tPERCENT, "%",
+                   :tLBRACK,  "[")
+
+    @lex.state = :expr_arg
+    util_lex_token("%=1",
+                   :tOP_ASGN,    "%",
+                   :tINTEGER,    1)
+
+    @lex.state = :expr_arg
+    util_lex_token(" %[1]",
+                   :tSTRING,     "1")
+
+    @lex.state = :expr_arg
+    util_lex_token(" %=1=",
+                   :tOP_ASGN,    "%",
+                   :tINTEGER,    1,
+                   :tEQL,        "=")
+  end
+
+  def test_bug_expr_arg_lt_lt
+    @lex.state = :expr_arg
+    util_lex_token("<<EOS\nEOS",
+                   :tLSHFT,      "<<",
+                   :tCONSTANT,   "EOS",
+                   :tNL,         nil,
+                   :tCONSTANT,   "EOS")
+
+    @lex.state = :expr_arg
+    util_lex_token(" <<EOS\nEOS",
+                   :tSTRING_BEG,     "\"",
+                   :tSTRING_END,     "EOS",
+                   :tNL,             nil)
+  end
+
+  def test_bug_expr_arg_slash
+    @lex.state = :expr_arg
+    util_lex_token("/1",
+                   :tDIVIDE,    "/",
+                   :tINTEGER,   1)
+
+    @lex.state = :expr_arg
+    util_lex_token("/ 1",
+                   :tDIVIDE,    "/",
+                   :tINTEGER,   1)
+
+    @lex.state = :expr_arg
+    util_lex_token(" /1/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "1",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+
+    @lex.state = :expr_arg
+    util_lex_token(" / 1",
+                   :tDIVIDE,    "/",
+                   :tINTEGER,   1)
+  end
+
+  def test_bug_heredoc_continuation
+    @lex.state = :expr_arg
+    util_lex_token(" <<EOS\nEOS\nend",
+                   :tSTRING_BEG,     "\"",
+                   :tSTRING_END,     "EOS",
+                   :tNL,             nil,
+                   :kEND,            "end")
+  end
+
+  def test_bug_eh_symbol_no_newline
+    util_lex_token("?\"\nfoo",
+                   :tINTEGER,     34,
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+  end
+
+  def test_bug_expr_arg_newline
+    @lex.state = :expr_arg
+    util_lex_token("\nfoo",
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+
+    @lex.state = :expr_arg
+    util_lex_token(" \nfoo",
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+
+    @lex.state = :expr_arg
+    util_lex_token("#foo\nfoo",
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+  end
+
 end
