@@ -1357,8 +1357,9 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_regexp_bad
     util_bad_token("/.*/xyz",
-                   :tREGEXP_BEG, "/",
-                   :tSTRING_CONTENT, ".*")
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, ".*",
+                   :tSTRING_END,     "/")
   end
 
   def test_regexp_escape_C
@@ -1875,7 +1876,10 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_single_nl
     util_lex_token("'blah\\\nblah'",
-                   :tSTRING, "blah\\\nblah")
+                   :tSTRING_BEG,     "'",
+                   :tSTRING_CONTENT, "blah\\\n",
+                   :tSTRING_CONTENT, "blah",
+                   :tSTRING_END,     "'")
   end
 
   def test_symbol
@@ -1977,13 +1981,6 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND,         "end")
   end
 
-  def test_sclass_joined
-    util_lex_token("class<<self",
-                   :kCLASS, "class",
-                   :tLSHFT, "<<",
-                   :kSELF,  "self")
-  end
-
   def test_static_env
     env = Parser::StaticEnvironment.new
     env.declare "a"
@@ -1996,4 +1993,173 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tINTEGER,    42,
                    :tRBRACK,     "]")
   end
+
+  #
+  # Tests for bugs.
+  #
+  # These tests should be moved from nursery and properly
+  # categorized when it's clear how to do that.
+  #
+
+  def test_bug_sclass_joined
+    util_lex_token("class<<self",
+                   :kCLASS, "class",
+                   :tLSHFT, "<<",
+                   :kSELF,  "self")
+  end
+
+  def test_bug_expr_beg_div
+    @lex.state = :expr_beg
+    util_lex_token("/=/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "=",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+
+    @lex.state = :expr_beg
+    util_lex_token("/ = /",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, " = ",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+  end
+
+  def test_bug_expr_beg_percent
+    @lex.state = :expr_beg
+    util_lex_token("%=foo=",
+                   :tSTRING, "foo")
+
+    @lex.state = :expr_beg
+    util_lex_token("% = ",
+                   :tSTRING, "=")
+  end
+
+  def test_bug_expr_beg_document
+    @lex.state = :expr_beg
+    util_lex_token(" \n=begin\n=end\nend",
+                   :kEND,        "end")
+
+  end
+
+  def test_bug_expr_beg_number
+    @lex.state = :expr_beg
+    util_lex_token("86400_000_000",
+                   :tINTEGER,    86400000000)
+  end
+
+  def test_bug_expr_arg_percent
+    @lex.state = :expr_arg
+    util_lex_token("%[",
+                   :tPERCENT, "%",
+                   :tLBRACK,  "[")
+
+    @lex.state = :expr_arg
+    util_lex_token("%=1",
+                   :tOP_ASGN,    "%",
+                   :tINTEGER,    1)
+
+    @lex.state = :expr_arg
+    util_lex_token(" %[1]",
+                   :tSTRING,     "1")
+
+    @lex.state = :expr_arg
+    util_lex_token(" %=1=",
+                   :tOP_ASGN,    "%",
+                   :tINTEGER,    1,
+                   :tEQL,        "=")
+  end
+
+  def test_bug_expr_arg_lt_lt
+    @lex.state = :expr_arg
+    util_lex_token("<<EOS\nEOS",
+                   :tLSHFT,      "<<",
+                   :tCONSTANT,   "EOS",
+                   :tNL,         nil,
+                   :tCONSTANT,   "EOS")
+
+    @lex.state = :expr_arg
+    util_lex_token(" <<EOS\nEOS",
+                   :tSTRING_BEG,     "\"",
+                   :tSTRING_END,     "EOS",
+                   :tNL,             nil)
+  end
+
+  def test_bug_expr_arg_slash
+    @lex.state = :expr_arg
+    util_lex_token("/1",
+                   :tDIVIDE,    "/",
+                   :tINTEGER,   1)
+
+    @lex.state = :expr_arg
+    util_lex_token("/ 1",
+                   :tDIVIDE,    "/",
+                   :tINTEGER,   1)
+
+    @lex.state = :expr_arg
+    util_lex_token(" /1/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "1",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+
+    @lex.state = :expr_arg
+    util_lex_token(" / 1",
+                   :tDIVIDE,    "/",
+                   :tINTEGER,   1)
+  end
+
+  def test_bug_heredoc_continuation
+    @lex.state = :expr_arg
+    util_lex_token(" <<EOS\nEOS\nend",
+                   :tSTRING_BEG,     "\"",
+                   :tSTRING_END,     "EOS",
+                   :tNL,             nil,
+                   :kEND,            "end")
+  end
+
+  def test_bug_eh_symbol_no_newline
+    util_lex_token("?\"\nfoo",
+                   :tINTEGER,     34,
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+  end
+
+  def test_bug_expr_arg_newline
+    @lex.state = :expr_arg
+    util_lex_token("\nfoo",
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+
+    @lex.state = :expr_arg
+    util_lex_token(" \nfoo",
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+
+    @lex.state = :expr_arg
+    util_lex_token("#foo\nfoo",
+                   :tNL,          nil,
+                   :tIDENTIFIER,  "foo")
+  end
+
+  def test_bug_heredoc_backspace_nl
+    util_lex_token(" <<'XXX'\nf \\\nXXX\n",
+                   :tSTRING_BEG,     "'",
+                   :tSTRING_CONTENT, "f \\\n",
+                   :tSTRING_END,     "XXX",
+                   :tNL,             nil)
+  end
+
+  def test_bug_ragel_stack
+    util_lex_token("\"\#{$2 ? $2 : 1}\"",
+                   :tSTRING_BEG,      "\"",
+                   :tSTRING_DBEG,     "\#{",
+                   :tNTH_REF,         2,
+                   :tEH,              "?",
+                   :tNTH_REF,         2,
+                   :tCOLON,           ":",
+                   :tINTEGER,         1,
+                   :tRCURLY,          "}",
+                   :tSTRING_END,      "\"")
+  end
+
 end

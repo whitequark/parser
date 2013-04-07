@@ -26,10 +26,13 @@ def measure(what)
     x.report "parser" do
       what.each do |file, src|
         begin
-          Parser::Ruby18.parse(src)
+          Parser::Ruby18.parse(src, file)
+        rescue Parser::SyntaxError
+          p_failures += 1
         rescue Exception => e
           puts file
           puts "P:  #{e.class}: #{e.message}"
+          puts e.backtrace
           p_failures += 1
         end
       end

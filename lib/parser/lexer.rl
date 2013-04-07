@@ -41,6 +41,11 @@
 #       emit($whatever)
 #       fnext $next_state; fbreak;
 #
+#    If you perform `fgoto` in an action which does not emit a token nor
+#    rewinds the stream pointer, the parser's side-effectful,
+#    context-sensitive lookahead actions will break in a hard to detect
+#    and debug way.
+#
 #  * If an action does not emit a token:
 #
 #       fgoto $next_state;
@@ -222,6 +227,11 @@ class Parser::Lexer
 
   def version?(*versions)
     versions.include?(@version)
+  end
+
+  def stack_pop
+    @top -= 1
+    @stack[@top]
   end
 
   def tok(s = @ts, e = @te)
@@ -645,14 +655,14 @@ class Parser::Lexer
     # After every heredoc was parsed, @herebody_s contains the
     # position of next token after all heredocs.
     if @herebody_s
-      p = @herebody_s
+      p = @herebody_s - 1
       @herebody_s = nil
     end
   };
 
   action extend_string {
     if literal.nest_and_try_closing tok, @ts, @te
-      fgoto *pop_literal;
+      fnext *pop_literal; fbreak;
     else
       literal.extend_string tok, @ts, @te
     end
@@ -663,7 +673,7 @@ class Parser::Lexer
       # If the literal is actually closed by the backslash,
       # rewind the input prior to consuming the escape sequence.
       p = @escape_s - 1
-      fgoto *pop_literal;
+      fnext *pop_literal; fbreak;
     else
       # Get the first character after the backslash.
       escaped_char = @source[@escape_s].chr
@@ -791,7 +801,7 @@ class Parser::Lexer
         end
 
         fhold;
-        fnext *@stack.pop;
+        fnext *stack_pop;
         fbreak;
       end
     end
@@ -836,6 +846,7 @@ class Parser::Lexer
   *|;
 
   plain_string := |*
+      '\\' c_nl   => extend_string_eol;
       e_bs c_any  => extend_string_escaped;
       c_eol       => extend_string_eol;
       c_any       => extend_string;
@@ -851,7 +862,7 @@ class Parser::Lexer
         end
 
         emit(:tREGEXP_OPT)
-        fgoto expr_end;
+        fnext expr_end; fbreak;
       };
 
       any
@@ -921,7 +932,7 @@ class Parser::Lexer
           emit(:tGVAR)
         end
 
-        fnext *@stack.pop; fbreak;
+        fnext *stack_pop; fbreak;
       };
 
       class_var_v
@@ -932,7 +943,7 @@ class Parser::Lexer
         end
 
         emit(:tCVAR)
-        fnext *@stack.pop; fbreak;
+        fnext *stack_pop; fbreak;
       };
 
       instance_var_v
@@ -943,7 +954,7 @@ class Parser::Lexer
         end
 
         emit(:tIVAR)
-        fnext *@stack.pop; fbreak;
+        fnext *stack_pop; fbreak;
       };
   *|;
 
@@ -1071,6 +1082,15 @@ class Parser::Lexer
       c_space+ '?'
       => { fhold; fgoto expr_beg; };
 
+               # a %{1}, a %[1] (but not "a %=1=" or "a % foo")
+      c_space+ ( '%' [^= ]
+               # a /foo/ (but not "a / foo" or "a /=foo")
+               | '/' ( c_any - c_space_nl - '=' )
+               # a <<HEREDOC
+               | '<<'
+               )
+      => { fhold; fhold; fgoto expr_beg; };
+
       # x +1
       # Ambiguous unary operator or regexp literal.
       c_space+ [+\-/]
@@ -1113,7 +1133,7 @@ class Parser::Lexer
         fgoto expr_end;
       };
 
-      c_space* c_nl
+      c_space* ( '#' c_line* )? c_nl
       => { fhold; fgoto expr_end; };
 
       c_any
@@ -1204,20 +1224,12 @@ class Parser::Lexer
       # STRING AND REGEXP LITERALS
       #
 
-      # a / 42
-      # a % 42
-      # a %= 42 (disambiguation with %=string=)
-      [/%] c_space_nl | '%=' # /
-      => {
-        fhold; fhold;
-        fgoto expr_end;
-      };
-
       # /regexp/oui
-      '/'
+      # /=/ (disambiguation with /=)
+      '/' c_any
       => {
-        type, delimiter = tok, tok
-        fgoto *push_literal(type, delimiter, @ts);
+        type = delimiter = tok[0].chr
+        fhold; fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %<string>
@@ -1283,7 +1295,7 @@ class Parser::Lexer
           emit(:tSTRING, value)
         end
 
-        fbreak;
+        fnext expr_end; fbreak;
       };
 
       '?' c_space_nl
@@ -1382,11 +1394,15 @@ class Parser::Lexer
         end
       };
 
-      c_space_nl+;
+      c_space_nl;
 
       '#' c_line* c_eol
       => { @comments << tok
            fhold; };
+
+      c_nl '=begin' ( c_space | c_eol )
+      => { p = @ts - 1
+           fgoto line_begin; };
 
       # The following rules match most binary and all unary operators.
       # Rules for binary operators provide better error reporting.
@@ -1509,7 +1525,8 @@ class Parser::Lexer
                ( digit+ '_' )* digit* '_'?
       | '0' [Bb]  %{ @num_base = 2;  @num_digits_s = p }
                ( [01]+ '_' )* [01]* '_'?
-      | [1-9]     %{ @num_base = 10; @num_digits_s = @ts }
+      | [1-9] digit*
+                  %{ @num_base = 10; @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?
       | '0'       %{ @num_base = 8;  @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?

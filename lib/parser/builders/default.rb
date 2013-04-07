@@ -241,7 +241,7 @@ module Parser
 
     def op_assign(lhs, operator_t, rhs)
       case lhs.type
-      when :gvasgn, :ivasgn, :lvasgn, :send
+      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :cvdecl, :send
         operator = value(operator_t)[0..-1].to_sym
 
         case operator

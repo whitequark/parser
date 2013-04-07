@@ -11,7 +11,7 @@ module Parser
                     "\e[0;32m#{type} #{val.inspect}\e[0m",
                     "#{state.to_s.ljust(10)} #{@cond} #{@cmdarg}\e[0m")
 
-      [type, val]
+      [ type, [val, range] ]
     end
 
     private

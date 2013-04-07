@@ -851,6 +851,15 @@ class TestParser < MiniTest::Unit::TestCase
       %q{@a |= 1},
       %q{   ^^ operator
         |~~~~~~~ expression})
+
+    assert_parses(
+      s(:op_asgn, s(:cvdecl, :@@var), :|, s(:int, 10)),
+      %q{@@var |= 10})
+
+    assert_parses(
+      s(:def, :a, s(:args),
+        s(:op_asgn, s(:cvasgn, :@@var), :|, s(:int, 10))),
+      %q{def a; @@var |= 10; end})
   end
 
   def test_var_op_asgn_cmd
@@ -3065,7 +3074,9 @@ class TestParser < MiniTest::Unit::TestCase
       %q{       ~~~ location})
   end
 
+  #
   # Error recovery
+  #
 
   def test_unknown_percent_str
     assert_diagnoses(
@@ -3079,5 +3090,18 @@ class TestParser < MiniTest::Unit::TestCase
       [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],
       %q{def foo(bar baz); end},
       %q{            ~~~ location})
+  end
+
+  #
+  # Bug-specific tests
+  #
+
+  def test_bug_cmd_string_lookahead
+    assert_parses(
+      s(:block,
+        s(:send, nil, :desc,
+          s(:str, "foo")),
+        s(:args), s(:nil)),
+      %q{desc "foo" do end})
   end
 end
