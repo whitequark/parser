@@ -150,11 +150,13 @@ module ParseHelper
   end
 
   SOURCE_MAP_DESCRIPTION_RE =
-      /^(?<skip>\s*)
-       (?<hilight>[~\^]+)
-       \s+
-       (?<source_map_field>[a-z]+)
-       (\s+\((?<ast_path>[a-z_.\/0-9]+)\))?$/x
+      /(?x)
+       ^(?# $1 skip)            ^(\s*)
+        (?# $2 highlight)        ([~\^]+)
+                                 \s+
+        (?# $3 source_map_field) ([a-z]+)
+        (?# $5 ast_path)         (\s+\(([a-z_.\/0-9]+)\))?
+                                $/
 
   def parse_source_map_descriptions(descriptions)
     unless block_given?
@@ -168,12 +170,12 @@ module ParseHelper
       next if line.empty?
 
       if (match = SOURCE_MAP_DESCRIPTION_RE.match(line))
-        begin_pos        = match[:skip].length
-        end_pos          = begin_pos + match[:hilight].length - 1
-        source_map_field = match[:source_map_field]
+        begin_pos        = match[1].length
+        end_pos          = begin_pos + match[2].length - 1
+        source_map_field = match[3]
 
-        if match[:ast_path]
-          ast_path = match[:ast_path].split('.')
+        if match[5]
+          ast_path = match[5].split('.')
         else
           ast_path = []
         end
