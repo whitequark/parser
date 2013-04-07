@@ -2994,4 +2994,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{def f; END{ 1 }; end},
       %q{       ~~~ location})
   end
+
+  # Error recovery
+
+  def test_on_error
+    assert_diagnoses(
+      [:error, :unexpected_token, token: 'tIDENTIFIER'],
+      %q{def foo(bar baz); end},
+      %q{            ~~~ location})
+  end
 end
