@@ -101,17 +101,17 @@ module Parser
       @diagnostics.process(
           Diagnostic.new(level, message, location, highlights))
 
-      yyerror
+      if level == :error
+        yyerror
+      end
     end
 
     def on_error(error_token_id, error_value, value_stack)
       token_name = token_to_str(error_token_id)
-      _, location = error_value
 
       # TODO add "expected: ..." here
       message = ERRORS[:unexpected_token] % { token: token_name }
-      @diagnostics.process(
-          Diagnostic.new(:error, message, location))
+      diagnostic :error, message, error_value
     end
   end
 

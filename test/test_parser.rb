@@ -1465,7 +1465,7 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~ expression})
   end
 
-  def test_send_plain_block
+  def test_send_self_block
     assert_parses(
       s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
       %q{fun { }})
@@ -1481,6 +1481,18 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
       %q{fun do end})
+  end
+
+  def test_send_cmd_space_grouped_expr
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:send, s(:int, 1), :to_i)),
+      %q{fun (1).to_i})
+
+    assert_diagnoses(
+      [:warning, :grouped_expression],
+      %q{fun (1).to_i},
+      %q{    ~~~ location})
   end
 
   # To receiver

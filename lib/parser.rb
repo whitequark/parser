@@ -73,6 +73,7 @@ module Parser
     dynamic_const:           "dynamic constant assignment",
     module_in_def:           "module definition in method body",
     class_in_def:            "class definition in method body",
+    grouped_expression:       "(...) interpreted as grouped expression",
   }
 
   ERRORS.default_proc = ->(hash, key) do
