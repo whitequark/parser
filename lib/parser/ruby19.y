@@ -1382,7 +1382,7 @@ rule
 
  block_param_def: tPIPE opt_bv_decl tPIPE
                     {
-                      result = val[1] || @builder.args(nil, [], nil)
+                      result = @builder.args(val[0], val[1], val[2])
                     }
                 | tOROP
                     {
@@ -1390,11 +1390,14 @@ rule
                     }
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
-                      val[1].concat(val[2]) if val[2]
+                      val[1].concat(val[2])
                       result = @builder.args(val[0], val[1], val[3])
                     }
 
      opt_bv_decl: none
+                    {
+                      result = []
+                    }
                 | tSEMI bv_decls
                     {
                       result = val[1]
