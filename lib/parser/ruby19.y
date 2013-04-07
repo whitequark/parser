@@ -45,130 +45,170 @@ preclow
 rule
 
          program:   top_compstmt
-                    {
-                      result = new_compstmt val
-                    }
 
     top_compstmt: top_stmts opt_terms
                     {
-                      result = val[0]
+                      result = @builder.compstmt(val[0])
                     }
 
        top_stmts: none
+                    {
+                      result = []
+                    }
                 | top_stmt
+                    {
+                      result = [ val[0] ]
+                    }
                 | top_stmts terms top_stmt
                     {
-                      result = self.block_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
                 | error top_stmt
+                    {
+                      result = [ val[1] ]
+                    }
 
         top_stmt: stmt
                 | klBEGIN
                     {
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "BEGIN in method"
+                      if in_def?
+                        diagnostic(:error, :begin_in_method, val[0])
                       end
-                      self.env.extend
+
+                      @static_env.extend_static
                     }
                     tLCURLY top_compstmt tRCURLY
                     {
-                      result = new_iter s(:preexe), nil, val[3] # TODO: add test?
-                      result = nil # TODO: since it isn't supposed to go in the AST
+                      @static_env.unextend
+
+                      result = @builder.preexe(val[0], val[2], val[3], val[4])
                     }
 
         bodystmt: compstmt opt_rescue opt_else opt_ensure
                     {
-                      result = new_body val
+                      rescue_bodies     = val[1]
+                      else_,   t_else   = val[2]
+                      ensure_, t_ensure = val[3]
+
+                      result = @builder.begin_body(val[0],
+                                  rescue_bodies,
+                                  else_,   t_else,
+                                  ensure_, t_ensure)
                     }
 
         compstmt: stmts opt_terms
                     {
-                      result = new_compstmt val
+                      result = @builder.compstmt(val[0])
                     }
 
            stmts: none
+                    {
+                      result = []
+                    }
                 | stmt
+                    {
+                      result = [ val[0] ]
+                    }
                 | stmts terms stmt
                     {
-                      result = self.block_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
                 | error stmt
                     {
-                      result = val[1]
+                      result = [ val[1] ]
                     }
 
             stmt: kALIAS fitem
                     {
-                      lexer.state = :expr_fname
-                      result = self.lexer.lineno
+                      @lexer.state = :expr_fname
                     }
                     fitem
                     {
-                      result = s(:alias, val[1], val[3]).line(val[2])
+                      result = @builder.alias(val[0], val[1], val[3])
                     }
                 | kALIAS tGVAR tGVAR
                     {
-                      result = s(:valias, val[1].to_sym, val[2].to_sym)
+                      result = @builder.alias(val[0],
+                                  @builder.gvar(val[1]),
+                                  @builder.gvar(val[2]))
                     }
                 | kALIAS tGVAR tBACK_REF
                     {
-                      result = s(:valias, val[1].to_sym, :"$#{val[2]}")
+                      result = @builder.alias(val[0],
+                                  @builder.gvar(val[1]),
+                                  @builder.back_ref(val[2]))
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
-                      yyerror "can't make alias for the number variables"
+                      diagnostic(:error, :nth_ref_alias, val[2])
                     }
                 | kUNDEF undef_list
                     {
-                      result = val[1]
+                      result = @builder.undef_method(val[0], val[1])
                     }
                 | stmt kIF_MOD expr_value
                     {
-                      result = new_if val[2], val[0], nil
+                      result = @builder.condition_mod(val[0], nil,
+                                                      val[1], val[2])
                     }
                 | stmt kUNLESS_MOD expr_value
                     {
-                      result = new_if val[2], nil, val[0]
+                      result = @builder.condition_mod(nil, val[0],
+                                                      val[1], val[2])
                     }
                 | stmt kWHILE_MOD expr_value
                     {
-                      result = new_while val[0], val[2], true
+                      result = @builder.loop_mod(val[0], val[1], val[2])
                     }
                 | stmt kUNTIL_MOD expr_value
                     {
-                      result = new_until val[0], val[2], true
+                      result = @builder.loop_mod(val[0], val[1], val[2])
                     }
                 | stmt kRESCUE_MOD stmt
                     {
-                      result = s(:rescue, val[0], new_resbody(s(:array), val[2]))
+                      rescue_body = @builder.rescue_body(val[1],
+                                        nil, nil, nil,
+                                        nil, val[2])
+
+                      result = @builder.begin_body(val[0], [ rescue_body ])
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "END in method; use at_exit"
+                      if in_def?
+                        diagnostic(:warning, :end_in_method, val[0])
                       end
-                      result = new_iter s(:postexe), nil, val[2]
+
+                      result = @builder.postexe(val[0], val[1], val[2], val[3])
                     }
                 | command_asgn
                 | mlhs tEQL command_call
                     {
-                      result = new_masgn val[0], val[2], :wrap
+                      result = @builder.multi_assign(val[0], val[1], val[2])
                     }
                 | var_lhs tOP_ASGN command_call
                     {
-                      result = new_op_asgn val
+                      result = @builder.op_assign(val[0], val[1], val[2])
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN command_call
                     {
-                      result = s(:op_asgn1, val[0], val[2], val[4].to_sym, val[5])
+                      result = @builder.op_assign(
+                                  @builder.index(
+                                    val[0], val[1], val[2], val[3]),
+                                  val[4], val[5])
                     }
                 | primary_value tDOT tIDENTIFIER tOP_ASGN command_call
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN command_call
-                    {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                    { # :nocov: TODO: unused with the ragel lexer, remove
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
                     {
@@ -176,51 +216,56 @@ rule
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | backref tOP_ASGN command_call
                     {
-                      self.backref_assign_error val[0]
+                      @builder.op_assign(val[0], val[1], val[2])
                     }
                 | lhs tEQL mrhs
                     {
-                      result = self.node_assign val[0], s(:svalue, val[2])
+                      result = @builder.assign(val[0], val[1],
+                                  @builder.array(nil, val[2], nil))
                     }
                 | mlhs tEQL arg_value
                     {
-                      result = new_masgn val[0], val[2], :wrap
+                      result = @builder.multi_assign(val[0], val[1], val[2])
                     }
                 | mlhs tEQL mrhs
                     {
-                      result = new_masgn val[0], val[2]
+                      result = @builder.multi_assign(val[0], val[1],
+                                  @builder.array(nil, val[2], nil))
                     }
                 | expr
 
     command_asgn: lhs tEQL command_call
                     {
-                      result = self.node_assign val[0], val[2]
+                      result = @builder.assign(val[0], val[1], val[2])
                     }
                 | lhs tEQL command_asgn
                     {
-                      result = self.node_assign val[0], val[2]
+                      result = @builder.assign(val[0], val[1], val[2])
                     }
 
             expr: command_call
                 | expr kAND expr
                     {
-                      result = logop(:and, val[0], val[2])
+                      result = @builder.logical_op(:and, val[0], val[1], val[2])
                     }
                 | expr kOR expr
                     {
-                      result = logop(:or, val[0], val[2])
+                      result = @builder.logical_op(:or, val[0], val[1], val[2])
                     }
                 | kNOT opt_nl expr
                     {
-                      result = s(:call, val[2], :"!")
+                      result = @builder.not_op(val[0], val[2])
                     }
                 | tBANG command_call
                     {
-                      result = s(:call, val[1], :"!")
+                      result = @builder.not_op(val[0], val[1])
                     }
                 | arg
 
@@ -235,11 +280,13 @@ rule
    block_command: block_call
                 | block_call tDOT operation2 command_args # TODO: dot_or_colon
                     {
-                      result = new_call val[0], val[2], val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  nil, val[3], nil)
                     }
                 | block_call tCOLON2 operation2 command_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  nil, val[3], nil)
                     }
 
  cmd_brace_block: tLBRACE_ARG
@@ -257,7 +304,8 @@ rule
 
          command: operation command_args =tLOWEST
                     {
-                      result = new_call nil, val[0].to_sym, val[1]
+                      result = @builder.call_method(nil, nil, val[0],
+                                  nil, val[1], nil)
                     }
                 | operation command_args cmd_brace_block
                     {
@@ -271,7 +319,8 @@ rule
                     }
                 | primary_value tDOT operation2 command_args =tLOWEST
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  nil, val[3], nil)
                     }
                 | primary_value tDOT operation2 command_args cmd_brace_block
                     {
@@ -285,7 +334,8 @@ rule
                     }
                 | primary_value tCOLON2 operation2 command_args =tLOWEST
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  nil, val[3], nil)
                     }
                 | primary_value tCOLON2 operation2 command_args cmd_brace_block
                     {
@@ -299,63 +349,56 @@ rule
                     }
                 | kSUPER command_args
                     {
-                      result = new_super val[1]
+                      result = @builder.keyword_cmd(:super, val[0],
+                                  nil, val[1], nil)
                     }
                 | kYIELD command_args
                     {
-                      result = new_yield val[1]
+                      result = @builder.keyword_cmd(:yield, val[0],
+                                  nil, val[1], nil)
                     }
-                | kRETURN
+                | kRETURN call_args
                     {
-                      result = self.lexer.lineno
+                      result = @builder.keyword_cmd(:return, val[0],
+                                  nil, val[1], nil)
                     }
-                    call_args
+                | kBREAK call_args
                     {
-                      line = val[1]
-                      result = s(:return, ret_args(val[2])).line(line)
+                      result = @builder.keyword_cmd(:break, val[0],
+                                  nil, val[1], nil)
                     }
-                | kBREAK
+                | kNEXT call_args
                     {
-                      result = self.lexer.lineno
-                    }
-                    call_args
-                    {
-                      line = val[1]
-                      result = s(:break, ret_args(val[2])).line(line)
-                    }
-                | kNEXT
-                    {
-                      result = self.lexer.lineno
-                    }
-                    call_args
-                    {
-                      line = val[1]
-                      result = s(:next, ret_args(val[2])).line(line)
+                      result = @builder.keyword_cmd(:next, val[0],
+                                  nil, val[1], nil)
                     }
 
             mlhs: mlhs_basic
+                    {
+                      result = @builder.multi_lhs(nil, val[0], nil)
+                    }
                 | tLPAREN mlhs_inner rparen
                     {
-                      result = val[1]
+                      result = @builder.parenthesize(val[0], val[1], val[2])
                     }
 
       mlhs_inner: mlhs_basic
+                    {
+                      result = @builder.multi_lhs(nil, val[0], nil)
+                    }
                 | tLPAREN mlhs_inner rparen
                     {
-                      result = s(:masgn, s(:array, val[1]))
+                      result = @builder.multi_lhs(val[0], val[1], val[2])
                     }
 
       mlhs_basic: mlhs_head
-                    {
-                      result = s(:masgn, val[0])
-                    }
                 | mlhs_head mlhs_item
                     {
-                      result = s(:masgn, val[0] << val[1].compact)
+                      result = val[0] << val[1]
                     }
                 | mlhs_head tSTAR mlhs_node
                     {
-                      result = s(:masgn, val[0] << s(:splat, val[2]))
+                      result = val[0] << @builder.splat(val[1], val[2])
                     }
                 | mlhs_head tSTAR mlhs_node tCOMMA mlhs_post
                     {
@@ -365,7 +408,7 @@ rule
                     }
                 | mlhs_head tSTAR
                     {
-                      result = s(:masgn, val[0] << s(:splat))
+                      result = val[0] << @builder.splat(val[1])
                     }
                 | mlhs_head tSTAR tCOMMA mlhs_post
                     {
@@ -375,7 +418,7 @@ rule
                     }
                 | tSTAR mlhs_node
                     {
-                      result = s(:masgn, s(:array, s(:splat, val[1])))
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
                 | tSTAR mlhs_node tCOMMA mlhs_post
                     {
@@ -385,7 +428,7 @@ rule
                     }
                 | tSTAR
                     {
-                      result = s(:masgn, s(:array, s(:splat)))
+                      result = [ @builder.splat(val[0]) ]
                     }
                 | tSTAR tCOMMA mlhs_post
                     {
@@ -397,16 +440,16 @@ rule
        mlhs_item: mlhs_node
                 | tLPAREN mlhs_inner rparen
                     {
-                      result = val[1]
+                      result = @builder.parenthesize(val[0], val[1], val[2])
                     }
 
        mlhs_head: mlhs_item tCOMMA
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | mlhs_head mlhs_item tCOMMA
                     {
-                      result = val[0] << val[1].compact
+                      result = val[0] << val[1]
                     }
 
        mlhs_post: mlhs_item
@@ -420,139 +463,141 @@ rule
 
        mlhs_node: user_variable
                     {
-                      result = self.assignable val[0]
+                      result = @builder.assignable(val[0])
                     }
                 | keyword_variable
                     {
-                      result = self.assignable val[0]
+                      result = @builder.assignable(val[0])
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket
                     {
-                      result = self.aryset val[0], val[2]
+                      result = @builder.index_asgn(val[0], val[1], val[2], val[3])
                     }
                 | primary_value tDOT tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                    { # :nocov: TODO: unused with Ragel lexer, remove?
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "dynamic constant assignment"
+                      if in_def?
+                        diagnostic(:error, :dynamic_const, val[2])
                       end
 
-                      result = s(:const, s(:colon2, val[0], val[2].to_sym), nil)
+                      result = @builder.assignable(
+                                  @builder.const_fetch(val[0], val[1], val[2]))
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "dynamic constant assignment"
+                      if in_def?
+                        diagnostic(:error, :dynamic_const, val[1])
                       end
 
-                      result = s(:const, nil, s(:colon3, val[1].to_sym))
+                      result = @builder.assignable(
+                                  @builder.const_global(val[0], val[1]))
                     }
                 | backref
                     {
-                      self.backref_assign_error val[0]
+                      result = @builder.assignable(val[0])
                     }
 
              lhs: user_variable
                     {
-                      result = self.assignable val[0]
+                      result = @builder.assignable(val[0])
                     }
                 | keyword_variable
                     {
-                      result = self.assignable val[0]
+                      result = @builder.assignable(val[0])
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket
                     {
-                      result = self.aryset val[0], val[2]
+                      result = @builder.index_asgn(val[0], val[1], val[2], val[3])
                     }
                 | primary_value tDOT tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tIDENTIFIER
                     {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    {
-                      result = s(:attrasgn, val[0], :"#{val[2]}=")
+                    { # :nocov: TODO: Unused with Ragel lexer, remove?
+                      result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "dynamic constant assignment"
+                      if in_def?
+                        diagnostic(:error, :dynamic_const, val[2])
                       end
 
-                      result = s(:const, s(:colon2, val[0], val[2].to_sym))
+                      result = @builder.assignable(
+                                  @builder.const_fetch(val[0], val[1], val[2]))
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "dynamic constant assignment"
+                      if in_def?
+                        diagnostic(:error, :dynamic_const, val[1])
                       end
 
-                      result = s(:const, s(:colon3, val[1].to_sym))
+                      result = @builder.assignable(
+                                  @builder.const_global(val[0], val[1]))
                     }
                 | backref
                     {
-                      self.backref_assign_error val[0]
+                      result = @builder.assignable(val[0])
                     }
 
            cname: tIDENTIFIER
                     {
-                      yyerror "class/module name must be CONSTANT"
+                      diagnostic(:error, :module_name_const, val[0])
                     }
                 | tCONSTANT
 
            cpath: tCOLON3 cname
                     {
-                      result = s(:colon3, val[1].to_sym)
+                      result = @builder.const_global(val[0], val[1])
                     }
                 | cname
                     {
-                      result = val[0].to_sym
+                      result = @builder.const(val[0])
                     }
                 | primary_value tCOLON2 cname
                     {
-                      result = s(:colon2, val[0], val[2].to_sym)
+                      result = @builder.const_fetch(val[0], val[1], val[2])
                     }
 
            fname: tIDENTIFIER | tCONSTANT | tFID
                 | op
-                    {
-                      result = val[0]
-                    }
                 | reswords
+
+            fsym: fname
                     {
-                      result = val[0]
+                      result = @builder.symbol(val[0])
                     }
+                | symbol
 
-            fsym: fname | symbol
-
-           fitem: fsym { result = s(:lit, val[0].to_sym) }
+           fitem: fsym
                 | dsym
 
       undef_list: fitem
                     {
-                      result = new_undef val[0]
+                      result = [ val[0] ]
                     }
                 | undef_list tCOMMA
                     {
-                      lexer.state = :expr_fname
+                      @lexer.state = :expr_fname
                     }
                     fitem
                     {
-                      result = new_undef val[0], val[3]
+                      result = val[0] << val[3]
                     }
 
                 op: tPIPE    | tCARET  | tAMPER2  | tCMP  | tEQ     | tEQQ
@@ -573,15 +618,21 @@ rule
 
              arg: lhs tEQL arg
                     {
-                      result = self.node_assign val[0], val[2]
+                      result = @builder.assign(val[0], val[1], val[2])
                     }
                 | lhs tEQL arg kRESCUE_MOD arg
                     {
-                      result = self.node_assign val[0], s(:rescue, val[2], new_resbody(s(:array), val[4]))
+                      rescue_body = @builder.rescue_body(val[3],
+                                        nil, nil, nil,
+                                        nil, val[4])
+
+                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
+
+                      result  = @builder.assign(val[0], val[1], rescue_)
                     }
                 | var_lhs tOP_ASGN arg
                     {
-                      result = new_op_asgn val
+                      result = @builder.op_assign(val[0], val[1], val[2])
                     }
                 | var_lhs tOP_ASGN arg kRESCUE_MOD arg
                     {
@@ -590,179 +641,183 @@ rule
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN arg
                     {
-                      val[2][0] = :arglist
-                      result = s(:op_asgn1, val[0], val[2], val[4].to_sym, val[5])
+                      result = @builder.op_assign(
+                                  @builder.index(
+                                    val[0], val[1], val[2], val[3]),
+                                  val[4], val[5])
                     }
                 | primary_value tDOT tIDENTIFIER tOP_ASGN arg
                     {
-                      result = s(:op_asgn2, val[0], :"#{val[2]}=", val[3].to_sym, val[4])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN arg
-                    {
-                      result = s(:op_asgn2, val[0], :"#{val[2]}=", val[3].to_sym, val[4])
+                    { # :nocov: TODO: Unused with the Ragel lexer. Remove?
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN arg
                     {
-                      yyerror "constant re-assignment"
+                      diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
                     }
                 | tCOLON3 tCONSTANT tOP_ASGN arg
                     {
-                      yyerror "constant re-assignment"
+                      diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
                     }
                 | backref tOP_ASGN arg
                     {
-                      self.backref_assign_error val[0]
+                      result = @builder.op_assign(val[0], val[1], val[2])
                     }
                 | arg tDOT2 arg
                     {
-                      v1, v2 = val[0], val[2]
-                      if v1.node_type == :lit and v2.node_type == :lit and Fixnum === v1.last and Fixnum === v2.last then
-                        result = s(:lit, (v1.last)..(v2.last))
-                      else
-                        result = s(:dot2, v1, v2)
-                      end
+                      result = @builder.range_inclusive(val[0], val[1], val[2])
                     }
                 | arg tDOT3 arg
                     {
-                      v1, v2 = val[0], val[2]
-                      if v1.node_type == :lit and v2.node_type == :lit and Fixnum === v1.last and Fixnum === v2.last then
-                        result = s(:lit, (v1.last)...(v2.last))
-                      else
-                        result = s(:dot3, v1, v2)
-                      end
+                      result = @builder.range_exclusive(val[0], val[1], val[2])
                     }
                 | arg tPLUS arg
                     {
-                      result = new_call val[0], :+, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tMINUS arg
                     {
-                      result = new_call val[0], :-, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tSTAR2 arg
                     {
-                      result = new_call val[0], :*, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tDIVIDE arg
                     {
-                      result = new_call val[0], :"/", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tPERCENT arg
                     {
-                      result = new_call val[0], :"%", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tPOW arg
                     {
-                      result = new_call val[0], :**, argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | tUMINUS_NUM tINTEGER tPOW arg
                     {
-                      result = new_call(new_call(s(:lit, val[1]), :"**", argl(val[3])), :"-@")
+                      result = @builder.unary_op(val[0],
+                                  @builder.binary_op(
+                                    @builder.integer(val[1]),
+                                      val[2], val[3]))
                     }
                 | tUMINUS_NUM tFLOAT tPOW arg
                     {
-                      result = new_call(new_call(s(:lit, val[1]), :"**", argl(val[3])), :"-@")
+                      result = @builder.unary_op(val[0],
+                                  @builder.binary_op(
+                                    @builder.float(val[1]),
+                                      val[2], val[3]))
                     }
                 | tUPLUS arg
                     {
-                      result = new_call val[1], :"+@"
+                      result = @builder.unary_op(val[0], val[1])
                     }
                 | tUMINUS arg
                     {
-                      result = new_call val[1], :"-@"
+                      result = @builder.unary_op(val[0], val[1])
                     }
                 | arg tPIPE arg
                     {
-                      result = new_call val[0], :"|", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tCARET arg
                     {
-                      result = new_call val[0], :"^", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tAMPER2 arg
                     {
-                      result = new_call val[0], :"&", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tCMP arg
                     {
-                      result = new_call val[0], :"<=>", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tGT arg
                     {
-                      result = new_call val[0], :">", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tGEQ arg
                     {
-                      result = new_call val[0], :">=", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tLT arg
                     {
-                      result = new_call val[0], :"<", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tLEQ arg
                     {
-                      result = new_call val[0], :"<=", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tEQ arg
                     {
-                      result = new_call val[0], :"==", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tEQQ arg
                     {
-                      result = new_call val[0], :"===", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tNEQ arg
                     {
-                      result = new_call val[0], :"!=", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tMATCH arg
                     {
-                      result = self.get_match_node val[0], val[2]
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tNMATCH arg
                     {
-                      result = s(:not, self.get_match_node(val[0], val[2]))
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | tBANG arg
                     {
-                      result = new_call val[1], :"!"
+                      result = @builder.not_op(val[0], val[1])
                     }
                 | tTILDE arg
                     {
-                      val[2] = value_expr val[2]
-                      result = new_call val[1], :"~"
+                      result = @builder.unary_op(val[0], val[1])
                     }
                 | arg tLSHFT arg
                     {
-                      val[0] = value_expr val[0]
-                      val[2] = value_expr val[2]
-                      result = new_call val[0], :"\<\<", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tRSHFT arg
                     {
-                      val[0] = value_expr val[0]
-                      val[2] = value_expr val[2]
-                      result = new_call val[0], :">>", argl(val[2])
+                      result = @builder.binary_op(val[0], val[1], val[2])
                     }
                 | arg tANDOP arg
                     {
-                      result = logop(:and, val[0], val[2])
+                      result = @builder.logical_op(:and, val[0], val[1], val[2])
                     }
                 | arg tOROP arg
                     {
-                      result = logop(:or, val[0], val[2])
+                      result = @builder.logical_op(:or, val[0], val[1], val[2])
                     }
                 | kDEFINED opt_nl arg
                     {
-                      result = s(:defined, val[2])
+                      result = @builder.keyword_cmd(:defined?, val[0], nil, [ val[2] ], nil)
                     }
+
                 | arg tEH arg opt_nl tCOLON arg
                     {
-                      result = s(:if, val[0], val[2], val[5])
+                      result = @builder.ternary(val[0], val[1],
+                                                val[2], val[4], val[5])
                     }
                 | primary
 
@@ -773,104 +828,99 @@ rule
 
        aref_args: none
                 | args trailer
-                    {
-                      result = val[0]
-                    }
                 | args tCOMMA assocs trailer
                     {
                       result = val[0] << s(:hash, *val[2].values)
                     }
                 | assocs trailer
                     {
-                      result = s(:array, s(:hash, *val[0].values))
+                      result = [ @builder.associate(nil, val[0], nil) ]
                     }
 
       paren_args: tLPAREN2 opt_call_args rparen
                     {
-                      result = val[1]
+                      result = val
                     }
 
   opt_paren_args: none
+                    {
+                      result = [ nil, [], nil ]
+                    }
                 | paren_args
 
    opt_call_args: none
                     {
-                      result = val[0]
+                      result = []
                     }
                 | call_args
-                    {
-                      result = val[0]
-                    }
                 | args tCOMMA
-                    {
-                      result = val[0]
-                    }
                 | args tCOMMA assocs tCOMMA
                     {
-                      result = val[0] << s(:hash, *val[2][1..-1])
+                      result = val[0] << @builder.associate(nil, val[2], nil)
                     }
                 | assocs tCOMMA
-                    {
-                      result = val[0]
-                    }
 
        call_args: command
                     {
-                      warning "parenthesize argument(s) for future version"
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | args opt_block_arg
                     {
-                      result = self.arg_blk_pass val[0], val[1]
+                      result = val[0].concat(val[1])
                     }
                 | assocs opt_block_arg
                     {
-                      result = s(:array, s(:hash, *val[0].values))
-                      result = self.arg_blk_pass result, val[1]
+                      result = [ @builder.associate(nil, val[0], nil) ]
+                      result.concat(val[1])
                     }
                 | args tCOMMA assocs opt_block_arg
                     {
-                      result = val[0] << s(:hash, *val[2].values)
-                      result = self.arg_blk_pass result, val[3]
+                      assocs = @builder.associate(nil, val[2], nil)
+                      result = val[0] << assocs
+                      result.concat(val[3])
                     }
                 | block_arg
 
     command_args:   {
-                      result = lexer.cmdarg.dup
-                      lexer.cmdarg.push true
+                      result = @lexer.cmdarg.dup
+                      @lexer.cmdarg.push(true)
                     }
                       call_args
                     {
-                      lexer.cmdarg = val[0]
+                      @lexer.cmdarg = val[0]
+
                       result = val[1]
                     }
 
        block_arg: tAMPER arg_value
                     {
-                      result = s(:block_pass, val[1])
+                      result = @builder.block_pass(val[0], val[1])
                     }
 
    opt_block_arg: tCOMMA block_arg
                     {
-                      result = val[1]
+                      result = [ val[1] ]
                     }
                 | none
+                    {
+                      result = []
+                    }
 
             args: arg_value
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | tSTAR arg_value
                     {
-                      result = s(:array, s(:splat, val[1]))
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
                 | args tCOMMA arg_value
                     {
-                      result = self.list_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
                 | args tCOMMA tSTAR arg_value
                     {
-                      result = self.list_append val[0], s(:splat, val[3])
+                      result = val[0] << @builder.splat(val[2], val[3])
                     }
 
             mrhs: args tCOMMA arg_value
@@ -879,11 +929,11 @@ rule
                     }
                 | args tCOMMA tSTAR arg_value
                     {
-                      result = self.arg_concat val[0], val[3]
+                      result = val[0] << @builder.splat(val[2], val[3])
                     }
                 | tSTAR arg_value
                     {
-                      result = s(:splat, val[1])
+                      result = [ @builder.splat(val[0], val[1]) ]
                     }
 
          primary: literal
@@ -896,71 +946,63 @@ rule
                 | backref
                 | tFID
                     {
-                      result = new_call nil, val[0].to_sym
+                      result = @builder.call_method(nil, nil, val[0])
                     }
-                | kBEGIN
+                | kBEGIN bodystmt kEND
                     {
-                      result = self.lexer.lineno
-                    }
-                    bodystmt kEND
-                    {
-                      unless val[2] then
-                        result = s(:nil)
-                      else
-                        result = s(:begin, val[2])
-                      end
-
-                      result.line = val[1]
+                      result = @builder.begin(val[0], val[1], val[2])
                     }
                 | tLPAREN_ARG expr
                     {
-                      lexer.state = :expr_endarg
+                      @lexer.state = :expr_endarg
                     }
-                    rparen
+                    opt_nl tRPAREN
                     {
-                      warning "(...) interpreted as grouped expression"
-                      result = val[1]
+                      # TODO better location info here
+                      diagnostic :warning, :grouped_expression, val[0]
+
+                      result = @builder.parenthesize(val[0], val[1], val[3])
                     }
                 | tLPAREN compstmt tRPAREN
                     {
-                      result = val[1] || s(:nil)
-                      result.paren = true
+                      result = @builder.parenthesize(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      result = s(:colon2, val[0], val[2].to_sym)
+                      result = @builder.const_fetch(val[0], val[1], val[2])
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      result = s(:colon3, val[1].to_sym)
+                      result = @builder.const_global(val[0], val[1])
                     }
                 | tLBRACK aref_args tRBRACK
                     {
-                      result = val[1] || s(:array)
+                      result = @builder.array(val[0], val[1], val[2])
                     }
                 | tLBRACE assoc_list tRCURLY
                     {
-                      result = s(:hash, *val[1].values)
+                      result = @builder.associate(val[0], val[1], val[2])
                     }
                 | kRETURN
                     {
-                      result = s(:return)
+                      result = @builder.keyword_cmd(:return, val[0])
                     }
                 | kYIELD tLPAREN2 call_args rparen
                     {
-                      result = new_yield val[2]
+                      result = @builder.keyword_cmd(:yield, val[0], val[1], val[2], val[3])
                     }
                 | kYIELD tLPAREN2 rparen
                     {
-                      result = new_yield
+                      result = @builder.keyword_cmd(:yield, val[0], val[1], [], val[2])
                     }
                 | kYIELD
                     {
-                      result = new_yield
+                      result = @builder.keyword_cmd(:yield, val[0])
                     }
                 | kDEFINED opt_nl tLPAREN2 expr rparen
                     {
-                      result = s(:defined, val[3])
+                      result = @builder.keyword_cmd(:defined?, val[0],
+                                                    val[2], [ val[3] ], val[4])
                     }
                 | kNOT tLPAREN2 expr rparen
                     {
@@ -972,19 +1014,18 @@ rule
                     }
                 | operation brace_block
                     {
-                      oper, iter = val[0], val[1]
-                      call = new_call nil, oper.to_sym
-                      iter.insert 1, call
-                      result = iter
-                      call.line = iter.line
+                      method_call = @builder.call_method(nil, nil, val[0])
+
+                      begin_t, args, body, end_t = val[1]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
                     }
                 | method_call
                 | method_call brace_block
                     {
-                      call, iter = val[0], val[1]
-                      block_dup_check call, iter
-                      iter.insert 1, call # FIX
-                      result = iter
+                      begin_t, args, body, end_t = val[1]
+                      result      = @builder.block(val[0],
+                                      begin_t, args, body, end_t)
                     }
                 | tLAMBDA lambda
                     {
@@ -992,165 +1033,168 @@ rule
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
-                      result = new_if val[1], val[3], val[4]
+                      else_t, else_ = val[4]
+                      result = @builder.condition(val[0], val[1], val[2],
+                                                  val[3], else_t,
+                                                  else_,  val[5])
                     }
                 | kUNLESS expr_value then compstmt opt_else kEND
                     {
-                      result = new_if val[1], val[4], val[3]
+                      else_t, else_ = val[4]
+                      result = @builder.condition(val[0], val[1], val[2],
+                                                  else_,  else_t,
+                                                  val[3], val[5])
                     }
                 | kWHILE
                     {
-                      lexer.cond.push(true)
+                      @lexer.cond.push(true)
                     }
                     expr_value do
                     {
-                      lexer.cond.pop
+                      @lexer.cond.pop
                     }
                     compstmt kEND
                     {
-                      result = new_while val[5], val[2], true
+                      result = @builder.loop(val[0], val[2], val[3],
+                                             val[5], val[6])
                     }
                 | kUNTIL
                     {
-                      lexer.cond.push(true)
+                      @lexer.cond.push(true)
                     }
                     expr_value do
                     {
-                      lexer.cond.pop
+                      @lexer.cond.pop
                     }
                     compstmt kEND
                     {
-                      result = new_until val[5], val[2], true
+                      result = @builder.loop(val[0], val[2], val[3],
+                                             val[5], val[6])
                     }
                 | kCASE expr_value opt_terms case_body kEND
                     {
-                      result = new_case val[1], val[3]
+                      result = @builder.case(val[0], val[1], val[3], val[4])
                     }
                 | kCASE            opt_terms case_body kEND
                     {
-                      result = new_case nil, val[2]
+                      result = @builder.case(val[0], nil, val[2], val[3])
                     }
                 | kFOR for_var kIN
                     {
-                      lexer.cond.push(true)
+                      @lexer.cond.push(true)
                     }
                     expr_value do
                     {
-                      lexer.cond.pop
+                      @lexer.cond.pop
                     }
                     compstmt kEND
                     {
-                      result = new_for val[4], val[1], val[7]
+                      result = @builder.for(val[0], val[1],
+                                            val[2], val[4],
+                                            val[5], val[7], val[8])
                     }
-                | kCLASS
+                | kCLASS cpath superclass
                     {
-                      result = self.lexer.lineno
-                    }
-                    cpath superclass
-                    {
-                      self.comments.push self.lexer.clear_comments
-                      if (self.in_def || self.in_single > 0) then
-                        yyerror "class definition in method body"
+                      if in_def?
+                        diagnostic(:error, :class_in_def, val[0])
                       end
-                      self.env.extend
-                    }
-                    bodystmt kEND
-                    {
-                      result = new_class val
-                      self.env.unextend
-                      self.lexer.clear_comments
-                    }
-                | kCLASS tLSHFT
-                    {
-                      result = self.lexer.lineno
-                    }
-                    expr
-                    {
-                      result = self.in_def
-                      self.in_def = false
-                    }
-                    term
-                    {
-                      result = self.in_single
-                      self.in_single = 0
-                      self.env.extend
-                    }
-                    bodystmt kEND
-                    {
-                      result = new_sclass val
-                      self.env.unextend
-                      self.lexer.clear_comments
-                    }
-                | kMODULE
-                    {
-                      result = self.lexer.lineno
-                    }
-                    cpath
-                    {
-                      self.comments.push self.lexer.clear_comments
-                      yyerror "module definition in method body" if
-                        self.in_def or self.in_single > 0
 
-                      self.env.extend
+                      @comments.push @lexer.clear_comments
+                      @static_env.extend_static
                     }
                     bodystmt kEND
                     {
-                      result = new_module val
-                      self.env.unextend
-                      self.lexer.clear_comments
+                      lt_t, superclass = val[2]
+                      result = @builder.def_class(val[0], val[1],
+                                                  lt_t, superclass,
+                                                  val[4], val[5])
+
+                      @static_env.unextend
+                      @lexer.clear_comments
+                    }
+                | kCLASS tLSHFT expr term
+                    {
+                      result = @def_level
+                      @def_level = 0
+
+                      @static_env.extend_static
+                    }
+                    bodystmt kEND
+                    {
+                      result = @builder.def_sclass(val[0], val[1], val[2],
+                                                   val[5], val[6])
+
+                      @static_env.unextend
+                      @lexer.clear_comments
+
+                      @def_level = val[4]
+                    }
+                | kMODULE cpath
+                    {
+                      if in_def?
+                        diagnostic(:error, :module_in_def, val[0])
+                      end
+
+                      @comments.push @lexer.clear_comments
+                      @static_env.extend_static
+                    }
+                    bodystmt kEND
+                    {
+                      result = @builder.def_module(val[0], val[1],
+                                                   val[3], val[4])
+
+                      @static_env.unextend
+                      @lexer.clear_comments
                     }
                 | kDEF fname
                     {
-                      self.comments.push self.lexer.clear_comments
-                      self.in_def = true
-                      self.env.extend
-                      result = lexer.lineno
+                      @comments.push @lexer.clear_comments
+                      @def_level += 1
+                      @static_env.extend_static
                     }
                     f_arglist bodystmt kEND
                     {
-                      result = new_defn val
-                      result[2].line val[2]
-                      result.line val[2]
+                      result = @builder.def_method(val[0], val[1],
+                                  val[3], val[4], val[5], @comments.pop)
 
-                      self.env.unextend
-                      self.in_def = false
-                      self.lexer.clear_comments
+                      @static_env.unextend
+                      @def_level -= 1
+                      @lexer.clear_comments
                     }
                 | kDEF singleton dot_or_colon
                     {
-                      self.comments.push self.lexer.clear_comments
-                      lexer.state = :expr_fname
+                      @comments.push @lexer.clear_comments
+                      @lexer.state = :expr_fname
                     }
                     fname
                     {
-                      self.in_single += 1
-                      self.env.extend
-                      result = lexer.lineno
+                      @def_level += 1
+                      @static_env.extend_static
                     }
                     f_arglist bodystmt kEND
                     {
-                      result = new_defs val
-                      result[3].line val[5]
+                      result = @builder.def_singleton(val[0], val[1], val[2],
+                                  val[4], val[6], val[7], val[8], @comments.pop)
 
-                      self.env.unextend
-                      self.in_single -= 1
-                      self.lexer.clear_comments
+                      @static_env.unextend
+                      @def_level -= 1
+                      @lexer.clear_comments
                     }
                 | kBREAK
                     {
-                      result = s(:break)
+                      result = @builder.keyword_cmd(:break, val[0])
                     }
                 | kNEXT
                     {
-                      result = s(:next)
+                      result = @builder.keyword_cmd(:next, val[0])
                     }
                 | kREDO
                     {
-                      result = s(:redo)
+                      result = @builder.keyword_cmd(:redo, val[0])
                     }
                 | kRETRY
                     {
-                      result = s(:retry)
+                      result = @builder.keyword_cmd(:retry, val[0])
                     }
 
    primary_value: primary
@@ -1168,20 +1212,22 @@ rule
          if_tail: opt_else
                 | kELSIF expr_value then compstmt if_tail
                     {
-                      result = s(:if, val[1], val[3], val[4])
+                      else_t, else_ = val[4]
+                      result = [ val[0],
+                                 @builder.condition(val[0], val[1], val[2],
+                                                    val[3], else_t,
+                                                    else_,  nil),
+                               ]
                     }
 
         opt_else: none
                 | kELSE compstmt
                     {
-                      result = val[1]
+                      result = val
                     }
 
          for_var: lhs
                 | mlhs
-                    {
-                      val[0].delete_at 1 if val[0][1].nil? # HACK
-                    }
 
           f_marg: f_norm_arg
                 | tLPAREN f_margs rparen
@@ -1191,11 +1237,11 @@ rule
 
      f_marg_list: f_marg
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | f_marg_list tCOMMA f_marg
                     {
-                      result = list_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
 
          f_margs: f_marg_list
@@ -1206,9 +1252,7 @@ rule
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg
                     {
-                      args, _, _, splat = val
-
-                      result = block_var args, "*#{splat}".to_sym
+                      result = val[0] << @builder.splatarg(val[2], *val[3])
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
                     {
@@ -1269,19 +1313,18 @@ rule
                     }
                 | f_arg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_arg tCOMMA
-                    {
-                      result = args val
-                    }
                 | f_arg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = args val
                     }
                 | f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].concat(val[1])
                     }
                 | f_block_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
@@ -1301,7 +1344,8 @@ rule
                     }
                 | f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[1])
                     }
                 | f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
@@ -1309,28 +1353,33 @@ rule
                     }
                 | f_block_arg
                     {
-                      result = args val
+                      result = [ val[0] ]
                     }
 
  opt_block_param: none
+                    {
+                      result = @builder.args(nil, [], nil)
+                    }
                 | block_param_def
 
  block_param_def: tPIPE opt_bv_decl tPIPE
                     {
-                      result = val[1] || 0
+                      result = @builder.args(val[0], val[1], val[2])
                     }
                 | tOROP
                     {
-                      result = 0
-                      #self.lexer.command_start = true
+                      result = @builder.args(val[0], [], val[0])
                     }
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
-                      result = val[1]
-                      result.concat val[2] if val[2]
+                      val[1].concat(val[2])
+                      result = @builder.args(val[0], val[1], val[3])
                     }
 
      opt_bv_decl: none
+                    {
+                      result = []
+                    }
                 | tSEMI bv_decls
                     {
                       result = val[1]
@@ -1365,9 +1414,6 @@ rule
                       raise "not yet: #{val.inspect}" if val[2]
                     }
                 | f_args
-                    {
-                      result = val[0]
-                    }
 
      lambda_body: tLAMBEG compstmt tRCURLY
                     {
@@ -1380,59 +1426,55 @@ rule
 
         do_block: kDO_BLOCK
                     {
-                      self.env.extend :dynamic
-                      result = self.lexer.lineno
+                      @static_env.extend_dynamic
                     }
                     opt_block_param compstmt kEND
                     {
-                      args   = val[2]
-                      body   = val[3]
-                      result = new_iter nil, args, body
-                      result.line = val[1]
+                      result = [ val[0], val[2], val[3], val[4] ]
 
-                      self.env.unextend
+                      @static_env.unextend
                     }
 
       block_call: command do_block
                     {
-                      # TODO:
-                      # if (nd_type($1) == NODE_YIELD) {
-                      #     compile_error(PARSER_ARG "block given to yield");
-
-                      syntax_error "Both block arg and actual block given." if
-                        val[0].block_pass?
-
-                      result = val[1]
-                      result.insert 1, val[0]
+                      begin_t, block_args, body, end_t = val[1]
+                      result      = @builder.block(val[0],
+                                      begin_t, block_args, body, end_t)
                     }
                 | block_call tDOT operation2 opt_paren_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | block_call tCOLON2 operation2 opt_paren_args
                     {
-                      result = new_call val[0], val[2], val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
 
-     method_call: operation
+     method_call: operation paren_args
                     {
-                      result = self.lexer.lineno
-                    }
-                    paren_args
-                    {
-                      result = new_call nil, val[0].to_sym, val[2]
+                      lparen_t, args, rparen_t = val[1]
+                      result = @builder.call_method(nil, nil, val[0],
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tDOT operation2 opt_paren_args
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tCOLON2 operation2 paren_args
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
+                      lparen_t, args, rparen_t = val[3]
+                      result = @builder.call_method(val[0], val[1], val[2],
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tCOLON2 operation3
                     {
-                      result = new_call val[0], val[2].to_sym
+                      result = @builder.call_method(val[0], val[1], val[2])
                     }
                 | primary_value tDOT paren_args
                     {
@@ -1444,323 +1486,343 @@ rule
                     }
                 | kSUPER paren_args
                     {
-                      result = new_super val[1]
+                      lparen_t, args, rparen_t = val[1]
+                      result = @builder.keyword_cmd(:super, val[0],
+                                  lparen_t, args, rparen_t)
                     }
                 | kSUPER
                     {
-                      result = s(:zsuper)
+                      result = @builder.keyword_cmd(:zsuper, val[0])
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket
                     {
-                      result = new_aref val
+                      result = @builder.index(val[0], val[1], val[2], val[3])
                     }
 
      brace_block: tLCURLY
                     {
-                      self.env.extend :dynamic
-                      result = self.lexer.lineno
+                      @static_env.extend_dynamic
                     }
                     opt_block_param compstmt tRCURLY
                     {
-                      _, line, args, body, _ = val
+                      result = [ val[0], val[2], val[3], val[4] ]
 
-                      result = new_iter nil, args, body
-                      result.line = line
-
-                      self.env.unextend
+                      @static_env.unextend
                     }
                 | kDO
                     {
-                      self.env.extend :dynamic
-                      result = self.lexer.lineno
+                      @static_env.extend_dynamic
                     }
                  opt_block_param compstmt kEND
                     {
-                      _, line, args, body, _ = val
+                      result = [ val[0], val[2], val[3], val[4] ]
 
-                      result = new_iter nil, args, body
-                      result.line = line
-
-                      self.env.unextend
+                      @static_env.unextend
                     }
 
-       case_body: kWHEN
+       case_body: kWHEN args then compstmt cases
                     {
-                      result = self.lexer.lineno
-                    }
-                    args then compstmt cases
-                    {
-                      result = new_when(val[2], val[4])
-                      result.line = val[1]
-                      result << val[5] if val[5]
+                      result = [ @builder.when(val[0], val[1], val[2], val[3]),
+                                 *val[4] ]
                     }
 
-           cases: opt_else | case_body
+           cases: opt_else
+                    {
+                      else_t, else_ = val[0]
+                      result = [ else_ ]
+                    }
+                | case_body
 
       opt_rescue: kRESCUE exc_list exc_var then compstmt opt_rescue
                     {
-                      _, klasses, var, _, body, rest = val
+                      assoc_t, exc_var = val[2]
 
-                      klasses ||= s(:array)
-                      klasses << node_assign(var, s(:gvar, :"$!")) if var
+                      if val[1]
+                        exc_list = @builder.array(nil, val[1], nil)
+                      end
 
-                      result = new_resbody(klasses, body)
-                      result << rest if rest # UGH, rewritten above
+                      result = [ @builder.rescue_body(val[0],
+                                      exc_list, assoc_t, exc_var,
+                                      val[3], val[4]),
+                                 *val[5] ]
                     }
                 |
                     {
-                      result = nil
+                      result = []
                     }
 
         exc_list: arg_value
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | mrhs
                 | none
 
          exc_var: tASSOC lhs
                     {
-                      result = val[1]
+                      result = val
                     }
                 | none
 
       opt_ensure: kENSURE compstmt
                     {
-                      _, body = val
-
-                      result = body || s(:nil)
+                      result = val
                     }
                 | none
 
-         literal: numeric { result = s(:lit, val[0]) }
-                | symbol  { result = s(:lit, val[0]) }
+         literal: numeric
+                | symbol
                 | dsym
 
          strings: string
                     {
-                      val[0] = s(:dstr, val[0].value) if val[0][0] == :evstr
-                      result = val[0]
+                      result = @builder.string_compose(nil, val[0], nil)
                     }
 
           string: string1
+                    {
+                      result = [ val[0] ]
+                    }
                 | string string1
                     {
-                      result = self.literal_concat val[0], val[1]
+                      result = val[0] << val[1]
                     }
 
          string1: tSTRING_BEG string_contents tSTRING_END
                     {
-                      result = val[1]
+                      result = @builder.string_compose(val[0], val[1], val[2])
                     }
                 | tSTRING
                     {
-                      result = s(:str, val[0])
+                      result = @builder.string(val[0])
                     }
 
          xstring: tXSTRING_BEG xstring_contents tSTRING_END
                     {
-                      result = new_xstring val[1]
+                      result = @builder.xstring_compose(val[0], val[1], val[2])
                     }
 
           regexp: tREGEXP_BEG regexp_contents tSTRING_END tREGEXP_OPT
                     {
-                      result = new_regexp val
+                      opts   = @builder.regexp_options(val[3])
+                      result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
 
            words: tWORDS_BEG tSPACE tSTRING_END
-                    {
-                      result = s(:array)
+                    { # :nocov: TODO: unused with Ragel lexer; remove?
+                      result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tWORDS_BEG word_list tSTRING_END
                     {
-                      result = val[1]
+                      result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
        word_list: none
                     {
-                      result = s(:array)
+                      result = []
                     }
                 | word_list word tSPACE
                     {
-                      word = val[1][0] == :evstr ? s(:dstr, "", val[1]) : val[1]
-                      result = val[0] << word
+                      result = val[0] << val[1]
                     }
 
             word: string_content
                 | word string_content
-                    {
-                      result = self.literal_concat val[0], val[1]
+                    { # :nocov: TODO: test this rule, remove if unused
+                      raise "unused 'word string_content'"
                     }
 
           qwords: tQWORDS_BEG tSPACE tSTRING_END
-                    {
-                      result = s(:array)
+                    { # :nocov: TODO: unused with Ragel lexer; remove?
+                      result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tQWORDS_BEG qword_list tSTRING_END
                     {
-                      result = val[1]
+                      result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
       qword_list: none
                     {
-                      result = s(:array)
+                      result = []
                     }
                 | qword_list tSTRING_CONTENT tSPACE
                     {
-                      result = val[0] << s(:str, val[1])
+                      result = val[0] << @builder.string(val[1])
                     }
 
  string_contents: none
                     {
-                      result = s(:str, "")
+                      result = []
                     }
                 | string_contents string_content
                     {
-                      result = literal_concat(val[0], val[1])
+                      result = val[0] << val[1]
                     }
 
-xstring_contents: none
+xstring_contents: none # TODO: replace with string_contents?
                     {
-                      result = nil
+                      result = []
                     }
                 | xstring_contents string_content
                     {
-                      result = literal_concat(val[0], val[1])
+                      result = val[0] << val[1]
                     }
 
 regexp_contents: none
                     {
-                      result = nil
+                      result = []
                     }
                 | regexp_contents string_content
                     {
-                      result = literal_concat(val[0], val[1])
+                      result = val[0] << val[1]
                     }
 
   string_content: tSTRING_CONTENT
                     {
-                      result = s(:str, val[0])
+                      result = @builder.string(val[0])
                     }
-                | tSTRING_DVAR
-                    string_dvar
+                | tSTRING_DVAR string_dvar
                     {
-                      result = s(:evstr, val[1])
+                      result = val[1]
                     }
                 | tSTRING_DBEG
                     {
-                      lexer.cond.push(false)
-                      lexer.cmdarg.push(false)
+                      @lexer.cond.push(false)
+                      @lexer.cmdarg.push(false)
                     }
                     compstmt tRCURLY
                     {
-                      lexer.cond.lexpop
-                      lexer.cmdarg.lexpop
+                      @lexer.cond.lexpop
+                      @lexer.cmdarg.lexpop
 
-                      case val[2]
-                      when Sexp then
-                        case val[2][0]
-                        when :str, :dstr, :evstr then
-                          result = val[2]
-                        else
-                          result = s(:evstr, val[2])
-                        end
-                      when nil then
-                        result = s(:evstr)
-                      else
-                        raise "unknown string body: #{val[2].inspect}"
-                      end
+                      result = val[2]
                     }
 
-     string_dvar: tGVAR { result = s(:gvar, val[0].to_sym) }
-                | tIVAR { result = s(:ivar, val[0].to_sym) }
-                | tCVAR { result = s(:cvar, val[0].to_sym) }
+     string_dvar: tGVAR
+                    {
+                      result = @builder.gvar(val[0])
+                    }
+                | tIVAR
+                    {
+                      result = @builder.ivar(val[0])
+                    }
+                | tCVAR
+                    {
+                      result = @builder.cvar(val[0])
+                    }
                 | backref
 
 
           symbol: tSYMBEG sym # TODO: not used, delete.
                     {
-                      result = val[1].to_sym
+                      result = nil
                     }
                 | tSYMBOL
                     {
-                      result = val[0].to_sym
+                      if val[0][0].empty?
+                        diagnostic(:error, :empty_symbol, val[0])
+                      end
+
+                      result = @builder.symbol(val[0])
                     }
 
              sym: fname | tIVAR | tGVAR | tCVAR
 
             dsym: tSYMBEG xstring_contents tSTRING_END
                     {
-                      result = val[1]
-
-                      yyerror "empty symbol literal" if
-                        result.nil? or result.empty?
-
-                      case result[0]
-                      when :dstr then
-                        result[0] = :dsym
-                      when :str then
-                        result = s(:lit, result.last.intern)
-                      else
-                        result = s(:dsym, "", result)
-                      end
+                      result = @builder.symbol_compose(val[0], val[1], val[2])
                     }
 
          numeric: tINTEGER
+                    {
+                      result = @builder.integer(val[0])
+                    }
                 | tFLOAT
+                    {
+                      result = @builder.float(val[0])
+                    }
                 | tUMINUS_NUM tINTEGER =tLOWEST
                     {
-                      result = -val[1] # TODO: pt_testcase
+                      result = @builder.integer(val[1], true)
                     }
                 | tUMINUS_NUM tFLOAT   =tLOWEST
                     {
-                      result = -val[1] # TODO: pt_testcase
+                      result = @builder.float(val[1], true)
                     }
 
    user_variable: tIDENTIFIER
+                    {
+                      result = @builder.ident(val[0])
+                    }
                 | tIVAR
+                    {
+                      result = @builder.ivar(val[0])
+                    }
                 | tGVAR
+                    {
+                      result = @builder.gvar(val[0])
+                    }
                 | tCONSTANT
+                    {
+                      result = @builder.const(val[0])
+                    }
                 | tCVAR
+                    {
+                      result = @builder.cvar(val[0])
+                    }
 
-keyword_variable: kNIL      { result = s(:nil)   }
-                | kSELF     { result = s(:self)  }
-                | kTRUE     { result = s(:true)  }
-                | kFALSE    { result = s(:false) }
-                | k__FILE__ { result = s(:str, self.file) }
-                | k__LINE__ { result = s(:lit, lexer.lineno) }
+keyword_variable: kNIL
+                    {
+                      result = @builder.nil(val[0])
+                    }
+                | kSELF
+                    {
+                      result = @builder.self(val[0])
+                    }
+                | kTRUE
+                    {
+                      result = @builder.true(val[0])
+                    }
+                | kFALSE
+                    {
+                      result = @builder.false(val[0])
+                    }
+                | k__FILE__
+                    {
+                      result = @builder.__FILE__(val[0])
+                    }
+                | k__LINE__
+                    {
+                      result = @builder.__LINE__(val[0])
+                    }
                 | k__ENCODING__
                     {
-                      result =
-                        if defined? Encoding then
-                          s(:const, Encoding::UTF_8)
-                        else
-                          s(:str, "Unsupported!")
-                        end
+                      result = 'todo'
                     }
 
          var_ref: user_variable
                     {
-                      var = val[0]
-                      result = Sexp === var ? var : self.gettable(var)
+                      result = @builder.accessible(val[0])
                     }
                 | keyword_variable
-                    {
-                      var = val[0]
-                      result = Sexp === var ? var : self.gettable(var)
-                    }
 
          var_lhs: user_variable
                     {
-                      result = self.assignable val[0]
+                      result = @builder.assignable(val[0])
                     }
                 | keyword_variable
                     {
-                      result = self.assignable val[0]
+                      result = @builder.assignable(val[0])
                     }
 
-         backref: tNTH_REF  { result = s(:nth_ref,  val[0]) }
-                | tBACK_REF { result = s(:back_ref, val[0]) }
+         backref: tNTH_REF
+                    {
+                      result = @builder.nth_ref(val[0])
+                    }
+                | tBACK_REF
+                    {
+                      result = @builder.back_ref(val[0])
+                    }
 
       superclass: term
                     {
@@ -1768,7 +1830,7 @@ keyword_variable: kNIL      { result = s(:nil)   }
                     }
                 | tLT expr_value term
                     {
-                      result = val[1]
+                      result = [ val[0], val[1] ]
                     }
                 | error term
                     {
@@ -1778,54 +1840,78 @@ keyword_variable: kNIL      { result = s(:nil)   }
 
        f_arglist: tLPAREN2 f_args rparen
                     {
-                      result = val[1]
-                      lexer.state = :expr_beg
-                      #self.lexer.command_start = true
+                      result = @builder.args(val[0], val[1], val[2])
+
+                      @lexer.state = :expr_beg
                     }
                 | f_args term
                     {
-                      result = val[0]
+                      result = @builder.args(nil, val[0], nil)
                     }
 
           f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg tCOMMA f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[6]).
+                                  concat(val[7])
                     }
                 | f_arg tCOMMA f_optarg              opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_arg tCOMMA f_optarg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg tCOMMA            f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_arg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg                             opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[1])
                     }
                 |           f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 |           f_optarg                opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[1])
                     }
                 | f_optarg tCOMMA f_arg opt_f_block_arg
                     {
@@ -1833,87 +1919,75 @@ keyword_variable: kNIL      { result = s(:nil)   }
                     }
                 |                        f_rest_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[1])
                     }
                 |           f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2])
                     }
                 |                                       f_block_arg
                     {
-                      result = args val
+                      result = [ val[0] ]
                     }
-                |
+                | # nothing
                     {
-                      result = args val
+                      result = []
                     }
 
        f_bad_arg: tCONSTANT
                     {
-                      yyerror "formal argument cannot be a constant"
+                      diagnostic(:error, :argument_const, val[0])
                     }
                 | tIVAR
                     {
-                      yyerror "formal argument cannot be an instance variable"
+                      diagnostic(:error, :argument_ivar, val[0])
                     }
                 | tGVAR
                     {
-                      yyerror "formal argument cannot be a global variable"
+                      diagnostic(:error, :argument_gvar, val[0])
                     }
                 | tCVAR
                     {
-                      yyerror "formal argument cannot be a class variable"
+                      diagnostic(:error, :argument_cvar, val[0])
                     }
 
       f_norm_arg: f_bad_arg
                 | tIDENTIFIER
                     {
-                      identifier = val[0].to_sym
-                      self.env[identifier] = :lvar
+                      @static_env.declare val[0][0]
 
-                      result = identifier
+                      result = @builder.arg(val[0])
                     }
 
       f_arg_item: f_norm_arg
                 | tLPAREN f_margs rparen
                     {
-                      result = val[1]
+                      result = @builder.multi_lhs(val[0], val[1], val[2])
                     }
 
            f_arg: f_arg_item
                     {
-                      case val[0]
-                      when Symbol then
-                        result = s(:args)
-                        result << val[0]
-                      when Sexp then
-                        result = val[0]
-                      else
-                        raise "Unknown f_arg type: #{val.inspect}"
-                      end
+                      result = [ val[0] ]
                     }
                 | f_arg tCOMMA f_arg_item
                     {
-                      list, _, item = val
-
-                      if list.sexp_type == :args then
-                        result = list
-                      else
-                        result = s(:args, list)
-                      end
-
-                      result << item
+                      result = val[0] << val[2]
                     }
 
            f_opt: tIDENTIFIER tEQL arg_value
                     {
-                      result = self.assignable val[0], val[2]
-                      # TODO: detect duplicate names
+                      @static_env.declare val[0][0]
+
+                      result = @builder.optarg(val[0], val[1], val[2])
                     }
 
      f_block_opt: tIDENTIFIER tEQL primary_value
                     {
-                      result = self.assignable val[0], val[2]
+                      @static_env.declare val[0][0]
+
+                      result = @builder.optarg(val[0], val[1], val[2])
                     }
 
   f_block_optarg: f_block_opt
@@ -1928,81 +2002,74 @@ keyword_variable: kNIL      { result = s(:nil)   }
 
         f_optarg: f_opt
                     {
-                      result = s(:block, val[0])
+                      result = [ val[0] ]
                     }
                 | f_optarg tCOMMA f_opt
                     {
-                      result = self.block_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
 
     restarg_mark: tSTAR2 | tSTAR
 
       f_rest_arg: restarg_mark tIDENTIFIER
                     {
-                      # TODO: differs from parse.y - needs tests
-                      name = val[1].to_sym
-                      self.assignable name
-                      result = :"*#{name}"
+                      @static_env.declare val[1][0]
+
+                      result = [ @builder.splatarg(val[0], val[1]) ]
                     }
                 | restarg_mark
                     {
-                      name = :"*"
-                      self.env[name] = :lvar
-                      result = name
+                      result = [ @builder.splatarg(val[0]) ]
                     }
 
      blkarg_mark: tAMPER2 | tAMPER
 
      f_block_arg: blkarg_mark tIDENTIFIER
                     {
-                      identifier = val[1].to_sym
+                      @static_env.declare val[1][0]
 
-                      self.env[identifier] = :lvar
-                      result = "&#{identifier}".to_sym
+                      result = @builder.blockarg(val[0], val[1])
                     }
 
  opt_f_block_arg: tCOMMA f_block_arg
                     {
-                      result = val[1]
+                      result = [ val[1] ]
                     }
                 |
                     {
-                      result = nil
+                      result = []
                     }
 
        singleton: var_ref
                 | tLPAREN2 expr rparen
                     {
                       result = val[1]
-                      yyerror "Can't define single method for literals." if
-                        result[0] == :lit
                     }
 
       assoc_list: none # [!nil]
                     {
-                      result = s(:array)
+                      result = []
                     }
                 | assocs trailer # [!nil]
-                    {
-                      result = val[0]
-                    }
 
           assocs: assoc
+                    {
+                      result = [ val[0] ]
+                    }
                 | assocs tCOMMA assoc
                     {
-                      list = val[0].dup
-                      more = val[2][1..-1]
-                      list.push(*more) unless more.empty?
-                      result = list
+                      result = val[0] << val[2]
                     }
 
            assoc: arg_value tASSOC arg_value
                     {
-                      result = s(:array, val[0], val[2])
+                      result = @builder.pair(val[0], val[1], val[2])
                     }
                 | tLABEL arg_value
                     {
-                      result = s(:array, s(:lit, val[0].to_sym), val[1])
+                      # TODO: Extract colon
+                      key = @builder.symbol(val[0])
+                      result = @builder.pair(key, nil, val[1])
                     }
 
        operation: tIDENTIFIER | tCONSTANT | tFID
