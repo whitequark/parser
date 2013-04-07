@@ -1384,6 +1384,10 @@ class Parser::Lexer
 
       c_space_nl+;
 
+      '#' c_line* c_eol
+      => { @comments << tok
+           fhold; };
+
       # The following rules match most binary and all unary operators.
       # Rules for binary operators provide better error reporting.
       operator_arithmetic '='    |

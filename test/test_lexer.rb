@@ -371,6 +371,12 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal "# one\n# two\n", @lex.comments
   end
 
+  def test_comment_expr_beg
+    util_lex_token("{#1\n}",
+                   :tLBRACE, "{",
+                   :tRCURLY, "}")
+  end
+
   def test_comment_begin
     util_lex_token("=begin\nblah\nblah\n=end\n42",
                    :tINTEGER, 42)
