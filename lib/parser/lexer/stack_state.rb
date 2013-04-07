@@ -29,7 +29,7 @@ module Parser
     end
 
     def to_s
-      "#<StackState #{@stack.to_s(2)} <= #{@name}>"
+      "[#{@stack.to_s(2)} <= #{@name}]"
     end
 
     alias inspect to_s

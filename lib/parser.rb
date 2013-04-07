@@ -28,6 +28,7 @@ module Parser
   require 'parser/lexer'
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
+  require 'parser/lexer/explanation'
 
   module Builders
     require 'parser/builders/default'

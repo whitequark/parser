@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'benchmark'
+require 'ruby_parser'
+
+$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
+require 'parser/all'
+
+def measure(what)
+  Benchmark.bm(10) do |x|
+    x.report "ruby_parser" do
+      what.each do |src|
+        RubyParser.new.parse(src)
+      end
+    end
+    x.report "parser" do
+      what.each do |src|
+        Parser::Ruby18.parse(src)
+      end
+    end
+  end
+end
+
+files = ARGV.map &File.method(:read)
+measure(files)

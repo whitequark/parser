@@ -17,6 +17,10 @@ module Parser
       parser.parse(source_buffer)
     end
 
+    def self.parse_file(filename)
+      parse(File.read(filename), filename)
+    end
+
     attr_reader :diagnostics
     attr_reader :static_env
 

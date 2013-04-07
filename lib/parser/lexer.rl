@@ -200,9 +200,9 @@ class Parser::Lexer
     if @token_queue.any?
       @token_queue.shift
     elsif @cs == self.class.lex_error
-      [ false, [ '$error', range(p, p) ] ]
+      [ false, [ '$error', range(p - 1, p) ] ]
     else
-      [ false, [ '$eof',   range(p, p) ] ]
+      [ false, [ '$eof',   range(p - 1, p) ] ]
     end
   end
 

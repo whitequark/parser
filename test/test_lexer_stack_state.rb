@@ -64,6 +64,6 @@ class TestLexerStackState < MiniTest::Unit::TestCase
     @state.push(false)
     @state.push(false)
 
-    assert_equal '#<StackState 100 <= state>', @state.to_s
+    assert_equal '[100 <= state]', @state.to_s
   end
 end

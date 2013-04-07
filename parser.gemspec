@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
                           lib/parser/lexer.rb
                           lib/parser/ruby18.rb
                        )
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.executables   = %w()
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
