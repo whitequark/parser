@@ -224,6 +224,11 @@ class Parser::Lexer
     versions.include?(@version)
   end
 
+  def stack_pop
+    @top -= 1
+    @stack[@top]
+  end
+
   def tok(s = @ts, e = @te)
     @source[s...e]
   end
@@ -791,7 +796,7 @@ class Parser::Lexer
         end
 
         fhold;
-        fnext *@stack.pop;
+        fnext *stack_pop;
         fbreak;
       end
     end
@@ -921,7 +926,7 @@ class Parser::Lexer
           emit(:tGVAR)
         end
 
-        fnext *@stack.pop; fbreak;
+        fnext *stack_pop; fbreak;
       };
 
       class_var_v
@@ -932,7 +937,7 @@ class Parser::Lexer
         end
 
         emit(:tCVAR)
-        fnext *@stack.pop; fbreak;
+        fnext *stack_pop; fbreak;
       };
 
       instance_var_v
@@ -943,7 +948,7 @@ class Parser::Lexer
         end
 
         emit(:tIVAR)
-        fnext *@stack.pop; fbreak;
+        fnext *stack_pop; fbreak;
       };
   *|;
 

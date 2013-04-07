@@ -2124,4 +2124,17 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER,  "foo")
   end
 
+  def test_bug_ragel_stack
+    util_lex_token("\"\#{$2 ? $2 : 1}\"",
+                   :tSTRING_BEG,      "\"",
+                   :tSTRING_DBEG,     "\#{",
+                   :tNTH_REF,         2,
+                   :tEH,              "?",
+                   :tNTH_REF,         2,
+                   :tCOLON,           ":",
+                   :tINTEGER,         1,
+                   :tRCURLY,          "}",
+                   :tSTRING_END,      "\"")
+  end
+
 end
