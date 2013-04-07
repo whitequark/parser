@@ -2997,6 +2997,13 @@ class TestParser < MiniTest::Unit::TestCase
 
   # Error recovery
 
+  def test_unknown_percent_str
+    assert_diagnoses(
+      [:error, :unexpected_percent_str, type: 'k'],
+      %q{%k[foo]},
+      %q{~~ location})
+  end
+
   def test_on_error
     assert_diagnoses(
       [:error, :unexpected_token, token: 'tIDENTIFIER'],
