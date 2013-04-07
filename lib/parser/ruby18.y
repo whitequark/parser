@@ -1270,78 +1270,81 @@ rule
 
        block_par: mlhs_item
                     {
-                      result = s(:array, clean_mlhs(val[0]))
+                      result = [ @builder.arg_expr(val[0]) ]
                     }
                 | block_par tCOMMA mlhs_item
                     {
-                      result = list_append val[0], clean_mlhs(val[2])
+                      result = val[0] << @builder.arg_expr(val[2])
                     }
 
        block_var: block_par
-                    {
-                      result = block_var18 val[0], nil, nil
-                    }
                 | block_par tCOMMA
-                    {
-                      result = block_var18 val[0], nil, nil
-                    }
                 | block_par tCOMMA tAMPER lhs
                     {
-                      result = block_var18 val[0], nil, val[3]
+                      result =  [ *val[0],
+                                  @builder.blockarg_expr(val[2], val[3]) ]
                     }
                 | block_par tCOMMA tSTAR lhs tCOMMA tAMPER lhs
                     {
-                      result = block_var18 val[0], val[3], val[6]
+                      result =  [ *val[0],
+                                  @builder.splatarg_expr(val[2], val[3]),
+                                  @builder.blockarg_expr(val[5], val[6]) ]
                     }
                 | block_par tCOMMA tSTAR tCOMMA tAMPER lhs
                     {
-                      result = block_var18 val[0], s(:splat), val[5]
+                      result =  [ *val[0],
+                                  @builder.splatarg_expr(val[2]),
+                                  @builder.blockarg_expr(val[4], val[5]) ]
                     }
                 | block_par tCOMMA tSTAR lhs
                     {
-                      result = block_var18 val[0], val[3], nil
+                      result =  [ *val[0],
+                                  @builder.splatarg_expr(val[2], val[3]) ]
                     }
                 | block_par tCOMMA tSTAR
                     {
-                      result = block_var18 val[0], s(:splat), nil
+                      result =  [ *val[0],
+                                  @builder.splatarg_expr(val[2]) ]
                     }
                 | tSTAR lhs tCOMMA tAMPER lhs
                     {
-                      result = block_var18 nil, val[1], val[4]
+                      result =  [ @builder.splatarg_expr(val[0], val[1]),
+                                  @builder.blockarg_expr(val[3], val[4]) ]
                     }
                 | tSTAR tCOMMA tAMPER lhs
                     {
-                      result = block_var18 nil, s(:splat), val[3]
+                      result =  [ @builder.splatarg_expr(val[0]),
+                                  @builder.blockarg_expr(val[2], val[3]) ]
                     }
                 | tSTAR lhs
                     {
-                      result = block_var18 nil, val[1], nil
+                      result =  [ @builder.splatarg_expr(val[0], val[1]) ]
                     }
                 | tSTAR
                     {
-                      result = block_var18 nil, s(:splat), nil
+                      result =  [ @builder.splatarg_expr(val[0]) ]
                     }
                 | tAMPER lhs
                     {
-                      result = block_var18 nil, nil, val[1]
+                      result =  [ @builder.blockarg_expr(val[0], val[1]) ]
                     }
                 ;
 
    opt_block_var: none
                     {
-                      result = @builder.arglist(nil, nil, nil)
+                      result = @builder.args(nil, nil, nil)
                     }
                 | tPIPE tPIPE
                     {
-                      result = @builder.arglist(val[0], nil, val[1])
+                      result = @builder.args(val[0], nil, val[1])
                     }
                 | tOROP
                     {
-                      result = @builder.arglist(val[0], nil, val[0])
+                      result = @builder.args(val[0], nil, val[0])
                     }
                 | tPIPE block_var tPIPE
                     {
-                      result = @builder.arglist(val[0], val[1], val[2])
+                      result = @builder.args(val[0], val[1], val[2])
                     }
 
         do_block: kDO_BLOCK
@@ -1733,50 +1736,50 @@ xstring_contents: # nothing # TODO: replace with string_contents?
 
        f_arglist: tLPAREN2 f_args opt_nl tRPAREN
                     {
-                      result = @builder.arglist(val[0], val[1], val[3])
+                      result = @builder.args(val[0], val[1], val[3])
 
                       @lexer.state = :expr_beg
                     }
                 | f_args term
                     {
-                      result = val[0]
+                      result = @builder.args(nil, val[0], nil)
                     }
 
           f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = @builder.args(val[0], val[2], val[4], val[5])
+                      result = [ *val[0], *val[2], *val[4], *val[5] ]
                     }
                 | f_arg tCOMMA f_optarg                   opt_f_block_arg
                     {
-                      result = @builder.args(val[0], val[2], [], val[3])
+                      result = [ *val[0], *val[2], *val[3] ]
                     }
                 | f_arg tCOMMA                 f_rest_arg opt_f_block_arg
                     {
-                      result = @builder.args(val[0], [], val[2], val[3])
+                      result = [ *val[0], *val[2], *val[3] ]
                     }
                 | f_arg                                   opt_f_block_arg
                     {
-                      result = @builder.args(val[0], [], [], val[1])
+                      result = [ *val[0], *val[1] ]
                     }
                 |              f_optarg tCOMMA f_rest_arg opt_f_block_arg
                     {
-                      result = @builder.args([], val[0], val[2], val[3])
+                      result = [ *val[0], *val[2], *val[3] ]
                     }
                 |              f_optarg                   opt_f_block_arg
                     {
-                      result = @builder.args([], val[0], [], val[1])
+                      result = [ *val[0], *val[1] ]
                     }
                 |                              f_rest_arg opt_f_block_arg
                     {
-                      result = @builder.args([], [], val[0], val[1])
+                      result = [ *val[0], *val[1] ]
                     }
                 |                                             f_block_arg
                     {
-                      result = @builder.args([], [], [], [ val[0] ])
+                      result = [ val[0] ]
                     }
-                | none
+                | # nothing
                     {
-                      result = @builder.args([], [], [], [])
+                      result = []
                     }
 
       f_norm_arg: tCONSTANT

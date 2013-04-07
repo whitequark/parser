@@ -80,11 +80,6 @@ module Parser
       v
     end
 
-    def arg_blk_pass(v1, v2)
-      #p 'arg_blk_pass', v1, v2
-      v1
-    end
-
     def next_token
       @lexer.advance
     end
@@ -108,10 +103,14 @@ module Parser
 
     def on_error(error_token_id, error_value, value_stack)
       token_name = token_to_str(error_token_id)
+      _, location = error_value
 
       # TODO add "expected: ..." here
       message = ERRORS[:unexpected_token] % { token: token_name }
-      diagnostic :error, message, error_value
+      @diagnostics.process(
+          Diagnostic.new(:error, message, location))
+
+      yyerror
     end
   end
 

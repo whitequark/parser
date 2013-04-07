@@ -1403,6 +1403,153 @@ class TestParser < MiniTest::Unit::TestCase
       %q{})
   end
 
+  def assert_parses_blockargs(ast, code, versions=ALL_VERSIONS)
+    assert_parses(
+      s(:block,
+        s(:send, nil, :f),
+        ast, s(:nil)),
+      %Q{f{ #{code} }},
+      %q{},
+      versions)
+  end
+
+  def test_block_arg_combinations
+    # none
+    assert_parses_blockargs(
+      s(:args),
+      %q{})
+
+    # tPIPE tPIPE
+    assert_parses_blockargs(
+      s(:args),
+      %q{||})
+
+    # tOROP
+    assert_parses_blockargs(
+      s(:args),
+      %q{| |})
+
+    # block_par
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a)),
+      %q{|a|})
+
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:arg, :c)),
+      %q{|a, c|})
+
+    assert_parses_blockargs(
+      s(:args, s(:arg_expr, s(:ivasgn, :@a))),
+      %q{|@a|},
+      %w(1.8))
+
+    # block_par tCOMMA
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a)),
+      %q{|a,|})
+
+    # block_par tCOMMA tAMPER lhs
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:blockarg, :b)),
+      %q{|a, &b|})
+
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:blockarg_expr, s(:ivasgn, :@b))),
+      %q{|a, &@b|},
+      %w(1.8))
+
+    # block_par tCOMMA tSTAR lhs tCOMMA tAMPER lhs
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:splatarg, :s), s(:blockarg, :b)),
+      %q{|a, *s, &b|})
+
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a),
+        s(:splatarg_expr, s(:ivasgn, :@s)),
+        s(:blockarg_expr, s(:ivasgn, :@b))),
+      %q{|a, *@s, &@b|},
+      %w(1.8))
+
+    # block_par tCOMMA tSTAR tCOMMA tAMPER lhs
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:splatarg), s(:blockarg, :b)),
+      %q{|a, *, &b|})
+
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a),
+        s(:splatarg),
+        s(:blockarg_expr, s(:ivasgn, :@b))),
+      %q{|a, *, &@b|},
+      %w(1.8))
+
+    # block_par tCOMMA tSTAR lhs
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:splatarg, :s)),
+      %q{|a, *s|})
+
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a),
+        s(:splatarg_expr, s(:ivasgn, :@s))),
+      %q{|a, *@s|},
+      %w(1.8))
+
+    # block_par tCOMMA tSTAR
+    assert_parses_blockargs(
+      s(:args, s(:arg, :a), s(:splatarg)),
+      %q{|a, *|})
+
+    # tSTAR lhs tCOMMA tAMPER lhs
+    assert_parses_blockargs(
+      s(:args, s(:splatarg, :s), s(:blockarg, :b)),
+      %q{|*s, &b|})
+
+    assert_parses_blockargs(
+      s(:args,
+        s(:splatarg_expr, s(:ivasgn, :@s)),
+        s(:blockarg_expr, s(:ivasgn, :@b))),
+      %q{|*@s, &@b|},
+      %w(1.8))
+
+    # tSTAR tCOMMA tAMPER lhs
+    assert_parses_blockargs(
+      s(:args, s(:splatarg), s(:blockarg, :b)),
+      %q{|*, &b|})
+
+    assert_parses_blockargs(
+      s(:args,
+        s(:splatarg),
+        s(:blockarg_expr, s(:ivasgn, :@b))),
+      %q{|*, &@b|},
+      %w(1.8))
+
+    # tSTAR lhs
+    assert_parses_blockargs(
+      s(:args, s(:splatarg, :s)),
+      %q{|*s|})
+
+    assert_parses_blockargs(
+      s(:args,
+        s(:splatarg_expr, s(:ivasgn, :@s))),
+      %q{|*@s|},
+      %w(1.8))
+
+    # tSTAR
+    assert_parses_blockargs(
+      s(:args, s(:splatarg)),
+      %q{|*|})
+
+    # tAMPER lhs
+    assert_parses_blockargs(
+      s(:args, s(:blockarg, :b)),
+      %q{|&b|})
+
+    assert_parses_blockargs(
+      s(:args,
+        s(:blockarg_expr, s(:ivasgn, :@b))),
+      %q{|&@b|},
+      %w(1.8))
+  end
+
   def test_arg_invalid
     assert_diagnoses(
       [:error, :argument_const],

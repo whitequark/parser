@@ -747,6 +747,27 @@ Format:
 
 Begin of the `expression` points to `&`.
 
+### Ruby 1.8 expression arguments
+
+Ruby 1.8 allows to use arbitrary expressions as block arguments,
+such as `@var` or `foo.bar`. Such expressions should be treated as
+if they were on the lhs of a multiple assignment.
+
+Format:
+```
+(args (arg_expr (ivasgn :@bar)))
+"|@bar|"
+
+(args (arg_expr (send (send nil :foo) :a=)))
+"|foo.a|"
+
+(args (splatarg_expr (ivasgn :@bar)))
+"|*@bar|"
+
+(args (blockarg_expr (ivasgn :@bar)))
+"|&@bar|"
+```
+
 ### Decomposition
 
 Format:

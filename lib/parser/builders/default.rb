@@ -345,13 +345,8 @@ module Parser
     # Formal arguments
     #
 
-    def arglist(begin_t, args, end_t)
-      args = s(:args) if args.nil?
-      args
-    end
-
-    def args(normargs, optargs, restarg, blockarg)
-      s(:args, *(normargs + optargs + restarg + blockarg))
+    def args(begin_t, args, end_t)
+      s(:args, *args)
     end
 
     def arg(token)
@@ -372,6 +367,34 @@ module Parser
 
     def blockarg(amper_t, token)
       s(:blockarg, value(token).to_sym)
+    end
+
+    # Ruby 1.8 block arguments
+
+    def arg_expr(expr)
+      if expr.type == :lvasgn
+        expr.updated(:arg)
+      else
+        s(:arg_expr, expr)
+      end
+    end
+
+    def splatarg_expr(star_t, expr=nil)
+      if expr.nil?
+        t(star_t, :splatarg)
+      elsif expr.type == :lvasgn
+        expr.updated(:splatarg)
+      else
+        s(:splatarg_expr, expr)
+      end
+    end
+
+    def blockarg_expr(amper_t, expr)
+      if expr.type == :lvasgn
+        expr.updated(:blockarg)
+      else
+        s(:blockarg_expr, expr)
+      end
     end
 
     #
