@@ -1357,8 +1357,9 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_regexp_bad
     util_bad_token("/.*/xyz",
-                   :tREGEXP_BEG, "/",
-                   :tSTRING_CONTENT, ".*")
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, ".*",
+                   :tSTRING_END,     "/")
   end
 
   def test_regexp_escape_C

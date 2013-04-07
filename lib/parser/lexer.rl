@@ -41,6 +41,11 @@
 #       emit($whatever)
 #       fnext $next_state; fbreak;
 #
+#    If you perform `fgoto` in an action which does not emit a token nor
+#    rewinds the stream pointer, the parser's side-effectful,
+#    context-sensitive lookahead actions will break in a hard to detect
+#    and debug way.
+#
 #  * If an action does not emit a token:
 #
 #       fgoto $next_state;
@@ -657,7 +662,7 @@ class Parser::Lexer
 
   action extend_string {
     if literal.nest_and_try_closing tok, @ts, @te
-      fgoto *pop_literal;
+      fnext *pop_literal; fbreak;
     else
       literal.extend_string tok, @ts, @te
     end
@@ -668,7 +673,7 @@ class Parser::Lexer
       # If the literal is actually closed by the backslash,
       # rewind the input prior to consuming the escape sequence.
       p = @escape_s - 1
-      fgoto *pop_literal;
+      fnext *pop_literal; fbreak;
     else
       # Get the first character after the backslash.
       escaped_char = @source[@escape_s].chr
@@ -857,7 +862,7 @@ class Parser::Lexer
         end
 
         emit(:tREGEXP_OPT)
-        fgoto expr_end;
+        fnext expr_end; fbreak;
       };
 
       any

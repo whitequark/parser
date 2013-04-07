@@ -3011,7 +3011,9 @@ class TestParser < MiniTest::Unit::TestCase
       %q{       ~~~ location})
   end
 
+  #
   # Error recovery
+  #
 
   def test_unknown_percent_str
     assert_diagnoses(
@@ -3025,5 +3027,18 @@ class TestParser < MiniTest::Unit::TestCase
       [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],
       %q{def foo(bar baz); end},
       %q{            ~~~ location})
+  end
+
+  #
+  # Bug-specific tests
+  #
+
+  def test_bug_cmd_string_lookahead
+    assert_parses(
+      s(:block,
+        s(:send, nil, :desc,
+          s(:str, "foo")),
+        s(:args), s(:nil)),
+      %q{desc "foo" do end})
   end
 end
