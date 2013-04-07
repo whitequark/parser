@@ -3,6 +3,10 @@ require 'racc/parser'
 
 require 'ast'
 
+if RUBY_VERSION < '1.9'
+  require 'parser/compatibility/ruby1_8'
+end
+
 # Library namespace
 module Parser
   require 'parser/ast/node'
@@ -75,6 +79,6 @@ module Parser
     :class_in_def            => "class definition in method body",
     :grouped_expression      => "(...) interpreted as grouped expression",
     :space_before_lparen     => "don't put space before argument parentheses",
-    :unexpected_percent_str  => "%%{type}: unknown type of percent-literal"
+    :unexpected_percent_str  => "%{type}: unknown type of percent-literal"
   }.freeze
 end

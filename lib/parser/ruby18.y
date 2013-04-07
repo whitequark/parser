@@ -778,7 +778,7 @@ rule
 
       paren_args: tLPAREN2 none tRPAREN
                     {
-                      result = [ val[0], val[1], val[2] ]
+                      result = [ val[0], [], val[2] ]
                     }
                 | tLPAREN2 call_args opt_nl tRPAREN
                     {
@@ -794,6 +794,9 @@ rule
                     }
 
   opt_paren_args: none
+                    {
+                      result = [ nil, [], nil ]
+                    }
                 | paren_args
 
        call_args: command

@@ -8,7 +8,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
     @lex.diagnostics = Parser::Diagnostic::Engine.new
     @lex.diagnostics.all_errors_are_fatal = true
-    #@lex.diagnostics.consumer = ->(diag) { $stderr.puts "", diag.render }
+    # @lex.diagnostics.consumer = lambda { |diag| $stderr.puts "", diag.render }
   end
 
   def setup
@@ -128,16 +128,20 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_read_escape_unicode__19
-    util_escape "\xc4\xa3", 'u0123'
+    if RUBY_VERSION >= '1.9'
+      util_escape "\xc4\xa3", 'u0123'
 
-    util_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", 'u{123 f0 B123}'
+      util_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", 'u{123 f0 B123}'
+    end
   end
 
   def test_read_escape_unicode_bad__19
-    util_escape_bad 'u123'
-    util_escape_bad 'u{}'
-    util_escape_bad 'u{123 f0h}'
-    util_escape_bad 'u{123 f0'
+    if RUBY_VERSION >= '1.9'
+      util_escape_bad 'u123'
+      util_escape_bad 'u{}'
+      util_escape_bad 'u{123 f0h}'
+      util_escape_bad 'u{123 f0'
+    end
   end
 
   def test_ambiguous_uminus

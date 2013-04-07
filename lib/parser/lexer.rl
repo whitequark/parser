@@ -493,7 +493,7 @@ class Parser::Lexer
       'a' => "\a", 'b'  => "\b", 'e'  => "\e", 'f' => "\f",
       'n' => "\n", 'r'  => "\r", 's'  => "\s", 't' => "\t",
       'v' => "\v", '\\' => "\\"
-    }.fetch(@source[p - 1], @source[p - 1])
+    }.fetch(@source[p - 1].chr, @source[p - 1].chr)
   }
 
   action invalid_complex_escape {
@@ -503,22 +503,22 @@ class Parser::Lexer
   }
 
   action slash_c_char {
-    @escape = (@escape.ord & 0x9f).chr
+    @escape = (@escape[0].ord & 0x9f).chr
   }
 
   action slash_m_char {
-    @escape = (@escape.ord | 0x80).chr
+    @escape = (@escape[0].ord | 0x80).chr
   }
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
-    | ( c_any - [\\] )  % { @escape = @source[p - 1] }
+    | ( c_any - [\\] )  % { @escape = @source[p - 1].chr }
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
-    | ( c_any - [\\?] ) % { @escape = @source[p - 1] } %slash_c_char
+    | ( c_any - [\\?] ) % { @escape = @source[p - 1].chr } %slash_c_char
   );
 
   escape = (
@@ -666,7 +666,7 @@ class Parser::Lexer
       fgoto *pop_literal;
     else
       # Get the first character after the backslash.
-      escaped_char = @source[@escape_s]
+      escaped_char = @source[@escape_s].chr
 
       if literal.munge_escape? escaped_char
         # If this particular literal uses this character as an opening
@@ -1223,14 +1223,14 @@ class Parser::Lexer
       # %<string>
       '%' ( c_any - [A-Za-z] )
       => {
-        type, delimiter = tok[0], tok[-1]
+        type, delimiter = tok[0].chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %w(we are the people)
       '%' [A-Za-z]+ c_any
       => {
-        type, delimiter = tok[0..-2], tok[-1]
+        type, delimiter = tok[0..-2], tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1278,7 +1278,7 @@ class Parser::Lexer
         value = @escape || tok(@ts + 1)
 
         if version?(18)
-          emit(:tINTEGER, value.ord)
+          emit(:tINTEGER, value[0].ord)
         else
           emit(:tSTRING, value)
         end
@@ -1561,7 +1561,7 @@ class Parser::Lexer
       # `echo foo` | :"bar" | :'baz'
       '`' | ':'? ['"] # '
       => {
-        type, delimiter = tok, tok[-1]
+        type, delimiter = tok, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 

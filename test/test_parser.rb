@@ -2999,7 +2999,7 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_unknown_percent_str
     assert_diagnoses(
-      [:error, :unexpected_percent_str, { :type => 'k' }],
+      [:error, :unexpected_percent_str, { :type => '%k' }],
       %q{%k[foo]},
       %q{~~ location})
   end
