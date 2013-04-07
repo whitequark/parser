@@ -276,70 +276,71 @@ rule
                     }
                     opt_block_var compstmt tRCURLY
                     {
-                      result = new_iter nil, val[2], val[3]
+                      result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
                     }
 
          command: operation command_args =tLOWEST
                     {
+                      lparen_t, args, rparen_t = val[1]
                       result = @builder.call_method(nil, nil, val[0],
-                                  nil, val[1], nil)
+                                  lparen_t, args, rparen_t)
                     }
                 | operation command_args cmd_brace_block
                     {
-                      result = new_call nil, val[0].to_sym, val[1]
+                      lparen_t, args, rparen_t = val[1]
+                      method_call = @builder.call_method(nil, nil, val[0],
+                                      lparen_t, args, rparen_t)
 
-                      if val[2] then
-                        block_dup_check result, val[2]
-
-                        result, operation = val[2], result
-                        result.insert 1, operation
-                      end
+                      begin_t, block_args, body, end_t = val[2]
+                      result      = @builder.block(method_call,
+                                      begin_t, block_args, body, end_t)
                     }
                 | primary_value tDOT operation2 command_args =tLOWEST
                     {
+                      lparen_t, args, rparen_t = val[3]
                       result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
+                                  lparen_t, args, rparen_t)
+
                     }
                 | primary_value tDOT operation2 command_args cmd_brace_block
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
-                      raise "no2"
+                      lparen_t, args, rparen_t = val[3]
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                      lparen_t, args, rparen_t)
 
-                      if val[4] then
-                        block_dup_check result, val[4]
-
-                        val[2] << result
-                        result = val[2]
-                      end
+                      begin_t, block_args, body, end_t = val[4]
+                      result      = @builder.block(method_call,
+                                      begin_t, block_args, body, end_t)
                     }
                 | primary_value tCOLON2 operation2 command_args =tLOWEST
                     {
+                      lparen_t, args, rparen_t = val[3]
                       result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tCOLON2 operation2 command_args cmd_brace_block
                     {
-                      result = new_call val[0], val[2].to_sym, val[3]
-                      raise "no3"
+                      lparen_t, args, rparen_t = val[3]
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                      lparen_t, args, rparen_t)
 
-                      if val[4] then
-                        block_dup_check result, val[4]
-
-                        val[2] << result
-                        result = val[2]
-                      end
+                      begin_t, block_args, body, end_t = val[4]
+                      result      = @builder.block(method_call,
+                                      begin_t, block_args, body, end_t)
                     }
                 | kSUPER command_args
                     {
+                      lparen_t, args, rparen_t = val[1]
                       result = @builder.keyword_cmd(:super, val[0],
-                                  nil, val[1], nil)
+                                  lparen_t, args, rparen_t)
                     }
                 | kYIELD command_args
                     {
+                      lparen_t, args, rparen_t = val[1]
                       result = @builder.keyword_cmd(:yield, val[0],
-                                  nil, val[1], nil)
+                                  lparen_t, args, rparen_t)
                     }
 
             mlhs: mlhs_basic
@@ -912,6 +913,9 @@ rule
                     }
 
        open_args: call_args
+                    {
+                      result = [ nil, val[0], nil ]
+                    }
                 | tLPAREN_ARG
                     {
                       @lexer.state = :expr_endarg
@@ -920,7 +924,7 @@ rule
                     {
                       diagnostic(:warning, :space_before_lparen, val[0])
 
-                      result = []
+                      result = [ val[0], nil, val[1] ]
                     }
                 | tLPAREN_ARG call_args2
                     {
@@ -930,7 +934,7 @@ rule
                     {
                       diagnostic(:warning, :space_before_lparen, val[0])
 
-                      result = val[1]
+                      result = [ val[0], val[1], val[2] ]
                     }
 
        block_arg: tAMPER arg_value

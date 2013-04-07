@@ -2095,6 +2095,32 @@ class TestParser < MiniTest::Unit::TestCase
       %q{    ^ location})
   end
 
+  def test_space_args_block
+    assert_parses(
+      s(:block,
+        s(:send, nil, :fun),
+        s(:args), s(:nil)),
+      %q{fun () {}},
+      %q{    ^ begin (send)
+        |     ^ end (send)})
+
+    assert_parses(
+      s(:block,
+        s(:send, s(:lvar, :foo), :fun),
+        s(:args), s(:nil)),
+      %q{foo.fun () {}},
+      %q{        ^ begin (send)
+        |         ^ end (send)})
+
+    assert_parses(
+      s(:block,
+        s(:send, s(:lvar, :foo), :fun),
+        s(:args), s(:nil)),
+      %q{foo::fun () {}},
+      %q{         ^ begin (send)
+        |          ^ end (send)})
+  end
+
   #
   # Control flow
   #
