@@ -843,6 +843,9 @@ rule
                     }
 
   opt_paren_args: none
+                    {
+                      result = [ nil, [], nil ]
+                    }
                 | paren_args
 
    opt_call_args: none
