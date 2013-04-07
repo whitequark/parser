@@ -1977,6 +1977,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND,         "end")
   end
 
+  def test_sclass_joined
+    util_lex_token("class<<self",
+                   :kCLASS, "class",
+                   :tLSHFT, "<<",
+                   :kSELF,  "self")
+  end
+
   def test_static_env
     env = Parser::StaticEnvironment.new
     env.declare "a"

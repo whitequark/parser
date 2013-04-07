@@ -1463,7 +1463,7 @@ class Parser::Lexer
       => { emit_table(KEYWORDS)
            fnext expr_fname; fbreak; };
 
-      'class' c_space_nl '<<'
+      'class' c_space_nl* '<<'
       => { emit(:kCLASS, 'class', @ts, @ts + 5)
            emit(:tLSHFT, '<<',    @te - 2, @te)
            fnext expr_beg; fbreak; };
