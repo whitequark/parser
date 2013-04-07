@@ -851,6 +851,15 @@ class TestParser < MiniTest::Unit::TestCase
       %q{@a |= 1},
       %q{   ^^ operator
         |~~~~~~~ expression})
+
+    assert_parses(
+      s(:op_asgn, s(:cvdecl, :@@var), :|, s(:int, 10)),
+      %q{@@var |= 10})
+
+    assert_parses(
+      s(:def, :a, s(:args),
+        s(:op_asgn, s(:cvasgn, :@@var), :|, s(:int, 10))),
+      %q{def a; @@var |= 10; end})
   end
 
   def test_var_op_asgn_cmd
