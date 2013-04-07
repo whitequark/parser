@@ -5,6 +5,7 @@ module Parser
       parser = new
 
       parser.diagnostics.all_errors_are_fatal = true
+      parser.diagnostics.ignore_warnings      = true
 
       # Temporary, for manual testing convenience
       parser.diagnostics.consumer = lambda do |diagnostic|
