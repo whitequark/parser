@@ -387,6 +387,10 @@ module Parser
       s(:block, method_call, args, body)
     end
 
+    def block_pass(amper_t, arg)
+      s(:block_pass, arg)
+    end
+
     def attr_asgn(receiver, dot_t, selector_t,
                   value=nil)
       method_name = (value(selector_t) + '=').to_sym

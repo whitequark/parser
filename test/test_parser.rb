@@ -1822,9 +1822,111 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~ expression})
   end
 
-  # Corner cases with spaces
+  # Call arguments
 
-  def test_send_cmd_space_grouped_expr
+  def test_args_cmd
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:send, nil, :f, s(:lvar, :bar))),
+      %q{fun(f bar)})
+  end
+
+  def test_args_args_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:splat, s(:lvar, :bar))),
+      %q{fun(foo, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(foo, *bar, &baz)})
+  end
+
+  def test_args_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:splat, s(:lvar, :bar))),
+      %q{fun(*bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(*bar, &baz)})
+  end
+
+  def test_args_assocs
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{fun(:foo => 1)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(:foo => 1, &baz)})
+  end
+
+  def test_args_assocs_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar))),
+      %q{fun(:foo => 1, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(:foo => 1, *bar, &baz)})
+  end
+
+  def test_args_args_assocs
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{fun(foo, :foo => 1)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(foo, :foo => 1, &baz)})
+  end
+
+  def test_args_args_assocs_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar))),
+      %q{fun(foo, :foo => 1, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(foo, :foo => 1, *bar, &baz)})
+  end
+
+  # Call arguments with whitespace
+
+  def test_space_args_cmd
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:send, nil, :f, s(:lvar, :bar))),
+      %q{fun (f bar)})
+  end
+
+  def test_space_args_arg
     assert_parses(
       s(:send, nil, :fun,
         s(:send, s(:int, 1), :to_i)),
@@ -1836,7 +1938,142 @@ class TestParser < MiniTest::Unit::TestCase
       %q{    ~~~ location})
   end
 
-  def test_send_cmd_space_arg_two
+  def test_space_args_arg_block
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:block_pass, s(:lvar, :bar))),
+      %q{fun (foo, &bar)})
+  end
+
+  def test_space_args_args_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:splat, s(:lvar, :bar))),
+      %q{fun (foo, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (foo, *bar, &baz)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:int, 1),
+        s(:splat, s(:lvar, :bar))),
+      %q{fun (foo, 1, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:int, 1),
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (foo, 1, *bar, &baz)})
+  end
+
+  def test_space_args_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:splat, s(:lvar, :bar))),
+      %q{fun (*bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (*bar, &baz)})
+  end
+
+  def test_space_args_assocs
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{fun (:foo => 1)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (:foo => 1, &baz)})
+  end
+
+  def test_space_args_assocs_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar))),
+      %q{fun (:foo => 1, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (:foo => 1, *bar, &baz)})
+  end
+
+  def test_space_args_args_assocs
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{fun (foo, :foo => 1)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (foo, :foo => 1, &baz)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:int, 1),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{fun (foo, 1, :foo => 1)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:int, 1),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (foo, 1, :foo => 1, &baz)})
+  end
+
+  def test_space_args_args_assocs_star
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar))),
+      %q{fun (foo, :foo => 1, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (foo, :foo => 1, *bar, &baz)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:int, 1),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar))),
+      %q{fun (foo, 1, :foo => 1, *bar)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:lvar, :foo), s(:int, 1),
+        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:splat, s(:lvar, :bar)),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun (foo, 1, :foo => 1, *bar, &baz)})
+  end
+
+  def test_space_args_arg_arg
     assert_parses(
       s(:send, nil, :fun, s(:int, 1), s(:int, 2)),
       %q{fun (1, 2)})
@@ -1847,7 +2084,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{    ^ location})
   end
 
-  def test_send_cmd_space_arg_empty
+  def test_space_args_none
     assert_parses(
       s(:send, nil, :fun),
       %q{fun ()})

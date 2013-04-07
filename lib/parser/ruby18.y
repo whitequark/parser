@@ -781,12 +781,10 @@ rule
                     }
                 | tLPAREN2 block_call opt_nl tRPAREN
                     {
-                      warning "parenthesize argument(s) for future version"
                       result = s(:array, val[1])
                     }
                 | tLPAREN2 args tCOMMA block_call opt_nl tRPAREN
                     {
-                      warning "parenthesize argument(s) for future version"
                       result = val[1].add val[3]
                     }
 
@@ -795,42 +793,46 @@ rule
 
        call_args: command
                     {
-                      warning "parenthesize argument(s) for future version"
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | args opt_block_arg
                     {
-                      result = arg_blk_pass val[0], val[1]
+                      result = val[0].concat(val[1])
                     }
                 | args tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = arg_concat val[0], val[3]
-                      result = arg_blk_pass result, val[4]
+                      result = val[0].concat(
+                                [ @builder.splat(val[2], val[3]),
+                                   *val[4] ])
                     }
                 | assocs opt_block_arg
                     {
-                      result = s(:array, s(:hash, *val[0].values))
-                      result = arg_blk_pass result, val[1]
+                      result =  [ @builder.associate(nil, val[0], nil),
+                                  *val[1] ]
                     }
                 | assocs tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = arg_concat s(:array, s(:hash, *val[0].values)), val[3]
-                      result = arg_blk_pass result, val[4]
+                      result =  [ @builder.associate(nil, val[0], nil),
+                                  @builder.splat(val[2], val[3]),
+                                  *val[4] ]
                     }
                 | args tCOMMA assocs opt_block_arg
                     {
-                      result = val[0] << s(:hash, *val[2].values)
-                      result = arg_blk_pass result, val[3]
+                      result = val[0].concat(
+                                [ @builder.associate(nil, val[2], nil),
+                                  *val[3] ])
                     }
                 | args tCOMMA assocs tCOMMA tSTAR arg opt_block_arg
                     {
-                      val[0] << s(:hash, *val[2].values)
-                      result = arg_concat val[0], val[5]
-                      result = arg_blk_pass result, val[6]
+                      result = val[0].concat(
+                                [ @builder.associate(nil, val[2], nil),
+                                  @builder.splat(val[4], val[5]),
+                                  *val[6] ])
                     }
                 | tSTAR arg_value opt_block_arg
                     {
-                      result = arg_blk_pass s(:splat, val[1]), val[2]
+                      result =  [ @builder.splat(val[0], val[1]),
+                                  *val[2] ]
                     }
                 | block_arg
 
@@ -840,51 +842,61 @@ rule
                     }
                 | arg_value tCOMMA block_arg
                     {
-                      result = arg_blk_pass val[0], val[2]
+                      result = [ val[0], val[2] ]
                     }
                 | arg_value tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = arg_concat s(:array, val[0]), val[3]
-                      result = arg_blk_pass result, val[4]
+                      result =  [ val[0],
+                                  @builder.splat(val[2], val[3]),
+                                  *val[4] ]
                     }
                 | arg_value tCOMMA args tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = arg_concat s(:array, val[0], s(:hash, *val[2].values)), val[5]
-                      result = arg_blk_pass result, val[6]
+                      result =  [ val[0], *val[2],
+                                  @builder.splat(val[4], val[5]),
+                                  *val[6] ]
                     }
                 | assocs opt_block_arg
                     {
-                      result = s(:array, s(:hash, *val[0].values))
-                      result = arg_blk_pass result, val[1]
+                      result =  [ @builder.associate(nil, val[0], nil),
+                                  *val[1] ]
                     }
                 | assocs tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = s(:array, s(:hash, *val[0].values), val[3])
-                      result = arg_blk_pass result, val[4]
+                      result =  [ @builder.associate(nil, val[0], nil),
+                                  @builder.splat(val[2], val[3]),
+                                  *val[4] ]
                     }
                 | arg_value tCOMMA assocs opt_block_arg
                     {
-                      result = s(:array, val[0], s(:hash, *val[2].values))
-                      result = arg_blk_pass result, val[3]
+                      result =  [ val[0],
+                                  @builder.associate(nil, val[2], nil),
+                                  *val[3] ]
                     }
                 | arg_value tCOMMA args tCOMMA assocs opt_block_arg
                     {
-                      result = s(:array, val[0]).add_all(val[2]).add(s(:hash, *val[4].values))
-                      result = arg_blk_pass result, val[5]
+                      result =  [ val[0], *val[2],
+                                  @builder.associate(nil, val[4], nil),
+                                  *val[5] ]
                     }
                 | arg_value tCOMMA assocs tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = arg_concat s(:array, val[0]).add(s(:hash, *val[2].values)), val[5]
-                      result = arg_blk_pass result, val[6]
+                      result =  [ val[0],
+                                  @builder.associate(nil, val[2], nil),
+                                  @builder.splat(val[4], val[5]),
+                                  *val[6] ]
                     }
                 | arg_value tCOMMA args tCOMMA assocs tCOMMA tSTAR arg_value opt_block_arg
                     {
-                      result = arg_concat s(:array, val[0]).add_all(val[2]).add(s(:hash, *val[4].values)), val[7]
-                      result = arg_blk_pass result, val[8]
+                      result =  [ val[0], *val[2],
+                                  @builder.associate(nil, val[4], nil),
+                                  @builder.splat(val[6], val[7]),
+                                  *val[8] ]
                     }
                 | tSTAR arg_value opt_block_arg
                     {
-                      result = arg_blk_pass s(:splat, val[1]), val[2]
+                      result =  [ @builder.splat(val[0], val[1]),
+                                  *val[2] ]
                     }
                 | block_arg
 
@@ -923,14 +935,17 @@ rule
 
        block_arg: tAMPER arg_value
                     {
-                      result = s(:block_pass, val[1])
+                      result = @builder.block_pass(val[0], val[1])
                     }
 
    opt_block_arg: tCOMMA block_arg
                     {
-                      result = val[1]
+                      result = [ val[1] ]
                     }
-                | none
+                | # nothing
+                    {
+                      result = []
+                    }
 
             args: arg_value
                     {
