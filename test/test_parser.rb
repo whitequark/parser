@@ -2148,6 +2148,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{    ~~~ location})
   end
 
+  def test_space_args_block_pass
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:block_pass, s(:lvar, :foo))),
+      %q{fun (&foo)})
+  end
+
   def test_space_args_arg_block
     assert_parses(
       s(:send, nil, :fun,
