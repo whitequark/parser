@@ -7,19 +7,38 @@ $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
 require 'parser/all'
 
 def measure(what)
+  rp_failures = 0
+  p_failures  = 0
+
   Benchmark.bm(10) do |x|
     x.report "ruby_parser" do
-      what.each do |src|
-        RubyParser.new.parse(src)
+      what.each do |file, src|
+        begin
+          Ruby18Parser.new.parse(src)
+        rescue Exception => e
+          puts file
+          puts "RP: #{e.class}: #{e.message}"
+          rp_failures += 1
+        end
       end
     end
+
     x.report "parser" do
-      what.each do |src|
-        Parser::Ruby18.parse(src)
+      what.each do |file, src|
+        begin
+          Parser::Ruby18.parse(src)
+        rescue Exception => e
+          puts file
+          puts "P:  #{e.class}: #{e.message}"
+          p_failures += 1
+        end
       end
     end
   end
+
+  puts
+  puts "Failures: RP: #{rp_failures} P: #{p_failures}"
 end
 
-files = ARGV.map &File.method(:read)
+files = Hash[ARGV.map { |f| [f, File.read(f)] }]
 measure(files)
