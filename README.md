@@ -57,7 +57,7 @@ p parser.parse(buffer)
  * 100% test coverage for Bison grammars (except error recovery).
  * Readable commented source code.
 
-  [clang-like]: clang.llvm.org/diagnostics.html
+  [clang-like]: http://clang.llvm.org/diagnostics.html
   [ast]: http://rubygems.org/gems/ast
   [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
