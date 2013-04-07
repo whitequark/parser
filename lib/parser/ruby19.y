@@ -51,16 +51,25 @@ rule
 
     top_compstmt: top_stmts opt_terms
                     {
-                      result = val[0]
+                      result = @builder.compstmt(val[0])
                     }
 
        top_stmts: none
+                    {
+                      result = []
+                    }
                 | top_stmt
+                    {
+                      result = [ val[0] ]
+                    }
                 | top_stmts terms top_stmt
                     {
-                      result = @builder.compstmt([ val[0], val[2] ])
+                      result = val[0] << val[2]
                     }
                 | error top_stmt
+                    {
+                      result = [ val[1] ]
+                    }
 
         top_stmt: stmt
                 | klBEGIN
