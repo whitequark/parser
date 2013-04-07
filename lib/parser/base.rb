@@ -4,7 +4,7 @@ module Parser
     def self.parse(string, file='(string)', line=1)
       parser = new
 
-      #parser.diagnostics.all_errors_are_fatal = true
+      parser.diagnostics.all_errors_are_fatal = true
 
       # Temporary, for manual testing convenience
       parser.diagnostics.consumer = lambda do |diagnostic|
@@ -113,8 +113,6 @@ module Parser
       message = ERRORS[:unexpected_token] % { :token => token_name }
       @diagnostics.process(
           Diagnostic.new(:error, message, location))
-
-      yyerror
     end
   end
 
