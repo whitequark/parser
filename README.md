@@ -55,11 +55,19 @@ p parser.parse(buffer)
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
  * 100% test coverage for Bison grammars (except error recovery).
- * Readable commented source code.
+ * Readable, commented source code.
 
   [clang-like]: http://clang.llvm.org/diagnostics.html
   [ast]: http://rubygems.org/gems/ast
   [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+
+## Contributors
+
+ * Peter Zotov ([whitequark][])
+ * Magnus Holm ([judofyr][])
+
+ [whitequark]: https://github.com/whitequark
+ [judofyr]:    https://github.com/judofyr
 
 ## Acknowledgements
 
