@@ -2076,6 +2076,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{fun(*bar, &baz)})
   end
 
+  def test_args_block_pass
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:block_pass, s(:lvar, :bar))),
+      %q{fun(&bar)})
+  end
+
   def test_args_assocs
     assert_parses(
       s(:send, nil, :fun,
