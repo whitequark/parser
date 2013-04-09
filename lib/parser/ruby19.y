@@ -1230,6 +1230,11 @@ rule
                 | mlhs
 
           f_marg: f_norm_arg
+                    {
+                      @static_env.declare val[0][0]
+
+                      result = @builder.arg(val[0])
+                    }
                 | tLPAREN f_margs rparen
                     {
                       result = val[1]
@@ -1252,7 +1257,9 @@ rule
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg
                     {
-                      result = val[0] << @builder.splatarg(val[2], *val[3])
+                      @static_env.declare val[3][0]
+
+                      result = val[0] << @builder.splatarg(val[2], val[3])
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
                     {
@@ -1955,13 +1962,13 @@ keyword_variable: kNIL
 
       f_norm_arg: f_bad_arg
                 | tIDENTIFIER
+
+      f_arg_item: f_norm_arg
                     {
                       @static_env.declare val[0][0]
 
                       result = @builder.arg(val[0])
                     }
-
-      f_arg_item: f_norm_arg
                 | tLPAREN f_margs rparen
                     {
                       result = @builder.multi_lhs(val[0], val[1], val[2])
