@@ -1713,8 +1713,8 @@ regexp_contents: none
                 | backref
 
 
-          symbol: tSYMBEG sym # TODO: not used, delete.
-                    {
+          symbol: tSYMBEG sym
+                    { # :nocov: TODO: not used, delete.
                       result = nil
                     }
                 | tSYMBOL
@@ -2046,11 +2046,11 @@ keyword_variable: kNIL
                       result = val[1]
                     }
 
-      assoc_list: none # [!nil]
+      assoc_list: none
                     {
                       result = []
                     }
-                | assocs trailer # [!nil]
+                | assocs trailer
 
           assocs: assoc
                     {
@@ -2086,9 +2086,15 @@ keyword_variable: kNIL
                 | tNL
 
            terms: term
-                | terms tSEMI { yyerrok }
+                | terms tSEMI
+                  {
+                    yyerrok
+                  }
 
-            none: { result = nil }
+            none: # nothing
+                  {
+                    result = nil
+                  }
 end
 
 ---- header

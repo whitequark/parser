@@ -38,6 +38,12 @@ class TestParser < MiniTest::Unit::TestCase
   # Literals
   #
 
+  def test_empty_stmt
+    assert_parses(
+      s(:nil),
+      %q{})
+  end
+
   def test_nil
     assert_parses(
       s(:nil),
@@ -581,6 +587,14 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:lvasgn, :foo, s(:send, nil, :m, s(:lvar, :foo))),
       %q{foo = m foo})
+
+    assert_parses(
+      s(:lvasgn, :foo,
+        s(:lvasgn, :bar,
+          s(:send, nil, :m, s(:lvar, :foo)))),
+      %q{foo = bar = m foo},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_asgn_backref_invalid
