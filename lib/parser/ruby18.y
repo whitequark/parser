@@ -843,6 +843,9 @@ rule
                                   *val[2] ]
                     }
                 | block_arg
+                    {
+                      result =  [ val[0] ]
+                    }
 
       call_args2: arg_value tCOMMA args opt_block_arg
                     {
