@@ -39,7 +39,6 @@ p parser.parse(buffer)
 # (send nil :foo
 #   (splat
 #     (send nil :bar)))
-
 ```
 
 ## Features
