@@ -49,10 +49,6 @@ module Parser
       reset
     end
 
-    def version
-      raise NotImplementedError, "implement #{self.class}#version"
-    end
-
     def reset
       @source_buffer = nil
       @def_level   = 0 # count of nested def's.

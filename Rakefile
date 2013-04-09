@@ -12,8 +12,8 @@ end
 task :build => :generate_release
 
 GENERATED_FILES = %w(lib/parser/lexer.rb
-                     lib/parser/ruby18.rb)
-                    #lib/parser/ruby19.rb)
+                     lib/parser/ruby18.rb
+                     lib/parser/ruby19.rb)
 
 CLEAN.include(GENERATED_FILES)
 

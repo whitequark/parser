@@ -8,8 +8,8 @@ class TestParseHelper < MiniTest::Unit::TestCase
     assert_instance_of Parser::Ruby18,
                        parser_for_ruby_version('1.8')
 
-    # assert_instance_of Parser::Ruby19,
-    #                    parser_for_ruby_version('1.9')
+    assert_instance_of Parser::Ruby19,
+                       parser_for_ruby_version('1.9')
 
     # assert_instance_of Parser::Ruby20,
     #                    parser_for_ruby_version('2.0')
