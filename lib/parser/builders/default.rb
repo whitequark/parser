@@ -414,30 +414,20 @@ module Parser
       s(:block_pass, arg)
     end
 
-    def attr_asgn(receiver, dot_t, selector_t,
-                  value=nil)
+    def attr_asgn(receiver, dot_t, selector_t)
       method_name = (value(selector_t) + '=').to_sym
 
-      if value.nil?
-        # Incomplete attr_asgn, used in e.g. masgn.
-        s(:send, receiver, method_name)
-      else
-        s(:send, receiver, method_name, value)
-      end
+      # Incomplete method call.
+      s(:send, receiver, method_name)
     end
 
     def index(receiver, lbrack_t, indexes, rbrack_t)
       s(:send, receiver, :[], *indexes)
     end
 
-    def index_asgn(receiver, lbrack_t, indexes, rbrack_t,
-                   value=nil)
-      if value.nil?
-        # Incomplete index_asgn, used in e.g. masgn.
-        s(:send, receiver, :[]=, *indexes)
-      else
-        s(:send, receiver, :[]=, *(indexes << value))
-      end
+    def index_asgn(receiver, lbrack_t, indexes, rbrack_t)
+      # Incomplete method call.
+      s(:send, receiver, :[]=, *indexes)
     end
 
     def binary_op(receiver, token, arg)
