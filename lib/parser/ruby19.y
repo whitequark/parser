@@ -1729,10 +1729,6 @@ regexp_contents: none
                     }
                 | tSYMBOL
                     {
-                      if val[0][0].empty?
-                        diagnostic(:error, :empty_symbol, val[0])
-                      end
-
                       result = @builder.symbol(val[0])
                     }
 
