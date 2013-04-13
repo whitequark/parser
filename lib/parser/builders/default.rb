@@ -211,9 +211,11 @@ module Parser
 
         node.updated(:lvasgn)
 
-      when :nil, :self, :true, :false, :__FILE__, :__LINE__
-        message = ERRORS[:invalid_assignment] % { :node => node.type }
-        diagnostic :error, message, node.loc
+      when :nil, :self, :true, :false, :str, :int
+        # (str), (int) here are produced by __FILE__ and __LINE__,
+        # respectively.
+        message = ERRORS[:invalid_assignment]
+        diagnostic :error, message, node.src.expression
 
       when :back_ref, :nth_ref
         message = ERRORS[:backref_assignment]

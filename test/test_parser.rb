@@ -605,6 +605,38 @@ class TestParser < MiniTest::Unit::TestCase
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_asgn_keyword_invalid
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{nil = foo},
+      %q{~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{self = foo},
+      %q{~~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{true = foo},
+      %q{~~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{false = foo},
+      %q{~~~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{__FILE__ = foo},
+      %q{~~~~~~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{__LINE__ = foo},
+      %q{~~~~~~~~ location})
+  end
+
   def test_asgn_backref_invalid
     assert_diagnoses(
       [:error, :backref_assignment],
@@ -840,6 +872,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{foo = baz, *bar})
   end
 
+  def test_masgn_keyword_invalid
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{nil, foo = bar},
+      %q{~~~ location})
+  end
+
   def test_masgn_backref_invalid
     assert_diagnoses(
       [:error, :backref_assignment],
@@ -890,6 +929,13 @@ class TestParser < MiniTest::Unit::TestCase
         s(:lvasgn, :foo), :+,
         s(:send, nil, :m, s(:lvar, :foo))),
       %q{foo += m foo})
+  end
+
+  def test_var_op_asgn_keyword_invalid
+    assert_diagnoses(
+      [:error, :invalid_assignment],
+      %q{nil += foo},
+      %q{~~~ location})
   end
 
   # Method binary operator-assignment
