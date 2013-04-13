@@ -265,7 +265,7 @@ class Parser::Lexer
     new_literal = Literal.new(self, *args)
     @literal_stack.push(new_literal)
 
-    if    new_literal.type == :tWORDS_BEG
+    if new_literal.type == :tWORDS_BEG
       self.class.lex_en_interp_words
     elsif new_literal.type == :tQWORDS_BEG
       self.class.lex_en_plain_words
