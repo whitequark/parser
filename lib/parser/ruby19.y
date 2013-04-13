@@ -1244,7 +1244,7 @@ rule
                     }
                 | tLPAREN f_margs rparen
                     {
-                      result = val[1]
+                      result = @builder.multi_lhs(val[0], val[1], val[2])
                     }
 
      f_marg_list: f_marg
@@ -1257,56 +1257,53 @@ rule
                     }
 
          f_margs: f_marg_list
-                    {
-                      args, = val
-
-                      result = block_var args
-                    }
                 | f_marg_list tCOMMA tSTAR f_norm_arg
                     {
                       @static_env.declare val[3][0]
 
-                      result = val[0] << @builder.splatarg(val[2], val[3])
+                      result = val[0].
+                                  push(@builder.splatarg(val[2], val[3]))
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
                     {
-                      args, _, _, splat, _, args2 = val
+                      @static_env.declare val[3][0]
 
-                      result = block_var args, "*#{splat}".to_sym, args2
+                      result = val[0].
+                                  push(@builder.splatarg(val[2], val[3])).
+                                  concat(val[5])
                     }
                 | f_marg_list tCOMMA tSTAR
                     {
-                      args, _, _ = val
-
-                      result = block_var args, :*
+                      result = val[0].
+                                  push(@builder.splatarg(val[2]))
                     }
-                | f_marg_list tCOMMA tSTAR tCOMMA f_marg_list
+                | f_marg_list tCOMMA tSTAR            tCOMMA f_marg_list
                     {
-                      args, _, _, _, args2 = val
-
-                      result = block_var args, :*, args2
+                      result = val[0].
+                                  push(@builder.splatarg(val[2])).
+                                  concat(val[4])
                     }
-                | tSTAR f_norm_arg
+                |                    tSTAR f_norm_arg
                     {
-                      _, splat = val
+                      @static_env.declare val[1][0]
 
-                      result = block_var :"*#{splat}"
+                      result = [ @builder.splatarg(val[0], val[1]) ]
                     }
-                | tSTAR f_norm_arg tCOMMA f_marg_list
+                |                    tSTAR f_norm_arg tCOMMA f_marg_list
                     {
-                      _, splat, _, args = val
+                      @static_env.declare val[1][0]
 
-                      result = block_var :"*#{splat}", args
+                      result = [ @builder.splatarg(val[0], val[1]),
+                                 *val[3] ]
                     }
-                | tSTAR
+                |                    tSTAR
                     {
-                      result = block_var :*
+                      result = [ @builder.splatarg(val[0]) ]
                     }
-                | tSTAR tCOMMA f_marg_list
+                |                    tSTAR tCOMMA f_marg_list
                     {
-                      _, _, args = val
-
-                      result = block_var :*, args
+                      result = [ @builder.splatarg(val[0]),
+                                 *val[2] ]
                     }
 
      block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg

@@ -1429,26 +1429,6 @@ class TestParser < MiniTest::Unit::TestCase
         |      ~~~~~~ expression (args.blockarg)})
   end
 
-  def test_arg_mlhs
-    assert_parses(
-      s(:def, :f,
-        s(:args,
-          s(:mlhs,
-            s(:arg, :a),
-            s(:arg, :b),
-            s(:splatarg, :f)),
-          s(:arg, :c)),
-        s(:nil)),
-      %q{def f((a, b, *f), c); nil; end},
-      %q{      ^ begin (args.mlhs)
-        |               ^ end (args.mlhs)
-        |      ~~~~~~~~~~ expression (args.mlhs)
-        |       ~ expression (args.mlhs.arg)
-        |              ~ name (args.mlhs.splatarg)
-        |             ~~ expression (args.mlhs.splatarg)},
-      ALL_VERSIONS - %w(1.8))
-  end
-
   def assert_parses_args(ast, code, versions=ALL_VERSIONS)
     assert_parses(
       s(:def, :f, ast, s(:nil)),
@@ -1581,6 +1561,66 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_args(
       s(:args),
       %q{})
+  end
+
+  def assert_parses_margs(ast, code, versions=ALL_VERSIONS - %w(1.8))
+    assert_parses_args(
+      s(:args, ast),
+      %Q{(#{code})},
+      versions)
+  end
+
+  def test_marg_combinations
+    # tLPAREN f_margs rparen
+    assert_parses_margs(
+      s(:mlhs,
+        s(:mlhs, s(:arg, :a))),
+      %q{((a))})
+
+    # f_marg_list
+    assert_parses_margs(
+      s(:mlhs, s(:arg, :a), s(:arg, :a1)),
+      %q{(a, a1)})
+
+    # f_marg_list tCOMMA tSTAR f_norm_arg
+    assert_parses_margs(
+      s(:mlhs, s(:arg, :a), s(:splatarg, :s)),
+      %q{(a, *s)})
+
+    # f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
+    assert_parses_margs(
+      s(:mlhs, s(:arg, :a), s(:splatarg, :s), s(:arg, :p)),
+      %q{(a, *s, p)})
+
+    # f_marg_list tCOMMA tSTAR
+    assert_parses_margs(
+      s(:mlhs, s(:arg, :a), s(:splatarg)),
+      %q{(a, *)})
+
+    # f_marg_list tCOMMA tSTAR            tCOMMA f_marg_list
+    assert_parses_margs(
+      s(:mlhs, s(:arg, :a), s(:splatarg), s(:arg, :p)),
+      %q{(a, *, p)})
+
+    # tSTAR f_norm_arg
+    assert_parses_margs(
+      s(:mlhs, s(:splatarg, :s)),
+      %q{(*s)})
+
+    # tSTAR f_norm_arg tCOMMA f_marg_list
+    assert_parses_margs(
+      s(:mlhs, s(:splatarg, :s), s(:arg, :p)),
+      %q{(*s, p)})
+
+    # tSTAR
+    assert_parses_margs(
+      s(:mlhs, s(:splatarg)),
+      %q{(*)})
+
+    # tSTAR tCOMMA f_marg_list
+    assert_parses_margs(
+      s(:mlhs, s(:splatarg), s(:arg, :p)),
+      %q{(*, p)})
   end
 
   def assert_parses_blockargs(ast, code, versions=ALL_VERSIONS)
