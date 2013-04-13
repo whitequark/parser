@@ -390,27 +390,30 @@ rule
       mlhs_basic: mlhs_head
                 | mlhs_head mlhs_item
                     {
-                      result = val[0] << val[1]
+                      result = val[0].
+                                  push(val[1])
                     }
                 | mlhs_head tSTAR mlhs_node
                     {
-                      result = val[0] << @builder.splat(val[1], val[2])
+                      result = val[0].
+                                  push(@builder.splat(val[1], val[2]))
                     }
                 | mlhs_head tSTAR mlhs_node tCOMMA mlhs_post
                     {
-                      ary = list_append val[0], s(:splat, val[2])
-                      ary.concat val[4][1..-1]
-                      result = s(:masgn, ary)
+                      result = val[0].
+                                  push(@builder.splat(val[1], val[2])).
+                                  concat(val[4])
                     }
                 | mlhs_head tSTAR
                     {
-                      result = val[0] << @builder.splat(val[1])
+                      result = val[0].
+                                  push(@builder.splat(val[1]))
                     }
                 | mlhs_head tSTAR tCOMMA mlhs_post
                     {
-                      ary = list_append val[0], s(:splat)
-                      ary.concat val[3][1..-1]
-                      result = s(:masgn, ary)
+                      result = val[0].
+                                  push(@builder.splat(val[1])).
+                                  concat(val[3])
                     }
                 | tSTAR mlhs_node
                     {
@@ -418,9 +421,8 @@ rule
                     }
                 | tSTAR mlhs_node tCOMMA mlhs_post
                     {
-                      ary = s(:array, s(:splat, val[1]))
-                      ary.concat val[3][1..-1]
-                      result = s(:masgn, ary)
+                      result = [ @builder.splat(val[0], val[1]),
+                                 *val[3] ]
                     }
                 | tSTAR
                     {
@@ -428,9 +430,8 @@ rule
                     }
                 | tSTAR tCOMMA mlhs_post
                     {
-                      ary = s(:array, s(:splat))
-                      ary.concat val[2][1..-1]
-                      result = s(:masgn, ary)
+                      result = [ @builder.splat(val[0]),
+                                 *val[2] ]
                     }
 
        mlhs_item: mlhs_node
@@ -450,11 +451,11 @@ rule
 
        mlhs_post: mlhs_item
                     {
-                      result = s(:array, val[0])
+                      result = [ val[0] ]
                     }
                 | mlhs_post tCOMMA mlhs_item
                     {
-                      result = list_append val[0], val[2]
+                      result = val[0] << val[2]
                     }
 
        mlhs_node: user_variable

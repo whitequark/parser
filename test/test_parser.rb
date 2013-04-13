@@ -751,9 +751,31 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_parses(
       s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :a),
+          s(:splat, s(:lvasgn, :b)),
+          s(:lvasgn, :c)),
+        s(:lvar, :bar)),
+      %q{a, *b, c = bar},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:masgn,
         s(:mlhs, s(:lvasgn, :a), s(:splat)),
         s(:lvar, :bar)),
       %q{a, * = bar})
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :a),
+          s(:splat),
+          s(:lvasgn, :c)),
+        s(:lvar, :bar)),
+      %q{a, *, c = bar},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
 
     assert_parses(
       s(:masgn,
@@ -763,9 +785,30 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_parses(
       s(:masgn,
+        s(:mlhs,
+          s(:splat, s(:lvasgn, :b)),
+          s(:lvasgn, :c)),
+        s(:lvar, :bar)),
+      %q{*b, c = bar},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:masgn,
         s(:mlhs, s(:splat)),
         s(:lvar, :bar)),
       %q{* = bar})
+
+    assert_parses(
+      s(:masgn,
+        s(:mlhs,
+          s(:splat),
+          s(:lvasgn, :c),
+          s(:lvasgn, :d)),
+        s(:lvar, :bar)),
+      %q{*, c, d = bar},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_masgn_nested
@@ -3319,7 +3362,7 @@ class TestParser < MiniTest::Unit::TestCase
       [:error, :begin_in_method],
       %q{def f; BEGIN{}; end},
       %q{       ~~~~~ location},
-      # Yes. Exclude *1.9*. Sigh.
+      # Yes. *Exclude 1.9*. Sigh.
       ALL_VERSIONS - %w(1.9))
   end
 
