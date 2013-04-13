@@ -1,4 +1,4 @@
-class Parser::Ruby19
+class Parser::Ruby20
 
 token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       kTHEN kELSIF kELSE kCASE kWHEN kWHILE kUNTIL kFOR kBREAK kNEXT
@@ -2150,5 +2150,5 @@ require 'parser'
 ---- inner
 
   def version
-    19
+    20
   end

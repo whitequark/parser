@@ -3,7 +3,7 @@ require 'parser/all'
 module ParseHelper
   include AST::Sexp
 
-  ALL_VERSIONS = %w(1.8 1.9)
+  ALL_VERSIONS = %w(1.8 1.9 2.0)
 
   def setup
     @diagnostics = []
@@ -15,7 +15,7 @@ module ParseHelper
     case version
     when '1.8'; parser = Parser::Ruby18.new
     when '1.9'; parser = Parser::Ruby19.new
-    # when '2.0'; parser = Parser::Ruby20.new # not yet
+    when '2.0'; parser = Parser::Ruby20.new
     else raise "Unrecognized Ruby version #{version}"
     end
 

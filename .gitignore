@@ -19,3 +19,4 @@ tmp
 lib/parser/lexer.rb
 lib/parser/ruby18.rb
 lib/parser/ruby19.rb
+lib/parser/ruby20.rb

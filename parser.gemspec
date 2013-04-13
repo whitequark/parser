@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
                           lib/parser/lexer.rb
                           lib/parser/ruby18.rb
                           lib/parser/ruby19.rb
+                          lib/parser/ruby20.rb
                        )
   spec.executables   = %w()
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
