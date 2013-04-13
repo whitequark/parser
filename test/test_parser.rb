@@ -278,8 +278,7 @@ class TestParser < MiniTest::Unit::TestCase
         |        ^ end
         |    ^ operator (splat)
         |    ~~~~ expression (splat)
-        |~~~~~~~~~ expression},
-      %w(1.8))
+        |~~~~~~~~~ expression})
 
     assert_parses(
       s(:array,
@@ -2449,6 +2448,32 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_space_args_arg
     assert_parses(
+      s(:send, nil, :fun, s(:int, 1)),
+      %q{fun (1)})
+  end
+
+  def test_space_args_arg_block
+    assert_parses(
+      s(:block,
+        s(:send, nil, :fun, s(:int, 1)),
+        s(:args), s(:nil)),
+      %q{fun (1) {}})
+
+    assert_parses(
+      s(:block,
+        s(:send, s(:lvar, :foo), :fun, s(:int, 1)),
+        s(:args), s(:nil)),
+      %q{foo.fun (1) {}})
+
+    assert_parses(
+      s(:block,
+        s(:send, s(:lvar, :foo), :fun, s(:int, 1)),
+        s(:args), s(:nil)),
+      %q{foo::fun (1) {}})
+  end
+
+  def test_space_args_arg_call
+    assert_parses(
       s(:send, nil, :fun,
         s(:send, s(:int, 1), :to_i)),
       %q{fun (1).to_i})
@@ -2468,7 +2493,7 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
   end
 
-  def test_space_args_arg_block
+  def test_space_args_arg_block_pass
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo),

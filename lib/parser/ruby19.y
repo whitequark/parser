@@ -274,7 +274,7 @@ rule
                 | block_command
 
    block_command: block_call
-                | block_call tDOT operation2 command_args # TODO: dot_or_colon
+                | block_call tDOT operation2 command_args
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
                                   nil, val[3], nil)
@@ -287,15 +287,13 @@ rule
 
  cmd_brace_block: tLBRACE_ARG
                     {
-                      self.env.extend(:dynamic)
-                      result = self.lexer.lineno
+                      @static_env.extend_dynamic
                     }
                     opt_block_param compstmt tRCURLY
                     {
-                      result = new_iter nil, val[2], val[3]
-                      result.line = val[1]
+                      result = [ val[0], val[2], val[3], val[4] ]
 
-                      self.env.unextend
+                      @static_env.unextend
                     }
 
          command: operation command_args =tLOWEST
@@ -305,13 +303,12 @@ rule
                     }
                 | operation command_args cmd_brace_block
                     {
-                      result = new_call nil, val[0].to_sym, val[1]
-                      if val[2] then
-                        block_dup_check result, val[2]
+                      method_call = @builder.call_method(nil, nil, val[0],
+                                        nil, val[1], nil)
 
-                        result, operation = val[2], result
-                        result.insert 1, operation
-                      end
+                      begin_t, args, body, end_t = val[2]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
                     }
                 | primary_value tDOT operation2 command_args =tLOWEST
                     {
@@ -320,13 +317,12 @@ rule
                     }
                 | primary_value tDOT operation2 command_args cmd_brace_block
                     {
-                      recv, _, msg, args, block = val
-                      call = new_call recv, msg.to_sym, args
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                        nil, val[3], nil)
 
-                      block_dup_check call, block
-
-                      block.insert 1, call
-                      result = block
+                      begin_t, args, body, end_t = val[4]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
                     }
                 | primary_value tCOLON2 operation2 command_args =tLOWEST
                     {
@@ -335,13 +331,12 @@ rule
                     }
                 | primary_value tCOLON2 operation2 command_args cmd_brace_block
                     {
-                      recv, _, msg, args, block = val
-                      call = new_call recv, msg.to_sym, args
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                        nil, val[3], nil)
 
-                      block_dup_check call, block
-
-                      block.insert 1, call
-                      result = block
+                      begin_t, args, body, end_t = val[4]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
                     }
                 | kSUPER command_args
                     {
@@ -893,7 +888,7 @@ rule
                       result = @lexer.cmdarg.dup
                       @lexer.cmdarg.push(true)
                     }
-                      call_args
+                  call_args
                     {
                       @lexer.cmdarg = val[0]
 
