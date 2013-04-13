@@ -22,15 +22,15 @@ module Parser
       t(token, :int, val)
     end
 
+    def __LINE__(token)
+      t(token, :__LINE__)
+    end
+
     def float(token, negate=false)
       val = value(token)
       val = -val if negate
 
       t(token, :float, val)
-    end
-
-    def __LINE__(token)
-      t(token, :int, location(token).line)
     end
 
     # Strings
@@ -48,7 +48,7 @@ module Parser
     end
 
     def __FILE__(token)
-      t(token, :str, location(token).source_buffer.name)
+      t(token, :__FILE__)
     end
 
     # Symbols
@@ -152,6 +152,15 @@ module Parser
 
     def accessible(node)
       case node.type
+      when :__FILE__
+        node.updated(:str, [ node.src.expression.source_buffer.name ])
+
+      when :__LINE__
+        node.updated(:int, [ node.src.expression.line ])
+
+      when :__ENCODING__
+        s(:const, s(:const, nil, :Encoding), :UTF_8)
+
       when :ident
         name, = *node
 
@@ -161,6 +170,7 @@ module Parser
           name, = *node
           node.updated(:send, [ nil, name ])
         end
+
       else
         node
       end
@@ -176,6 +186,10 @@ module Parser
 
     def const_fetch(scope, t_colon2, token)
       s(:const, scope, value(token).to_sym)
+    end
+
+    def __ENCODING__(token)
+      t(token, :__ENCODING__)
     end
 
     #
@@ -211,9 +225,8 @@ module Parser
 
         node.updated(:lvasgn)
 
-      when :nil, :self, :true, :false, :str, :int
-        # (str), (int) here are produced by __FILE__ and __LINE__,
-        # respectively.
+      when :nil, :self, :true, :false,
+           :__FILE__, :__LINE__, :__ENCODING__
         message = ERRORS[:invalid_assignment]
         diagnostic :error, message, node.src.expression
 

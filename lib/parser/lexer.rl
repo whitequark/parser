@@ -1509,6 +1509,16 @@ class Parser::Lexer
         end
       };
 
+      '__ENCODING__'
+      => {
+        if version?(18)
+          emit(:tIDENTIFIER)
+        else
+          emit_table(KEYWORDS)
+        end
+        fbreak;
+      };
+
       keyword_with_end
       => { emit_table(KEYWORDS)
            fbreak; };

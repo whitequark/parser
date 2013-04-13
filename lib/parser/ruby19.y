@@ -1308,19 +1308,31 @@ rule
 
      block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[6]).
+                                  concat(val[7])
                     }
                 | f_arg tCOMMA f_block_optarg                                opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
                 | f_arg tCOMMA f_block_optarg tCOMMA                   f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg tCOMMA                       f_rest_arg              opt_f_block_arg
                     {
@@ -1331,38 +1343,51 @@ rule
                 | f_arg tCOMMA
                 | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
                 | f_arg                                                      opt_f_block_arg
                     {
                       result = val[0].concat(val[1])
                     }
-                | f_block_optarg tCOMMA              f_rest_arg              opt_f_block_arg
+                | f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
-                | f_block_optarg tCOMMA              f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[4]).
+                                  concat(val[5])
                     }
-                | f_block_optarg                                             opt_f_block_arg
-                    {
-                      result = args val
-                    }
-                | f_block_optarg tCOMMA                                f_arg opt_f_block_arg
-                    {
-                      result = args val
-                    }
-                |                                    f_rest_arg              opt_f_block_arg
+                | f_block_optarg                                opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |                                    f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_block_optarg tCOMMA                   f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
-                |                                                                f_block_arg
+                |                       f_rest_arg              opt_f_block_arg
+                    {
+                      result = val[0].
+                                  concat(val[1])
+                    }
+                |                       f_rest_arg tCOMMA f_arg opt_f_block_arg
+                    {
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
+                    }
+                |                                                   f_block_arg
                     {
                       result = [ val[0] ]
                     }
@@ -1806,7 +1831,7 @@ keyword_variable: kNIL
                     }
                 | k__ENCODING__
                     {
-                      result = 'todo'
+                      result = @builder.__ENCODING__(val[0])
                     }
 
          var_ref: user_variable
@@ -1814,6 +1839,9 @@ keyword_variable: kNIL
                       result = @builder.accessible(val[0])
                     }
                 | keyword_variable
+                    {
+                      result = @builder.accessible(val[0])
+                    }
 
          var_lhs: user_variable
                     {
@@ -2004,12 +2032,11 @@ keyword_variable: kNIL
 
   f_block_optarg: f_block_opt
                     {
-                      result = s(:block, val[0])
+                      result = [ val[0] ]
                     }
                 | f_block_optarg tCOMMA f_block_opt
                     {
-                      result = val[0]
-                      result << val[2]
+                      result = val[0] << val[2]
                     }
 
         f_optarg: f_opt
@@ -2094,14 +2121,14 @@ keyword_variable: kNIL
         rbracket: opt_nl tRBRACK
          trailer:  | tNL | tCOMMA
 
-            term: tSEMI { yyerrok }
+            term: tSEMI
+                  {
+                    yyerrok
+                  }
                 | tNL
 
            terms: term
                 | terms tSEMI
-                  {
-                    yyerrok
-                  }
 
             none: # nothing
                   {

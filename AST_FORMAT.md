@@ -768,6 +768,14 @@ Format:
 "|&@bar|"
 ```
 
+### Ruby 1.9 and later block shadow arguments
+
+Format:
+```
+(args (shadowarg :foo) (shadowarg :bar))
+"|; foo, bar|"
+```
+
 ### Decomposition
 
 Format:

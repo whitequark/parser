@@ -509,6 +509,14 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~ expression})
   end
 
+  def test___ENCODING__
+    assert_parses(
+      s(:const, s(:const, nil, :Encoding), :UTF_8),
+      %q{__ENCODING__},
+      %q{~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   # defined?
 
   def test_defined
@@ -1640,16 +1648,26 @@ class TestParser < MiniTest::Unit::TestCase
       %q{})
 
     # tPIPE tPIPE
-    assert_parses_blockargs(
-      s(:args),
-      %q{||})
-
-    # tOROP
+    # tPIPE opt_bv_decl tPIPE
     assert_parses_blockargs(
       s(:args),
       %q{| |})
 
+    assert_parses_blockargs(
+      s(:args, s(:shadowarg, :a)),
+      %q{|;a|},
+      ALL_VERSIONS - %w(1.8))
+
+    # tOROP
+    assert_parses_blockargs(
+      s(:args),
+      %q{||})
+
     # block_par
+    # block_par tCOMMA
+    # block_par tCOMMA tAMPER lhs
+    # f_arg                                                      opt_f_block_arg
+    # f_arg tCOMMA
     assert_parses_blockargs(
       s(:args, s(:arg, :a)),
       %q{|a|})
@@ -1663,12 +1681,10 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|@a|},
       %w(1.8))
 
-    # block_par tCOMMA
     assert_parses_blockargs(
       s(:args, s(:arg, :a)),
       %q{|a,|})
 
-    # block_par tCOMMA tAMPER lhs
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:blockarg, :b)),
       %q{|a, &b|})
@@ -1679,6 +1695,10 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
 
     # block_par tCOMMA tSTAR lhs tCOMMA tAMPER lhs
+    # block_par tCOMMA tSTAR tCOMMA tAMPER lhs
+    # block_par tCOMMA tSTAR lhs
+    # block_par tCOMMA tSTAR
+    # f_arg tCOMMA                       f_rest_arg              opt_f_block_arg
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:splatarg, :s), s(:blockarg, :b)),
       %q{|a, *s, &b|})
@@ -1690,7 +1710,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|a, *@s, &@b|},
       %w(1.8))
 
-    # block_par tCOMMA tSTAR tCOMMA tAMPER lhs
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:splatarg), s(:blockarg, :b)),
       %q{|a, *, &b|})
@@ -1702,7 +1721,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|a, *, &@b|},
       %w(1.8))
 
-    # block_par tCOMMA tSTAR lhs
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:splatarg, :s)),
       %q{|a, *s|})
@@ -1713,12 +1731,15 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|a, *@s|},
       %w(1.8))
 
-    # block_par tCOMMA tSTAR
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:splatarg)),
       %q{|a, *|})
 
     # tSTAR lhs tCOMMA tAMPER lhs
+    # tSTAR lhs
+    # tSTAR
+    # tSTAR tCOMMA tAMPER lhs
+    #                                    f_rest_arg              opt_f_block_arg
     assert_parses_blockargs(
       s(:args, s(:splatarg, :s), s(:blockarg, :b)),
       %q{|*s, &b|})
@@ -1730,7 +1751,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|*@s, &@b|},
       %w(1.8))
 
-    # tSTAR tCOMMA tAMPER lhs
     assert_parses_blockargs(
       s(:args, s(:splatarg), s(:blockarg, :b)),
       %q{|*, &b|})
@@ -1742,7 +1762,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|*, &@b|},
       %w(1.8))
 
-    # tSTAR lhs
     assert_parses_blockargs(
       s(:args, s(:splatarg, :s)),
       %q{|*s|})
@@ -1753,12 +1772,12 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|*@s|},
       %w(1.8))
 
-    # tSTAR
     assert_parses_blockargs(
       s(:args, s(:splatarg)),
       %q{|*|})
 
     # tAMPER lhs
+    #                                                                f_block_arg
     assert_parses_blockargs(
       s(:args, s(:blockarg, :b)),
       %q{|&b|})
@@ -1768,6 +1787,102 @@ class TestParser < MiniTest::Unit::TestCase
         s(:blockarg_expr, s(:ivasgn, :@b))),
       %q{|&@b|},
       %w(1.8))
+
+    # f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:optarg, :o1, s(:int, 2)),
+        s(:splatarg, :r),
+        s(:blockarg, :b)),
+      %q{|a, o=1, o1=2, *r, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{|a, o=1, *r, p, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg tCOMMA f_block_optarg                                opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:blockarg, :b)),
+      %q{|a, o=1, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg tCOMMA f_block_optarg tCOMMA                   f_arg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{|a, o=1, p, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a),
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{|a, *r, p, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    #              f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:blockarg, :b)),
+      %q{|o=1, *r, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    #              f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{|o=1, *r, p, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    #              f_block_optarg                                opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:blockarg, :b)),
+      %q{|o=1, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    #              f_block_optarg tCOMMA                   f_arg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{|o=1, p, &b|},
+      ALL_VERSIONS - %w(1.8))
+
+    #                                    f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{|*r, p, &b|},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_arg_invalid
