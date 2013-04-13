@@ -1456,7 +1456,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_regexp_escape_backslash_terminator_meta1
     util_lex_token('%r{blah\\}blah}',
-                   :tREGEXP_BEG,     "%r",
+                   :tREGEXP_BEG,     "%r{",
                    :tSTRING_CONTENT, "blah\\}blah",
                    :tSTRING_END,     "}",
                    :tREGEXP_OPT,     "")
@@ -1464,7 +1464,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_regexp_escape_backslash_terminator_meta2
     util_lex_token('%r/blah\\/blah/',
-                   :tREGEXP_BEG,     "%r",
+                   :tREGEXP_BEG,     "%r/",
                    :tSTRING_CONTENT, "blah\\/blah",
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
@@ -1472,7 +1472,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_regexp_escape_backslash_terminator_meta3
     util_lex_token('%r/blah\\%blah/',
-                   :tREGEXP_BEG,     "%r",
+                   :tREGEXP_BEG,     "%r/",
                    :tSTRING_CONTENT, "blah\\%blah",
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
@@ -1795,7 +1795,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_W
     util_lex_token("%W[s1 s2\ns3]", # TODO: add interpolation to these
-                   :tWORDS_BEG,      "%W",
+                   :tWORDS_BEG,      "%W[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "s2",
@@ -1807,7 +1807,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_W_bs_nl
     util_lex_token("%W[s1 \\\ns2]", # TODO: add interpolation to these
-                   :tWORDS_BEG,      "%W",
+                   :tWORDS_BEG,      "%W[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "\ns2",
@@ -1827,7 +1827,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_w
     util_bad_token("%w[s1 s2 ",
-                   :tQWORDS_BEG,     "%w",
+                   :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "s2",
@@ -1836,7 +1836,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_w_bs_nl
     util_lex_token("%w[s1 \\\ns2]",
-                   :tQWORDS_BEG,     "%w",
+                   :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "\ns2",
@@ -1846,7 +1846,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_w_bs_sp
     util_lex_token("%w[s\\ 1 s\\ 2]",
-                   :tQWORDS_BEG,     "%w",
+                   :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s 1",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "s 2",
@@ -1856,7 +1856,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_w_tab
     util_lex_token("%w[abc\tdef]",
-                   :tQWORDS_BEG,      "%w",
+                   :tQWORDS_BEG,      "%w[",
                    :tSTRING_CONTENT, "abc",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "def",
