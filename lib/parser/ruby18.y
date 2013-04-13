@@ -54,6 +54,10 @@ rule
                       else_,   t_else   = val[2]
                       ensure_, t_ensure = val[3]
 
+                      if rescue_bodies.empty? && !else_.nil?
+                        diagnostic :warning, :useless_else, t_else
+                      end
+
                       result = @builder.begin_body(val[0],
                                   rescue_bodies,
                                   else_,   t_else,

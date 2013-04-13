@@ -3375,6 +3375,13 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
+  def test_rescue_else_useless
+    assert_diagnoses(
+      [:warning, :useless_else],
+      %q{begin; 1; else; 2; end},
+      %q{          ~~~~ location})
+  end
+
   def test_ensure
     assert_parses(
       s(:ensure, s(:send, nil, :meth),
