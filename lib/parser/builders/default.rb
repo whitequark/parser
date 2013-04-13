@@ -365,6 +365,10 @@ module Parser
       end
     end
 
+    def shadowarg(token)
+      s(:shadowarg, value(token).to_sym)
+    end
+
     def blockarg(amper_t, token)
       s(:blockarg, value(token).to_sym)
     end
@@ -403,7 +407,15 @@ module Parser
 
     def call_method(receiver, dot_t, selector_t,
                     begin_t=nil, args=[], end_t=nil)
-      s(:send, receiver, value(selector_t).to_sym, *args)
+      if selector_t.nil?
+        s(:send, receiver, :call, *args)
+      else
+        s(:send, receiver, value(selector_t).to_sym, *args)
+      end
+    end
+
+    def call_lambda(lambda_t)
+      s(:send, nil, :lambda)
     end
 
     def block(method_call, begin_t, args, body, end_t)
@@ -453,11 +465,15 @@ module Parser
       s(:send, receiver, method.to_sym)
     end
 
-    def not_op(token, receiver)
+    def not_op(token, receiver=nil)
       if @parser.version == 18
         s(:not, receiver)
       else
-        s(:send, receiver, :'!')
+        if receiver.nil?
+          s(:send, s(:nil), :'!')
+        else
+          s(:send, receiver, :'!')
+        end
       end
     end
 

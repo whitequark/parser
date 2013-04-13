@@ -295,6 +295,14 @@ class TestParser < MiniTest::Unit::TestCase
       %q{    ~~ operator (hash.pair)
         |  ~~~~~~ expression (hash.pair)
         |  ~~~~~~ expression (hash)})
+
+    assert_parses(
+      s(:array,
+        s(:int, 1),
+        s(:hash, s(:pair, s(:int, 2), s(:int, 3)))),
+      %q{[ 1, 2 => 3 ]},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_array_words
@@ -1353,14 +1361,16 @@ class TestParser < MiniTest::Unit::TestCase
       ALL_VERSIONS - %w(1.8))
   end
 
-  def assert_parses_args(ast, code)
+  def assert_parses_args(ast, code, versions=ALL_VERSIONS)
     assert_parses(
       s(:def, :f, ast, s(:nil)),
-      %Q{def f #{code}; nil; end})
+      %Q{def f #{code}; nil; end},
+      %q{},
+      versions)
   end
 
   def test_arg_combinations
-    # f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
+    # f_arg tCOMMA f_optarg tCOMMA f_rest_arg              opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:arg, :a),
@@ -1369,7 +1379,18 @@ class TestParser < MiniTest::Unit::TestCase
         s(:blockarg, :b)),
       %q{a, o=1, *r, &b})
 
-    # f_arg tCOMMA f_optarg                   opt_f_block_arg
+    # f_arg tCOMMA f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{a, o=1, *r, p, &b},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg tCOMMA f_optarg                                opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:arg, :a),
@@ -1377,7 +1398,17 @@ class TestParser < MiniTest::Unit::TestCase
         s(:blockarg, :b)),
       %q{a, o=1, &b})
 
-    # f_arg tCOMMA                 f_rest_arg opt_f_block_arg
+    # f_arg tCOMMA f_optarg tCOMMA                   f_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:optarg, :o, s(:int, 1)),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{a, o=1, p, &b},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg tCOMMA                 f_rest_arg              opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:arg, :a),
@@ -1385,14 +1416,24 @@ class TestParser < MiniTest::Unit::TestCase
         s(:blockarg, :b)),
       %q{a, *r, &b})
 
-    # f_arg                                   opt_f_block_arg
+    # f_arg tCOMMA                 f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:arg, :a),
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{a, *r, p, &b},
+      ALL_VERSIONS - %w(1.8))
+
+    # f_arg                                                opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:arg, :a),
         s(:blockarg, :b)),
       %q{a, &b})
 
-    #              f_optarg tCOMMA f_rest_arg opt_f_block_arg
+    #              f_optarg tCOMMA f_rest_arg              opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:optarg, :o, s(:int, 1)),
@@ -1400,21 +1441,49 @@ class TestParser < MiniTest::Unit::TestCase
         s(:blockarg, :b)),
       %q{o=1, *r, &b})
 
-    #              f_optarg                   opt_f_block_arg
+    #              f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{o=1, *r, p, &b},
+      ALL_VERSIONS - %w(1.8))
+
+    #              f_optarg                                opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:optarg, :o, s(:int, 1)),
         s(:blockarg, :b)),
       %q{o=1, &b})
 
-    #                              f_rest_arg opt_f_block_arg
+    #              f_optarg tCOMMA                   f_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:optarg, :o, s(:int, 1)),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{o=1, p, &b},
+      ALL_VERSIONS - %w(1.8))
+
+    #                              f_rest_arg              opt_f_block_arg
     assert_parses_args(
       s(:args,
         s(:splatarg, :r),
         s(:blockarg, :b)),
       %q{*r, &b})
 
-    #                                             f_block_arg
+    #                              f_rest_arg tCOMMA f_arg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:splatarg, :r),
+        s(:arg, :p),
+        s(:blockarg, :b)),
+      %q{*r, p, &b},
+      ALL_VERSIONS - %w(1.8))
+
+    #                                                          f_block_arg
     assert_parses_args(
       s(:args,
         s(:blockarg, :b)),
@@ -1922,6 +1991,18 @@ class TestParser < MiniTest::Unit::TestCase
       %q{not foo},
       %{},
       ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :'!'),
+      %q{not(foo)},
+      %{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:send, s(:nil), :'!'),
+      %q{not()},
+      %{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_not_cmd
@@ -1987,10 +2068,81 @@ class TestParser < MiniTest::Unit::TestCase
       s(:send, s(:lvar, :foo), :[]=,
         s(:int, 1), s(:int, 2), s(:int, 3)),
       %q{foo[1, 2] = 3},
-      %q{    ~~~~~~~ selector
+      %q{   ~~~~~~~~ selector
         |   ^ begin
         |        ^ end
         |~~~~~~~~~~~~~ expression})
+  end
+
+  def test_send_lambda
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args), s(:nil)),
+      %q{->{ }},
+      %q{~~ selector (send)
+        |  ^ begin
+        |    ^ end
+        |~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args), s(:nil)),
+      %q{-> do end},
+      %q{~~ selector (send)
+        |   ^^ begin
+        |      ^^^ end
+        |~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_send_lambda_args
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args,
+          s(:arg, :a)),
+        s(:nil)),
+      %q{->(a) { }},
+      %q{~~ selector (send)
+        |  ^ begin (args)
+        |    ^ end (args)
+        |      ^ begin
+        |        ^ end
+        |~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_send_lambda_args_shadow
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args,
+          s(:arg, :a),
+          s(:shadowarg, :foo),
+          s(:shadowarg, :bar)),
+        s(:nil)),
+      %q{->(a; foo, bar) { }},
+      %q{      ~~~ expression (args.shadowarg)},
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_send_call
+    assert_parses(
+      s(:send, s(:lvar, :foo), :call,
+        s(:int, 1)),
+      %q{foo.(1)},
+      %q{    ^ begin
+        |      ^ end
+        |~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:send, s(:lvar, :foo), :call,
+        s(:int, 1)),
+      %q{foo::(1)},
+      %q{     ^ begin
+        |       ^ end
+        |~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
   end
 
   # To superclass
@@ -2101,6 +2253,15 @@ class TestParser < MiniTest::Unit::TestCase
       %q{fun(&bar)})
   end
 
+  def test_args_args_comma
+    assert_parses(
+      s(:send, s(:lvar, :foo), :[],
+        s(:lvar, :bar)),
+      %q{foo[bar,]},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_args_assocs
     assert_parses(
       s(:send, nil, :fun,
@@ -2133,6 +2294,15 @@ class TestParser < MiniTest::Unit::TestCase
       %w(1.8))
   end
 
+  def test_args_assocs_comma
+    assert_parses(
+      s(:send, s(:lvar, :foo), :[],
+        s(:hash, s(:pair, s(:sym, :baz), s(:int, 1)))),
+      %q{foo[:baz => 1,]},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_args_args_assocs
     assert_parses(
       s(:send, nil, :fun,
@@ -2146,6 +2316,16 @@ class TestParser < MiniTest::Unit::TestCase
         s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
         s(:block_pass, s(:lvar, :baz))),
       %q{fun(foo, :foo => 1, &baz)})
+  end
+
+  def test_args_args_assocs_comma
+    assert_parses(
+      s(:send, s(:lvar, :foo), :[],
+        s(:lvar, :bar),
+        s(:hash, s(:pair, s(:sym, :baz), s(:int, 1)))),
+      %q{foo[bar, :baz => 1,]},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_args_args_assocs_star
@@ -3000,6 +3180,21 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
+  def test_rescue_mod_op_assign
+    assert_parses(
+      s(:op_asgn,
+        s(:lvasgn, :foo), :+,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, nil, s(:lvar, :bar)),
+          nil)),
+      %q{foo += meth rescue bar},
+      %q{            ~~~~~~ keyword (rescue.resbody)
+        |       ~~~~~~~~~~~~~~~ expression (rescue)
+        |~~~~~~~~~~~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_resbody_list
     assert_parses(
       s(:rescue,
@@ -3078,7 +3273,8 @@ class TestParser < MiniTest::Unit::TestCase
       [:error, :begin_in_method],
       %q{def f; BEGIN{}; end},
       %q{       ~~~~~ location},
-      %w(1.8))
+      # Yes. Exclude *1.9*. Sigh.
+      ALL_VERSIONS - %w(1.9))
   end
 
   def test_postexe

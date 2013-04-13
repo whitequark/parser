@@ -71,10 +71,6 @@ rule
         top_stmt: stmt
                 | klBEGIN
                     {
-                      if in_def?
-                        diagnostic(:error, :begin_in_method, val[0])
-                      end
-
                       @static_env.extend_static
                     }
                     tLCURLY top_compstmt tRCURLY
@@ -211,7 +207,7 @@ rule
                                   val[3], val[4])
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
-                    {
+                    { # :nocov: TODO: unused with the ragel lexer, remove
                       result = s(:op_asgn, val[0], val[4], val[2], val[3])
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
@@ -600,7 +596,7 @@ rule
                       result = val[0] << val[3]
                     }
 
-                op: tPIPE    | tCARET  | tAMPER2  | tCMP  | tEQ     | tEQQ
+              op:   tPIPE    | tCARET  | tAMPER2  | tCMP  | tEQ     | tEQQ
                 |   tMATCH   | tNMATCH | tGT      | tGEQ  | tLT     | tLEQ
                 |   tNEQ     | tLSHFT  | tRSHFT   | tPLUS | tMINUS  | tSTAR2
                 |   tSTAR    | tDIVIDE | tPERCENT | tPOW  | tBANG   | tTILDE
@@ -636,8 +632,13 @@ rule
                     }
                 | var_lhs tOP_ASGN arg kRESCUE_MOD arg
                     {
-                      result = new_op_asgn val
-                      result = s(:rescue, result, new_resbody(s(:array), val[4]))
+                      rescue_body = @builder.rescue_body(val[3],
+                                        nil, nil, nil,
+                                        nil, val[4])
+
+                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
+
+                      result = @builder.op_assign(val[0], val[1], rescue_)
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN arg
                     {
@@ -830,7 +831,7 @@ rule
                 | args trailer
                 | args tCOMMA assocs trailer
                     {
-                      result = val[0] << s(:hash, *val[2].values)
+                      result = val[0] << @builder.associate(nil, val[2], nil)
                     }
                 | assocs trailer
                     {
@@ -859,6 +860,9 @@ rule
                       result = val[0] << @builder.associate(nil, val[2], nil)
                     }
                 | assocs tCOMMA
+                    {
+                      result = [ @builder.associate(nil, val[0], nil) ]
+                    }
 
        call_args: command
                     {
@@ -1009,11 +1013,11 @@ rule
                     }
                 | kNOT tLPAREN2 expr rparen
                     {
-                      result = s(:call, val[2], :"!")
+                      result = @builder.not_op(val[0], val[2])
                     }
                 | kNOT tLPAREN2 rparen
                     {
-                      raise "no3\non#{val.inspect}"
+                      result = @builder.not_op(val[0])
                     }
                 | operation brace_block
                     {
@@ -1032,7 +1036,11 @@ rule
                     }
                 | tLAMBDA lambda
                     {
-                      result = val[1] # TODO: fix lineno
+                      lambda_call = @builder.call_lambda(val[0])
+
+                      args, (begin_t, body, end_t) = val[1]
+                      result      = @builder.block(lambda_call,
+                                      begin_t, args, body, end_t)
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
@@ -1305,7 +1313,7 @@ rule
                       result = block_var :*, args
                     }
 
-     block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg opt_f_block_arg
+     block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
                     {
                       result = args val
                     }
@@ -1313,55 +1321,55 @@ rule
                     {
                       result = args val
                     }
-                | f_arg tCOMMA f_block_optarg opt_f_block_arg
+                | f_arg tCOMMA f_block_optarg                                opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_arg tCOMMA f_block_optarg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA f_block_optarg tCOMMA                   f_arg opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_arg tCOMMA f_rest_arg opt_f_block_arg
+                | f_arg tCOMMA                       f_rest_arg              opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
                 | f_arg tCOMMA
-                | f_arg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_arg opt_f_block_arg
+                | f_arg                                                      opt_f_block_arg
                     {
                       result = val[0].concat(val[1])
                     }
-                | f_block_optarg tCOMMA f_rest_arg opt_f_block_arg
+                | f_block_optarg tCOMMA              f_rest_arg              opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_block_optarg tCOMMA              f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_block_optarg opt_f_block_arg
+                | f_block_optarg                                             opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_block_optarg tCOMMA f_arg opt_f_block_arg
+                | f_block_optarg tCOMMA                                f_arg opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_rest_arg opt_f_block_arg
+                |                                    f_rest_arg              opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                | f_rest_arg tCOMMA f_arg opt_f_block_arg
+                |                                    f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = args val
                     }
-                | f_block_arg
+                |                                                                f_block_arg
                     {
                       result = [ val[0] ]
                     }
@@ -1382,8 +1390,7 @@ rule
                     }
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
-                      val[1].concat(val[2])
-                      result = @builder.args(val[0], val[1], val[3])
+                      result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
 
      opt_bv_decl: none
@@ -1397,41 +1404,40 @@ rule
 
         bv_decls: bvar
                     {
-                      result = [val[0]]
+                      result = [ val[0] ]
                     }
                 | bv_decls tCOMMA bvar
                     {
-                      result = val[0].concat val[2]
-                      raise "no18\non: #{val.inspect}"
+                      result = val[0] << val[2]
                     }
 
             bvar: tIDENTIFIER
+                    {
+                      result = @builder.shadowarg(val[0])
+                    }
                 | f_bad_arg
 
           lambda: f_larglist lambda_body
                     {
-                      args, body = val
-
-                      args = 0 if args == s(:args)
-
-                      call = new_call nil, :lambda
-                      result = new_iter call, args, body
+                      result = [ val[0], val[1] ]
                     }
 
      f_larglist: tLPAREN2 f_args opt_bv_decl rparen
                     {
-                      result = val[1]
-                      raise "not yet: #{val.inspect}" if val[2]
+                      result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
                 | f_args
+                    {
+                      result = @builder.args(nil, val[0], nil)
+                    }
 
      lambda_body: tLAMBEG compstmt tRCURLY
                     {
-                      result = val[1]
+                      result = [ val[0], val[1], val[2] ]
                     }
                 | kDO_LAMBDA compstmt kEND
                     {
-                      result = val[1]
+                      result = [ val[0], val[1], val[2] ]
                     }
 
         do_block: kDO_BLOCK
@@ -1488,11 +1494,15 @@ rule
                     }
                 | primary_value tDOT paren_args
                     {
-                      result = new_call val[0], :call, val[2]
+                      lparen_t, args, rparen_t = val[2]
+                      result = @builder.call_method(val[0], val[1], nil,
+                                  lparen_t, args, rparen_t)
                     }
                 | primary_value tCOLON2 paren_args
                     {
-                      result = new_call val[0], :call, val[2]
+                      lparen_t, args, rparen_t = val[2]
+                      result = @builder.call_method(val[0], val[1], nil,
+                                  lparen_t, args, rparen_t)
                     }
                 | kSUPER paren_args
                     {
@@ -1855,7 +1865,7 @@ keyword_variable: kNIL
                       result = @builder.args(nil, val[0], nil)
                     }
 
-          f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg opt_f_block_arg
+          f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg              opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
@@ -1870,70 +1880,73 @@ keyword_variable: kNIL
                                   concat(val[6]).
                                   concat(val[7])
                     }
-                | f_arg tCOMMA f_optarg              opt_f_block_arg
+                | f_arg tCOMMA f_optarg                                opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_arg tCOMMA f_optarg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA f_optarg tCOMMA                   f_arg opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg tCOMMA            f_rest_arg opt_f_block_arg
+                | f_arg tCOMMA                 f_rest_arg              opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_arg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA                 f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg                             opt_f_block_arg
+                | f_arg                                                opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |           f_optarg tCOMMA f_rest_arg opt_f_block_arg
+                |              f_optarg tCOMMA f_rest_arg              opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                |              f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                |           f_optarg                opt_f_block_arg
+                |              f_optarg                                opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                | f_optarg tCOMMA f_arg opt_f_block_arg
+                |              f_optarg tCOMMA                   f_arg opt_f_block_arg
                     {
-                      result = args val
+                      result = val[0].
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
-                |                        f_rest_arg opt_f_block_arg
+                |                              f_rest_arg              opt_f_block_arg
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |           f_rest_arg tCOMMA f_arg opt_f_block_arg
+                |                              f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = val[0].
-                                  concat(val[2])
+                                  concat(val[2]).
+                                  concat(val[3])
                     }
-                |                                       f_block_arg
+                |                                                          f_block_arg
                     {
                       result = [ val[0] ]
                     }
