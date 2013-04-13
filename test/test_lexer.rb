@@ -1448,7 +1448,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_regexp_escape_backslash_terminator
     util_lex_token('%r%blah\\%blah%',
-                   :tREGEXP_BEG,     "%r",
+                   :tREGEXP_BEG,     "%r%",
                    :tSTRING_CONTENT, "blah\\%blah",
                    :tSTRING_END,     "%",
                    :tREGEXP_OPT,     "")

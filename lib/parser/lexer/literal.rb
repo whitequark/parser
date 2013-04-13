@@ -65,9 +65,9 @@ module Parser
       )
 
       # Also capture delimiter in %w() style literals
-      unless @heredoc_e or @str_type.include?(delimiter)
+      unless @heredoc_e || @str_type.end_with?(delimiter)
         @str_type << delimiter
-      end 
+      end
 
       emit_start_tok unless @monolithic
     end
