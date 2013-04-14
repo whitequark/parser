@@ -1032,6 +1032,14 @@ class TestParser < MiniTest::Unit::TestCase
         s(:send, s(:lvar, :foo), :A), :+,
         s(:send, nil, :m, s(:lvar, :foo))),
       %q{foo.A += m foo})
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send, s(:lvar, :foo), :A), :+,
+        s(:send, nil, :m, s(:lvar, :foo))),
+      %q{foo::A += m foo},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_op_asgn_index

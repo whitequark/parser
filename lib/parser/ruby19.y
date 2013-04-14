@@ -212,7 +212,10 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
                     {
-                      result = s(:op_asgn, val[0], val[4], val[2], val[3])
+                      result = @builder.op_assign(
+                                  @builder.call_method(
+                                    val[0], val[1], val[2]),
+                                  val[3], val[4])
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
                     {
