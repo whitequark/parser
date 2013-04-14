@@ -2187,6 +2187,23 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, 'print')
   end
 
+  def test_bug_expr_end_colon
+    util_lex_token("'foo':'bar'",
+                   :tSTRING, 'foo',
+                   :tCOLON,  ':',
+                   :tSTRING, 'bar')
+  end
+
+  def test_bug_symbol_newline
+    util_lex_token(":foo\n",
+                   :tSYMBOL, 'foo',
+                   :tNL,     nil)
+
+    util_lex_token(":foo=\n",
+                   :tSYMBOL, 'foo=',
+                   :tNL,     nil)
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",

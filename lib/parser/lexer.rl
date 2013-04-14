@@ -993,7 +993,7 @@ class Parser::Lexer
            fnext expr_end; fbreak; };
 
       ':'
-      => { fhold; fgoto expr_end; };
+      => { fhold; fgoto expr_beg; };
 
       global_var
       => { p = @ts - 1
@@ -1122,6 +1122,11 @@ class Parser::Lexer
       # Ambiguous toplevel constant access.
       c_space+ '::'
       => { fhold; fhold; fgoto expr_beg; };
+
+      # x:b
+      # Symbol.
+      c_space* ':'
+      => { fhold; fgoto expr_beg; };
 
       #
       # AMBIGUOUS TOKENS RESOLVED VIA EXPR_END
@@ -1287,6 +1292,31 @@ class Parser::Lexer
         end
 
         p = @herebody_s - 1
+      };
+
+      #
+      # SYMBOL LITERALS
+      #
+
+      # :"bar", :'baz'
+      ':' ['"] # '
+      => {
+        type, delimiter = tok, tok[-1].chr
+        fgoto *push_literal(type, delimiter, @ts);
+      };
+
+      ':' bareword ambiguous_symbol_suffix
+      => {
+        emit(:tSYMBOL, tok(@ts + 1, tm), @ts, tm)
+        p = tm - 1
+        fnext expr_end; fbreak;
+      };
+
+      ':' ( bareword | global_var | class_var | instance_var |
+            operator_fname | operator_arithmetic | operator_rest )
+      => {
+        emit(:tSYMBOL, tok(@ts + 1), @ts)
+        fnext expr_end; fbreak;
       };
 
       #
@@ -1609,24 +1639,15 @@ class Parser::Lexer
       };
 
       #
-      # SYMBOL LITERALS
+      # STRING AND XSTRING LITERALS
       #
 
-      # `echo foo` | :"bar" | :'baz'
-      '`' | ':'? ['"] # '
+      # `echo foo`, "bar", 'baz'
+      '`' | ['"] # '
       => {
         type, delimiter = tok, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
-
-      ':' bareword ambiguous_symbol_suffix
-      => { emit(:tSYMBOL, tok(@ts + 1, tm), @ts, tm)
-           p = tm - 1; fbreak; };
-
-      ':' ( bareword | global_var | class_var | instance_var |
-            operator_fname | operator_arithmetic | operator_rest )
-      => { emit(:tSYMBOL, tok(@ts + 1), @ts)
-           fbreak; };
 
       #
       # CONSTANTS AND VARIABLES
