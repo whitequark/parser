@@ -799,7 +799,12 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_identifier_bang
-    util_lex_token("identifier!", :tFID, "identifier!")
+    util_lex_token("identifier!",
+                   :tFID, "identifier!")
+
+    util_lex_token("identifier!=",
+                   :tFID, "identifier",
+                   :tNEQ, "!=")
   end
 
   def test_identifier_cmp

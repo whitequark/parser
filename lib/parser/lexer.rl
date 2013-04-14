@@ -880,11 +880,17 @@ class Parser::Lexer
   # The default longest-match scanning does not work here due
   # to sheer ambiguity.
 
+  ambiguous_fid_suffix =       # actual    parsed
+      [?!]  %{ tm = p }      | # a?        a?
+      '!='  %{ tm = p - 2 }    # a!=b      a != b
+  ;
+
   ambiguous_ident_suffix =     # actual    parsed
-      [?!=] %{ tm = p } |      # a?        a?
-      '=='  %{ tm = p - 2 } |  # a==b      a == b
-      '=~'  %{ tm = p - 2 } |  # a=~b      a =~ b
-      '=>'  %{ tm = p - 2 } |  # a=>b      a => b
+      ambiguous_fid_suffix   |
+      '='   %{ tm = p }      | # a=        a=
+      '=='  %{ tm = p - 2 }  | # a==b      a == b
+      '=~'  %{ tm = p - 2 }  | # a=~b      a =~ b
+      '=>'  %{ tm = p - 2 }  | # a=>b      a => b
       '===' %{ tm = p - 3 }    # a===b     a === b
   ;
 
@@ -1614,7 +1620,7 @@ class Parser::Lexer
            fbreak; };
 
       constant ambiguous_const_suffix
-      => { emit(:tCONSTANT, tok(@ts, tm))
+      => { emit(:tCONSTANT, tok(@ts, tm), @ts, tm)
            p = tm - 1; fbreak; };
 
       global_var | class_var_v | instance_var_v
@@ -1632,8 +1638,9 @@ class Parser::Lexer
       => { emit(:tIDENTIFIER)
            fnext expr_arg; fbreak; };
 
-      call_or_var [?!]
-      => { emit(:tFID)
+      call_or_var ambiguous_fid_suffix
+      => { emit(:tFID, tok(@ts, tm), @ts, tm)
+           p = tm - 1
            fnext expr_arg; fbreak; };
 
       #
