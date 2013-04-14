@@ -2180,6 +2180,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, 'baz')
   end
 
+  def test_bug_expr_mid_comment
+    util_lex_token("rescue #bar\nprint",
+                   :kRESCUE,     'rescue',
+                   :tNL,         nil,
+                   :tIDENTIFIER, 'print')
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",

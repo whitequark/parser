@@ -1197,6 +1197,8 @@ class Parser::Lexer
 
       c_space+;
 
+      '#' c_line*;
+
       c_nl
       => { fhold; fgoto expr_end; };
 
