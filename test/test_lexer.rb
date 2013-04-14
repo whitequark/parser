@@ -2173,6 +2173,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,             nil)
   end
 
+  def test_bug_expr_dot_comment
+    util_lex_token("foo. #bar\nbaz",
+                   :tIDENTIFIER, 'foo',
+                   :tDOT,        '.',
+                   :tIDENTIFIER, 'baz')
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",

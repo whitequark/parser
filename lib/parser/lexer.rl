@@ -1032,6 +1032,8 @@ class Parser::Lexer
 
       c_space_nl+;
 
+      '#' c_line* c_nl;
+
       c_any
       => { fhold; fgoto expr_end; };
 
@@ -1409,7 +1411,7 @@ class Parser::Lexer
 
       c_space_nl;
 
-      c_space* '\\\n';
+      '\\\n';
 
       '#' c_line* c_eol
       => { @comments << tok
@@ -1694,13 +1696,15 @@ class Parser::Lexer
 
       '\\' e_heredoc_nl;
 
-      '\\' ( any - c_nl ) {
+      '\\' c_line {
         diagnostic :error, Parser::ERRORS[:bare_backslash],
                    range(@ts, @ts + 1)
         fhold;
       };
 
-      '#' ( c_any - c_nl )*
+      c_space+;
+
+      '#' c_line*
       => { @comments << tok(@ts, @te + 1) };
 
       e_heredoc_nl
@@ -1709,8 +1713,6 @@ class Parser::Lexer
       ';'
       => { emit_table(PUNCTUATION)
            fnext expr_value; fbreak; };
-
-      c_space+;
 
       c_any
       => {
