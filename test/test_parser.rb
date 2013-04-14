@@ -1973,6 +1973,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{fun do end})
   end
 
+  def test_send_block_blockarg
+    assert_diagnoses(
+      [:error, :block_and_blockarg],
+      %q{fun(&bar) do end},
+      %q{    ~~~~ location})
+  end
+
   # To receiver
 
   def test_send_plain

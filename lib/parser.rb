@@ -82,5 +82,6 @@ module Parser
     :space_before_lparen     => "don't put space before argument parentheses",
     :unexpected_percent_str  => "%{type}: unknown type of percent-literal",
     :useless_else            => "else without rescue is useless",
+    :block_and_blockarg      => "both block argument and literal block are passed",
   }.freeze
 end
