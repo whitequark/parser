@@ -83,5 +83,6 @@ module Parser
     :unexpected_percent_str  => "%{type}: unknown type of percent-literal",
     :useless_else            => "else without rescue is useless",
     :block_and_blockarg      => "both block argument and literal block are passed",
+    :masgn_as_condition      => "multiple assignment in conditional context",
   }.freeze
 end

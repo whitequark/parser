@@ -3043,6 +3043,27 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~ expression})
   end
 
+  def test_if_masgn
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{if (a, b = foo); end},
+      %q{   ~~~~~~~~~~~~ location})
+  end
+
+  def test_if_mod_masgn
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{1 if (a, b = foo)},
+      %q{     ~~~~~~~~~~~~ location})
+  end
+
+  def test_tern_masgn
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{(a, b = foo) ? 1 : 2},
+      %q{~~~~~~~~~~~~ location})
+  end
+
   # Case matching
 
   def test_case_expr
@@ -3214,6 +3235,20 @@ class TestParser < MiniTest::Unit::TestCase
   #     %q{begin meth end until foo},
   #     %q{               ~~~~~ keyword})
   # end
+
+  def test_while_masgn
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{while (a, b = foo); end},
+      %q{      ~~~~~~~~~~~~ location})
+  end
+
+  def test_while_mod_masgn
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{foo while (a, b = foo)},
+      %q{          ~~~~~~~~~~~~ location})
+  end
 
   def test_for
     assert_parses(

@@ -518,15 +518,15 @@ module Parser
 
     def condition(cond_t, cond, then_t,
                   if_true, else_t, if_false, end_t)
-      s(:if, cond, if_true, if_false)
+      s(:if, check_condition(cond), if_true, if_false)
     end
 
     def condition_mod(if_true, if_false, cond_t, cond)
-      s(:if, cond, if_true, if_false)
+      s(:if, check_condition(cond), if_true, if_false)
     end
 
     def ternary(cond, question_t, if_true, colon_t, if_false)
-      s(:if, cond, if_true, if_false)
+      s(:if, check_condition(cond), if_true, if_false)
     end
 
     # Case matching
@@ -542,11 +542,11 @@ module Parser
     # Loops
 
     def loop(loop_t, cond, do_t, body, end_t)
-      s(value(loop_t).to_sym, cond, body)
+      s(value(loop_t).to_sym, check_condition(cond), body)
     end
 
     def loop_mod(body, loop_t, cond)
-      s(value(loop_t).to_sym, cond, body)
+      s(value(loop_t).to_sym, check_condition(cond), body)
     end
 
     def for(for_t, iterator, in_t, iteratee,
@@ -608,6 +608,16 @@ module Parser
     end
 
     protected
+
+    def check_condition(cond)
+      if cond.type == :masgn
+        # TODO source maps
+        diagnostic :error, ERRORS[:masgn_as_condition],
+                   nil #cond.src.expression
+      end
+
+      cond
+    end
 
     def t(token, type, *args)
       s(type, *(args << { :source_map => Source::Map.new(location(token)) }))
