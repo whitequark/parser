@@ -1118,6 +1118,11 @@ class Parser::Lexer
         fhold; fgoto expr_beg;
       };
 
+      # x ::Foo
+      # Ambiguous toplevel constant access.
+      c_space+ '::'
+      => { fhold; fhold; fgoto expr_beg; };
+
       #
       # AMBIGUOUS TOKENS RESOLVED VIA EXPR_END
       #
