@@ -355,7 +355,7 @@ class TestLexer < MiniTest::Unit::TestCase
     @lex.state = :expr_arg
     util_lex_token("::Array",
                    :tCOLON2, "::",
-                   :tIDENTIFIER, "Array")
+                   :tCONSTANT, "Array")
   end
 
   def test_colon3

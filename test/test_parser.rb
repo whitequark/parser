@@ -2285,6 +2285,10 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_parses(
       s(:send, s(:lvar, :foo), :A=, s(:int, 1)),
+      "foo.A = 1")
+
+    assert_parses(
+      s(:cdecl, s(:lvar, :foo), :A, s(:int, 1)),
       "foo::A = 1")
   end
 

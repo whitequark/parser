@@ -1012,12 +1012,16 @@ class Parser::Lexer
   # Transitions to `expr_arg` afterwards.
   #
   expr_dot := |*
-      bareword
+      constant
+      => { emit(:tCONSTANT)
+           fnext expr_arg; fbreak; };
+
+      call_or_var
       => { emit(:tIDENTIFIER)
            fnext expr_arg; fbreak; };
 
-      bareword ambiguous_ident_suffix
-      => { emit(:tIDENTIFIER, tok(@ts, tm), @ts, tm)
+      call_or_var ambiguous_ident_suffix
+      => { emit(:tFID, tok(@ts, tm), @ts, tm)
            fnext expr_arg; p = tm - 1; fbreak; };
 
       operator_fname      |
@@ -1072,12 +1076,6 @@ class Parser::Lexer
           fnext expr_value; fbreak;
         end
       };
-
-      # a.b
-      # Dot-call.
-      '.' | '::'
-      => { emit_table(PUNCTUATION);
-           fnext expr_dot; fbreak; };
 
       #
       # AMBIGUOUS TOKENS RESOLVED VIA EXPR_BEG
@@ -1635,7 +1633,7 @@ class Parser::Lexer
       # METHOD CALLS
       #
 
-      '.'
+      '.' | '::'
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
 

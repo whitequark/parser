@@ -204,14 +204,14 @@ rule
                                   val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN command_call
-                    { # :nocov: TODO: unused with the ragel lexer, remove
+                    {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
-                    { # :nocov: TODO: unused with the ragel lexer, remove
+                    {
                       result = s(:op_asgn, val[0], val[4], val[2], val[3])
                     }
                 | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
@@ -478,7 +478,7 @@ rule
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    { # :nocov: TODO: unused with Ragel lexer, remove?
+                    {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
@@ -525,7 +525,7 @@ rule
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tDOT tCONSTANT
-                    { # :nocov: TODO: Unused with Ragel lexer, remove?
+                    {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
@@ -655,7 +655,7 @@ rule
                                   val[3], val[4])
                     }
                 | primary_value tDOT tCONSTANT tOP_ASGN arg
-                    { # :nocov: TODO: Unused with the Ragel lexer. Remove?
+                    {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
