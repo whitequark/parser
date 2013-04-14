@@ -2062,6 +2062,15 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tINTEGER,    86400000000)
   end
 
+  def test_bug_expr_beg_backspace_nl
+    @lex.state = :expr_beg
+    util_lex_token("\n/foo/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "foo",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+  end
+
   def test_bug_expr_arg_percent
     @lex.state = :expr_arg
     util_lex_token("%[",

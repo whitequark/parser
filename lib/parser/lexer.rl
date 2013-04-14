@@ -1403,7 +1403,13 @@ class Parser::Lexer
         end
       };
 
+      #
+      # WHITESPACE
+      #
+
       c_space_nl;
+
+      c_space* '\\\n';
 
       '#' c_line* c_eol
       => { @comments << tok
@@ -1412,6 +1418,10 @@ class Parser::Lexer
       c_nl '=begin' ( c_space | c_eol )
       => { p = @ts - 1
            fgoto line_begin; };
+
+      #
+      # DEFAULT TRANSITION
+      #
 
       # The following rules match most binary and all unary operators.
       # Rules for binary operators provide better error reporting.
