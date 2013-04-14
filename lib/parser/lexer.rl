@@ -1616,12 +1616,12 @@ class Parser::Lexer
       };
 
       ':' bareword ambiguous_symbol_suffix
-      => { emit(:tSYMBOL, tok(@ts + 1, tm), @ts + 1, tm)
+      => { emit(:tSYMBOL, tok(@ts + 1, tm), @ts, tm)
            p = tm - 1; fbreak; };
 
       ':' ( bareword | global_var | class_var | instance_var |
             operator_fname | operator_arithmetic | operator_rest )
-      => { emit(:tSYMBOL, tok(@ts + 1), @ts + 1)
+      => { emit(:tSYMBOL, tok(@ts + 1), @ts)
            fbreak; };
 
       #
