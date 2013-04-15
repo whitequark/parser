@@ -1692,11 +1692,11 @@ rule
 
          symbols: tSYMBOLS_BEG tSPACE tSTRING_END
                     { # :nocov: TODO: unused with Ragel lexer; remove?
-                      result = @builder.words_compose(val[0], [], val[2])
+                      result = @builder.symbols_compose(val[0], [], val[2])
                     }
                 | tSYMBOLS_BEG symbol_list tSTRING_END
                     {
-                      result = @builder.words_compose(val[0], val[1], val[2])
+                      result = @builder.symbols_compose(val[0], val[1], val[2])
                     }
 
      symbol_list: # nothing
@@ -1705,12 +1705,7 @@ rule
                     }
                 | symbol_list word tSPACE
                     {
-                      word = val[1]
-                      if word.type == :str
-                        value, = *word
-                        word = word.updated(:sym, [value.to_sym])
-                      end
-                      result = val[0] << word
+                      result = val[0] << val[1]
                     }
 
           qwords: tQWORDS_BEG tSPACE tSTRING_END
@@ -1724,11 +1719,11 @@ rule
 
         qsymbols: tQSYMBOLS_BEG tSPACE tSTRING_END
                     { # :nocov: TODO: unused with Ragel lexer; remove?
-                      result = @builder.words_compose(val[0], [], val[2])
+                      result = @builder.symbols_compose(val[0], [], val[2])
                     }
                 | tQSYMBOLS_BEG qsym_list tSTRING_END
                     {
-                      result = @builder.words_compose(val[0], val[1], val[2])
+                      result = @builder.symbols_compose(val[0], val[1], val[2])
                     }
 
       qword_list: # nothing
