@@ -959,9 +959,16 @@ rule
                     {
                       result = @builder.call_method(nil, nil, val[0])
                     }
-                | kBEGIN bodystmt kEND
+                | kBEGIN
                     {
-                      result = @builder.begin(val[0], val[1], val[2])
+                      result = @lexer.cmdarg.dup
+                      @lexer.cmdarg.clear
+                    }
+                    bodystmt kEND
+                    {
+                      @lexer.cmdarg = val[1]
+
+                      result = @builder.begin(val[0], val[2], val[3])
                     }
                 | tLPAREN_ARG expr
                     {

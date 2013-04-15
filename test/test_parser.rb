@@ -3622,6 +3622,22 @@ class TestParser < MiniTest::Unit::TestCase
   end
 
   #
+  # Miscellanea
+  #
+
+  def test_begin_cmdarg
+    assert_parses(
+      s(:send, nil, :p,
+        s(:block,
+          s(:send, s(:int, 1), :times),
+          s(:args),
+          s(:int, 1))),
+      %q{p begin 1.times do 1 end end},
+      %{},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  #
   # Error recovery
   #
 

@@ -15,6 +15,13 @@ class TestLexerStackState < MiniTest::Unit::TestCase
     refute @state.active?
   end
 
+  def test_clear
+    @state.push true
+    @state.clear
+
+    refute @state.active?
+  end
+
   def test_pop
     @state.push(true)
 

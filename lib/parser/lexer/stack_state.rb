@@ -3,6 +3,10 @@ module Parser
   class Lexer::StackState
     def initialize(name)
       @name  = name.freeze
+      clear
+    end
+
+    def clear
       @stack = 0
     end
 
