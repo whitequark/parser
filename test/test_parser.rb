@@ -2984,6 +2984,16 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~ expression})
   end
 
+  def test_and_or_masgn_invalid
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{foo && (a, b = bar)})
+
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{foo || (a, b = bar)})
+  end
+
   # Branching
 
   def test_if

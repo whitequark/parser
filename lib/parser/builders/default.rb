@@ -515,7 +515,7 @@ module Parser
     # Logical operations: and, or
 
     def logical_op(type, lhs, token, rhs)
-      s(type, lhs, rhs)
+      s(type, check_condition(lhs), check_condition(rhs))
     end
 
     # Conditionals
