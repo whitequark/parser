@@ -69,15 +69,9 @@ rule
                     }
 
         top_stmt: stmt
-                | klBEGIN
+                | klBEGIN tLCURLY top_compstmt tRCURLY
                     {
-                      @static_env.extend_static
-                    }
-                    tLCURLY top_compstmt tRCURLY
-                    {
-                      @static_env.unextend
-
-                      result = @builder.preexe(val[0], val[2], val[3], val[4])
+                      result = @builder.preexe(val[0], val[1], val[2], val[3])
                     }
 
         bodystmt: compstmt opt_rescue opt_else opt_ensure

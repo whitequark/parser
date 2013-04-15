@@ -140,19 +140,13 @@ rule
 
                       result = @builder.begin_body(val[0], [ rescue_body ])
                     }
-                | klBEGIN
+                | klBEGIN tLCURLY compstmt tRCURLY
                     {
                       if in_def?
                         diagnostic(:error, :begin_in_method, val[0])
                       end
 
-                      @static_env.extend_static
-                    }
-                    tLCURLY compstmt tRCURLY
-                    {
-                      @static_env.unextend
-
-                      result = @builder.preexe(val[0], val[2], val[3], val[4])
+                      result = @builder.preexe(val[0], val[1], val[2], val[3])
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
