@@ -1431,13 +1431,13 @@ rule
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
 
-     opt_bv_decl: # nothing
+     opt_bv_decl: opt_nl
                     {
                       result = []
                     }
-                | tSEMI bv_decls
+                | opt_nl tSEMI bv_decls opt_nl
                     {
-                      result = val[1]
+                      result = val[2]
                     }
 
         bv_decls: bvar

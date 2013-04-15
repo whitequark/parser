@@ -1666,6 +1666,11 @@ class TestParser < MiniTest::Unit::TestCase
       %q{|;a|},
       ALL_VERSIONS - %w(1.8))
 
+    assert_parses_blockargs(
+      s(:args, s(:shadowarg, :a)),
+      %Q{|;\na\n|},
+      ALL_VERSIONS - %w(1.8 1.9))
+
     # tOROP
     assert_parses_blockargs(
       s(:args),
