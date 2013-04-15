@@ -1883,9 +1883,13 @@ keyword_variable: kNIL
                     {
                       result = nil
                     }
-                | tLT expr_value term
+                | tLT
                     {
-                      result = [ val[0], val[1] ]
+                      @lexer.state = :expr_value
+                    }
+                    expr_value term
+                    {
+                      result = [ val[0], val[2] ]
                     }
                 | error term
                     {

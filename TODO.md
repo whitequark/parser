@@ -1,10 +1,9 @@
 # 2.0
 
-1. %i/%I
-2. ** interpreted as argument prefix
-3. assoc: tDSTAR ...
-4. f_kw*
+1. ** interpreted as argument prefix
+2. assoc: tDSTAR ...
+3. f_kw*
+4. %i/%I
 5. qsymbols/symbols
 6. A ||= 1. new_const_op_assign
-7. command_start everywhere
-8. EXPR_ENDFN for ->
+7. EXPR_ENDFN for ->

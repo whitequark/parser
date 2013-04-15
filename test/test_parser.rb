@@ -1233,6 +1233,18 @@ class TestParser < MiniTest::Unit::TestCase
         |                      ~~~ end})
   end
 
+  def test_class_super_label
+    assert_parses(
+      s(:class,
+        s(:const, nil, :Foo),
+        s(:send, nil, :a,
+          s(:sym, :b)),
+        s(:nil)),
+      %q{class Foo < a:b; end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
   def test_class_invalid
     assert_diagnoses(
       [:error, :class_in_def],
