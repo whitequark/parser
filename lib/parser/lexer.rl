@@ -1117,12 +1117,12 @@ class Parser::Lexer
       };
 
       # x *1
-      # Ambiguous splat or block-pass.
-      c_space+ [*&]
+      # Ambiguous splat, kwsplat or block-pass.
+      c_space+ %{ tm = p } ( '*' | '&' | '**' )
       => {
-        message = Parser::ERRORS[:ambiguous_prefix] % { :prefix => tok(@te - 1, @te) }
+        message = Parser::ERRORS[:ambiguous_prefix] % { :prefix => tok(tm, @te) }
         diagnostic :warning, message,
-                   range(@te - 1, @te)
+                   range(tm, @te)
 
         fhold; fgoto expr_beg;
       };
