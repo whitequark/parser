@@ -2204,6 +2204,16 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,     nil)
   end
 
+  def test_bug_expr_beg_heredoc
+    util_lex_token("<<EOL % [\nfoo\nEOL\n]",
+                   :tSTRING_BEG,      '"',
+                   :tSTRING_CONTENT,  "foo\n",
+                   :tSTRING_END,      'EOL',
+                   :tPERCENT,         '%',
+                   :tLBRACK,          '[',
+                   :tRBRACK,          ']')
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",

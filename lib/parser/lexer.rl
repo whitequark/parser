@@ -999,7 +999,9 @@ class Parser::Lexer
       => { p = @ts - 1
            fcall expr_variable; };
 
-      c_space_nl+;
+      # TODO whitespace rule
+      c_space;
+      e_heredoc_nl;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1030,9 +1032,11 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_arg; fbreak; };
 
-      c_space_nl+;
-
-      '#' c_line* c_nl;
+      # TODO whitespace rule
+      c_space;
+      e_heredoc_nl;
+      '\\' e_heredoc_nl;
+      '#' c_line*;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1182,7 +1186,7 @@ class Parser::Lexer
       => { emit(:kDO_BLOCK)
            fnext expr_value; };
 
-      c_space*;
+      c_space;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1200,11 +1204,11 @@ class Parser::Lexer
       => { emit_table(KEYWORDS)
            fnext expr_beg; fbreak; };
 
-      c_space+;
-
+      # TODO whitespace rule
+      c_space;
       '#' c_line*;
 
-      c_nl
+      e_heredoc_nl
       => { fhold; fgoto expr_end; };
 
       c_any
@@ -1441,15 +1445,16 @@ class Parser::Lexer
       # WHITESPACE
       #
 
-      c_space_nl;
-
-      '\\\n';
+      # TODO whitespace rule
+      c_space;
+      e_heredoc_nl;
+      '\\' e_heredoc_nl;
 
       '#' c_line* c_eol
       => { @comments << tok
            fhold; };
 
-      c_nl '=begin' ( c_space | c_eol )
+      e_heredoc_nl '=begin' ( c_space | c_eol )
       => { p = @ts - 1
            fgoto line_begin; };
 
@@ -1476,7 +1481,9 @@ class Parser::Lexer
       => { p = @ts - 1
            fgoto expr_end; };
 
-      c_space_nl+;
+      # TODO whitespace rule
+      c_space;
+      e_heredoc_nl;
 
       c_any
       => { fhold; fgoto expr_beg; };
@@ -1717,6 +1724,7 @@ class Parser::Lexer
       # WHITESPACE
       #
 
+      # TODO whitespace rule
       '\\' e_heredoc_nl;
 
       '\\' c_line {
@@ -1779,6 +1787,7 @@ class Parser::Lexer
   *|;
 
   line_begin := |*
+      # TODO whitespace rule
       c_space_nl+;
 
       '#' c_line* c_eol
