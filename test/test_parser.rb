@@ -1920,6 +1920,22 @@ class TestParser < MiniTest::Unit::TestCase
       %q{        ~~~~~ location})
   end
 
+  def test_arg_label
+    assert_parses(
+      s(:def, :foo, s(:args),
+        s(:send, nil, :a, s(:sym, :b))),
+      %q{def foo() a:b end},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:def, :foo, s(:args),
+        s(:send, nil, :a, s(:sym, :b))),
+      %Q{def foo\n a:b end},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   # def test_kwoptarg
   #   flunk
   # end
