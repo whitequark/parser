@@ -1536,11 +1536,7 @@ rule
                       result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
 
-           words: tWORDS_BEG tSPACE tSTRING_END
-                    { # :nocov: TODO: unused with Ragel lexer; remove?
-                      result = @builder.words_compose(val[0], [], val[2])
-                    }
-                | tWORDS_BEG word_list tSTRING_END
+           words: tWORDS_BEG word_list tSTRING_END
                     {
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
@@ -1560,11 +1556,7 @@ rule
                       raise "unused 'word string_content'"
                     }
 
-          qwords: tQWORDS_BEG tSPACE tSTRING_END
-                    { # :nocov: TODO: unused with Ragel lexer; remove?
-                      result = @builder.words_compose(val[0], [], val[2])
-                    }
-                | tQWORDS_BEG qword_list tSTRING_END
+          qwords: tQWORDS_BEG qword_list tSTRING_END
                     {
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
@@ -1587,7 +1579,7 @@ rule
                       result = val[0] << val[1]
                     }
 
-xstring_contents: # nothing # TODO: replace with string_contents?
+xstring_contents: # nothing
                     {
                       result = []
                     }
