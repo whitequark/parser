@@ -1934,6 +1934,16 @@ class TestParser < MiniTest::Unit::TestCase
       %Q{def foo\n a:b end},
       %q{},
       ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :f),
+        s(:args),
+        s(:send, nil, :a,
+          s(:sym, :b))),
+      %Q{f { || a:b }},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   # def test_kwoptarg

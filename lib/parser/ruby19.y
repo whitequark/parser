@@ -1398,6 +1398,9 @@ rule
                       result = @builder.args(nil, [], nil)
                     }
                 | block_param_def
+                    {
+                      @lexer.state = :expr_value
+                    }
 
  block_param_def: tPIPE opt_bv_decl tPIPE
                     {

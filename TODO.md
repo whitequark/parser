@@ -6,3 +6,5 @@
 4. f_kw*
 5. qsymbols/symbols
 6. A ||= 1. new_const_op_assign
+7. command_start everywhere
+8. EXPR_ENDFN for ->
