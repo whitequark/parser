@@ -1837,6 +1837,16 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     ']')
   end
 
+  def test_string_pct_I
+    util_lex_token("%I(s1 s2)",
+                   :tSYMBOLS_BEG,    "%I(",
+                   :tSTRING_CONTENT, "s1",
+                   :tSPACE,          nil,
+                   :tSTRING_CONTENT, "s2",
+                   :tSPACE,          nil,
+                   :tSTRING_END,     ')')
+  end
+
   def test_string_pct_angle
     util_lex_token("%<blah>",
                    :tSTRING, "blah")
@@ -1848,12 +1858,20 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_string_pct_w
-    util_bad_token("%w[s1 s2 ",
+    util_lex_token("%w[s1 s2 ]",
                    :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s1",
-                   :tSPACE,              nil,
+                   :tSPACE,          nil,
                    :tSTRING_CONTENT, "s2",
-                   :tSPACE,              nil)
+                   :tSPACE,          nil,
+                   :tSTRING_END,     "]")
+  end
+
+  def test_string_pct_w_incomplete
+    util_bad_token("%w[s1 ",
+                   :tQWORDS_BEG,     "%w[",
+                   :tSTRING_CONTENT, "s1",
+                   :tSPACE,          nil)
   end
 
   def test_string_pct_w_bs_nl
@@ -1884,6 +1902,16 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_CONTENT, "def",
                    :tSPACE,              nil,
                    :tSTRING_END,     ']')
+  end
+
+  def test_string_pct_i
+    util_lex_token("%i(s1 s2)",
+                   :tQSYMBOLS_BEG,   "%i(",
+                   :tSTRING_CONTENT, "s1",
+                   :tSPACE,          nil,
+                   :tSTRING_CONTENT, "s2",
+                   :tSPACE,          nil,
+                   :tSTRING_END,     ')')
   end
 
   def test_string_single

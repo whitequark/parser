@@ -5,25 +5,28 @@ module Parser
     MONOLITHIC = { :tSTRING_BEG => :tSTRING, :tSYMBEG => :tSYMBOL }
 
     TYPES = {
-    # type      start token    interpolate?
-      "'"  => [ :tSTRING_BEG,  false ],
-      '%q' => [ :tSTRING_BEG,  false ],
-      '"'  => [ :tSTRING_BEG,  true  ],
-      '%'  => [ :tSTRING_BEG,  true  ],
-      '%Q' => [ :tSTRING_BEG,  true  ],
+    # type      start token     interpolate?
+      "'"  => [ :tSTRING_BEG,   false ],
+      '%q' => [ :tSTRING_BEG,   false ],
+      '"'  => [ :tSTRING_BEG,   true  ],
+      '%'  => [ :tSTRING_BEG,   true  ],
+      '%Q' => [ :tSTRING_BEG,   true  ],
 
-      '%w' => [ :tQWORDS_BEG,  false ],
-      '%W' => [ :tWORDS_BEG,   true  ],
+      '%w' => [ :tQWORDS_BEG,   false ],
+      '%W' => [ :tWORDS_BEG,    true  ],
 
-      ":'" => [ :tSYMBEG,      false ],
-      '%s' => [ :tSYMBEG,      false ],
-      ':"' => [ :tSYMBEG,      true  ],
+      '%i' => [ :tQSYMBOLS_BEG, false ],
+      '%I' => [ :tSYMBOLS_BEG,  true  ],
 
-      '/'  => [ :tREGEXP_BEG,  true  ],
-      '%r' => [ :tREGEXP_BEG,  true  ],
+      ":'" => [ :tSYMBEG,       false ],
+      '%s' => [ :tSYMBEG,       false ],
+      ':"' => [ :tSYMBEG,       true  ],
 
-      '%x' => [ :tXSTRING_BEG, true  ],
-      '`'  => [ :tXSTRING_BEG, true  ],
+      '/'  => [ :tREGEXP_BEG,   true  ],
+      '%r' => [ :tREGEXP_BEG,   true  ],
+
+      '%x' => [ :tXSTRING_BEG,  true  ],
+      '`'  => [ :tXSTRING_BEG,  true  ],
     }
 
     attr_reader   :heredoc_e, :str_s
@@ -77,7 +80,8 @@ module Parser
     end
 
     def words?
-      type == :tWORDS_BEG || type == :tQWORDS_BEG
+      type == :tWORDS_BEG || type == :tQWORDS_BEG ||
+        type == :tSYMBOLS_BEG || type == :tQSYMBOLS_BEG
     end
 
     def regexp?
