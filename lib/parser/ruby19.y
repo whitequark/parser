@@ -962,9 +962,6 @@ rule
                     }
                     opt_nl tRPAREN
                     {
-                      # TODO better location info here
-                      diagnostic :warning, :grouped_expression, val[0]
-
                       result = @builder.parenthesize(val[0], val[1], val[4])
                     }
                 | tLPAREN compstmt tRPAREN

@@ -2748,12 +2748,6 @@ class TestParser < MiniTest::Unit::TestCase
       s(:send, nil, :fun,
         s(:send, s(:int, 1), :to_i)),
       %q{fun (1).to_i})
-
-    assert_diagnoses(
-      [:warning, :grouped_expression],
-      %q{fun (1).to_i},
-      %q{    ~~~ location},
-      %w(1.8 1.9))
   end
 
   def test_space_args_block_pass
