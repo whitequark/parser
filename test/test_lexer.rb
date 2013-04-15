@@ -1792,6 +1792,16 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tSTRING_END,     "\"")
   end
 
+  def test_string_double_interp_label
+    util_lex_token('"#{foo:bar}"',
+                   :tSTRING_BEG,   '"',
+                   :tSTRING_DBEG,  '#{',
+                   :tIDENTIFIER,   'foo',
+                   :tSYMBOL,       'bar',
+                   :tRCURLY,       '}',
+                   :tSTRING_END,   '"')
+  end
+
   def test_string_double_nested_curlies
     util_lex_token('%{nest{one{two}one}nest}',
                    :tSTRING, "nest{one{two}one}nest")
