@@ -14,7 +14,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tLBRACE_ARG tSTAR tSTAR2 tAMPER tAMPER2 tTILDE tPERCENT tDIVIDE
       tPLUS tMINUS tLT tGT tPIPE tBANG tCARET tLCURLY tRCURLY
       tBACK_REF2 tSYMBEG tSTRING_BEG tXSTRING_BEG tREGEXP_BEG tREGEXP_OPT
-      tWORDS_BEG tQWORDS_BEG tSTRING_DBEG tSTRING_DVAR tSTRING_END
+      tWORDS_BEG tQWORDS_BEG tSTRING_DBEG tSTRING_DVAR tSTRING_END tSTRING_DEND
       tSTRING tSYMBOL tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG
 
 prechigh
@@ -1726,7 +1726,7 @@ regexp_contents: # nothing
                       @lexer.cond.push(false)
                       @lexer.cmdarg.push(false)
                     }
-                    compstmt tRCURLY
+                    compstmt tSTRING_DEND
                     {
                       @lexer.cond.lexpop
                       @lexer.cmdarg.lexpop

@@ -790,7 +790,11 @@ class Parser::Lexer
   e_rbrace = '}' % {
     if literal
       if literal.end_interp_brace_and_try_closing
-        emit(:tRCURLY, '}')
+        if version?(18, 19)
+          emit(:tRCURLY, '}')
+        else
+          emit(:tSTRING_DEND, '}')
+        end
 
         if literal.words?
           emit(:tSPACE, nil)
