@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = 'parser'
-  spec.version       = '0.9.0'
+  spec.version       = '0.9.1'
   spec.authors       = ['Peter Zotov']
   spec.email         = ['whitequark@whitequark.org']
   spec.description   = %q{A Ruby parser written in pure Ruby.}
@@ -13,12 +13,11 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split($/) + %w(
                           lib/parser/lexer.rb
                           lib/parser/ruby18.rb
+                          lib/parser/ruby19.rb
                        )
   spec.executables   = %w()
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
-
-  spec.required_ruby_version = '>= 1.9'
 
   spec.add_dependency             'ast',       '~> 1.0'
 
