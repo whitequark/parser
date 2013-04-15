@@ -2,10 +2,10 @@
 
 Gem::Specification.new do |spec|
   spec.name          = 'parser'
-  spec.version       = '0.9.alpha1'
+  spec.version       = '0.9.0'
   spec.authors       = ['Peter Zotov']
   spec.email         = ['whitequark@whitequark.org']
-  spec.description   = %q{A Ruby parser.}
+  spec.description   = %q{A Ruby parser written in pure Ruby.}
   spec.summary       = spec.description
   spec.homepage      = 'http://github.com/whitequark/parser'
   spec.license       = 'MIT'
