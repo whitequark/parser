@@ -1460,7 +1460,7 @@ rule
                       result = [ val[0], val[1] ]
                     }
 
-     f_larglist: tLPAREN2 f_args opt_bv_decl rparen
+     f_larglist: tLPAREN2 f_args opt_bv_decl tRPAREN
                     {
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
