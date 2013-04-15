@@ -95,6 +95,22 @@ module Parser
       s(:array, *parts)
     end
 
+    def symbols_compose(begin_t, parts, end_t)
+      parts = parts.map do |part|
+        case part.type
+        when :str
+          value, = *part
+          part.updated(:sym, [value.to_sym])
+        when :dstr
+          part.updated(:dsym)
+        else
+          part
+        end
+      end
+
+      s(:array, *parts)
+    end
+
     # Hashes
 
     def pair(key, assoc_t, value)
