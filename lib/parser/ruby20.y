@@ -69,15 +69,9 @@ rule
                     }
 
         top_stmt: stmt
-                | klBEGIN
+                | klBEGIN tLCURLY top_compstmt tRCURLY
                     {
-                      @static_env.extend_static
-                    }
-                    tLCURLY top_compstmt tRCURLY
-                    {
-                      @static_env.unextend
-
-                      result = @builder.preexe(val[0], val[2], val[3], val[4])
+                      result = @builder.preexe(val[0], val[1], val[2], val[3])
                     }
 
         bodystmt: compstmt opt_rescue opt_else opt_ensure
@@ -105,17 +99,27 @@ rule
                     {
                       result = []
                     }
-                | stmt
+                | stmt_or_begin
                     {
                       result = [ val[0] ]
                     }
-                | stmts terms stmt
+                | stmts terms stmt_or_begin
                     {
                       result = val[0] << val[2]
                     }
                 | error stmt
                     {
                       result = [ val[1] ]
+                    }
+
+   stmt_or_begin: stmt
+                | klBEGIN tLCURLY top_compstmt tRCURLY
+                    {
+                      if in_def?
+                        diagnostic(:error, :begin_in_method, val[0])
+                      end
+
+                      result = @builder.preexe(val[0], val[1], val[2], val[3])
                     }
 
             stmt: kALIAS fitem
