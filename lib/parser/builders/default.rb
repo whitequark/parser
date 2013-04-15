@@ -133,7 +133,11 @@ module Parser
     #
 
     def parenthesize(begin_t, expr, end_t)
-      expr
+      if expr.nil?
+        s(:nil)
+      else
+        expr
+      end
     end
 
     #

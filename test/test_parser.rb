@@ -2655,7 +2655,8 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:warning, :grouped_expression],
       %q{fun (1).to_i},
-      %q{    ~~~ location})
+      %q{    ~~~ location},
+      %w(1.8 1.9))
   end
 
   def test_space_args_block_pass
@@ -2895,6 +2896,15 @@ class TestParser < MiniTest::Unit::TestCase
       %q{         ^ begin (send)
         |          ^ end (send)},
       %w(1.8))
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :fun,
+          s(:nil)),
+        s(:args), s(:nil)),
+      %q{fun () {}},
+      %q{    ~~ expression (send.nil)},
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   #
