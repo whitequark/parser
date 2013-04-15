@@ -1552,7 +1552,7 @@ class Parser::Lexer
       'class' c_space_nl* '<<'
       => { emit(:kCLASS, 'class', @ts, @ts + 5)
            emit(:tLSHFT, '<<',    @te - 2, @te)
-           fnext expr_beg; fbreak; };
+           fnext expr_value; fbreak; };
 
       # a if b:c: Syntax error.
       keyword_modifier

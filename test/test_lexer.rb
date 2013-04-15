@@ -2031,6 +2031,15 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND,         "end")
   end
 
+  def test_sclass_label
+    setup_lexer 20
+    util_lex_token("class << a:b",
+                   :kCLASS,      'class',
+                   :tLSHFT,      '<<',
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b')
+  end
+
   def test_static_env
     env = Parser::StaticEnvironment.new
     env.declare "a"
