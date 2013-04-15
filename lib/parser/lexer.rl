@@ -313,9 +313,9 @@ class Parser::Lexer
   }
 
   PUNCTUATION_BEGIN = {
-    '&'   => :tAMPER,   '*'   => :tSTAR,   '+'   => :tUPLUS,
-    '-'   => :tUMINUS,  '::'  => :tCOLON3, '('   => :tLPAREN,
-    '{'   => :tLBRACE,  '['   => :tLBRACK,
+    '&'   => :tAMPER,   '*'   => :tSTAR,    '**'  => :tDSTAR,
+    '+'   => :tUPLUS,   '-'   => :tUMINUS,  '::'  => :tCOLON3,
+    '('   => :tLPAREN,  '{'   => :tLBRACE,  '['   => :tLBRACK,
   }
 
   KEYWORDS = {
@@ -410,7 +410,8 @@ class Parser::Lexer
 
   # A list of punctuation which has different meaning when used at the
   # beginning of expression.
-  punctuation_begin   = '-'  | '+'  | '::' | '('  | '['  | '*'   | '&' ;
+  punctuation_begin   = '-'  | '+'  | '::' | '('  | '['  |
+                        '*'  | '**' | '&'  ;
 
   # A list of all punctuation except punctuation_begin.
   punctuation_end     = ','  | '='  | '->' | '('  | '['  | ']'   |

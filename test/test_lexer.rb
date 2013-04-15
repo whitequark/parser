@@ -1640,6 +1640,13 @@ class TestLexer < MiniTest::Unit::TestCase
     assert_equal :expr_beg, @lex.state
   end
 
+  def test_star2_beg
+    util_lex_token("** ",
+                   :tDSTAR, "**")
+
+    assert_equal :expr_beg, @lex.state
+  end
+
   def test_star_arg
     @lex.state = :expr_arg
 
