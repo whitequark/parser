@@ -323,6 +323,12 @@ class TestParser < MiniTest::Unit::TestCase
         |   ~~~ expression (str)
         |         ~~~ expression (lvar)
         |~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:array,
+        s(:str, "foo"),
+        s(:dstr, s(:lvar, :bar), s(:str, 'foo'), s(:ivar, :@baz))),
+      %q{%W[foo #{bar}foo#@baz]})
   end
 
   def test_array_words_empty
