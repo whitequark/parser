@@ -298,12 +298,14 @@ rule
                       @static_env.unextend
                     }
 
-         command: operation command_args =tLOWEST
+           fcall: operation
+
+         command: fcall command_args =tLOWEST
                     {
                       result = @builder.call_method(nil, nil, val[0],
                                   nil, val[1], nil)
                     }
-                | operation command_args cmd_brace_block
+                | fcall command_args cmd_brace_block
                     {
                       method_call = @builder.call_method(nil, nil, val[0],
                                         nil, val[1], nil)
@@ -1017,7 +1019,7 @@ rule
                     {
                       result = @builder.not_op(val[0])
                     }
-                | operation brace_block
+                | fcall brace_block
                     {
                       method_call = @builder.call_method(nil, nil, val[0])
 
@@ -1484,7 +1486,7 @@ rule
                                   lparen_t, args, rparen_t)
                     }
 
-     method_call: operation paren_args
+     method_call: fcall paren_args
                     {
                       lparen_t, args, rparen_t = val[1]
                       result = @builder.call_method(nil, nil, val[0],
