@@ -11,4 +11,4 @@ class Parser::Base
   end
 end
 
-Parser::Ruby18.parse(ARGF.read)
+Parser::Ruby19.parse(ARGF.read)

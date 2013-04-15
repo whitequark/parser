@@ -2415,6 +2415,15 @@ class TestParser < MiniTest::Unit::TestCase
         |        ^ end
         |~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args,
+          s(:arg, :a)),
+        s(:nil)),
+      %q{-> (a) { }},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   def test_send_lambda_args_shadow

@@ -1506,9 +1506,9 @@ class Parser::Lexer
       # STABBY LAMBDA
       #
 
-      '->'
+      '->' c_space*
       => {
-        emit_table(PUNCTUATION)
+        emit_table(PUNCTUATION, @ts, @ts + 2)
 
         @lambda_stack.push @paren_nest
         fbreak;
