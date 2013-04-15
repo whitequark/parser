@@ -69,7 +69,7 @@ rule
                       result = @builder.compstmt(val[0])
                     }
 
-           stmts: none
+           stmts: # nothing
                     {
                       result = []
                     }
@@ -797,7 +797,7 @@ rule
                       result = [ val[0], val[1] << val[3], val[5] ]
                     }
 
-  opt_paren_args: none
+  opt_paren_args: # nothing
                     {
                       result = [ nil, [], nil ]
                     }
@@ -1346,7 +1346,7 @@ rule
                     }
                 ;
 
-   opt_block_var: none
+   opt_block_var: # nothing
                     {
                       result = @builder.args(nil, [], nil)
                     }
@@ -1483,7 +1483,7 @@ rule
                                       val[3], val[4]),
                                  *val[5] ]
                     }
-                |
+                | # nothing
                     {
                       result = []
                     }
@@ -1895,7 +1895,7 @@ xstring_contents: # nothing # TODO: replace with string_contents?
                       result = val[1]
                     }
 
-      assoc_list: none
+      assoc_list: # nothing
                     {
                       result = []
                     }

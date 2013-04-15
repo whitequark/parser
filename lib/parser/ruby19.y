@@ -51,7 +51,7 @@ rule
                       result = @builder.compstmt(val[0])
                     }
 
-       top_stmts: none
+       top_stmts: # nothing
                     {
                       result = []
                     }
@@ -101,7 +101,7 @@ rule
                       result = @builder.compstmt(val[0])
                     }
 
-           stmts: none
+           stmts: # nothing
                     {
                       result = []
                     }
@@ -846,13 +846,13 @@ rule
                       result = val
                     }
 
-  opt_paren_args: none
+  opt_paren_args: # nothing
                     {
                       result = [ nil, [], nil ]
                     }
                 | paren_args
 
-   opt_call_args: none
+   opt_call_args: # nothing
                     {
                       result = []
                     }
@@ -895,7 +895,7 @@ rule
                       result = @lexer.cmdarg.dup
                       @lexer.cmdarg.push(true)
                     }
-                  call_args
+                    call_args
                     {
                       @lexer.cmdarg = val[0]
 
@@ -911,7 +911,7 @@ rule
                     {
                       result = [ val[1] ]
                     }
-                | none
+                | # nothing
                     {
                       result = []
                     }
@@ -1399,7 +1399,7 @@ rule
                       result = [ val[0] ]
                     }
 
- opt_block_param: none
+ opt_block_param: # nothing
                     {
                       result = @builder.args(nil, [], nil)
                     }
@@ -1418,7 +1418,7 @@ rule
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
 
-     opt_bv_decl: none
+     opt_bv_decl: # nothing
                     {
                       result = []
                     }
@@ -1558,7 +1558,7 @@ rule
                     {
                       @static_env.extend_dynamic
                     }
-                 opt_block_param compstmt kEND
+                    opt_block_param compstmt kEND
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
@@ -1662,7 +1662,7 @@ rule
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
-       word_list: none
+       word_list: # nothing
                     {
                       result = []
                     }
@@ -1686,7 +1686,7 @@ rule
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
 
-      qword_list: none
+      qword_list: # nothing
                     {
                       result = []
                     }
@@ -1695,7 +1695,7 @@ rule
                       result = val[0] << @builder.string(val[1])
                     }
 
- string_contents: none
+ string_contents: # nothing
                     {
                       result = []
                     }
@@ -1704,7 +1704,7 @@ rule
                       result = val[0] << val[1]
                     }
 
-xstring_contents: none # TODO: replace with string_contents?
+xstring_contents: # nothing # TODO: replace with string_contents?
                     {
                       result = []
                     }
@@ -1713,7 +1713,7 @@ xstring_contents: none # TODO: replace with string_contents?
                       result = val[0] << val[1]
                     }
 
-regexp_contents: none
+regexp_contents: # nothing
                     {
                       result = []
                     }
@@ -2081,7 +2081,7 @@ keyword_variable: kNIL
                     {
                       result = [ val[1] ]
                     }
-                |
+                | # nothing
                     {
                       result = []
                     }
@@ -2092,7 +2092,7 @@ keyword_variable: kNIL
                       result = val[1]
                     }
 
-      assoc_list: none
+      assoc_list: # nothing
                     {
                       result = []
                     }
