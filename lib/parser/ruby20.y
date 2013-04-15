@@ -954,6 +954,8 @@ rule
                 | regexp
                 | words
                 | qwords
+                | symbols
+                | qsymbols
                 | var_ref
                 | backref
                 | tFID
@@ -1688,11 +1690,43 @@ rule
                       raise "unused 'word string_content'"
                     }
 
+         symbols: tSYMBOLS_BEG tSPACE tSTRING_END
+                    { # :nocov: TODO: unused with Ragel lexer; remove?
+                      result = @builder.words_compose(val[0], [], val[2])
+                    }
+                | tSYMBOLS_BEG symbol_list tSTRING_END
+                    {
+                      result = @builder.words_compose(val[0], val[1], val[2])
+                    }
+
+     symbol_list: # nothing
+                    {
+                      result = []
+                    }
+                | symbol_list word tSPACE
+                    {
+                      word = val[1]
+                      if word.type == :str
+                        value, = *word
+                        word = word.updated(:sym, [value.to_sym])
+                      end
+                      result = val[0] << word
+                    }
+
           qwords: tQWORDS_BEG tSPACE tSTRING_END
                     { # :nocov: TODO: unused with Ragel lexer; remove?
                       result = @builder.words_compose(val[0], [], val[2])
                     }
                 | tQWORDS_BEG qword_list tSTRING_END
+                    {
+                      result = @builder.words_compose(val[0], val[1], val[2])
+                    }
+
+        qsymbols: tQSYMBOLS_BEG tSPACE tSTRING_END
+                    { # :nocov: TODO: unused with Ragel lexer; remove?
+                      result = @builder.words_compose(val[0], [], val[2])
+                    }
+                | tQSYMBOLS_BEG qsym_list tSTRING_END
                     {
                       result = @builder.words_compose(val[0], val[1], val[2])
                     }
@@ -1704,6 +1738,15 @@ rule
                 | qword_list tSTRING_CONTENT tSPACE
                     {
                       result = val[0] << @builder.string(val[1])
+                    }
+
+       qsym_list: # nothing
+                    {
+                      result = []
+                    }
+                | qsym_list tSTRING_CONTENT tSPACE
+                    {
+                      result = val[0] << @builder.symbol(val[1])
                     }
 
  string_contents: # nothing

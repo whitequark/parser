@@ -338,6 +338,45 @@ class TestParser < MiniTest::Unit::TestCase
       %q{%W()})
   end
 
+  def test_array_symbols
+    assert_parses(
+      s(:array, s(:sym, :foo), s(:sym, :bar)),
+      %q{%i[foo bar]},
+      %q{^^^ begin
+        |          ^ end
+        |   ~~~ expression (sym)
+        |~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_array_symbols_interp
+    assert_parses(
+      s(:array, s(:sym, :foo), s(:lvar, :bar)),
+      %q{%I[foo #{bar}]},
+      %q{^^^ begin
+        |             ^ end
+        |   ~~~ expression (sym)
+        |         ~~~ expression (lvar)
+        |~~~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_array_symbols_empty
+    assert_parses(
+      s(:array),
+      %q{%i[]},
+      %q{^^^ begin
+        |   ^ end
+        |~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses(
+      s(:array),
+      %q{%I()},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
   # Hashes
 
   def test_hash_empty
