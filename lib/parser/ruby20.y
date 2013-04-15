@@ -281,12 +281,7 @@ rule
                 | block_command
 
    block_command: block_call
-                | block_call tDOT operation2 command_args
-                    {
-                      result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
-                    }
-                | block_call tCOLON2 operation2 command_args
+                | block_call dot_or_colon operation2 command_args
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
                                   nil, val[3], nil)
@@ -1482,13 +1477,7 @@ rule
                       result      = @builder.block(val[0],
                                       begin_t, block_args, body, end_t)
                     }
-                | block_call tDOT operation2 opt_paren_args
-                    {
-                      lparen_t, args, rparen_t = val[3]
-                      result = @builder.call_method(val[0], val[1], val[2],
-                                  lparen_t, args, rparen_t)
-                    }
-                | block_call tCOLON2 operation2 opt_paren_args
+                | block_call dot_or_colon operation2 opt_paren_args
                     {
                       lparen_t, args, rparen_t = val[3]
                       result = @builder.call_method(val[0], val[1], val[2],
