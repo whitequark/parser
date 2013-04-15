@@ -1443,7 +1443,8 @@ class Parser::Lexer
       => {
         emit(:tIDENTIFIER)
 
-        if @static_env && @static_env.declared?(tok)
+        if !version?(18) &&
+              !@static_env.nil? && @static_env.declared?(tok)
           fnext expr_end; fbreak;
         else
           fnext expr_arg; fbreak;

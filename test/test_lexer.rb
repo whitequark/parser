@@ -2035,6 +2035,16 @@ class TestLexer < MiniTest::Unit::TestCase
     env = Parser::StaticEnvironment.new
     env.declare "a"
 
+    setup_lexer(18)
+    @lex.static_env = env
+
+    util_lex_token("a [42]",
+                   :tIDENTIFIER, "a",
+                   :tLBRACK,     "[",
+                   :tINTEGER,    42,
+                   :tRBRACK,     "]")
+
+    setup_lexer(19)
     @lex.static_env = env
 
     util_lex_token("a [42]",
