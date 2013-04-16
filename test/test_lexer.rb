@@ -1826,7 +1826,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_string_pct_W
-    util_lex_token("%W[s1 s2\ns3]", # TODO: add interpolation to these
+    util_lex_token("%W[s1 s2\ns3]",
                    :tWORDS_BEG,      "%W[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
@@ -1838,13 +1838,29 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_string_pct_W_bs_nl
-    util_lex_token("%W[s1 \\\ns2]", # TODO: add interpolation to these
+    util_lex_token("%W[s1 \\\ns2]",
                    :tWORDS_BEG,      "%W[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
                    :tSTRING_CONTENT, "\ns2",
                    :tSPACE,              nil,
                    :tSTRING_END,     ']')
+  end
+
+  def test_string_pct_W_interp
+    util_lex_token('%W[#{1}#{2} #@a]',
+                   :tWORDS_BEG,    '%W[',
+                   :tSTRING_DBEG,  '#{',
+                   :tINTEGER,      1,
+                   :tRCURLY,       '}',
+                   :tSTRING_DBEG,  '#{',
+                   :tINTEGER,      2,
+                   :tRCURLY,       '}',
+                   :tSPACE,        nil,
+                   :tSTRING_DVAR,  nil,
+                   :tIVAR,         '@a',
+                   :tSPACE,        nil,
+                   :tSTRING_END,   ']')
   end
 
   def test_string_pct_I

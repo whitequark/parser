@@ -753,6 +753,10 @@ class Parser::Lexer
     literal.flush_string
   }
 
+  action extend_string_space {
+    literal.extend_space @ts, @te
+  }
+
   #
   # === INTERPOLATION PARSING ===
   #
@@ -764,6 +768,8 @@ class Parser::Lexer
 
   action extend_interp_var {
     literal.flush_string
+    literal.extend_content
+
     emit(:tSTRING_DVAR, nil, @ts, @ts + 1)
 
     p = @ts
@@ -801,10 +807,6 @@ class Parser::Lexer
           emit(:tSTRING_DEND, '}')
         end
 
-        if literal.words?
-          emit(:tSPACE, nil)
-        end
-
         if literal.saved_herebody_s
           @herebody_s = literal.saved_herebody_s
         end
@@ -818,6 +820,8 @@ class Parser::Lexer
 
   action extend_interp_code {
     literal.flush_string
+    literal.extend_content
+
     emit(:tSTRING_DBEG, '#{')
 
     literal.saved_herebody_s = @herebody_s
@@ -834,7 +838,7 @@ class Parser::Lexer
       interp_code => extend_interp_code;
       interp_var  => extend_interp_var;
       e_bs escape => extend_string_escaped;
-      c_space_nl  => { literal.flush_string };
+      c_space_nl+ => extend_string_space;
       c_eol       => extend_string_eol;
       c_any       => extend_string;
   *|;
@@ -849,7 +853,7 @@ class Parser::Lexer
 
   plain_words := |*
       e_bs c_any  => extend_string_escaped;
-      c_space_nl  => { literal.flush_string };
+      c_space_nl+ => extend_string_space;
       c_eol       => extend_string_eol;
       c_any       => extend_string;
   *|;

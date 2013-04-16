@@ -1677,13 +1677,16 @@ rule
                     }
                 | word_list word tSPACE
                     {
-                      result = val[0] << val[1]
+                      result = val[0] << @builder.word(val[1])
                     }
 
             word: string_content
+                    {
+                      result = [ val[0] ]
+                    }
                 | word string_content
-                    { # :nocov: TODO: test this rule, remove if unused
-                      raise "unused 'word string_content'"
+                    {
+                      result = val[0] << val[1]
                     }
 
          symbols: tSYMBOLS_BEG symbol_list tSTRING_END
@@ -1697,7 +1700,7 @@ rule
                     }
                 | symbol_list word tSPACE
                     {
-                      result = val[0] << val[1]
+                      result = val[0] << @builder.word(val[1])
                     }
 
           qwords: tQWORDS_BEG qword_list tSTRING_END

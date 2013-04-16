@@ -60,6 +60,8 @@ module Parser
 
       @interp_braces = 0
 
+      @space_emitted = true
+
       # Monolithic strings are glued into a single token, e.g.
       # tSTRING_BEG tSTRING_CONTENT tSTRING_END -> tSTRING.
       @monolithic  = (
@@ -121,6 +123,10 @@ module Parser
 
       # Finalize if last matching delimiter is closed.
       if @nesting == 0
+        if words?
+          extend_space(ts, ts)
+        end
+
         # Emit the string as a single token if it's applicable.
         if @monolithic
           emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
@@ -164,13 +170,24 @@ module Parser
       unless @buffer.empty?
         emit(:tSTRING_CONTENT, @buffer, @buffer_s, @buffer_e)
 
-        if words?
-          emit(:tSPACE, nil, @buffer_e, @buffer_e + 1)
-        end
-
         @buffer   = ''
         @buffer_s = nil
         @buffer_e = nil
+        extend_content
+      end
+    end
+
+    def extend_content
+      @space_emitted = false
+    end
+
+    def extend_space(ts, te)
+      flush_string
+
+      unless @space_emitted
+        emit(:tSPACE, nil, ts, te)
+
+        @space_emitted = true
       end
     end
 

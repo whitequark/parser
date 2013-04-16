@@ -91,6 +91,14 @@ module Parser
       end
     end
 
+    def word(parts)
+      if parts.one?
+        parts.first
+      else
+        s(:dstr, *parts)
+      end
+    end
+
     def words_compose(begin_t, parts, end_t)
       s(:array, *parts)
     end
@@ -100,7 +108,7 @@ module Parser
         case part.type
         when :str
           value, = *part
-          part.updated(:sym, [value.to_sym])
+          part.updated(:sym, [ value.to_sym ])
         when :dstr
           part.updated(:dsym)
         else
