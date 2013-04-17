@@ -747,7 +747,7 @@ Format:
 
 Begin of the `expression` points to `&`.
 
-### Ruby 1.8 expression arguments
+### Expression arguments
 
 Ruby 1.8 allows to use arbitrary expressions as block arguments,
 such as `@var` or `foo.bar`. Such expressions should be treated as
@@ -768,7 +768,7 @@ Format:
 "|&@bar|"
 ```
 
-### Ruby 1.9 and later block shadow arguments
+### Block shadow arguments
 
 Format:
 ```
