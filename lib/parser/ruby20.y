@@ -1531,6 +1531,25 @@ opt_block_args_tail:
                       result = @builder.call_method(val[0], val[1], val[2],
                                   lparen_t, args, rparen_t)
                     }
+                | block_call dot_or_colon operation2 opt_paren_args brace_block
+                    {
+                      lparen_t, args, rparen_t = val[3]
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                      lparen_t, args, rparen_t)
+
+                      begin_t, args, body, end_t = val[4]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
+                    }
+                | block_call dot_or_colon operation2 command_args do_block
+                    {
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                      nil, val[3], nil)
+
+                      begin_t, args, body, end_t = val[4]
+                      result      = @builder.block(method_call,
+                                      begin_t, args, body, end_t)
+                    }
 
      method_call: fcall paren_args
                     {
@@ -2264,7 +2283,13 @@ keyword_variable: kNIL
        opt_terms:  | terms
           opt_nl:  | tNL
           rparen: opt_nl tRPAREN
+                    {
+                      result = val[1]
+                    }
         rbracket: opt_nl tRBRACK
+                    {
+                      result = val[1]
+                    }
          trailer:  | tNL | tCOMMA
 
             term: tSEMI

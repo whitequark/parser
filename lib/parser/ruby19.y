@@ -2110,7 +2110,13 @@ keyword_variable: kNIL
        opt_terms:  | terms
           opt_nl:  | tNL
           rparen: opt_nl tRPAREN
+                    {
+                      result = val[1]
+                    }
         rbracket: opt_nl tRBRACK
+                    {
+                      result = val[1]
+                    }
          trailer:  | tNL | tCOMMA
 
             term: tSEMI

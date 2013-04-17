@@ -2288,6 +2288,42 @@ class TestParser < MiniTest::Unit::TestCase
         |                  ^ begin
         |                      ^ end
         |~~~~~~~~~~~~~~~~~~~~~~~ expression})
+
+    assert_parses(
+      s(:block,
+        s(:send,
+          s(:block,
+            s(:send, nil, :meth, s(:int, 1)),
+            s(:args), s(:nil)),
+          :fun, s(:lvar, :bar)),
+        s(:args), s(:nil)),
+      %q{meth 1 do end.fun bar do end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses(
+      s(:block,
+        s(:send,
+          s(:block,
+            s(:send, nil, :meth, s(:int, 1)),
+            s(:args), s(:nil)),
+          :fun, s(:lvar, :bar)),
+        s(:args), s(:nil)),
+      %q{meth 1 do end.fun(bar) {}},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses(
+      s(:block,
+        s(:send,
+          s(:block,
+            s(:send, nil, :meth, s(:int, 1)),
+            s(:args), s(:nil)),
+          :fun),
+        s(:args), s(:nil)),
+      %q{meth 1 do end.fun {}},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   def test_send_paren_block_cmd
