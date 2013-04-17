@@ -404,11 +404,11 @@ module Parser
       s(:optarg, value(token).to_sym, value)
     end
 
-    def splatarg(star_t, token=nil)
+    def restarg(star_t, token=nil)
       if token
-        s(:splatarg, value(token).to_sym)
+        s(:restarg, value(token).to_sym)
       else
-        t(star_t, :splatarg)
+        t(star_t, :restarg)
       end
     end
 
@@ -430,13 +430,13 @@ module Parser
       end
     end
 
-    def splatarg_expr(star_t, expr=nil)
+    def restarg_expr(star_t, expr=nil)
       if expr.nil?
-        t(star_t, :splatarg)
+        t(star_t, :restarg)
       elsif expr.type == :lvasgn
-        expr.updated(:splatarg)
+        expr.updated(:restarg)
       else
-        s(:splatarg_expr, expr)
+        s(:restarg_expr, expr)
       end
     end
 

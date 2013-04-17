@@ -1478,23 +1478,23 @@ class TestParser < MiniTest::Unit::TestCase
       %q{def f(foo=1, bar=2); nil; end})
   end
 
-  def test_splatarg_named
+  def test_restarg_named
     assert_parses(
       s(:def, :f,
-        s(:args, s(:splatarg, :foo)),
+        s(:args, s(:restarg, :foo)),
         s(:nil)),
       %q{def f(*foo); nil; end},
-      %q{       ~~~ name (args.splatarg)
-        |      ~~~~ expression (args.splatarg)})
+      %q{       ~~~ name (args.restarg)
+        |      ~~~~ expression (args.restarg)})
   end
 
-  def test_splatarg_unnamed
+  def test_restarg_unnamed
     assert_parses(
       s(:def, :f,
-        s(:args, s(:splatarg)),
+        s(:args, s(:restarg)),
         s(:nil)),
       %q{def f(*); nil; end},
-      %q{      ~ expression (args.splatarg)})
+      %q{      ~ expression (args.restarg)})
   end
 
   def test_blockarg
@@ -1521,7 +1521,7 @@ class TestParser < MiniTest::Unit::TestCase
       s(:args,
         s(:arg, :a),
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:blockarg, :b)),
       %q{a, o=1, *r, &b})
 
@@ -1530,7 +1530,7 @@ class TestParser < MiniTest::Unit::TestCase
       s(:args,
         s(:arg, :a),
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{a, o=1, *r, p, &b},
@@ -1558,7 +1558,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_args(
       s(:args,
         s(:arg, :a),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:blockarg, :b)),
       %q{a, *r, &b})
 
@@ -1566,7 +1566,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_args(
       s(:args,
         s(:arg, :a),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{a, *r, p, &b},
@@ -1583,7 +1583,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_args(
       s(:args,
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:blockarg, :b)),
       %q{o=1, *r, &b})
 
@@ -1591,7 +1591,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_args(
       s(:args,
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{o=1, *r, p, &b},
@@ -1616,14 +1616,14 @@ class TestParser < MiniTest::Unit::TestCase
     #                              f_rest_arg              opt_f_block_arg
     assert_parses_args(
       s(:args,
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:blockarg, :b)),
       %q{*r, &b})
 
     #                              f_rest_arg tCOMMA f_arg opt_f_block_arg
     assert_parses_args(
       s(:args,
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{*r, p, &b},
@@ -1662,42 +1662,42 @@ class TestParser < MiniTest::Unit::TestCase
 
     # f_marg_list tCOMMA tSTAR f_norm_arg
     assert_parses_margs(
-      s(:mlhs, s(:arg, :a), s(:splatarg, :s)),
-      %q{(a, *s)})
+      s(:mlhs, s(:arg, :a), s(:restarg, :r)),
+      %q{(a, *r)})
 
     # f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
     assert_parses_margs(
-      s(:mlhs, s(:arg, :a), s(:splatarg, :s), s(:arg, :p)),
-      %q{(a, *s, p)})
+      s(:mlhs, s(:arg, :a), s(:restarg, :r), s(:arg, :p)),
+      %q{(a, *r, p)})
 
     # f_marg_list tCOMMA tSTAR
     assert_parses_margs(
-      s(:mlhs, s(:arg, :a), s(:splatarg)),
+      s(:mlhs, s(:arg, :a), s(:restarg)),
       %q{(a, *)})
 
     # f_marg_list tCOMMA tSTAR            tCOMMA f_marg_list
     assert_parses_margs(
-      s(:mlhs, s(:arg, :a), s(:splatarg), s(:arg, :p)),
+      s(:mlhs, s(:arg, :a), s(:restarg), s(:arg, :p)),
       %q{(a, *, p)})
 
     # tSTAR f_norm_arg
     assert_parses_margs(
-      s(:mlhs, s(:splatarg, :s)),
-      %q{(*s)})
+      s(:mlhs, s(:restarg, :r)),
+      %q{(*r)})
 
     # tSTAR f_norm_arg tCOMMA f_marg_list
     assert_parses_margs(
-      s(:mlhs, s(:splatarg, :s), s(:arg, :p)),
-      %q{(*s, p)})
+      s(:mlhs, s(:restarg, :r), s(:arg, :p)),
+      %q{(*r, p)})
 
     # tSTAR
     assert_parses_margs(
-      s(:mlhs, s(:splatarg)),
+      s(:mlhs, s(:restarg)),
       %q{(*)})
 
     # tSTAR tCOMMA f_marg_list
     assert_parses_margs(
-      s(:mlhs, s(:splatarg), s(:arg, :p)),
+      s(:mlhs, s(:restarg), s(:arg, :p)),
       %q{(*, p)})
   end
 
@@ -1775,39 +1775,39 @@ class TestParser < MiniTest::Unit::TestCase
     # block_par tCOMMA tSTAR
     # f_arg tCOMMA                       f_rest_arg              opt_f_block_arg
     assert_parses_blockargs(
-      s(:args, s(:arg, :a), s(:splatarg, :s), s(:blockarg, :b)),
+      s(:args, s(:arg, :a), s(:restarg, :s), s(:blockarg, :b)),
       %q{|a, *s, &b|})
 
     assert_parses_blockargs(
       s(:args, s(:arg, :a),
-        s(:splatarg_expr, s(:ivasgn, :@s)),
+        s(:restarg_expr, s(:ivasgn, :@s)),
         s(:blockarg_expr, s(:ivasgn, :@b))),
       %q{|a, *@s, &@b|},
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:arg, :a), s(:splatarg), s(:blockarg, :b)),
+      s(:args, s(:arg, :a), s(:restarg), s(:blockarg, :b)),
       %q{|a, *, &b|})
 
     assert_parses_blockargs(
       s(:args, s(:arg, :a),
-        s(:splatarg),
+        s(:restarg),
         s(:blockarg_expr, s(:ivasgn, :@b))),
       %q{|a, *, &@b|},
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:arg, :a), s(:splatarg, :s)),
+      s(:args, s(:arg, :a), s(:restarg, :s)),
       %q{|a, *s|})
 
     assert_parses_blockargs(
       s(:args, s(:arg, :a),
-        s(:splatarg_expr, s(:ivasgn, :@s))),
+        s(:restarg_expr, s(:ivasgn, :@s))),
       %q{|a, *@s|},
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:arg, :a), s(:splatarg)),
+      s(:args, s(:arg, :a), s(:restarg)),
       %q{|a, *|})
 
     # tSTAR lhs tCOMMA tAMPER lhs
@@ -1816,39 +1816,39 @@ class TestParser < MiniTest::Unit::TestCase
     # tSTAR tCOMMA tAMPER lhs
     #                                    f_rest_arg              opt_f_block_arg
     assert_parses_blockargs(
-      s(:args, s(:splatarg, :s), s(:blockarg, :b)),
+      s(:args, s(:restarg, :s), s(:blockarg, :b)),
       %q{|*s, &b|})
 
     assert_parses_blockargs(
       s(:args,
-        s(:splatarg_expr, s(:ivasgn, :@s)),
+        s(:restarg_expr, s(:ivasgn, :@s)),
         s(:blockarg_expr, s(:ivasgn, :@b))),
       %q{|*@s, &@b|},
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:splatarg), s(:blockarg, :b)),
+      s(:args, s(:restarg), s(:blockarg, :b)),
       %q{|*, &b|})
 
     assert_parses_blockargs(
       s(:args,
-        s(:splatarg),
+        s(:restarg),
         s(:blockarg_expr, s(:ivasgn, :@b))),
       %q{|*, &@b|},
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:splatarg, :s)),
+      s(:args, s(:restarg, :s)),
       %q{|*s|})
 
     assert_parses_blockargs(
       s(:args,
-        s(:splatarg_expr, s(:ivasgn, :@s))),
+        s(:restarg_expr, s(:ivasgn, :@s))),
       %q{|*@s|},
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:splatarg)),
+      s(:args, s(:restarg)),
       %q{|*|})
 
     # tAMPER lhs
@@ -1869,7 +1869,7 @@ class TestParser < MiniTest::Unit::TestCase
         s(:arg, :a),
         s(:optarg, :o, s(:int, 1)),
         s(:optarg, :o1, s(:int, 2)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:blockarg, :b)),
       %q{|a, o=1, o1=2, *r, &b|},
       ALL_VERSIONS - %w(1.8))
@@ -1879,7 +1879,7 @@ class TestParser < MiniTest::Unit::TestCase
       s(:args,
         s(:arg, :a),
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{|a, o=1, *r, p, &b|},
@@ -1908,7 +1908,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_blockargs(
       s(:args,
         s(:arg, :a),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{|a, *r, p, &b|},
@@ -1918,7 +1918,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_blockargs(
       s(:args,
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:blockarg, :b)),
       %q{|o=1, *r, &b|},
       ALL_VERSIONS - %w(1.8))
@@ -1927,7 +1927,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_blockargs(
       s(:args,
         s(:optarg, :o, s(:int, 1)),
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{|o=1, *r, p, &b|},
@@ -1953,7 +1953,7 @@ class TestParser < MiniTest::Unit::TestCase
     #                                    f_rest_arg tCOMMA f_arg opt_f_block_arg
     assert_parses_blockargs(
       s(:args,
-        s(:splatarg, :r),
+        s(:restarg, :r),
         s(:arg, :p),
         s(:blockarg, :b)),
       %q{|*r, p, &b|},

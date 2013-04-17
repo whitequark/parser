@@ -1294,42 +1294,42 @@ rule
                 | block_par tCOMMA tSTAR lhs tCOMMA tAMPER lhs
                     {
                       result =  val[0].
-                                  push(@builder.splatarg_expr(val[2], val[3])).
+                                  push(@builder.restarg_expr(val[2], val[3])).
                                   push(@builder.blockarg_expr(val[5], val[6]))
                     }
                 | block_par tCOMMA tSTAR tCOMMA tAMPER lhs
                     {
                       result =  val[0].
-                                  push(@builder.splatarg_expr(val[2])).
+                                  push(@builder.restarg_expr(val[2])).
                                   push(@builder.blockarg_expr(val[4], val[5]))
                     }
                 | block_par tCOMMA tSTAR lhs
                     {
                       result =  val[0].
-                                  push(@builder.splatarg_expr(val[2], val[3]))
+                                  push(@builder.restarg_expr(val[2], val[3]))
                     }
                 | block_par tCOMMA tSTAR
                     {
                       result =  val[0].
-                                  push(@builder.splatarg_expr(val[2]))
+                                  push(@builder.restarg_expr(val[2]))
                     }
                 | tSTAR lhs tCOMMA tAMPER lhs
                     {
-                      result =  [ @builder.splatarg_expr(val[0], val[1]),
+                      result =  [ @builder.restarg_expr(val[0], val[1]),
                                   @builder.blockarg_expr(val[3], val[4]) ]
                     }
                 | tSTAR tCOMMA tAMPER lhs
                     {
-                      result =  [ @builder.splatarg_expr(val[0]),
+                      result =  [ @builder.restarg_expr(val[0]),
                                   @builder.blockarg_expr(val[2], val[3]) ]
                     }
                 | tSTAR lhs
                     {
-                      result =  [ @builder.splatarg_expr(val[0], val[1]) ]
+                      result =  [ @builder.restarg_expr(val[0], val[1]) ]
                     }
                 | tSTAR
                     {
-                      result =  [ @builder.splatarg_expr(val[0]) ]
+                      result =  [ @builder.restarg_expr(val[0]) ]
                     }
                 | tAMPER lhs
                     {
@@ -1850,11 +1850,11 @@ xstring_contents: # nothing
                     {
                       @static_env.declare val[1][0]
 
-                      result = [ @builder.splatarg(val[0], val[1]) ]
+                      result = [ @builder.restarg(val[0], val[1]) ]
                     }
                 | restarg_mark
                     {
-                      result = [ @builder.splatarg(val[0]) ]
+                      result = [ @builder.restarg(val[0]) ]
                     }
 
      blkarg_mark: tAMPER2 | tAMPER

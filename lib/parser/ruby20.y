@@ -1285,47 +1285,47 @@ rule
                       @static_env.declare val[3][0]
 
                       result = val[0].
-                                  push(@builder.splatarg(val[2], val[3]))
+                                  push(@builder.restarg(val[2], val[3]))
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
                     {
                       @static_env.declare val[3][0]
 
                       result = val[0].
-                                  push(@builder.splatarg(val[2], val[3])).
+                                  push(@builder.restarg(val[2], val[3])).
                                   concat(val[5])
                     }
                 | f_marg_list tCOMMA tSTAR
                     {
                       result = val[0].
-                                  push(@builder.splatarg(val[2]))
+                                  push(@builder.restarg(val[2]))
                     }
                 | f_marg_list tCOMMA tSTAR            tCOMMA f_marg_list
                     {
                       result = val[0].
-                                  push(@builder.splatarg(val[2])).
+                                  push(@builder.restarg(val[2])).
                                   concat(val[4])
                     }
                 |                    tSTAR f_norm_arg
                     {
                       @static_env.declare val[1][0]
 
-                      result = [ @builder.splatarg(val[0], val[1]) ]
+                      result = [ @builder.restarg(val[0], val[1]) ]
                     }
                 |                    tSTAR f_norm_arg tCOMMA f_marg_list
                     {
                       @static_env.declare val[1][0]
 
-                      result = [ @builder.splatarg(val[0], val[1]),
+                      result = [ @builder.restarg(val[0], val[1]),
                                  *val[3] ]
                     }
                 |                    tSTAR
                     {
-                      result = [ @builder.splatarg(val[0]) ]
+                      result = [ @builder.restarg(val[0]) ]
                     }
                 |                    tSTAR tCOMMA f_marg_list
                     {
-                      result = [ @builder.splatarg(val[0]),
+                      result = [ @builder.restarg(val[0]),
                                  *val[2] ]
                     }
 
@@ -2097,11 +2097,11 @@ keyword_variable: kNIL
                     {
                       @static_env.declare val[1][0]
 
-                      result = [ @builder.splatarg(val[0], val[1]) ]
+                      result = [ @builder.restarg(val[0], val[1]) ]
                     }
                 | restarg_mark
                     {
-                      result = [ @builder.splatarg(val[0]) ]
+                      result = [ @builder.restarg(val[0]) ]
                     }
 
      blkarg_mark: tAMPER2 | tAMPER

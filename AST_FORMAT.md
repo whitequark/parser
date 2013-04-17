@@ -718,7 +718,7 @@ Format:
 
 Format:
 ```
-(splatarg :foo)
+(restarg :foo)
 "*foo"
  ~~~~ expression
   ~~~ name
@@ -730,7 +730,7 @@ Begin of the `expression` points to `*`.
 
 Format:
 ```
-(splatarg)
+(restarg)
 "*"
  ^ expression
 ```
@@ -761,7 +761,7 @@ Format:
 (args (arg_expr (send (send nil :foo) :a=)))
 "|foo.a|"
 
-(args (splatarg_expr (ivasgn :@bar)))
+(args (restarg_expr (ivasgn :@bar)))
 "|*@bar|"
 
 (args (blockarg_expr (ivasgn :@bar)))
@@ -780,7 +780,7 @@ Format:
 
 Format:
 ```
-(def :f (args (arg :a) (mlhs (arg :foo) (splatarg :bar))))
+(def :f (args (arg :a) (mlhs (arg :foo) (restarg :bar))))
 "def f(a, (foo, *bar)); end"
           ^ begin   ^ end
           ~~~~~~~~~~~ expression
@@ -810,7 +810,7 @@ Format:
 
 Format:
 ```
-(kwsplatarg :foo)
+(kwrestarg :foo)
 "**foo"
  ~~~~~ expression
    ~~~ name
@@ -820,7 +820,7 @@ Format:
 
 Format:
 ```
-(kwsplatarg)
+(kwrestarg)
 "**"
  ~~ expression
 ```
