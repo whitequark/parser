@@ -14,9 +14,9 @@ _Parser_ is a Ruby parser written in pure Ruby.
 
 Parse a chunk of code:
 ``` ruby
-require 'parser/ruby19'
+require 'parser/ruby20'
 
-p Parser::Ruby19.parse("2 + 2")
+p Parser::Ruby20.parse("2 + 2")
 # (send
 #   (int 2) :+
 #   (int 2))
@@ -24,7 +24,7 @@ p Parser::Ruby19.parse("2 + 2")
 
 Parse a chunk of code and display all diagnostics:
 ``` ruby
-parser = Parser::Ruby19.new
+parser = Parser::Ruby20.new
 parser.diagnostics.consumer = lambda do |diag|
   puts diag.render
 end
@@ -43,10 +43,10 @@ p parser.parse(buffer)
 
 ## Features
 
- * Precise source location reporting.
+ * Precise source location reporting (WIP, no, not really yet).
  * [Documented](AST_FORMAT.md) AST format which is convenient to work with.
  * A simple interface and a powerful, tweakable one.
- * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats (WIP, only 1.8 & 1.9 yet).
+ * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats.
  * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8 and 1.9 mode.
