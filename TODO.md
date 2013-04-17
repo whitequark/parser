@@ -1,11 +1,10 @@
 # 2.0
 
 1. test for "** interpreted as argument prefix" diagnostic
-6. https://github.com/ruby/ruby/commit/c46bda
-7. https://github.com/ruby/ruby/commit/1ab3974b0efea5155da005ec08a1feee90023d98
-9. https://github.com/ruby/ruby/commit/d6a977f667f9d824cfe95976f3afc31e55580edb
-10. https://github.com/ruby/ruby/commit/8fe3fb4c0f69535b302e124f3afc58dce4be5dbb
-11. https://github.com/ruby/ruby/commit/3380974143d3fdf1721d9e28d6b2d42036f03bd2
+2. https://github.com/ruby/ruby/commit/c46bda
+3. https://github.com/ruby/ruby/commit/1ab3974b0efea5155da005ec08a1feee90023d98
+4. https://github.com/ruby/ruby/commit/d6a977f667f9d824cfe95976f3afc31e55580edb
+5. https://github.com/ruby/ruby/commit/8fe3fb4c0f69535b302e124f3afc58dce4be5dbb
 
 # 2.1
 

@@ -430,16 +430,16 @@ class TestParser < MiniTest::Unit::TestCase
         ALL_VERSIONS - %w(1.8))
   end
 
-  # def test_hash_kwsplat
-  #   assert_parses(
-  #     s(:hash,
-  #       s(:pair, s(:symbol, :foo), s(:int, 2))
-  #       s(:kwsplat, s(:lvar, :bar))),
-  #     %q[{ foo: 2, **bar }],
-  #     %q{          ^^ operator (kwsplat)
-  #       |          ~~~~~ expression (kwsplat)},
-  #       %w(2.0))
-  # end
+  def test_hash_kwsplat
+    assert_parses(
+      s(:hash,
+        s(:pair, s(:sym, :foo), s(:int, 2)),
+        s(:kwsplat, s(:lvar, :bar))),
+      %q[{ foo: 2, **bar }],
+      %q{          ^^ operator (kwsplat)
+        |          ~~~~~ expression (kwsplat)},
+        %w(2.0))
+  end
 
   def test_hash_no_hashrocket
     assert_parses(
@@ -447,7 +447,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q[{ 1, 2 }],
       %q{^ begin
         |       ^ end
-        |   ^ operator (pair)
         |  ~~~~ expression (pair)
         |~~~~~~~~ expression},
       %w(1.8))

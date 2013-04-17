@@ -142,6 +142,10 @@ module Parser
       s(:hash, *pairs)
     end
 
+    def kwsplat(dstar_t, arg)
+      s(:kwsplat, arg)
+    end
+
     # Ranges
 
     def range_inclusive(lhs, token, rhs)

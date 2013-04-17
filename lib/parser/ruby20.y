@@ -12,7 +12,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tASET tLSHFT tRSHFT tCOLON2 tCOLON3 tOP_ASGN tASSOC tLPAREN
       tLPAREN2 tRPAREN tLPAREN_ARG tLBRACK tLBRACK2 tRBRACK tLBRACE
       tLBRACE_ARG tSTAR tSTAR2 tAMPER tAMPER2 tTILDE tPERCENT tDIVIDE
-      tPLUS tMINUS tLT tGT tPIPE tBANG tCARET tLCURLY tRCURLY
+      tDSTAR tPLUS tMINUS tLT tGT tPIPE tBANG tCARET tLCURLY tRCURLY
       tBACK_REF2 tSYMBEG tSTRING_BEG tXSTRING_BEG tREGEXP_BEG tREGEXP_OPT
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
@@ -605,7 +605,7 @@ rule
                 |   tMATCH   | tNMATCH | tGT      | tGEQ  | tLT     | tLEQ
                 |   tNEQ     | tLSHFT  | tRSHFT   | tPLUS | tMINUS  | tSTAR2
                 |   tSTAR    | tDIVIDE | tPERCENT | tPOW  | tBANG   | tTILDE
-                |   tUPLUS   | tUMINUS | tAREF    | tASET | tBACK_REF2
+                |   tUPLUS   | tUMINUS | tAREF    | tASET | tDSTAR  | tBACK_REF2
 
         reswords: k__LINE__ | k__FILE__ | k__ENCODING__ | klBEGIN | klEND
                 | kALIAS    | kAND      | kBEGIN        | kBREAK  | kCASE
@@ -2152,6 +2152,10 @@ keyword_variable: kNIL
                       # TODO: Extract colon
                       key = @builder.symbol(val[0])
                       result = @builder.pair(key, nil, val[1])
+                    }
+                | tDSTAR arg_value
+                    {
+                      result = @builder.kwsplat(val[0], val[1])
                     }
 
        operation: tIDENTIFIER | tCONSTANT | tFID
