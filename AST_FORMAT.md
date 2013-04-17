@@ -786,7 +786,17 @@ Format:
           ~~~~~~~~~~~ expression
 ```
 
-### Keyword argument
+### Required keyword argument
+
+Format:
+```
+(kwarg :foo (int 1))
+"foo:"
+ ~~~~ expression
+ ~~~~ name
+```
+
+### Optional keyword argument
 
 Format:
 ```
@@ -800,7 +810,7 @@ Format:
 
 Format:
 ```
-(kwsplat :foo)
+(kwsplatarg :foo)
 "**foo"
  ~~~~~ expression
    ~~~ name
@@ -810,7 +820,7 @@ Format:
 
 Format:
 ```
-(kwsplat)
+(kwsplatarg)
 "**"
  ~~ expression
 ```
