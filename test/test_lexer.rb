@@ -880,10 +880,10 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_identifier_equals_tilde
-    @lex.state = :expr_fname # can only set via parser's defs
+    @lex.state = :expr_fname
     util_lex_token("identifier=~",
-                   :tIDENTIFIER, "identifier",
-                   :tMATCH, "=~")
+                   :tIDENTIFIER, "identifier=",
+                   :tTILDE,      "~")
   end
 
   def test_identifier_gt

@@ -991,13 +991,9 @@ class Parser::Lexer
       => { emit(KEYWORDS[tok]);
            fnext expr_end; fbreak; };
 
-      bareword
+      bareword [?=!]?
       => { emit(:tIDENTIFIER)
            fnext expr_end; fbreak; };
-
-      bareword ambiguous_ident_suffix
-      => { emit(:tIDENTIFIER, tok(@ts, tm), @ts, tm)
-           fnext expr_end; p = tm - 1; fbreak; };
 
       operator_fname      |
       operator_arithmetic |
