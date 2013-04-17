@@ -2115,6 +2115,34 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~~~~~~ expression})
   end
 
+  def test_send_plain_cmd_ambiguous_prefix
+    assert_diagnoses(
+      [:warning, :ambiguous_prefix, { :prefix => '+' }],
+      %q{m +foo},
+      %q{  ^ location})
+
+    assert_diagnoses(
+      [:warning, :ambiguous_prefix, { :prefix => '-' }],
+      %q{m -foo},
+      %q{  ^ location})
+
+    assert_diagnoses(
+      [:warning, :ambiguous_prefix, { :prefix => '&' }],
+      %q{m &foo},
+      %q{  ^ location})
+
+    assert_diagnoses(
+      [:warning, :ambiguous_prefix, { :prefix => '*' }],
+      %q{m *foo},
+      %q{  ^ location})
+
+    assert_diagnoses(
+      [:warning, :ambiguous_prefix, { :prefix => '**' }],
+      %q{m **foo},
+      %q{  ^^ location},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
   def test_send_block_chain_cmd
     assert_parses(
       s(:send,

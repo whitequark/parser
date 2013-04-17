@@ -1114,25 +1114,26 @@ class Parser::Lexer
                )
       => { fhold; fhold; fgoto expr_beg; };
 
-      # x +1
-      # Ambiguous unary operator or regexp literal.
-      c_space+ [+\-/]
+      # x /1
+      # Ambiguous regexp literal.
+      c_space+ '/'
       => {
         diagnostic :warning, Parser::ERRORS[:ambiguous_literal],
                    range(@te - 1, @te)
 
-        fhold; fhold; fgoto expr_beg;
+        fhold; fgoto expr_beg;
       };
 
       # x *1
       # Ambiguous splat, kwsplat or block-pass.
-      c_space+ %{ tm = p } ( '*' | '&' | '**' )
+      c_space+ %{ tm = p } ( '+' | '-' | '*' | '&' | '**' )
       => {
         message = Parser::ERRORS[:ambiguous_prefix] % { :prefix => tok(tm, @te) }
         diagnostic :warning, message,
                    range(tm, @te)
 
-        fhold; fgoto expr_beg;
+        p = tm - 1
+        fgoto expr_beg;
       };
 
       # x ::Foo
