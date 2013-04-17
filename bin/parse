@@ -3,4 +3,4 @@
 $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
 require 'parser/all'
 
-p Parser::Ruby18.parse(ARGF.read)
+p Parser::Ruby20.parse(ARGF.read)

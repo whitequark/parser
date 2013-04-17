@@ -1329,14 +1329,41 @@ rule
                                  *val[2] ]
                     }
 
-     block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
+ block_args_tail: f_block_kwarg tCOMMA f_kwrest opt_f_block_arg
+                    {
+                      result = val[0].concat(val[2]).concat(val[3])
+                    }
+                | f_block_kwarg opt_f_block_arg
+                    {
+                      result = val[0].concat(val[1])
+                    }
+                | f_kwrest opt_f_block_arg
+                    {
+                      result = val[0].concat(val[1])
+                    }
+                | f_block_arg
+                    {
+                      result = [ val[0] ]
+                    }
+
+opt_block_args_tail:
+                  tCOMMA block_args_tail
+                    {
+                      result = val[1]
+                    }
+                | # nothing
+                    {
+                      result = []
+                    }
+
+     block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
@@ -1344,76 +1371,73 @@ rule
                                   concat(val[6]).
                                   concat(val[7])
                     }
-                | f_arg tCOMMA f_block_optarg                                opt_f_block_arg
+                | f_arg tCOMMA f_block_optarg                                opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_arg tCOMMA f_block_optarg tCOMMA                   f_arg opt_f_block_arg
+                | f_arg tCOMMA f_block_optarg tCOMMA                   f_arg opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg tCOMMA                       f_rest_arg              opt_f_block_arg
+                | f_arg tCOMMA                       f_rest_arg              opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
                 | f_arg tCOMMA
-                | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg                                                      opt_f_block_arg
+                | f_arg                                                      opt_block_args_tail
                     {
                       result = val[0].concat(val[1])
                     }
-                | f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
+                | f_block_optarg tCOMMA              f_rest_arg              opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_block_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_block_optarg tCOMMA              f_rest_arg tCOMMA f_arg opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_block_optarg                                opt_f_block_arg
+                | f_block_optarg                                             opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                | f_block_optarg tCOMMA                   f_arg opt_f_block_arg
+                | f_block_optarg tCOMMA                                f_arg opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                |                       f_rest_arg              opt_f_block_arg
+                |                                    f_rest_arg              opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |                       f_rest_arg tCOMMA f_arg opt_f_block_arg
+                |                                    f_rest_arg tCOMMA f_arg opt_block_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                |                                                   f_block_arg
-                    {
-                      result = [ val[0] ]
-                    }
+                |                                                                block_args_tail
 
  opt_block_param: # nothing
                     {
@@ -1929,14 +1953,40 @@ keyword_variable: kNIL
                       @lexer.state = :expr_value
                     }
 
-          f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg              opt_f_block_arg
+       args_tail: f_kwarg tCOMMA f_kwrest opt_f_block_arg
+                    {
+                      result = val[0].concat(val[2]).concat(val[3])
+                    }
+                | f_kwarg opt_f_block_arg
+                    {
+                      result = val[0].concat(val[1])
+                    }
+                | f_kwrest opt_f_block_arg
+                    {
+                      result = val[0].concat(val[1])
+                    }
+                | f_block_arg
+                    {
+                      result = [ val[0] ]
+                    }
+
+   opt_args_tail: tCOMMA args_tail
+                    {
+                      result = val[1]
+                    }
+                | # nothing
+                    {
+                      result = []
+                    }
+
+          f_args: f_arg tCOMMA f_optarg tCOMMA f_rest_arg              opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg tCOMMA f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
@@ -1944,75 +1994,75 @@ keyword_variable: kNIL
                                   concat(val[6]).
                                   concat(val[7])
                     }
-                | f_arg tCOMMA f_optarg                                opt_f_block_arg
+                | f_arg tCOMMA f_optarg                                opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_arg tCOMMA f_optarg tCOMMA                   f_arg opt_f_block_arg
+                | f_arg tCOMMA f_optarg tCOMMA                   f_arg opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg tCOMMA                 f_rest_arg              opt_f_block_arg
+                | f_arg tCOMMA                 f_rest_arg              opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_arg tCOMMA                 f_rest_arg tCOMMA f_arg opt_f_block_arg
+                | f_arg tCOMMA                 f_rest_arg tCOMMA f_arg opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                | f_arg                                                opt_f_block_arg
+                | f_arg                                                opt_args_tail
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |              f_optarg tCOMMA f_rest_arg              opt_f_block_arg
+                |              f_optarg tCOMMA f_rest_arg              opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                |              f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_f_block_arg
+                |              f_optarg tCOMMA f_rest_arg tCOMMA f_arg opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[4]).
                                   concat(val[5])
                     }
-                |              f_optarg                                opt_f_block_arg
+                |              f_optarg                                opt_args_tail
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |              f_optarg tCOMMA                   f_arg opt_f_block_arg
+                |              f_optarg tCOMMA                   f_arg opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                |                              f_rest_arg              opt_f_block_arg
+                |                              f_rest_arg              opt_args_tail
                     {
                       result = val[0].
                                   concat(val[1])
                     }
-                |                              f_rest_arg tCOMMA f_arg opt_f_block_arg
+                |                              f_rest_arg tCOMMA f_arg opt_args_tail
                     {
                       result = val[0].
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                |                                                          f_block_arg
+                |                                                          args_tail
                     {
-                      result = [ val[0] ]
+                      result = val[0]
                     }
                 | # nothing
                     {
@@ -2057,6 +2107,55 @@ keyword_variable: kNIL
                 | f_arg tCOMMA f_arg_item
                     {
                       result = val[0] << val[2]
+                    }
+
+            f_kw: tLABEL arg_value
+                    {
+                      check_kwarg_name(val[0])
+
+                      @static_env.declare val[0][0]
+
+                      result = @builder.kwoptarg(val[0], val[1])
+                    }
+
+      f_block_kw: tLABEL primary_value
+                    {
+                      check_kwarg_name(val[0])
+
+                      @static_env.declare val[0][0]
+
+                      result = @builder.kwoptarg(val[0], val[1])
+                    }
+
+   f_block_kwarg: f_block_kw
+                    {
+                      result = [ val[0] ]
+                    }
+                | f_block_kwarg tCOMMA f_block_kw
+                    {
+                      result = val[0] << val[2]
+                    }
+
+         f_kwarg: f_kw
+                    {
+                      result = [ val[0] ]
+                    }
+                | f_kwarg tCOMMA f_kw
+                    {
+                      result = val[0] << val[2]
+                    }
+
+     kwrest_mark: tPOW | tDSTAR
+
+        f_kwrest: kwrest_mark tIDENTIFIER
+                    {
+                      @static_env.declare val[1][0]
+
+                      result = [ @builder.kwrestarg(val[0], val[1]) ]
+                    }
+                | kwrest_mark
+                    {
+                      result = [ @builder.kwrestarg(val[0]) ]
                     }
 
            f_opt: tIDENTIFIER tEQL arg_value

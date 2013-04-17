@@ -76,19 +76,28 @@ module Parser
 
     protected
 
+    def next_token
+      @lexer.advance
+    end
+
     def value_expr(v)
       #p 'value_expr', v
       v
     end
 
-    def next_token
-      @lexer.advance
+    def check_kwarg_name(name_t)
+      case name_t[0]
+      when /^[a-z_]/
+        # OK
+      when /^[A-Z]/
+        diagnostic :error, :argument_const, name_t
+      end
     end
 
-    def diagnostic(level, kind, location_tok, highlights_tok=[])
-      _, location = location_tok
+    def diagnostic(level, kind, location_t, highlights_ts=[])
+      _, location = location_t
 
-      highlights = highlights_tok.map do |token|
+      highlights = highlights_ts.map do |token|
         _, range = token
         range
       end

@@ -1497,6 +1497,49 @@ class TestParser < MiniTest::Unit::TestCase
       %q{      ~ expression (args.restarg)})
   end
 
+  def test_kwarg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:kwarg, :foo)),
+        s(:nil)),
+      %q{def f(foo:); nil; end},
+      %q{      ~~~ name (args.kwarg)
+        |      ~~~~ expression (args.kwarg)},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
+  def test_kwoptarg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:kwoptarg, :foo, s(:int, 1))),
+        s(:nil)),
+      %q{def f(foo: 1); nil; end},
+      %q{      ~~~ name (args.kwoptarg)
+        |      ~~~~~~ expression (args.kwoptarg)},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_kwrestarg_named
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:kwrestarg, :foo)),
+        s(:nil)),
+      %q{def f(**foo); nil; end},
+      %q{        ~~~ name (args.kwrestarg)
+        |      ~~~~~ expression (args.kwrestarg)},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_kwrestarg_unnamed
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:kwrestarg)),
+        s(:nil)),
+      %q{def f(**); nil; end},
+      %q{      ~~ expression (args.kwrestarg)},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
   def test_blockarg
     assert_parses(
       s(:def, :f,
@@ -1639,6 +1682,34 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses_args(
       s(:args),
       %q{})
+  end
+
+  def test_kwarg_combinations
+    # f_kwarg tCOMMA f_kwrest opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:kwoptarg, :foo, s(:int, 1)),
+        s(:kwoptarg, :bar, s(:int, 2)),
+        s(:kwrestarg, :baz),
+        s(:blockarg, :b)),
+      %q{(foo: 1, bar: 2, **baz, &b)},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    # f_kwarg opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:kwoptarg, :foo, s(:int, 1)),
+        s(:blockarg, :b)),
+      %q{(foo: 1, &b)},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    # f_kwrest opt_f_block_arg
+    assert_parses_args(
+      s(:args,
+        s(:kwrestarg, :baz),
+        s(:blockarg, :b)),
+      %q{**baz, &b},
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   def assert_parses_margs(ast, code, versions=ALL_VERSIONS - %w(1.8))
@@ -1960,6 +2031,34 @@ class TestParser < MiniTest::Unit::TestCase
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_block_kwarg_combinations
+    # f_block_kwarg tCOMMA f_kwrest opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:kwoptarg, :foo, s(:int, 1)),
+        s(:kwoptarg, :bar, s(:int, 2)),
+        s(:kwrestarg, :baz),
+        s(:blockarg, :b)),
+      %q{|foo: 1, bar: 2, **baz, &b|},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    # f_block_kwarg opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:kwoptarg, :foo, s(:int, 1)),
+        s(:blockarg, :b)),
+      %q{|foo: 1, &b|},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    # f_kwrest opt_f_block_arg
+    assert_parses_blockargs(
+      s(:args,
+        s(:kwrestarg, :baz),
+        s(:blockarg, :b)),
+      %q{|**baz, &b|},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
   def test_arg_invalid
     assert_diagnoses(
       [:error, :argument_const],
@@ -1980,6 +2079,20 @@ class TestParser < MiniTest::Unit::TestCase
       [:error, :argument_cvar],
       %q{def foo(@@abc); end},
       %q{        ~~~~~ location})
+  end
+
+  def test_kwarg_invalid
+    assert_diagnoses(
+      [:error, :argument_const],
+      %q{def foo(Abc: 1); end},
+      %q{        ~~~~ location},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_diagnoses(
+      [:error, :argument_const],
+      %q{def foo(Abc:); end},
+      %q{        ~~~~ location},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
   end
 
   def test_arg_label
@@ -2007,18 +2120,6 @@ class TestParser < MiniTest::Unit::TestCase
       %q{},
       ALL_VERSIONS - %w(1.8))
   end
-
-  # def test_kwoptarg
-  #   flunk
-  # end
-
-  # def test_kwsplat_named
-  #   flunk
-  # end
-
-  # def test_kwsplat_unnamed
-  #   flunk
-  # end
 
   #
   # Sends

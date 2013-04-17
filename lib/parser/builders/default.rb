@@ -396,19 +396,35 @@ module Parser
       s(:args, *args)
     end
 
-    def arg(token)
-      t(token, :arg, value(token).to_sym)
+    def arg(name_t)
+      t(name_t, :arg, value(name_t).to_sym)
     end
 
-    def optarg(token, eql_t, value)
-      s(:optarg, value(token).to_sym, value)
+    def optarg(name_t, eql_t, value)
+      s(:optarg, value(name_t).to_sym, value)
     end
 
-    def restarg(star_t, token=nil)
-      if token
-        s(:restarg, value(token).to_sym)
+    def restarg(star_t, name_t=nil)
+      if name_t
+        s(:restarg, value(name_t).to_sym)
       else
         t(star_t, :restarg)
+      end
+    end
+
+    def kwarg(name_t)
+      s(:kwarg, value(name_t).to_sym)
+    end
+
+    def kwoptarg(name_t, value)
+      s(:kwoptarg, value(name_t).to_sym, value)
+    end
+
+    def kwrestarg(dstar_t, name_t=nil)
+      if name_t
+        s(:kwrestarg, value(name_t).to_sym)
+      else
+        t(dstar_t, :kwrestarg)
       end
     end
 
