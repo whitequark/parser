@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = 'parser'
-  spec.version       = '0.9.2'
+  spec.version       = '1.0.0'
   spec.authors       = ['Peter Zotov']
   spec.email         = ['whitequark@whitequark.org']
   spec.description   = %q{A Ruby parser written in pure Ruby.}
