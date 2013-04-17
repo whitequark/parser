@@ -917,7 +917,7 @@ class Parser::Lexer
       '::'  %{ tm = p - 2 }    # A::B      A :: B
   ;
 
-  # Resolving kDO/kDO_COND/kDO_BLOCK ambiguity requires embegging
+  # Resolving kDO/kDO_COND/kDO_BLOCK ambiguity requires embedding
   # @cond/@cmdarg-related code to e_lbrack, e_lparen and e_lbrace.
 
   e_lbrack = '[' % {
