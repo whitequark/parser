@@ -158,14 +158,15 @@ class Parser::Lexer
 
   LEX_STATES = {
     :line_begin  => lex_en_line_begin,
-    :expr_beg    => lex_en_expr_beg,
-    :expr_value  => lex_en_expr_value,
-    :expr_mid    => lex_en_expr_mid,
     :expr_dot    => lex_en_expr_dot,
     :expr_fname  => lex_en_expr_fname,
-    :expr_end    => lex_en_expr_end,
+    :expr_value  => lex_en_expr_value,
+    :expr_beg    => lex_en_expr_beg,
+    :expr_mid    => lex_en_expr_mid,
     :expr_arg    => lex_en_expr_arg,
+    :expr_end    => lex_en_expr_end,
     :expr_endarg => lex_en_expr_endarg,
+    :expr_endfn  => lex_en_expr_endfn,
   }
 
   def state
@@ -984,33 +985,55 @@ class Parser::Lexer
   # statements `alias $a $b`. Symbols are returned verbatim; this
   # is used in `alias :a :"b#{foo}"` and `undef :a`.
   #
-  # Transitions to `expr_end` afterwards.
+  # Transitions to `expr_endfn` afterwards.
   #
   expr_fname := |*
       keyword
       => { emit(KEYWORDS[tok]);
-           fnext expr_end; fbreak; };
+           fnext expr_endfn; fbreak; };
 
       bareword [?=!]?
       => { emit(:tIDENTIFIER)
-           fnext expr_end; fbreak; };
-
-      operator_fname      |
-      operator_arithmetic |
-      operator_rest
-      => { emit_table(PUNCTUATION)
-           fnext expr_end; fbreak; };
-
-      ':'
-      => { fhold; fgoto expr_beg; };
+           fnext expr_endfn; fbreak; };
 
       global_var
       => { p = @ts - 1
            fcall expr_variable; };
 
+      # If the handling was to be delegated to expr_end,
+      # these cases would transition to something else than
+      # expr_end, which is undesirable.
+      operator_fname      |
+      operator_arithmetic |
+      operator_rest
+      => { emit_table(PUNCTUATION)
+           fnext expr_endfn; fbreak; };
+
+      ':'
+      => { fhold; fgoto expr_beg; };
+
       # TODO whitespace rule
       c_space;
       e_heredoc_nl;
+
+      c_any
+      => { fhold; fgoto expr_end; };
+
+      c_eof => do_eof;
+  *|;
+
+  # After literal function name in definition. Behaves like `expr_end`,
+  # but allows a tLABEL.
+  #
+  # Transitions to `expr_end` afterwards.
+  #
+  expr_endfn := |*
+      bareword ':'
+      => { emit(:tLABEL, tok(@ts, @te - 1))
+           fnext expr_end; fbreak; };
+
+      # TODO whitespace rule
+      c_space;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1035,6 +1058,7 @@ class Parser::Lexer
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
            fnext expr_arg; p = tm - 1; fbreak; };
 
+      # See the comment in `expr_fname`.
       operator_fname      |
       operator_arithmetic |
       operator_rest

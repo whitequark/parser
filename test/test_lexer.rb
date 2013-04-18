@@ -50,10 +50,10 @@ class TestLexer < MiniTest::Unit::TestCase
     end
   end
 
-  def util_lex_fname(name, type, end_state = :expr_end)
+  def util_lex_fname(name, type)
     util_lex_token("def #{name} ", :kDEF, 'def', type, name)
 
-    assert_equal end_state, @lex.state
+    assert_equal :expr_endfn, @lex.state
   end
 
   def util_lex_token(input, *args)
@@ -149,14 +149,12 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, "m",
                    :tUMINUS_NUM, "-",
                    :tINTEGER, 3)
-    # TODO: verify warning
   end
 
   def test_ambiguous_uplus
     util_lex_token("m +3",
                    :tIDENTIFIER, "m",
                    :tINTEGER, 3)
-    # TODO: verify warning
   end
 
   def test_and
@@ -319,7 +317,7 @@ class TestLexer < MiniTest::Unit::TestCase
   def test_backtick_method
     @lex.state = :expr_fname
     util_lex_token("`", :tBACK_REF2, "`")
-    assert_equal :expr_end, @lex.state
+    assert_equal :expr_endfn, @lex.state
   end
 
   def test_bad_char
@@ -822,7 +820,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_identifier_def
-    util_lex_fname "identifier", :tIDENTIFIER, :expr_end
+    util_lex_fname "identifier", :tIDENTIFIER
   end
 
   def test_identifier_eh
@@ -854,7 +852,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_identifier_equals_def
-    util_lex_fname "identifier=", :tIDENTIFIER, :expr_end
+    util_lex_fname "identifier=", :tIDENTIFIER
   end
 
   def test_identifier_equals_def2
