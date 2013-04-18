@@ -484,7 +484,7 @@ module Parser
     end
 
     def block(method_call, begin_t, args, body, end_t)
-      receiver, selector, *call_args = *method_call
+      _receiver, _selector, *call_args = *method_call
       last_arg = call_args.last
 
       if last_arg && last_arg.type == :block_pass

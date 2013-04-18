@@ -20,7 +20,13 @@ GENERATED_FILES = %w(lib/parser/lexer.rb
 CLEAN.include(GENERATED_FILES)
 
 desc 'Generate the Ragel lexer and Bison parser.'
-task :generate => GENERATED_FILES
+task :generate => GENERATED_FILES do
+  GENERATED_FILES.each do |filename|
+    File.write(filename,
+      "# -*- encoding:utf-8; warn-indent:false -*-\n" +
+      File.read(filename))
+  end
+end
 
 task :regenerate => [:clean, :generate]
 
