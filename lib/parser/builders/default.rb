@@ -395,7 +395,7 @@ module Parser
     #
 
     def args(begin_t, args, end_t)
-      s(:args, *args)
+      s(:args, *check_duplicate_args(args))
     end
 
     def arg(name_t)
@@ -667,6 +667,29 @@ module Parser
       end
 
       cond
+    end
+
+    def check_duplicate_args(args, map={})
+      args.each do |arg|
+        case arg.type
+        when :arg, :optarg, :restarg, :blockarg,
+             :kwarg, :kwoptarg, :kwrestarg,
+             :shadowarg
+
+          name, = *arg
+
+          if map[name]
+            # TODO reenable when source maps are done
+            diagnostic :error, ERRORS[:duplicate_argument],
+                       nil # arg.src.expression, [ map[name].src.expression ]
+          else
+            map[name] = arg
+          end
+
+        when :mlhs
+          check_duplicate_args(arg.children, map)
+        end
+      end
     end
 
     def collapse_string_parts?(parts)

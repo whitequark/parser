@@ -50,8 +50,6 @@ module Parser
     :regexp_options          => "unknown regexp options: %{options}",
     :cvar_name               => "`%{name}' is not allowed as a class variable name",
     :ivar_name               => "`%{name}' is not allowed as an instance variable name",
-    :ambiguous_literal       => "ambiguous first argument; parenthesize arguments or add whitespace to the right",
-    :ambiguous_prefix        => "`%{prefix}' interpreted as argument prefix",
     :trailing_underscore     => "trailing `_' in number",
     :empty_numeric           => "numeric literal without digits",
     :invalid_octal           => "invalid octal digit",
@@ -60,10 +58,13 @@ module Parser
     :unexpected              => "unexpected %{character}",
     :embedded_document       => "embedded document meats end of file (and they embark on a romantic journey)",
 
+    # Lexer warnings
+    :ambiguous_literal       => "ambiguous first argument; parenthesize arguments or add whitespace to the right",
+    :ambiguous_prefix        => "`%{prefix}' interpreted as argument prefix",
+
     # Parser errors
     :nth_ref_alias           => "cannot define an alias for a back-reference variable",
     :begin_in_method         => "BEGIN in method",
-    :end_in_method           => "END in method; use at_exit",
     :backref_assignment      => "cannot assign to a back-reference variable",
     :invalid_assignment      => "cannot assign to a keyword",
     :module_name_const       => "class or module name must be a constant literal",
@@ -72,17 +73,21 @@ module Parser
     :argument_ivar           => "formal argument cannot be an instance variable",
     :argument_gvar           => "formal argument cannot be a global variable",
     :argument_cvar           => "formal argument cannot be a class variable",
+    :duplicate_argument      => "duplicate argument name",
     :empty_symbol            => "empty symbol literal",
     :odd_hash                => "odd number of entries for a hash",
     :singleton_literal       => "cannot define a singleton method for a literal",
     :dynamic_const           => "dynamic constant assignment",
     :module_in_def           => "module definition in method body",
     :class_in_def            => "class definition in method body",
-    :space_before_lparen     => "don't put space before argument parentheses",
     :unexpected_percent_str  => "%{type}: unknown type of percent-literal",
-    :useless_else            => "else without rescue is useless",
     :block_and_blockarg      => "both block argument and literal block are passed",
     :masgn_as_condition      => "multiple assignment in conditional context",
+
+    # Parser warnings
+    :end_in_method           => "END in method; use at_exit",
+    :space_before_lparen     => "don't put space before argument parentheses",
+    :useless_else            => "else without rescue is useless",
   }.freeze
 
   def self.check_for_encoding_support

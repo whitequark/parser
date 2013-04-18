@@ -2131,6 +2131,75 @@ class TestParser < MiniTest::Unit::TestCase
       %q{        ~~~~~ location})
   end
 
+  def test_arg_duplicate
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, aa); end},
+      %q{            ^^ location
+        |        ~~ highlights (0)})
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, aa=1); end},
+      %q{            ^^ location
+        |        ~~ highlights (0)})
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, *aa); end},
+      %q{             ^^ location
+        |        ~~ highlights (0)})
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, &aa); end},
+      %q{             ^^ location
+        |        ~~ highlights (0)})
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, (bb, aa)); end},
+      %q{                 ^^ location
+        |        ~~ highlights (0)},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, *r, aa); end},
+      %q{                ^^ location
+        |        ~~ highlights (0)},
+      ALL_VERSIONS - %w(1.8))
+
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{lambda do |aa; aa| end},
+      %q{               ^^ location
+        |           ~~ highlights (0)},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, aa: 1); end},
+      %q{            ^^ location
+        |        ~~ highlights (0)},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, **aa); end},
+      %q{              ^^ location
+        |        ~~ highlights (0)},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(aa, aa:); end},
+      %q{            ^^ location
+        |        ~~ highlights (0)},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
   def test_kwarg_invalid
     assert_diagnoses(
       [:error, :argument_const],
