@@ -2137,6 +2137,14 @@ keyword_variable: kNIL
 
                       result = @builder.kwoptarg(val[0], val[1])
                     }
+                | tLABEL
+                    {
+                      check_kwarg_name(val[0])
+
+                      @static_env.declare val[0][0]
+
+                      result = @builder.kwarg(val[0])
+                    }
 
       f_block_kw: tLABEL primary_value
                     {
@@ -2145,6 +2153,14 @@ keyword_variable: kNIL
                       @static_env.declare val[0][0]
 
                       result = @builder.kwoptarg(val[0], val[1])
+                    }
+                | tLABEL
+                    {
+                      check_kwarg_name(val[0])
+
+                      @static_env.declare val[0][0]
+
+                      result = @builder.kwarg(val[0])
                     }
 
    f_block_kwarg: f_block_kw
