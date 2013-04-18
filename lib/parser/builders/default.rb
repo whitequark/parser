@@ -40,7 +40,7 @@ module Parser
     end
 
     def string_compose(begin_t, parts, end_t)
-      if parts.one?
+      if collapse_string_parts?(parts)
         parts.first
       else
         s(:dstr, *parts)
@@ -92,7 +92,7 @@ module Parser
     end
 
     def word(parts)
-      if parts.one?
+      if collapse_string_parts?(parts)
         parts.first
       else
         s(:dstr, *parts)
@@ -665,6 +665,11 @@ module Parser
       end
 
       cond
+    end
+
+    def collapse_string_parts?(parts)
+      parts.one? &&
+          [:str, :dstr].include?(parts.first.type)
     end
 
     def t(token, type, *args)

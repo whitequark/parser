@@ -316,12 +316,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_array_words_interp
     assert_parses(
-      s(:array, s(:str, "foo"), s(:lvar, :bar)),
+      s(:array,
+        s(:str, "foo"),
+        s(:dstr, s(:lvar, :bar))),
       %q{%W[foo #{bar}]},
       %q{^^^ begin
         |             ^ end
         |   ~~~ expression (str)
-        |         ~~~ expression (lvar)
+        |         ~~~ expression (dstr.lvar)
         |~~~~~~~~~~~~~~ expression})
 
     assert_parses(
@@ -357,12 +359,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_array_symbols_interp
     assert_parses(
-      s(:array, s(:sym, :foo), s(:lvar, :bar)),
+      s(:array,
+        s(:sym, :foo),
+        s(:dsym, s(:lvar, :bar))),
       %q{%I[foo #{bar}]},
       %q{^^^ begin
         |             ^ end
         |   ~~~ expression (sym)
-        |         ~~~ expression (lvar)
+        |         ~~~ expression (dsym.lvar)
         |~~~~~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8 1.9))
 
@@ -3947,5 +3951,15 @@ class TestParser < MiniTest::Unit::TestCase
           s(:str, "foo")),
         s(:args), s(:nil)),
       %q{desc "foo" do end})
+  end
+
+  def test_bug_interp_single
+    assert_parses(
+      s(:dstr, s(:int, 1)),
+      %q{"#{1}"})
+
+    assert_parses(
+      s(:array, s(:dstr, s(:int, 1))),
+      %q{%W"#{1}"})
   end
 end
