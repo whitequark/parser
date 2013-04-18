@@ -1042,6 +1042,54 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~~~ location})
   end
 
+  def test_const_op_asgn
+    assert_parses(
+      s(:op_asgn,
+        s(:cdecl, nil, :A), :+,
+        s(:int, 1)),
+      %q{A += 1})
+
+    assert_parses(
+      s(:op_asgn,
+        s(:cdecl, s(:cbase), :A), :+,
+        s(:int, 1)),
+      %q{::A += 1},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses(
+      s(:op_asgn,
+        s(:cdecl, s(:const, nil, :B), :A), :+,
+        s(:int, 1)),
+      %q{B::A += 1},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_const_op_asgn_invalid
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{Foo::Bar += 1},
+      %q{     ~~~ location},
+      %w(1.8 1.9))
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{::Bar += 1},
+      %q{  ~~~ location},
+      %w(1.8 1.9))
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def foo; Foo::Bar += 1; end},
+      %q{              ~~~ location})
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def foo; ::Bar += 1; end},
+      %q{           ~~~ location})
+  end
+
   # Method binary operator-assignment
 
   def test_op_asgn
@@ -1133,16 +1181,6 @@ class TestParser < MiniTest::Unit::TestCase
       [:error, :backref_assignment],
       %q{$+ |= m foo},
       %q{~~ location})
-
-    assert_diagnoses(
-      [:error, :dynamic_const],
-      %q{Foo::Bar += 1; end},
-      %q{     ~~~ location})
-
-    assert_diagnoses(
-      [:error, :dynamic_const],
-      %q{::Bar += 1; end},
-      %q{  ~~~ location})
   end
 
   # Variable logical operator-assignment

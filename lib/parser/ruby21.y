@@ -670,11 +670,23 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN arg
                     {
-                      diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
+                      if in_def?
+                        diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
+                      end
+
+                      const  = @builder.assignable(
+                                  @builder.const_fetch(val[0], val[1], val[2]))
+                      result = @builder.op_assign(const, val[3], val[4])
                     }
                 | tCOLON3 tCONSTANT tOP_ASGN arg
                     {
-                      diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
+                      if in_def?
+                        diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
+                      end
+
+                      const  = @builder.assignable(
+                                  @builder.const_global(val[0], val[1]))
+                      result = @builder.op_assign(const, val[2], val[3])
                     }
                 | backref tOP_ASGN arg
                     {
