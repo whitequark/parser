@@ -8,11 +8,16 @@ class TestParseHelper < MiniTest::Unit::TestCase
     assert_instance_of Parser::Ruby18,
                        parser_for_ruby_version('1.8')
 
-    assert_instance_of Parser::Ruby19,
-                       parser_for_ruby_version('1.9')
+    unless RUBY_VERSION == '1.8.7'
+      assert_instance_of Parser::Ruby19,
+                         parser_for_ruby_version('1.9')
 
-    # assert_instance_of Parser::Ruby20,
-    #                    parser_for_ruby_version('2.0')
+      assert_instance_of Parser::Ruby20,
+                         parser_for_ruby_version('2.0')
+
+      assert_instance_of Parser::Ruby21,
+                         parser_for_ruby_version('2.1')
+    end
   end
 
   def parse_maps(what)

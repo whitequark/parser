@@ -35,7 +35,7 @@ module ParseHelper
   end
 
   def with_versions(code, versions)
-    versions.each do |version|
+    (versions & ALL_VERSIONS).each do |version|
       @diagnostics.clear
 
       parser = parser_for_ruby_version(version)
