@@ -1,10 +1,16 @@
-require 'parser/all'
-require 'parser/ruby21'
-
 module ParseHelper
   include AST::Sexp
 
-  ALL_VERSIONS = %w(1.8 1.9 2.0 2.1)
+  if RUBY_VERSION == '1.8.7'
+    require 'parser/ruby18'
+
+    ALL_VERSIONS = %w(1.8)
+  else
+    require 'parser/all'
+    require 'parser/ruby21'
+
+    ALL_VERSIONS = %w(1.8 1.9 2.0 2.1)
+  end
 
   def setup
     @diagnostics = []

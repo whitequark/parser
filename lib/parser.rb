@@ -84,4 +84,10 @@ module Parser
     :block_and_blockarg      => "both block argument and literal block are passed",
     :masgn_as_condition      => "multiple assignment in conditional context",
   }.freeze
+
+  def self.check_for_encoding_support
+    unless defined?(Encoding)
+      raise RuntimeError, "Parsing 1.9 and later versions of Ruby is not supported on 1.8 due to the lack of Encoding support"
+    end
+  end
 end
