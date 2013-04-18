@@ -1,8 +1,52 @@
+# encoding:ascii-8bit
+
 module Parser
   module Source
 
     class Buffer
       attr_reader :name, :first_line
+
+      def self.recognize_encoding(string)
+        if string.empty?
+          return Encoding::UTF_8
+        end
+
+        # TODO: Make this more efficient.
+        first_line, second_line = string.lines.first(2)
+        first_line.force_encoding(Encoding::ASCII_8BIT)
+
+        if first_line =~ /\A\xef\xbb\xbf/ # BOM
+          return Encoding::UTF_8
+        elsif first_line[0, 2] == '#!'
+          encoding_line = second_line
+        else
+          encoding_line = first_line
+        end
+
+        encoding_line.force_encoding(Encoding::ASCII_8BIT)
+
+        if encoding_line =~ /coding[:=]?\s*([a-z0-9_-]+)/
+          Encoding.find($1)
+        else
+          string.encoding
+        end
+      end
+
+      # Lexer expects UTF-8 input. This method processes the input
+      # in an arbitrary valid Ruby encoding and returns an UTF-8 encoded
+      # string.
+      #
+      def self.reencode_string(string)
+        encoding = recognize_encoding(string)
+
+        unless encoding.ascii_compatible?
+          raise RuntimeError, "Encoding #{encoding} is not ASCII-compatible"
+        end
+
+        string.
+          force_encoding(encoding).
+          encode(Encoding::UTF_8)
+      end
 
       def initialize(name, first_line = 1)
         @name       = name
@@ -11,7 +55,9 @@ module Parser
       end
 
       def read
-        self.source = File.read(@name, 'b')
+        File.open(@name, 'rb') do |io|
+          self.source = io.read
+        end
 
         self
       end
@@ -25,7 +71,11 @@ module Parser
       end
 
       def source=(source)
-        @source = source.freeze
+        if source.respond_to? :encoding
+          source = self.class.reencode_string(source)
+        end
+
+        @source  = source.freeze
 
         freeze
       end

@@ -1,3 +1,5 @@
+# encoding:utf-8
+
 require 'helper'
 require 'parse_helper'
 
@@ -4065,6 +4067,19 @@ class TestParser < MiniTest::Unit::TestCase
       %q{p begin 1.times do 1 end end},
       %{},
       ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_magic_encoding_comment
+    assert_parses(
+      s(:begin,
+        s(:lvasgn, :"проверка", s(:int, 42)),
+        s(:send, nil, :puts, s(:lvar, :"проверка"))),
+      %Q{# coding:koi8-r
+         \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1 = 42
+         puts \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1}.
+        force_encoding(Encoding::BINARY),
+      %q{},
+      %w(1.9 2.0 2.1))
   end
 
   #
