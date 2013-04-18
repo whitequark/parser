@@ -2,7 +2,7 @@ module Parser
   case RUBY_VERSION
   when /^1\.8\./
     if RUBY_VERSION != '1.8.7'
-      warn "warning: parser/current is loading parser/ruby18, which implements"
+      warn "warning: parser/current is loading parser/ruby18, which recognizes"
       warn "warning: 1.8.7-compliant syntax, but you are running #{RUBY_VERSION}."
     end
 
@@ -11,7 +11,7 @@ module Parser
 
   when /^1\.9\./
     if RUBY_VERSION != '1.9.3'
-      warn "warning: parser/current is loading parser/ruby19, which implements"
+      warn "warning: parser/current is loading parser/ruby19, which recognizes"
       warn "warning: 1.9.3-compliant syntax, but you are running #{RUBY_VERSION}."
     end
 
