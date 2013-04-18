@@ -1,9 +1,16 @@
 module Parser
+  class << self
+    def warn_syntax_deviation(feature, version)
+      warn "warning: parser/current is loading #{feature}, which recognizes"
+      warn "warning: #{version}-compliant syntax, but you are running #{RUBY_VERSION}."
+    end
+    private :warn_syntax_deviation
+  end
+
   case RUBY_VERSION
   when /^1\.8\./
     if RUBY_VERSION != '1.8.7'
-      warn "warning: parser/current is loading parser/ruby18, which recognizes"
-      warn "warning: 1.8.7-compliant syntax, but you are running #{RUBY_VERSION}."
+      warn_syntax_deviation 'parser/ruby18', '1.8.7'
     end
 
     require 'parser/ruby18'
@@ -11,8 +18,7 @@ module Parser
 
   when /^1\.9\./
     if RUBY_VERSION != '1.9.3'
-      warn "warning: parser/current is loading parser/ruby19, which recognizes"
-      warn "warning: 1.9.3-compliant syntax, but you are running #{RUBY_VERSION}."
+      warn_syntax_deviation 'parser/ruby19', '1.9.3'
     end
 
     require 'parser/ruby19'
