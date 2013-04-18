@@ -7,7 +7,7 @@ if SimpleCov.usable?
   if defined?(TracePoint)
     require_relative 'racc_coverage_helper'
 
-    RaccCoverage.start(%w(ruby18.y ruby19.y ruby20.y),
+    RaccCoverage.start(%w(ruby18.y ruby19.y ruby20.y ruby21.y),
                        File.expand_path('../../lib/parser', __FILE__))
 
     # Report results faster.

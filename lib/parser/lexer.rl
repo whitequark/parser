@@ -371,8 +371,8 @@ class Parser::Lexer
   c_line     = c_any - c_nl;
 
   c_unicode  = c_any - 0x00..0x7f;
+  c_upper    = [A-Z];
   c_lower    = [a-z_]  | c_unicode;
-  c_upper    = [A-Z]   | c_unicode;
   c_alpha    = c_lower | c_upper;
   c_alnum    = c_alpha | [0-9];
 
@@ -451,7 +451,7 @@ class Parser::Lexer
                         keyword_with_end   | keyword_with_arg |
                         keyword_with_fname | keyword_modifier ;
 
-  constant       = [A-Z] c_alnum*;
+  constant       = c_upper c_alnum*;
   bareword       = c_alpha c_alnum*;
 
   call_or_var    = c_lower c_alnum*;
