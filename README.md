@@ -46,7 +46,7 @@ p parser.parse(buffer)
  * Precise source location reporting (WIP, no, not really yet).
  * [Documented](AST_FORMAT.md) AST format which is convenient to work with.
  * A simple interface and a powerful, tweakable one.
- * Parses 1.8, 1.9 and 2.0 syntax with backwards-compatible AST formats.
+ * Parses 1.8, 1.9, 2.0 and 2.1 (preliminary) syntax with backwards-compatible AST formats.
  * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8 and 1.9 mode.
