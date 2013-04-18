@@ -670,25 +670,43 @@ module Parser
     end
 
     def check_duplicate_args(args, map={})
-      args.each do |arg|
-        case arg.type
+      args.each do |this_arg|
+        case this_arg.type
         when :arg, :optarg, :restarg, :blockarg,
              :kwarg, :kwoptarg, :kwrestarg,
              :shadowarg
 
-          name, = *arg
+          this_name, = *this_arg
 
-          if map[name]
+          that_arg   = map[this_name]
+          that_name, = *that_arg
+
+          if that_arg.nil?
+            map[this_name] = this_arg
+          elsif arg_name_collides?(this_name, that_name)
             # TODO reenable when source maps are done
             diagnostic :error, ERRORS[:duplicate_argument],
-                       nil # arg.src.expression, [ map[name].src.expression ]
-          else
-            map[name] = arg
+                       nil # this_arg.src.expression, [ that_arg.src.expression ]
           end
 
         when :mlhs
-          check_duplicate_args(arg.children, map)
+          check_duplicate_args(this_arg.children, map)
         end
+      end
+    end
+
+    def arg_name_collides?(this_name, that_name)
+      case @parser.version
+      when 18
+        this_name == that_name
+      when 19
+        # Ignore underscore.
+        this_name != :_ &&
+          this_name == that_name
+      else
+        # Ignore everything beginning with underscore.
+        this_name[0] != '_' &&
+          this_name == that_name
       end
     end
 

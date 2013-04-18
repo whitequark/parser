@@ -2200,6 +2200,36 @@ class TestParser < MiniTest::Unit::TestCase
       ALL_VERSIONS - %w(1.8 1.9 2.0))
   end
 
+  def test_arg_duplicate_ignored
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(_, _); end},
+      %q{},
+      %w(1.8))
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args, s(:arg, :_), s(:arg, :_)),
+        s(:nil)),
+      %q{def foo(_, _); end},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{def foo(_a, _a); end},
+      %q{},
+      %w(1.8 1.9))
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args, s(:arg, :_a), s(:arg, :_a)),
+        s(:nil)),
+      %q{def foo(_a, _a); end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+  end
+
   def test_kwarg_invalid
     assert_diagnoses(
       [:error, :argument_const],
