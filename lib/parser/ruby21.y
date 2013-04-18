@@ -238,14 +238,9 @@ rule
                       result = @builder.assign(val[0], val[1],
                                   @builder.array(nil, val[2], nil))
                     }
-                | mlhs tEQL arg_value
+                | mlhs tEQL mrhs_arg
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
-                    }
-                | mlhs tEQL mrhs
-                    {
-                      result = @builder.multi_assign(val[0], val[1],
-                                  @builder.array(nil, val[2], nil))
                     }
                 | expr
 
@@ -934,6 +929,12 @@ rule
                     {
                       result = val[0] << @builder.splat(val[2], val[3])
                     }
+
+        mrhs_arg: mrhs
+                    {
+                      result = @builder.array(nil, val[0], nil)
+                    }
+                | arg_value
 
             mrhs: args tCOMMA arg_value
                     {
