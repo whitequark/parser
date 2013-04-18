@@ -11,7 +11,7 @@ module Parser
       end
 
       def read
-        self.source = File.read(@name)
+        self.source = File.read(@name, 'b')
 
         self
       end
