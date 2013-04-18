@@ -22,9 +22,12 @@ CLEAN.include(GENERATED_FILES)
 desc 'Generate the Ragel lexer and Bison parser.'
 task :generate => GENERATED_FILES do
   GENERATED_FILES.each do |filename|
-    File.write(filename,
-      "# -*- encoding:utf-8; warn-indent:false -*-\n" +
-      File.read(filename))
+    content = File.read(filename)
+    content = "# -*- encoding:utf-8; warn-indent:false -*-\n" + content
+
+    File.open(filename, 'w') do |io|
+      io.write content
+    end
   end
 end
 
