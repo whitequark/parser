@@ -8,7 +8,7 @@ module Parser
       def initialize(begin_l, end_l)
         @begin, @end = begin_l, end_l
 
-        super(nil) # (@begin.join(@end))
+        super(nil) #(@begin.join(@end))
       end
     end
 

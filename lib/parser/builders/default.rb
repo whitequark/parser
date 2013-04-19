@@ -9,87 +9,105 @@ module Parser
 
     # Singletons
 
-    def nil(token)
-      n0(:nil, expr_map(l(token)))
+    def nil(nil_t)
+      n0(:nil,
+        expr_map(nil_t))
     end
 
-    def true(token)
-      n0(:true, expr_map(l(token)))
+    def true(true_t)
+      n0(:true,
+        expr_map(true_t))
     end
 
-    def false(token)
-      n0(:false, expr_map(l(token)))
+    def false(false_t)
+      n0(:false,
+        expr_map(false_t))
     end
 
     # Numerics
 
-    def integer(token, negate=false)
-      val = value(token)
+    def integer(integer_t, negate=false)
+      val = value(integer_t)
       val = -val if negate
 
-      n(:int, [ val ], expr_map(l(token)))
+      n(:int, [ val ],
+        expr_map(integer_t))
     end
 
-    def __LINE__(token)
-      n0(:__LINE__, expr_map(l(token)))
+    def __LINE__(__LINE__t)
+      n0(:__LINE__,
+        expr_map(__LINE__t))
     end
 
-    def float(token, negate=false)
-      val = value(token)
+    def float(float_t, negate=false)
+      val = value(float_t)
       val = -val if negate
 
-      n(:float, [ val ], expr_map(l(token)))
+      n(:float, [ val ],
+        expr_map(float_t))
     end
 
     # Strings
 
-    def string(token)
-      n(:str, [ value(token) ], expr_map(l(token)))
+    def string(string_t)
+      n(:str, [ value(string_t) ],
+        expr_map(string_t))
     end
 
     def string_compose(begin_t, parts, end_t)
       if collapse_string_parts?(parts)
         parts.first
       else
-        n(:dstr, [ *parts ], nil)
+        n(:dstr, [ *parts ],
+          collection_map(begin_t, end_t))
       end
     end
 
-    def __FILE__(token)
-      n0(:__FILE__, expr_map(l(token)))
+    def __FILE__(__FILE__t)
+      n0(:__FILE__,
+        expr_map(__FILE__t))
     end
 
     # Symbols
 
-    def symbol(token)
-      n(:sym, [ value(token).to_sym ], expr_map(l(token)))
+    def symbol(symbol_t)
+      n(:sym, [ value(symbol_t).to_sym ],
+        expr_map(symbol_t))
     end
 
     def symbol_compose(begin_t, parts, end_t)
-      n(:dsym, [ *parts ], nil)
+      n(:dsym, [ *parts ],
+        collection_map(begin_t, end_t))
     end
 
     # Executable strings
 
     def xstring_compose(begin_t, parts, end_t)
-      n(:xstr, [ *parts ], nil)
+      n(:xstr, [ *parts ],
+        collection_map(begin_t, end_t))
     end
 
     # Regular expressions
 
-    def regexp_options(token)
-      n(:regopt, [ *value(token).each_char.sort.uniq.map(&:to_sym) ], expr_map(l(token)))
+    def regexp_options(regopt_t)
+      options = value(regopt_t).
+        each_char.sort.uniq.
+        map(&:to_sym)
+
+      n(:regopt, options,
+        expr_map(regopt_t))
     end
 
     def regexp_compose(begin_t, parts, end_t, options)
-      n(:regexp, [ *(parts << options) ], nil)
+      n(:regexp, [ *(parts << options) ],
+        collection_map(begin_t, end_t))
     end
 
     # Arrays
 
     def array(begin_t, elements, end_t)
       n(:array, elements,
-        collection_map(l(begin_t), l(end_t)))
+        collection_map(begin_t, end_t))
     end
 
     def splat(star_t, arg=nil)
@@ -109,7 +127,8 @@ module Parser
     end
 
     def words_compose(begin_t, parts, end_t)
-      n(:array, [ *parts ], nil)
+      n(:array, [ *parts ],
+        collection_map(begin_t, end_t))
     end
 
     def symbols_compose(begin_t, parts, end_t)
@@ -125,13 +144,15 @@ module Parser
         end
       end
 
-      n(:array, [ *parts ], nil)
+      n(:array, [ *parts ],
+        collection_map(begin_t, end_t))
     end
 
     # Hashes
 
     def pair(key, assoc_t, value)
-      n(:pair, [ key, value ], nil)
+      n(:pair, [ key, value ],
+        nil)
     end
 
     def pair_list_18(list)
@@ -148,21 +169,25 @@ module Parser
     end
 
     def associate(begin_t, pairs, end_t)
-      n(:hash, [ *pairs ], nil)
+      n(:hash, [ *pairs ],
+        nil)
     end
 
     def kwsplat(dstar_t, arg)
-      n(:kwsplat, [ arg ], nil)
+      n(:kwsplat, [ arg ],
+        nil)
     end
 
     # Ranges
 
     def range_inclusive(lhs, token, rhs)
-      n(:irange, [ lhs, rhs ], nil)
+      n(:irange, [ lhs, rhs ],
+        nil)
     end
 
     def range_exclusive(lhs, token, rhs)
-      n(:erange, [ lhs, rhs ], nil)
+      n(:erange, [ lhs, rhs ],
+        nil)
     end
 
     #
@@ -182,43 +207,53 @@ module Parser
     #
 
     def self(token)
-      n0(:self, expr_map(l(token)))
+      n0(:self,
+        expr_map(token))
     end
 
     def ident(token)
-      n(:ident, [ value(token).to_sym ], expr_map(l(token)))
+      n(:ident, [ value(token).to_sym ],
+        expr_map(token))
     end
 
     def ivar(token)
-      n(:ivar, [ value(token).to_sym ], expr_map(l(token)))
+      n(:ivar, [ value(token).to_sym ],
+        expr_map(token))
     end
 
     def gvar(token)
-      n(:gvar, [ value(token).to_sym ], expr_map(l(token)))
+      n(:gvar, [ value(token).to_sym ],
+        expr_map(token))
     end
 
     def cvar(token)
-      n(:cvar, [ value(token).to_sym ], expr_map(l(token)))
+      n(:cvar, [ value(token).to_sym ],
+        expr_map(token))
     end
 
     def back_ref(token)
-      n(:back_ref, [ value(token).to_sym ], expr_map(l(token)))
+      n(:back_ref, [ value(token).to_sym ],
+       expr_map(token))
     end
 
     def nth_ref(token)
-      n(:nth_ref, [ value(token) ], expr_map(l(token)))
+      n(:nth_ref, [ value(token) ],
+        expr_map(token))
     end
 
     def accessible(node)
       case node.type
       when :__FILE__
-        node.updated(:str, [ node.src.expression.source_buffer.name ])
+        n(:str, [ node.src.expression.source_buffer.name ],
+          node.src)
 
       when :__LINE__
-        node.updated(:int, [ node.src.expression.line ])
+        n(:int, [ node.src.expression.line ],
+          node.src)
 
       when :__ENCODING__
-        n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ], nil)
+        n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
+          node.src)
 
       when :ident
         name, = *node
@@ -235,20 +270,24 @@ module Parser
       end
     end
 
-    def const(token)
-      n(:const, [ nil, value(token).to_sym ], expr_map(l(token)))
+    def const(name_t)
+      n(:const, [ nil, value(name_t).to_sym ],
+        expr_map(name_t))
     end
 
-    def const_global(t_colon3, token)
-      n(:const, [ n0(:cbase, nil), value(token).to_sym ], nil)
+    def const_global(t_colon3, name_t)
+      n(:const, [ n0(:cbase, nil), value(name_t).to_sym ],
+        nil)
     end
 
-    def const_fetch(scope, t_colon2, token)
-      n(:const, [ scope, value(token).to_sym ], nil)
+    def const_fetch(scope, t_colon2, name_t)
+      n(:const, [ scope, value(name_t).to_sym ],
+        nil)
     end
 
-    def __ENCODING__(token)
-      n0(:__ENCODING__, expr_map(l(token)))
+    def __ENCODING__(__ENCODING__t)
+      n0(:__ENCODING__,
+        expr_map(__ENCODING__t))
     end
 
     #
@@ -298,7 +337,7 @@ module Parser
       end
     end
 
-    def assign(lhs, token, rhs)
+    def assign(lhs, eql_t, rhs)
       case lhs.type
       when :lvasgn, :masgn, :gvasgn, :ivasgn, :cvdecl,
            :cvasgn, :cdecl,
@@ -322,11 +361,14 @@ module Parser
 
         case operator
         when :'&&'
-          n(:and_asgn, [ lhs, rhs ], nil)
+          n(:and_asgn, [ lhs, rhs ],
+            nil)
         when :'||'
-          n(:or_asgn, [ lhs, rhs ], nil)
+          n(:or_asgn, [ lhs, rhs ],
+            nil)
         else
-          n(:op_asgn, [ lhs, operator, rhs ], nil)
+          n(:op_asgn, [ lhs, operator, rhs ],
+            nil)
         end
 
       when :back_ref, :nth_ref
@@ -339,11 +381,13 @@ module Parser
     end
 
     def multi_lhs(begin_t, items, end_t)
-      n(:mlhs, [ *items ], nil)
+      n(:mlhs, [ *items ],
+        nil)
     end
 
     def multi_assign(lhs, eql_t, rhs)
-      n(:masgn, [ lhs, rhs ], nil)
+      n(:masgn, [ lhs, rhs ],
+        nil)
     end
 
     #
@@ -353,17 +397,20 @@ module Parser
     def def_class(class_t, name,
                   lt_t, superclass,
                   body, end_t)
-      n(:class, [ name, superclass, body ], nil)
+      n(:class, [ name, superclass, body ],
+        nil)
     end
 
     def def_sclass(class_t, lshft_t, expr,
                    body, end_t)
-      n(:sclass, [ expr, body ], nil)
+      n(:sclass, [ expr, body ],
+        nil)
     end
 
     def def_module(module_t, name,
                    body, end_t)
-      n(:module, [ name, body ], nil)
+      n(:module, [ name, body ],
+        nil)
     end
 
     #
@@ -372,7 +419,8 @@ module Parser
 
     def def_method(def_t, name, args,
                    body, end_t, comments)
-      n(:def, [ value(name).to_sym, args, body ], nil)
+      n(:def, [ value(name).to_sym, args, body ],
+        nil)
     end
 
     def def_singleton(def_t, definee, dot_t,
@@ -386,23 +434,26 @@ module Parser
         diagnostic :error, message, nil # TODO definee.src.expression
 
       else
-        n(:defs, [ definee, value(name).to_sym, args, body ], nil)
+        n(:defs, [ definee, value(name).to_sym, args, body ],
+          nil)
       end
     end
 
-    def undef_method(token, names)
-      n(:undef, [ *names ], nil)
+    def undef_method(undef_t, names)
+      n(:undef, [ *names ],
+        nil)
     end
 
     #
     # Aliasing
     #
 
-    def alias(token, to, from)
-      n(:alias, [ to, from ], expr_map(l(token)))
+    def alias(alias_t, to, from)
+      n(:alias, [ to, from ],
+        nil)
     end
 
-    def keyword_cmd(type, token, lparen_t=nil, args=[], rparen_t=nil)
+    def keyword_cmd(type, keyword_t, lparen_t=nil, args=[], rparen_t=nil)
       case type
       when :return,
            :break, :next, :redo,
@@ -410,7 +461,8 @@ module Parser
            :super, :zsuper, :yield,
            :defined?
 
-        n(type, args, nil)
+        n(type, args,
+          nil)
 
       else
         raise NotImplementedError, "build_keyword_cmd #{type} #{args.inspect}"
@@ -422,47 +474,57 @@ module Parser
     #
 
     def args(begin_t, args, end_t)
-      n(:args, [ *check_duplicate_args(args) ], nil)
+      n(:args, [ *check_duplicate_args(args) ],
+        nil)
     end
 
     def arg(name_t)
-      n(:arg, [ value(name_t).to_sym ], expr_map(name_t))
+      n(:arg, [ value(name_t).to_sym ],
+        expr_map(name_t))
     end
 
     def optarg(name_t, eql_t, value)
-      n(:optarg, [ value(name_t).to_sym, value ], nil)
+      n(:optarg, [ value(name_t).to_sym, value ],
+        nil)
     end
 
     def restarg(star_t, name_t=nil)
       if name_t
-        n(:restarg, [ value(name_t).to_sym ], nil)
+        n(:restarg, [ value(name_t).to_sym ],
+          nil)
       else
-        n0(:restarg, expr_map(star_t))
+        n0(:restarg,
+          expr_map(star_t))
       end
     end
 
     def kwarg(name_t)
-      n(:kwarg, [ value(name_t).to_sym ], nil)
+      n(:kwarg, [ value(name_t).to_sym ],
+        nil)
     end
 
     def kwoptarg(name_t, value)
-      n(:kwoptarg, [ value(name_t).to_sym, value ], nil)
+      n(:kwoptarg, [ value(name_t).to_sym, value ],
+        nil)
     end
 
     def kwrestarg(dstar_t, name_t=nil)
       if name_t
-        n(:kwrestarg, [ value(name_t).to_sym ], nil)
+        n(:kwrestarg, [ value(name_t).to_sym ],
+          nil)
       else
         n0(:kwrestarg, expr_map(dstar_t))
       end
     end
 
-    def shadowarg(token)
-      n(:shadowarg, [ value(token).to_sym ], nil)
+    def shadowarg(name_t)
+      n(:shadowarg, [ value(name_t).to_sym ],
+        nil)
     end
 
-    def blockarg(amper_t, token)
-      n(:blockarg, [ value(token).to_sym ], nil)
+    def blockarg(amper_t, name_t)
+      n(:blockarg, [ value(name_t).to_sym ],
+        nil)
     end
 
     # Ruby 1.8 block arguments
@@ -471,7 +533,8 @@ module Parser
       if expr.type == :lvasgn
         expr.updated(:arg)
       else
-        n(:arg_expr, [ expr ], nil)
+        n(:arg_expr, [ expr ],
+          nil)
       end
     end
 
@@ -481,7 +544,8 @@ module Parser
       elsif expr.type == :lvasgn
         expr.updated(:restarg)
       else
-        n(:restarg_expr, [ expr ], nil)
+        n(:restarg_expr, [ expr ],
+          nil)
       end
     end
 
@@ -489,7 +553,8 @@ module Parser
       if expr.type == :lvasgn
         expr.updated(:blockarg)
       else
-        n(:blockarg_expr, [ expr ], nil)
+        n(:blockarg_expr, [ expr ],
+          nil)
       end
     end
 
@@ -500,15 +565,17 @@ module Parser
     def call_method(receiver, dot_t, selector_t,
                     begin_t=nil, args=[], end_t=nil)
       if selector_t.nil?
-        n(:send, [ receiver, :call, *args ], nil)
+        n(:send, [ receiver, :call, *args ],
+          nil)
       else
         n(:send, [ receiver, value(selector_t).to_sym, *args ],
-          send_map(l(selector_t), l(begin_t), l(end_t)))
+          send_map(loc(selector_t), loc(begin_t), loc(end_t)))
       end
     end
 
     def call_lambda(lambda_t)
-      n(:send, [ nil, :lambda ], nil)
+      n(:send, [ nil, :lambda ],
+        nil)
     end
 
     def block(method_call, begin_t, args, body, end_t)
@@ -524,27 +591,32 @@ module Parser
                    last_arg.children.last.src.expression
       end
 
-      n(:block, [ method_call, args, body ], nil)
+      n(:block, [ method_call, args, body ],
+        nil)
     end
 
     def block_pass(amper_t, arg)
-      n(:block_pass, [ arg ], nil)
+      n(:block_pass, [ arg ],
+        nil)
     end
 
     def attr_asgn(receiver, dot_t, selector_t)
       method_name = (value(selector_t) + '=').to_sym
 
       # Incomplete method call.
-      n(:send, [ receiver, method_name ], nil)
+      n(:send, [ receiver, method_name ],
+        nil)
     end
 
     def index(receiver, lbrack_t, indexes, rbrack_t)
-      n(:send, [ receiver, :[], *indexes ], nil)
+      n(:send, [ receiver, :[], *indexes ],
+        nil)
     end
 
     def index_asgn(receiver, lbrack_t, indexes, rbrack_t)
       # Incomplete method call.
-      n(:send, [ receiver, :[]=, *indexes ], nil)
+      n(:send, [ receiver, :[]=, *indexes ],
+        nil)
     end
 
     def binary_op(receiver, op_t, arg)
@@ -557,28 +629,32 @@ module Parser
       end
 
       n(:send, [ receiver, value(op_t).to_sym, arg ],
-        send_operator_map(l(op_t), receiver, arg))
+        send_operator_map(loc(op_t), receiver, arg))
     end
 
-    def unary_op(token, receiver)
-      case value(token)
+    def unary_op(op_t, receiver)
+      case value(op_t)
       when '+', '-'
-        method = value(token) + '@'
+        method = value(op_t) + '@'
       else
-        method = value(token)
+        method = value(op_t)
       end
 
-      n(:send, [ receiver, method.to_sym ], nil)
+      n(:send, [ receiver, method.to_sym ],
+        nil)
     end
 
-    def not_op(token, receiver=nil)
+    def not_op(not_t, receiver=nil)
       if @parser.version == 18
-        n(:not, [ receiver ], nil)
+        n(:not, [ receiver ],
+          nil)
       else
         if receiver.nil?
-          n(:send, [ n0(:nil, nil), :'!' ], nil)
+          n(:send, [ n0(:nil, nil), :'!' ],
+            nil)
         else
-          n(:send, [ receiver, :'!' ], nil)
+          n(:send, [ receiver, :'!' ],
+            nil)
         end
       end
     end
@@ -590,42 +666,50 @@ module Parser
     # Logical operations: and, or
 
     def logical_op(type, lhs, token, rhs)
-      n(type, [ check_condition(lhs), check_condition(rhs) ], nil)
+      n(type, [ check_condition(lhs), check_condition(rhs) ],
+        nil)
     end
 
     # Conditionals
 
     def condition(cond_t, cond, then_t,
                   if_true, else_t, if_false, end_t)
-      n(:if, [ check_condition(cond), if_true, if_false ], nil)
+      n(:if, [ check_condition(cond), if_true, if_false ],
+        nil)
     end
 
     def condition_mod(if_true, if_false, cond_t, cond)
-      n(:if, [ check_condition(cond), if_true, if_false ], nil)
+      n(:if, [ check_condition(cond), if_true, if_false ],
+        nil)
     end
 
     def ternary(cond, question_t, if_true, colon_t, if_false)
-      n(:if, [ check_condition(cond), if_true, if_false ], nil)
+      n(:if, [ check_condition(cond), if_true, if_false ],
+        nil)
     end
 
     # Case matching
 
     def when(when_t, patterns, then_t, body)
-      n(:when, [ *(patterns << body) ], nil)
+      n(:when, (patterns << body),
+        nil)
     end
 
     def case(case_t, expr, body, end_t)
-      n(:case, [ expr, *body ], nil)
+      n(:case, [ expr, *body ],
+        nil)
     end
 
     # Loops
 
     def loop(loop_t, cond, do_t, body, end_t)
-      n(value(loop_t).to_sym, [ check_condition(cond), body ], nil)
+      n(value(loop_t).to_sym, [ check_condition(cond), body ],
+        nil)
     end
 
     def loop_mod(body, loop_t, cond)
-      n(value(loop_t).to_sym, [ check_condition(cond), body ], nil)
+      n(value(loop_t).to_sym, [ check_condition(cond), body ],
+        nil)
     end
 
     def for(for_t, iterator, in_t, iteratee,
@@ -642,7 +726,8 @@ module Parser
     def rescue_body(rescue_t,
                     exc_list, assoc_t, exc_var,
                     then_t, compound_stmt)
-      n(:resbody, [ exc_list, exc_var, compound_stmt ], nil)
+      n(:resbody, [ exc_list, exc_var, compound_stmt ],
+        nil)
     end
 
     def begin_body(compound_stmt, rescue_bodies=[],
@@ -661,7 +746,8 @@ module Parser
       end
 
       if ensure_t
-        compound_stmt = n(:ensure, [ compound_stmt, ensure_ ], nil)
+        compound_stmt = n(:ensure, [ compound_stmt, ensure_ ],
+                          nil)
       end
 
       compound_stmt
@@ -674,7 +760,8 @@ module Parser
       when statements.none?
         n0(:nil, nil)
       else
-        n(:begin, [ *statements ], nil)
+        n(:begin, [ *statements ],
+          nil)
       end
     end
 
@@ -682,12 +769,12 @@ module Parser
 
     def preexe(preexe_t, lbrace_t, compstmt, rbrace_t)
       n(:preexe, [ compstmt ],
-        kw_block_map(l(preexe_t), l(lbrace_t), l(rbrace_t)))
+        kw_block_map(loc(preexe_t), loc(lbrace_t), loc(rbrace_t)))
     end
 
     def postexe(postexe_t, lbrace_t, compstmt, rbrace_t)
       n(:postexe, [ compstmt ],
-        kw_block_map(l(postexe_t), l(lbrace_t), l(rbrace_t)))
+        kw_block_map(loc(postexe_t), loc(lbrace_t), loc(rbrace_t)))
     end
 
     private
@@ -759,21 +846,17 @@ module Parser
       n(type, [], map)
     end
 
-    def l(token)
-      token[1] if token
-    end
-
     def j(left_expr, right_expr)
       left_expr.src.expression.
         join(right_expr.src.expression)
     end
 
-    def expr_map(expr_l)
-      Source::Map.new(expr_l)
+    def expr_map(expr_t)
+      Source::Map.new(loc(expr_t))
     end
 
-    def collection_map(begin_l, end_l)
-      Source::Map::Collection.new(begin_l, end_l)
+    def collection_map(begin_t, end_t)
+      Source::Map::Collection.new(loc(begin_t), loc(end_t))
     end
 
     def operator_map(left_e, op_l, right_e)
@@ -803,6 +886,10 @@ module Parser
 
     def value(token)
       token[0]
+    end
+
+    def loc(token)
+      token[1] if token
     end
 
     def diagnostic(type, message, location, highlights=[])
