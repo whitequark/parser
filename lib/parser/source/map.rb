@@ -14,6 +14,13 @@ module Parser
 
         freeze
       end
+
+      # TODO This is naive and slow
+      def to_hash
+        Hash[instance_variables.map do |ivar|
+          [ ivar[1..-1].to_sym, instance_variable_get(ivar) ]
+        end]
+      end
     end
 
   end

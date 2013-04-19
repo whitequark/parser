@@ -4027,7 +4027,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q{BEGIN { 1 }},
       %q{~~~~~ keyword
         |      ^ begin
-        |          ^ end})
+        |          ^ end
+        |~~~~~~~~~~~ expression})
   end
 
   def test_preexe_invalid
@@ -4045,7 +4046,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q{END { 1 }},
       %q{~~~ keyword
         |    ^ begin
-        |        ^ end})
+        |        ^ end
+        |~~~~~~~~~ expression})
 
     assert_diagnoses(
       [:warning, :end_in_method],

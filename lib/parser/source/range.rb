@@ -7,7 +7,7 @@ module Parser
 
       def initialize(source_buffer, begin_, end_)
         @source_buffer = source_buffer
-        @begin, @end = begin_, end_
+        @begin, @end   = begin_, end_
 
         freeze
       end
@@ -15,6 +15,8 @@ module Parser
       def size
         @end - @begin + 1
       end
+
+      alias length size
 
       def line
         line, _ = @source_buffer.decompose_position(@begin)

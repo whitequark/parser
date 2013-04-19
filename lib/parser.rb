@@ -16,6 +16,10 @@ module Parser
   require 'parser/source/range'
 
   require 'parser/source/map'
+  require 'parser/source/map/collection'
+  require 'parser/source/map/send'
+  require 'parser/source/map/send_operator'
+  require 'parser/source/map/keyword_with_block'
   require 'parser/source/map/operator'
   require 'parser/source/map/variable_assignment'
 
