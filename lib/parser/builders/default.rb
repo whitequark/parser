@@ -847,8 +847,12 @@ module Parser
     end
 
     def j(left_expr, right_expr)
-      left_expr.src.expression.
-        join(right_expr.src.expression)
+      if left_expr.src && right_expr.src &&
+            left_expr.src.expression &&
+            right_expr.src.expression
+        left_expr.src.expression.
+          join(right_expr.src.expression)
+      end
     end
 
     def expr_map(expr_t)

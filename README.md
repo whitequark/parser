@@ -41,6 +41,8 @@ p parser.parse(buffer)
 #     (send nil :bar)))
 ```
 
+If you reuse the same parser object for multiple `#parse` runs, you need to `#reset` it.
+
 ## Features
 
  * Precise source location reporting (WIP, no, not really yet).

@@ -9,6 +9,8 @@ end
 
 # Library namespace
 module Parser
+  require 'parser/version'
+
   require 'parser/ast/node'
   require 'parser/ast/processor'
 

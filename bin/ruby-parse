@@ -1,0 +1,229 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
+
+require 'benchmark'
+require 'find'
+require 'slop'
+require 'parser'
+
+# https://github.com/injekt/slop/pull/110
+class Slop
+  def extract_long_flag(objects, config)
+    flag = objects.first.to_s
+    if flag =~ /\A(?:--?)?[a-zA-Z0-9][a-zA-Z0-9_.-]+\=?\??\z/
+      config[:argument] ||= true if flag.end_with?('=')
+      config[:optional_argument] = true if flag.end_with?('=?')
+      objects.shift
+      clean(flag).sub(/\=\??\z/, '')
+    end
+  end
+end
+
+#
+# Parse options and initialize parser_class
+#
+
+parser_class = nil
+
+options = Slop.parse(strict: true) do
+  banner "Usage: #{$0} [options] FILE|DIRECTORY..."
+
+  on 'h', 'help', 'Display this help message and exit', tail: true do
+    puts help
+    puts <<-HELP
+
+If you specify a DIRECTORY, then all *.rb files are fetched
+from it and appended to the file list.
+
+The default parsing mode is for current Ruby (#{RUBY_VERSION}).
+    HELP
+    exit
+  end
+
+  on 'V', 'version', 'Output version information and exit', tail: true do
+    puts "ruby-parse based on parser version #{Parser::VERSION}"
+    exit
+  end
+
+  on '18', 'Parse as Ruby 1.8.7 would' do
+    require 'parser/ruby18'
+    parser_class = Parser::Ruby18
+  end
+
+  on '19', 'Parse as Ruby 1.9.3 would' do
+    require 'parser/ruby19'
+    parser_class = Parser::Ruby19
+  end
+
+  on '20', 'Parse as Ruby 2.0.0 would' do
+    require 'parser/ruby20'
+    parser_class = Parser::Ruby20
+  end
+
+  on '21', 'Parse as Ruby trunk would (use with caution)' do
+    require 'parser/ruby21'
+    parser_class = Parser::Ruby21
+  end
+
+  on 'w',  'warnings',  'Enable warnings'
+
+  on 'B',  'benchmark', 'Benchmark the parsing process'
+  on 'E',  'explain',   'Explain how the source is tokenized'
+  on 'L',  'locate',    'Explain how source maps for AST nodes are laid out'
+end
+
+if parser_class.nil?
+  require 'parser/current'
+  parser_class = Parser::CurrentRuby
+end
+
+if ARGV.empty?
+  $stderr.puts "Need something to parse!"
+  exit 1
+end
+
+#
+# Monkey-patch parser to enable explanations
+#
+
+if options.explain?
+  ENV['RACC_DEBUG'] = '1'
+
+  class Parser::Base
+    def next_token
+      @lexer.advance_and_explain
+    end
+  end
+end
+
+#
+# Define LocationProcessor for location explanation support
+#
+
+class LocationProcessor < Parser::AST::Processor
+  def process(node)
+    p node
+
+    if node.src.nil?
+      puts "\e[31m[no location info]\e[0m"
+    else
+      puts "\e[32m#{node.src.expression.source_line}\e[0m"
+
+      hilight_line = ""
+
+      print_line = lambda do |line|
+        puts line.
+          gsub(/[a-z]+/) { |m| "\e[1;33m#{m}\e[0m" }.
+          gsub(/~+/)     { |m| "\e[1;35m#{m}\e[0m" }
+      end
+
+      node.src.to_hash.each do |name, range|
+        length    = range.length + 1 + name.length
+        end_col   = range.begin_column + length
+        col_range = range.begin_column...end_col
+
+        if hilight_line.length < end_col
+          hilight_line = hilight_line.ljust(end_col)
+        end
+
+        if hilight_line[col_range] =~ /^\s*$/
+          hilight_line[col_range] = '~' * range.length + " #{name}"
+        else
+          print_line.(hilight_line)
+          hilight_line = ""
+          redo
+        end
+      end
+
+      print_line.(hilight_line) unless hilight_line.empty?
+    end
+
+    super
+  end
+end
+
+#
+# Compose the file list
+#
+
+file_list = []
+
+ARGV.each do |file_or_dir|
+  if File.directory?(file_or_dir)
+    Find.find(file_or_dir) do |path|
+      file_list << path if path.end_with? '.rb'
+    end
+  else
+    file_list << file_or_dir
+  end
+end
+
+#
+# Parse!
+#
+
+parser = parser_class.new
+
+parser.diagnostics.all_errors_are_fatal = true
+parser.diagnostics.ignore_warnings      = !options.warnings?
+
+parser.diagnostics.consumer = lambda do |diagnostic|
+  puts(diagnostic.render)
+end
+
+source_count = 0
+source_size  = 0
+parsing_time = nil
+
+at_exit do
+  if options.benchmark? && !parsing_time.nil?
+    cpu_time = parsing_time.utime
+
+    speed = '%.3f' % (source_size / cpu_time / 1000)
+    puts "Parsed #{source_count} files (#{source_size} characters)" \
+         " in #{'%.2f' % cpu_time} seconds (#{speed} kchars/s)."
+
+    if defined?(RUBY_ENGINE)
+      engine = RUBY_ENGINE
+    else
+      engine = 'ruby'
+    end
+
+    puts "Running on #{engine} #{RUBY_VERSION}."
+  end
+end
+
+if file_list.size > 1
+  puts "Using #{parser_class} to parse #{file_list.size} files."
+end
+
+parsing_time = Benchmark.measure do
+  # The Loop
+  file_list.each do |file|
+    buffer = Parser::Source::Buffer.new(file).read
+
+    begin
+      parser.reset
+      ast = parser.parse(buffer)
+    rescue Parser::SyntaxError
+      next
+    rescue Interrupt
+      break
+    rescue Exception
+      $stderr.puts("Failed on: #{file}")
+      raise
+    end
+
+    unless options.benchmark? || options.locate?
+      p ast
+    end
+
+    if options.locate?
+      LocationProcessor.new.process(ast)
+    end
+
+    source_count += 1
+    source_size  += buffer.source.size
+  end
+end
