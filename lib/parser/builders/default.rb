@@ -602,16 +602,24 @@ module Parser
     end
 
     def binary_op(receiver, op_t, arg)
+      source_map = send_binary_op_map(receiver, op_t, arg)
+
       if @parser.version == 18
-        if value(op_t) == '!='
-          return n(:not, [ n(:send, [ receiver, :==, arg ], nil) ], nil)
-        elsif value(op_t) == '!~'
-          return n(:not, [ n(:send, [ receiver, :=~, arg ], nil) ], nil)
+        operator = value(op_t)
+        if operator == '!='
+          method_call = n(:send, [ receiver, :==, arg ], source_map)
+        elsif operator == '!~'
+          method_call = n(:send, [ receiver, :=~, arg ], source_map)
+        end
+
+        if operator == '!=' || operator == '!~'
+          return n(:not, [ method_call ],
+                   expr_map(source_map.expression))
         end
       end
 
       n(:send, [ receiver, value(op_t).to_sym, arg ],
-        send_binary_op_map(receiver, op_t, arg))
+        source_map)
     end
 
     def unary_op(op_t, receiver)
@@ -623,20 +631,20 @@ module Parser
       end
 
       n(:send, [ receiver, method.to_sym ],
-        nil)
+        send_unary_op_map(op_t, receiver))
     end
 
     def not_op(not_t, receiver=nil)
       if @parser.version == 18
         n(:not, [ receiver ],
-          nil)
+          unary_op_map(not_t, receiver))
       else
         if receiver.nil?
           n(:send, [ n0(:nil, nil), :'!' ],
-            nil)
+            send_unary_op_map(not_t, nil))
         else
           n(:send, [ receiver, :'!' ],
-            nil)
+            send_unary_op_map(not_t, receiver))
         end
       end
     end
@@ -685,12 +693,14 @@ module Parser
     # Loops
 
     def loop(loop_t, cond, do_t, body, end_t)
-      n(value(loop_t).to_sym, [ check_condition(cond), body ],
+      type = value(loop_t).to_sym
+      n(type, [ check_condition(cond), body ],
         nil)
     end
 
     def loop_mod(body, loop_t, cond)
-      n(value(loop_t).to_sym, [ check_condition(cond), body ],
+      type = value(loop_t).to_sym
+      n(type, [ check_condition(cond), body ],
         nil)
     end
 
@@ -847,7 +857,7 @@ module Parser
     end
 
     def j(left_expr, right_expr)
-      if left_expr.src && right_expr.src &&
+      if left_expr.src && right_expr.src && # TODO remove
             left_expr.src.expression &&
             right_expr.src.expression
         left_expr.src.expression.
@@ -929,6 +939,17 @@ module Parser
     def send_binary_op_map(lhs_e, selector_t, rhs_e)
       Source::Map::Send.new(loc(selector_t), nil, nil,
                             j(lhs_e, rhs_e))
+    end
+
+    def send_unary_op_map(selector_t, arg_e)
+      if arg_e.nil?
+        expr_l = loc(selector_t)
+      else
+        expr_l = loc(selector_t).join(arg_e.src.expression)
+      end
+
+      Source::Map::Send.new(loc(selector_t), nil, nil,
+                            expr_l)
     end
 
     def send_index_map(receiver_e, lbrack_t, rbrack_t)

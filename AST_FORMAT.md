@@ -296,6 +296,7 @@ Format:
 (const (cbase) :Foo)
 "::Foo"
    ~~~ name
+ ~~ double_colon
  ~~~~~ expression
 ```
 
@@ -306,6 +307,7 @@ Format:
 (const (lvar :a) :Foo)
 "a::Foo"
     ~~~ name
+  ~~ double_colon
  ~~~~~~ expression
 ```
 

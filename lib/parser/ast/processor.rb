@@ -137,6 +137,7 @@ module Parser
 
       alias on_block    process_regular_node
 
+      alias on_not      process_regular_node
       alias on_and      process_regular_node
       alias on_or       process_regular_node
       alias on_if       process_regular_node
