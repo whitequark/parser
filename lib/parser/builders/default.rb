@@ -348,7 +348,7 @@ module Parser
 
     def assign(lhs, eql_t, rhs)
       (lhs << rhs).updated(nil, nil,
-        source_map: lhs.src.
+        :source_map => lhs.src.
           with_operator(loc(eql_t)).
           with_expression(j(lhs, rhs)))
     end
