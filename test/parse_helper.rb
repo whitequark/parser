@@ -162,7 +162,7 @@ module ParseHelper
        ^(?# $1 skip)            ^(\s*)
         (?# $2 highlight)        ([~\^]+)
                                  \s+
-        (?# $3 source_map_field) ([a-z]+)
+        (?# $3 source_map_field) ([a-z_]+)
         (?# $5 ast_path)         (\s+\(([a-z_.\/0-9]+)\))?
                                 $/
 

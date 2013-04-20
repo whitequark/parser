@@ -18,12 +18,12 @@ module Parser
   require 'parser/source/range'
 
   require 'parser/source/map'
-  require 'parser/source/map/collection'
-  require 'parser/source/map/send'
-  require 'parser/source/map/send_operator'
-  require 'parser/source/map/keyword_with_block'
   require 'parser/source/map/operator'
-  require 'parser/source/map/variable_assignment'
+  require 'parser/source/map/collection'
+  require 'parser/source/map/constant'
+  require 'parser/source/map/variable'
+  require 'parser/source/map/block'
+  require 'parser/source/map/send'
 
   require 'parser/syntax_error'
   require 'parser/diagnostic'
@@ -34,7 +34,6 @@ module Parser
   require 'parser/lexer'
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
-  require 'parser/lexer/explanation'
 
   module Builders
     require 'parser/builders/default'

@@ -5,10 +5,10 @@ module Parser
       attr_reader :begin
       attr_reader :end
 
-      def initialize(begin_l, end_l)
+      def initialize(begin_l, end_l, expression_l)
         @begin, @end = begin_l, end_l
 
-        super(nil) #(@begin.join(@end))
+        super(expression_l)
       end
     end
 

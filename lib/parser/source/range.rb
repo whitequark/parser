@@ -46,17 +46,14 @@ module Parser
 
       def to_s
         line, column = @source_buffer.decompose_position(@begin)
+
         [@source_buffer.name, line, column + 1].join(':')
       end
 
       def join(other)
-        if other.source_buffer == @source_buffer
-          Range.new(@source_buffer,
-              [@begin, other.begin].min,
-              [@end, other.end].max)
-        else
-          raise ArgumentError, "Cannot join SourceRanges for different SourceFiles"
-        end
+        Range.new(@source_buffer,
+            [@begin, other.begin].min,
+            [@end, other.end].max)
       end
 
       def inspect

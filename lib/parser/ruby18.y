@@ -1009,7 +1009,7 @@ rule
                     }
                     opt_nl tRPAREN
                     {
-                      result = @builder.parenthesize(val[0], val[1], val[3])
+                      result = @builder.parenthesize(val[0], val[1], val[4])
                     }
                 | tLPAREN compstmt tRPAREN
                     {

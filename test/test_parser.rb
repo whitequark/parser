@@ -546,6 +546,7 @@ class TestParser < MiniTest::Unit::TestCase
       s(:const, s(:cbase), :Foo),
       %q{::Foo},
       %q{  ~~~ name
+        |~~ double_colon
         |~~~~~ expression})
   end
 
@@ -554,6 +555,7 @@ class TestParser < MiniTest::Unit::TestCase
       s(:const, s(:const, nil, :Bar), :Foo),
       %q{Bar::Foo},
       %q{     ~~~ name
+        |   ~~ double_colon
         |~~~~~~~~ expression})
   end
 
@@ -715,6 +717,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{::Foo = 10},
       %q{  ~~~ name
         |      ^ operator
+        |~~ double_colon
         |~~~~~~~~~~ expression
         })
   end
@@ -725,6 +728,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{Bar::Foo = 10},
       %q{     ~~~ name
         |         ^ operator
+        |   ~~ double_colon
         |~~~~~~~~~~~~~ expression
         })
   end
@@ -776,7 +780,8 @@ class TestParser < MiniTest::Unit::TestCase
         s(:array, s(:int, 1), s(:int, 2))),
       %q{(foo, bar) = 1, 2},
       %q{^ begin
-        |         ^ end})
+        |         ^ end
+        |~~~~~~~~~~ expression})
 
     assert_parses(
       s(:masgn,
@@ -2779,7 +2784,7 @@ class TestParser < MiniTest::Unit::TestCase
         |    ^ end (args)
         |      ^ begin
         |        ^ end
-        |~~~~~ expression},
+        |~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
     assert_parses(
@@ -4025,8 +4030,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:preexe, s(:int, 1)),
       %q{BEGIN { 1 }},
-      %q{~~~~~ keyword
-        |      ^ begin
+      %q{      ^ begin
         |          ^ end
         |~~~~~~~~~~~ expression})
   end
@@ -4044,8 +4048,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:postexe, s(:int, 1)),
       %q{END { 1 }},
-      %q{~~~ keyword
-        |    ^ begin
+      %q{    ^ begin
         |        ^ end
         |~~~~~~~~~ expression})
 
