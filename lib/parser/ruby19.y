@@ -152,11 +152,11 @@ rule
                     }
                 | stmt kWHILE_MOD expr_value
                     {
-                      result = @builder.loop_mod(val[0], val[1], val[2])
+                      result = @builder.loop_mod(:while, val[0], val[1], val[2])
                     }
                 | stmt kUNTIL_MOD expr_value
                     {
-                      result = @builder.loop_mod(val[0], val[1], val[2])
+                      result = @builder.loop_mod(:until, val[0], val[1], val[2])
                     }
                 | stmt kRESCUE_MOD stmt
                     {
@@ -1060,7 +1060,7 @@ rule
                     }
                     compstmt kEND
                     {
-                      result = @builder.loop(val[0], val[2], val[3],
+                      result = @builder.loop(:while, val[0], val[2], val[3],
                                              val[5], val[6])
                     }
                 | kUNTIL
@@ -1073,7 +1073,7 @@ rule
                     }
                     compstmt kEND
                     {
-                      result = @builder.loop(val[0], val[2], val[3],
+                      result = @builder.loop(:until, val[0], val[2], val[3],
                                              val[5], val[6])
                     }
                 | kCASE expr_value opt_terms case_body kEND

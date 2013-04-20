@@ -692,13 +692,12 @@ module Parser
 
     # Loops
 
-    def loop(loop_t, cond, do_t, body, end_t)
-      type = value(loop_t).to_sym
+    def loop(type, loop_t, cond, do_t, body, end_t)
       n(type, [ check_condition(cond), body ],
         nil)
     end
 
-    def loop_mod(body, loop_t, cond)
+    def loop_mod(type, body, loop_t, cond)
       type = value(loop_t).to_sym
       n(type, [ check_condition(cond), body ],
         nil)
