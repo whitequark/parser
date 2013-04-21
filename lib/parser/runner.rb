@@ -125,7 +125,7 @@ module Parser
 
     def process_all_input
       input_size = @files.size + @fragments.size
-      if input_size
+      if input_size > 1
         puts "Using #{@parser_class} to parse #{input_size} files."
       end
 
