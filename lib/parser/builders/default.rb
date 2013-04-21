@@ -59,7 +59,7 @@ module Parser
         parts.first
       else
         n(:dstr, [ *parts ],
-          collection_map(begin_t, end_t))
+          collection_map(begin_t, parts, end_t))
       end
     end
 
@@ -77,14 +77,14 @@ module Parser
 
     def symbol_compose(begin_t, parts, end_t)
       n(:dsym, [ *parts ],
-        collection_map(begin_t, end_t))
+        collection_map(begin_t, parts, end_t))
     end
 
     # Executable strings
 
     def xstring_compose(begin_t, parts, end_t)
       n(:xstr, [ *parts ],
-        collection_map(begin_t, end_t))
+        collection_map(begin_t, parts, end_t))
     end
 
     # Regular expressions
@@ -100,14 +100,14 @@ module Parser
 
     def regexp_compose(begin_t, parts, end_t, options)
       n(:regexp, (parts << options),
-        collection_map(begin_t, end_t))
+        collection_map(begin_t, parts, end_t))
     end
 
     # Arrays
 
     def array(begin_t, elements, end_t)
       n(:array, elements,
-        collection_map(begin_t, end_t))
+        collection_map(begin_t, elements, end_t))
     end
 
     def splat(star_t, arg=nil)
@@ -125,13 +125,13 @@ module Parser
         parts.first
       else
         n(:dstr, [ *parts ],
-          collection_map(nil, nil, parts))
+          collection_map(nil, parts, nil))
       end
     end
 
     def words_compose(begin_t, parts, end_t)
       n(:array, [ *parts ],
-        collection_map(begin_t, end_t, parts))
+        collection_map(begin_t, parts, end_t))
     end
 
     def symbols_compose(begin_t, parts, end_t)
@@ -148,7 +148,7 @@ module Parser
       end
 
       n(:array, [ *parts ],
-        collection_map(begin_t, end_t, parts))
+        collection_map(begin_t, parts, end_t))
     end
 
     # Hashes
@@ -173,7 +173,7 @@ module Parser
 
     def associate(begin_t, pairs, end_t)
       n(:hash, [ *pairs ],
-        collection_map(begin_t, end_t, pairs))
+        collection_map(begin_t, pairs, end_t))
     end
 
     def kwsplat(dstar_t, arg)
@@ -350,7 +350,7 @@ module Parser
       (lhs << rhs).updated(nil, nil,
         :source_map => lhs.src.
           with_operator(loc(eql_t)).
-          with_expression(j(lhs, rhs)))
+          with_expression(join_exprs(lhs, rhs)))
     end
 
     def op_assign(lhs, op_t, rhs)
@@ -362,7 +362,7 @@ module Parser
         operator   = value(op_t)[0..-1].to_sym
         source_map = lhs.src.
                         with_operator(loc(op_t)).
-                        with_expression(j(lhs, rhs))
+                        with_expression(join_exprs(lhs, rhs))
 
         case operator
         when :'&&'
@@ -384,7 +384,7 @@ module Parser
 
     def multi_lhs(begin_t, items, end_t)
       n(:mlhs, [ *items ],
-        collection_map(begin_t, end_t, items))
+        collection_map(begin_t, items, end_t))
     end
 
     def multi_assign(lhs, eql_t, rhs)
@@ -400,33 +400,33 @@ module Parser
                   lt_t, superclass,
                   body, end_t)
       n(:class, [ name, superclass, body ],
-        nil)
+        definition_map(class_t, lt_t, nil, end_t))
     end
 
     def def_sclass(class_t, lshft_t, expr,
                    body, end_t)
       n(:sclass, [ expr, body ],
-        nil)
+        definition_map(class_t, lshft_t, nil, end_t))
     end
 
     def def_module(module_t, name,
                    body, end_t)
       n(:module, [ name, body ],
-        nil)
+        definition_map(module_t, nil, nil, end_t))
     end
 
     #
     # Method (un)definition
     #
 
-    def def_method(def_t, name, args,
+    def def_method(def_t, name_t, args,
                    body, end_t, comments)
-      n(:def, [ value(name).to_sym, args, body ],
-        nil)
+      n(:def, [ value(name_t).to_sym, args, body ],
+        definition_map(def_t, nil, name_t, end_t))
     end
 
     def def_singleton(def_t, definee, dot_t,
-                      name, args,
+                      name_t, args,
                       body, end_t, comments)
       case definee.type
       when :int, :str, :dstr, :sym, :dsym,
@@ -436,19 +436,19 @@ module Parser
         diagnostic :error, message, definee.src.expression
 
       else
-        n(:defs, [ definee, value(name).to_sym, args, body ],
-          nil)
+        n(:defs, [ definee, value(name_t).to_sym, args, body ],
+          definition_map(def_t, dot_t, name_t, end_t))
       end
     end
 
     def undef_method(undef_t, names)
       n(:undef, [ *names ],
-        nil)
+        keyword_map(undef_t, nil, names, nil))
     end
 
     def alias(alias_t, to, from)
       n(:alias, [ to, from ],
-        nil)
+        keyword_map(alias_t, nil, [to, from], nil))
     end
 
     #
@@ -457,7 +457,7 @@ module Parser
 
     def args(begin_t, args, end_t)
       n(:args, [ *check_duplicate_args(args) ],
-        collection_map(begin_t, end_t, args))
+        collection_map(begin_t, args, end_t))
     end
 
     def arg(name_t)
@@ -549,13 +549,13 @@ module Parser
     #
 
     def call_method(receiver, dot_t, selector_t,
-                    begin_t=nil, args=[], end_t=nil)
+                    lparen_t=nil, args=[], rparen_t=nil)
       if selector_t.nil?
         n(:send, [ receiver, :call, *args ],
-          send_map(receiver, nil, begin_t, args, end_t))
+          send_map(receiver, nil, lparen_t, args, rparen_t))
       else
         n(:send, [ receiver, value(selector_t).to_sym, *args ],
-          send_map(receiver, selector_t, begin_t, args, end_t))
+          send_map(receiver, selector_t, lparen_t, args, rparen_t))
       end
     end
 
@@ -665,17 +665,17 @@ module Parser
     def condition(cond_t, cond, then_t,
                   if_true, else_t, if_false, end_t)
       n(:if, [ check_condition(cond), if_true, if_false ],
-        nil)
+        condition_map(cond_t, then_t, if_true, else_t, end_t))
     end
 
     def condition_mod(if_true, if_false, cond_t, cond)
       n(:if, [ check_condition(cond), if_true, if_false ],
-        nil)
+        keyword_mod_map(if_true || if_false, cond_t, cond))
     end
 
     def ternary(cond, question_t, if_true, colon_t, if_false)
       n(:if, [ check_condition(cond), if_true, if_false ],
-        nil)
+        ternary_map(cond, question_t, if_true, colon_t, if_false))
     end
 
     # Case matching
@@ -692,38 +692,27 @@ module Parser
 
     # Loops
 
-    def loop(type, loop_t, cond, do_t, body, end_t)
+    def loop(type, keyword_t, cond, do_t, body, end_t)
       n(type, [ check_condition(cond), body ],
-        nil)
+        keyword_map(keyword_t, do_t, nil, end_t))
     end
 
-    def loop_mod(type, body, loop_t, cond)
-      type = value(loop_t).to_sym
+    def loop_mod(type, body, keyword_t, cond)
       n(type, [ check_condition(cond), body ],
-        nil)
+        keyword_mod_map(body, keyword_t, cond))
     end
 
     def for(for_t, iterator, in_t, iteratee,
             do_t, body, end_t)
-      n(:for, [ iterator, iteratee, body ], nil)
+      n(:for, [ iterator, iteratee, body ],
+        for_map(for_t, in_t, do_t, end_t))
     end
 
     # Keywords
 
     def keyword_cmd(type, keyword_t, lparen_t=nil, args=[], rparen_t=nil)
-      case type
-      when :return,
-           :break, :next, :redo,
-           :retry,
-           :super, :zsuper, :yield,
-           :defined?
-
-        n(type, args,
-          nil)
-
-      else
-        raise NotImplementedError, "build_keyword_cmd #{type} #{args.inspect}"
-      end
+      n(type, args,
+        keyword_map(keyword_t, lparen_t, args, rparen_t))
     end
 
     # Exception handling
@@ -794,9 +783,8 @@ module Parser
 
     def check_condition(cond)
       if cond.type == :masgn
-        # TODO source maps
         diagnostic :error, ERRORS[:masgn_as_condition],
-                   nil #cond.src.expression
+                   cond.src.expression
       end
 
       cond
@@ -817,9 +805,8 @@ module Parser
           if that_arg.nil?
             map[this_name] = this_arg
           elsif arg_name_collides?(this_name, that_name)
-            # TODO reenable when source maps are done
             diagnostic :error, ERRORS[:duplicate_argument],
-                       nil # this_arg.src.expression, [ that_arg.src.expression ]
+                       this_arg.src.expression, [ that_arg.src.expression ]
           end
 
         when :mlhs
@@ -855,13 +842,9 @@ module Parser
       n(type, [], map)
     end
 
-    def j(left_expr, right_expr)
-      if left_expr.src && right_expr.src && # TODO remove
-            left_expr.src.expression &&
-            right_expr.src.expression
-        left_expr.src.expression.
-          join(right_expr.src.expression)
-      end
+    def join_exprs(left_expr, right_expr)
+      left_expr.src.expression.
+        join(right_expr.src.expression)
     end
 
     def token_map(token)
@@ -872,10 +855,10 @@ module Parser
       Source::Map.new(loc)
     end
 
-    def collection_map(begin_t, end_t, parts=[])
+    def collection_map(begin_t, parts, end_t)
       if begin_t.nil? || end_t.nil?
         if parts.any?
-          expr_l = j(parts.first, parts.last)
+          expr_l = join_exprs(parts.first, parts.last)
         end
       else
         expr_l = loc(begin_t).join(loc(end_t))
@@ -895,7 +878,7 @@ module Parser
     end
 
     def binary_op_map(left_e, op_t, right_e)
-      Source::Map::Operator.new(loc(op_t), j(left_e, right_e))
+      Source::Map::Operator.new(loc(op_t), join_exprs(left_e, right_e))
     end
 
     def unary_op_map(op_t, arg_e=nil)
@@ -918,26 +901,34 @@ module Parser
       Source::Map::Operator.new(loc(op_t), expr_l)
     end
 
+    def definition_map(keyword_t, operator_t, name_t, end_t)
+      Source::Map::Definition.new(loc(keyword_t),
+                                  loc(operator_t), loc(name_t),
+                                  loc(end_t))
+    end
+
     def send_map(receiver_e, selector_t, begin_t=nil, args=[], end_t=nil)
       if receiver_e
-        from_l = receiver_e.src.expression
+        begin_l = receiver_e.src.expression
       elsif selector_t
-        from_l = loc(selector_t)
+        begin_l = loc(selector_t)
       end
 
       if end_t
-        to_l   = loc(end_t)
+        end_l   = loc(end_t)
+      elsif args.any?
+        end_l   = args.last.src.expression
       elsif selector_t
-        to_l   = loc(selector_t)
+        end_l   = loc(selector_t)
       end
 
       Source::Map::Send.new(loc(selector_t), loc(begin_t), loc(end_t),
-                            from_l.join(to_l))
+                            begin_l.join(end_l))
     end
 
     def send_binary_op_map(lhs_e, selector_t, rhs_e)
       Source::Map::Send.new(loc(selector_t), nil, nil,
-                            j(lhs_e, rhs_e))
+                            join_exprs(lhs_e, rhs_e))
     end
 
     def send_unary_op_map(selector_t, arg_e)
@@ -959,6 +950,51 @@ module Parser
     def block_map(receiver_l, begin_t, end_t)
       Source::Map::Block.new(loc(begin_t), loc(end_t),
                              receiver_l.join(loc(end_t)))
+    end
+
+    def keyword_map(keyword_t, begin_t, args, end_t)
+      if end_t
+        end_l = loc(end_t)
+      elsif args && args.any?
+        end_l = args.last.src.expression
+      else
+        end_l = loc(keyword_t)
+      end
+
+      Source::Map::Keyword.new(loc(keyword_t), loc(begin_t), loc(end_t),
+                               loc(keyword_t).join(end_l))
+    end
+
+    def keyword_mod_map(pre_e, keyword_t, post_e)
+      Source::Map::Keyword.new(loc(keyword_t), nil, nil,
+                               join_exprs(pre_e, post_e))
+    end
+
+    def condition_map(keyword_t, begin_t, body_e, else_t, end_t)
+      if end_t
+        end_l = loc(end_t)
+      elsif else_t
+        end_l = loc(else_t)
+      elsif body_e.src.expression
+        end_l = body_e.src.expression
+      else
+        end_l = loc(begin_t)
+      end
+
+      Source::Map::Condition.new(loc(keyword_t),
+                                 loc(begin_t), loc(else_t), loc(end_t),
+                                 loc(keyword_t).join(end_l))
+    end
+
+    def ternary_map(begin_e, question_t, mid_e, colon_t, end_e)
+      Source::Map::Ternary.new(loc(question_t), loc(colon_t),
+                               join_exprs(begin_e, end_e))
+    end
+
+    def for_map(keyword_t, in_t, begin_t, end_t)
+      Source::Map::For.new(loc(keyword_t), loc(in_t),
+                           loc(begin_t), loc(end_t),
+                           loc(keyword_t).join(loc(end_t)))
     end
 
     #

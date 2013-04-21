@@ -22,8 +22,13 @@ module Parser
   require 'parser/source/map/collection'
   require 'parser/source/map/constant'
   require 'parser/source/map/variable'
-  require 'parser/source/map/block'
+  require 'parser/source/map/keyword'
+  require 'parser/source/map/definition'
   require 'parser/source/map/send'
+  require 'parser/source/map/block'
+  require 'parser/source/map/condition'
+  require 'parser/source/map/ternary'
+  require 'parser/source/map/for'
 
   require 'parser/syntax_error'
   require 'parser/diagnostic'
@@ -60,7 +65,7 @@ module Parser
     :invalid_octal           => "invalid octal digit",
     :no_dot_digit_literal    => "no .<digit> floating literal anymore; put 0 before dot",
     :bare_backslash          => "bare backslash only allowed before newline",
-    :unexpected              => "unexpected %{character}",
+    :unexpected              => "unexpected `%{character}'",
     :embedded_document       => "embedded document meats end of file (and they embark on a romantic journey)",
 
     # Lexer warnings

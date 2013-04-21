@@ -605,11 +605,14 @@ Format:
 (class (const nil :Foo) (const nil :Bar) (begin))
 "class Foo < Bar; end"
  ~~~~~ keyword    ~~~ end
+           ~ operator
+ ~~~~~~~~~~~~~~~~~~~~ expression
 
 (class (const nil :Foo) nil (begin))
 "class Foo; end"
  ~~~~~ keyword
             ~~~ end
+ ~~~~~~~~~~~~~~ expression
 ```
 
 ### Singleton class
@@ -621,6 +624,7 @@ Format:
  ~~~~~ keyword
        ~~ operator
              ~~~ end
+ ~~~~~~~~~~~~~~~ expression
 ```
 
 ## Method (un)definition

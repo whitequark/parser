@@ -1673,13 +1673,13 @@ opt_block_args_tail:
 
          exc_var: tASSOC lhs
                     {
-                      result = val
+                      result = [ val[0], val[1] ]
                     }
                 | none
 
       opt_ensure: kENSURE compstmt
                     {
-                      result = val
+                      result = [ val[0], val[1] ]
                     }
                 | none
 

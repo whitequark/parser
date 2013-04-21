@@ -45,7 +45,7 @@ module ParseHelper
 
   def assert_source_range(begin_pos, end_pos, range, version, what)
     assert range.is_a?(Parser::Source::Range),
-           "(#{version}) is_a?(Source::Range) for #{what}"
+           "(#{version}) #{range.inspect}.is_a?(Source::Range) for #{what}"
 
     assert_equal begin_pos, range.begin,
                  "(#{version}) begin of #{what}"
@@ -86,10 +86,8 @@ module ParseHelper
           raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
         end
 
-        next # TODO skip location checking
-
         assert astlet.source_map.respond_to?(map_field),
-               "(#{version}) source_map.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
+               "(#{version}) #{astlet.source_map.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
 
         range = astlet.source_map.send(map_field)
 
@@ -134,8 +132,6 @@ module ParseHelper
 
       parse_source_map_descriptions(source_maps) \
           do |begin_pos, end_pos, map_field, ast_path, line|
-
-        next # TODO skip location checking
 
         case map_field
         when 'location'
@@ -199,7 +195,14 @@ module ParseHelper
     path.inject(ast) do |astlet, path_component|
       # Split "dstr/2" to :dstr and 1
       type_str, index_str = path_component.split('/')
-      type, index = type_str.to_sym, index_str.to_i - 1
+
+      type  = type_str.to_sym
+
+      if index_str.nil?
+        index = 0
+      else
+        index = index_str.to_i - 1
+      end
 
       matching_children = \
         astlet.children.select do |child|

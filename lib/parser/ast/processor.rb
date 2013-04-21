@@ -105,24 +105,20 @@ module Parser
       alias on_restarg_expr   process_regular_node
       alias on_blockarg_expr  process_regular_node
 
-      def on_def(node)
-        method_name, args_node, body_node = *node
+      alias on_module   process_regular_node
 
+      def on_class(node)
+        name_node, superclass_node, body_node = *node
+
+        superclass_node = process(superclass_node) if superclass_node
         node.updated(nil, [
-          method_name,
-          process(args_node), process(body_node)
+          name_node, superclass_node, process(body_node)
         ])
       end
 
-      def on_defs(node)
-        target_node, method_name, args_node, body_node = *node
-
-        node.updated(nil, [
-          process(target_node), method_name,
-          process(args_node), process(body_node)
-        ])
-      end
-
+      alias on_sclass   process_regular_node
+      alias on_def      process_regular_node
+      alias on_defs     process_regular_node
       alias on_undef    process_regular_node
       alias on_alias    process_regular_node
 
@@ -137,10 +133,61 @@ module Parser
 
       alias on_block    process_regular_node
 
+      alias on_while    process_regular_node
+      alias on_until    process_regular_node
+      alias on_for      process_regular_node
+
+      alias on_return   process_regular_node
+      alias on_break    process_regular_node
+      alias on_next     process_regular_node
+      alias on_redo     process_regular_node
+      alias on_retry    process_regular_node
+      alias on_super    process_regular_node
+      alias on_yield    process_regular_node
+      alias on_defined? process_regular_node
+
       alias on_not      process_regular_node
       alias on_and      process_regular_node
       alias on_or       process_regular_node
-      alias on_if       process_regular_node
+
+      def on_if(node)
+        cond_node, if_true_node, if_false_node = *node
+
+        if_true_node  = process(if_true_node)  if if_true_node
+        if_false_node = process(if_false_node) if if_false_node
+
+        node.updated(nil, [
+          process(cond_node),
+          if_true_node, if_false_node
+        ])
+      end
+
+      alias on_when     process_regular_node
+      alias on_case     process_regular_node
+
+      def on_resbody(node)
+        exc_list_node, exc_var_node, body_node = *node
+
+        exc_list_node = process(exc_list_node) if exc_list_node
+        exc_var_node  = process(exc_var_node)  if exc_var_node
+
+        node.updated(nil, [
+          exc_list_node, exc_var_node,
+          process(body_node)
+        ])
+      end
+
+      def on_rescue(node)
+        body_node, *handlers = *node
+        handler_nodes, else_node = handlers[0..-2], handlers[-1]
+
+        node.updated(nil, [
+          process(body_node),
+          *(process_all(handler_nodes) << process(else_node))
+        ])
+      end
+
+      alias on_ensure   process_regular_node
 
       alias on_begin    process_regular_node
     end

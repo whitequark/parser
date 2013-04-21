@@ -167,7 +167,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:sym, :foo),
       %q{:'foo'},
-      %q{ ^ begin
+      %q{^ begin
         |     ^ end
         |~~~~~~ expression})
   end
@@ -179,9 +179,9 @@ class TestParser < MiniTest::Unit::TestCase
         s(:lvar, :bar),
         s(:str, 'baz')),
       %q{:"foo#{bar}baz"},
-      %q{ ^ begin
+      %q{^ begin
         |              ^ end
-        | ~~~~~~~~~~~~~~ expression})
+        |~~~~~~~~~~~~~~~ expression})
   end
 
   def test_symbol_empty
@@ -779,8 +779,8 @@ class TestParser < MiniTest::Unit::TestCase
         s(:mlhs, s(:lvasgn, :foo), s(:lvasgn, :bar)),
         s(:array, s(:int, 1), s(:int, 2))),
       %q{(foo, bar) = 1, 2},
-      %q{^ begin
-        |         ^ end
+      %q{^ begin (mlhs)
+        |         ^ end (mlhs)
         |~~~~~~~~~~ expression})
 
     assert_parses(
@@ -967,7 +967,7 @@ class TestParser < MiniTest::Unit::TestCase
       s(:lvasgn, :foo,
         s(:array, s(:lvar, :bar), s(:int, 1))),
       %q{foo = bar, 1},
-      %q{      ~~~~~~ array
+      %q{      ~~~~~~ expression (array)
         |~~~~~~~~~~~~ expression})
 
     assert_parses(
@@ -1415,7 +1415,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :singleton_literal],
       %q{def (:foo).foo; end},
-      %q{     ~ location})
+      %q{     ~~~~ location})
 
     assert_diagnoses(
       [:error, :singleton_literal],
@@ -1447,8 +1447,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q{undef foo, :bar, :"foo#{1}"},
       %q{~~~~~ keyword
         |      ~~~ expression (sym/1)
-        |          ~~~~ expression (sym/2)
-        |~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+        |           ~~~~ expression (sym/2)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   #
@@ -2148,19 +2148,19 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa=1); end},
-      %q{            ^^ location
+      %q{            ^^^^ location
         |        ~~ highlights (0)})
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, *aa); end},
-      %q{             ^^ location
+      %q{            ^^^ location
         |        ~~ highlights (0)})
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, &aa); end},
-      %q{             ^^ location
+      %q{            ^^^ location
         |        ~~ highlights (0)})
 
     assert_diagnoses(
@@ -2188,21 +2188,21 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa: 1); end},
-      %q{            ^^ location
+      %q{            ^^^^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9))
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, **aa); end},
-      %q{              ^^ location
+      %q{            ^^^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9))
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa:); end},
-      %q{            ^^ location
+      %q{            ^^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9 2.0))
   end
@@ -3466,8 +3466,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~~ keyword
         |             ~~~~~ else
         |             ~~~~~ keyword (if)
+        |                           ~~~~ else (if)
         |                                   ~~~ end
-        |                                   ~~~ end (if)
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
