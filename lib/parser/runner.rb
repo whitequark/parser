@@ -1,0 +1,204 @@
+require 'benchmark'
+require 'find'
+require 'slop'
+
+require 'parser'
+require 'parser/compatibility/slop'
+require 'parser/lexer/explanation'
+
+module Parser
+
+  class Runner
+    require 'parser/runner/ruby_parse'
+    require 'parser/runner/ruby_parse/location_processor'
+
+    require 'parser/runner/ruby_rewrite'
+
+    def self.go(options)
+      new.execute(options)
+    end
+
+    def initialize
+      @slop         = Slop.new(strict: true)
+      @parser_class = nil
+      @parser       = nil
+      @files        = []
+      @fragments    = []
+
+      @source_count = 0
+      @source_size  = 0
+
+      setup_option_parsing
+    end
+
+    def execute(options)
+      parse_options(options)
+      prepare_parser
+
+      process_all_input
+    end
+
+    private
+
+    def runner_name
+      raise NotImplementedError, "implement #{self.class}##{__callee__}"
+    end
+
+    def setup_option_parsing
+      @slop.banner "Usage: #{runner_name} [options] FILE|DIRECTORY..."
+
+      @slop.on 'h', 'help', 'Display this help message and exit', tail: true do
+        puts @slop.help
+        puts <<-HELP
+
+  If you specify a DIRECTORY, then all *.rb files are fetched
+  from it recursively and appended to the file list.
+
+  The default parsing mode is for current Ruby (#{RUBY_VERSION}).
+        HELP
+        exit
+      end
+
+      @slop.on 'V', 'version', 'Output version information and exit', tail: true do
+        puts "#{runner_name} based on parser version #{Parser::VERSION}"
+        exit
+      end
+
+      @slop.on '18', 'Parse as Ruby 1.8.7 would' do
+        require 'parser/ruby18'
+        @parser_class = Parser::Ruby18
+      end
+
+      @slop.on '19', 'Parse as Ruby 1.9.3 would' do
+        require 'parser/ruby19'
+        @parser_class = Parser::Ruby19
+      end
+
+      @slop.on '20', 'Parse as Ruby 2.0.0 would' do
+        require 'parser/ruby20'
+        @parser_class = Parser::Ruby20
+      end
+
+      @slop.on '21', 'Parse as Ruby trunk would (use with caution)' do
+        require 'parser/ruby21'
+        @parser_class = Parser::Ruby21
+      end
+
+      @slop.on 'w',  'warnings',  'Enable warnings'
+
+      @slop.on 'B',  'benchmark', 'Benchmark the processor'
+
+      @slop.on 'e=', 'Process a fragment of Ruby code' do |fragment|
+        @fragments << fragment
+      end
+    end
+
+    def parse_options(options)
+      @slop.parse!(options)
+
+      # Slop has just removed recognized options from `options`.
+      options.each do |file_or_dir|
+        if File.directory?(file_or_dir)
+          Find.find(file_or_dir) do |path|
+            @files << path if path.end_with? '.rb'
+          end
+        else
+          @files << file_or_dir
+        end
+      end
+
+      if @files.empty? && @fragments.empty?
+        $stderr.puts "Need something to parse!"
+        exit 1
+      end
+
+      if @parser_class.nil?
+        require 'parser/current'
+        @parser_class = Parser::CurrentRuby
+      end
+    end
+
+    def prepare_parser
+      @parser = @parser_class.new
+
+      @parser.diagnostics.all_errors_are_fatal = true
+      @parser.diagnostics.ignore_warnings      = !@slop.warnings?
+
+      @parser.diagnostics.consumer = lambda do |diagnostic|
+        puts(diagnostic.render)
+      end
+    end
+
+    def process_all_input
+      input_size = @files.size + @fragments.size
+      if input_size
+        puts "Using #{@parser_class} to parse #{input_size} files."
+      end
+
+      parsing_time =
+        Benchmark.measure do
+          process_fragments
+          process_files
+        end
+
+      if @slop.benchmark?
+        report_with_time(parsing_time)
+      end
+    end
+
+    def process_fragments
+      @fragments.each_with_index do |fragment, index|
+        buffer = Source::Buffer.new("(fragment:#{index})")
+        buffer.source = fragment
+
+        process_buffer(buffer)
+      end
+    end
+
+    def process_files
+      @files.each do |filename|
+        buffer = Parser::Source::Buffer.new(filename)
+        buffer.read
+
+        process_buffer(buffer)
+      end
+    end
+
+    def process_buffer(buffer)
+      @parser.reset
+
+      process(buffer)
+
+      @source_count += 1
+      @source_size  += buffer.source.size
+
+    rescue Parser::SyntaxError
+      # skip
+
+    rescue StandardError
+      $stderr.puts("Failed on: #{buffer.name}")
+      raise
+    end
+
+    def process(buffer)
+      raise NotImplementedError, "implement #{self.class}##{__callee__}"
+    end
+
+    def report_with_time(parsing_time)
+      cpu_time = parsing_time.utime
+
+      speed = '%.3f' % (@source_size / cpu_time / 1000)
+      puts "Parsed #{@source_count} files (#{@source_size} characters)" \
+           " in #{'%.2f' % cpu_time} seconds (#{speed} kchars/s)."
+
+      if defined?(RUBY_ENGINE)
+        engine = RUBY_ENGINE
+      else
+        engine = 'ruby'
+      end
+
+      puts "Running on #{engine} #{RUBY_VERSION}."
+    end
+  end
+
+end

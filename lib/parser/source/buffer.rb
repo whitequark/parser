@@ -72,6 +72,7 @@ module Parser
 
       def source=(source)
         if source.respond_to? :encoding
+          source = source.dup if source.frozen?
           source = self.class.reencode_string(source)
         end
 
