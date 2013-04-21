@@ -46,7 +46,7 @@ If you reuse the same parser object for multiple `#parse` runs, you need to `#re
 ## Features
 
  * Precise source location reporting (WIP, no, not really yet).
- * [Documented](AST_FORMAT.md) AST format which is convenient to work with.
+ * [Documented](doc/AST_FORMAT.md) AST format which is convenient to work with.
  * A simple interface and a powerful, tweakable one.
  * Parses 1.8, 1.9, 2.0 and 2.1 (preliminary) syntax with backwards-compatible AST formats.
  * Parsing error recovery.
