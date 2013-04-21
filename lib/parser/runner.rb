@@ -10,8 +10,6 @@ module Parser
 
   class Runner
     require 'parser/runner/ruby_parse'
-    require 'parser/runner/ruby_parse/location_processor'
-
     require 'parser/runner/ruby_rewrite'
 
     def self.go(options)
