@@ -1635,13 +1635,18 @@ class Parser::Lexer
                ( '_' digit+ )* digit* '_'?
       | '0'       %{ @num_base = 8;  @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?
-      )
+      ) %{ tm = p } c_alpha?
       => {
-        digits = tok(@num_digits_s)
+        unless (char = tok(tm, @te)).empty?
+          diagnostic :fatal, Parser::ERRORS[:unexpected] % { character: char },
+                     range(tm, tm + 1)
+        end
+
+        digits = tok(@num_digits_s, tm)
 
         if digits.end_with? '_'
           diagnostic :error, Parser::ERRORS[:trailing_underscore],
-                     range(@te - 1, @te)
+                     range(tm - 1, tm)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
           digits = "0"
@@ -1653,7 +1658,8 @@ class Parser::Lexer
                      range(invalid_s, invalid_s + 1)
         end
 
-        emit(:tINTEGER, digits.to_i(@num_base))
+        emit(:tINTEGER, digits.to_i(@num_base), @ts, tm)
+        p = tm - 1
         fbreak;
       };
 
@@ -1665,18 +1671,26 @@ class Parser::Lexer
       (
           '.' ( digit+ '_' )* digit+ |
         ( '.' ( digit+ '_' )* digit+ )? [eE] [+\-]? ( digit+ '_' )* digit+
-      )
+      ) %{ tm = p } c_alpha?
       => {
-        if tok.start_with? '.'
+        unless (char = tok(tm, @te)).empty?
+          diagnostic :fatal, Parser::ERRORS[:unexpected] % { character: char },
+                     range(tm, tm + 1)
+        end
+
+        digits = tok(@ts, tm)
+
+        if digits.start_with? '.'
           diagnostic :error, Parser::ERRORS[:no_dot_digit_literal]
-        elsif tok =~ /^[eE]/
+        elsif digits =~ /^[eE]/
           # The rule above allows to specify floats as just `e10', which is
           # certainly not a float. Send a patch if you can do this better.
-          emit(:tIDENTIFIER, tok)
+          emit(:tIDENTIFIER, digits, @ts, tm)
           fbreak;
         end
 
-        emit(:tFLOAT, tok.to_f)
+        emit(:tFLOAT, digits.to_f, @ts, tm)
+        p = tm - 1
         fbreak;
       };
 

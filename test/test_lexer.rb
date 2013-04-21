@@ -1277,6 +1277,9 @@ class TestLexer < MiniTest::Unit::TestCase
     util_bad_token "1_e1"
     util_bad_token "1_.1"
     util_bad_token "1__1"
+
+    util_bad_token "1end"
+    util_bad_token "1.1end"
   end
 
   def test_plus_unary_number
