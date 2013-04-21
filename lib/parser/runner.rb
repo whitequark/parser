@@ -4,14 +4,10 @@ require 'slop'
 
 require 'parser'
 require 'parser/compatibility/slop'
-require 'parser/lexer/explanation'
 
 module Parser
 
   class Runner
-    require 'parser/runner/ruby_parse'
-    require 'parser/runner/ruby_rewrite'
-
     def self.go(options)
       new.execute(options)
     end

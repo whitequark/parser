@@ -1,3 +1,6 @@
+require 'parser/runner'
+require 'parser/lexer/explanation'
+
 module Parser
 
   class Runner::RubyParse < Parser::Runner
