@@ -117,8 +117,25 @@ module Parser
       end
 
       alias on_sclass   process_regular_node
-      alias on_def      process_regular_node
-      alias on_defs     process_regular_node
+
+      def on_def(node)
+        name, args_node, body_node = *node
+
+        node.updated(nil, [
+          name,
+          process(args_node), process(body_node)
+        ])
+      end
+
+      def on_defs(node)
+        definee_node, name, args_node, body_node = *node
+
+        node.updated(nil, [
+          process(definee_node), name,
+          process(args_node), process(body_node)
+        ])
+      end
+
       alias on_undef    process_regular_node
       alias on_alias    process_regular_node
 
