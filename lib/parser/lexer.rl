@@ -1012,6 +1012,9 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_endfn; fbreak; };
 
+      '::'
+      => { fhold; fhold; fgoto expr_end; };
+
       ':'
       => { fhold; fgoto expr_beg; };
 

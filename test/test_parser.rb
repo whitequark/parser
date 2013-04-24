@@ -1412,6 +1412,11 @@ class TestParser < MiniTest::Unit::TestCase
       s(:defs, s(:const, nil, :String), :foo,
         s(:args), s(:nil)),
       %q{def String.foo; end})
+
+    assert_parses(
+      s(:defs, s(:const, nil, :String), :foo,
+        s(:args), s(:nil)),
+      %q{def String::foo; end})
   end
 
   def test_defs_invalid
