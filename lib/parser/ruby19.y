@@ -1078,11 +1078,19 @@ rule
                     }
                 | kCASE expr_value opt_terms case_body kEND
                     {
-                      result = @builder.case(val[0], val[1], val[3], val[4])
+                      *when_bodies, (else_t, else_body) = *val[3]
+
+                      result = @builder.case(val[0], val[1],
+                                             when_bodies, else_t, else_body,
+                                             val[4])
                     }
                 | kCASE            opt_terms case_body kEND
                     {
-                      result = @builder.case(val[0], nil, val[2], val[3])
+                      *when_bodies, (else_t, else_body) = *val[2]
+
+                      result = @builder.case(val[0], nil,
+                                             when_bodies, else_t, else_body,
+                                             val[3])
                     }
                 | kFOR for_var kIN
                     {
@@ -1567,8 +1575,7 @@ rule
 
            cases: opt_else
                     {
-                      else_t, else_ = val[0]
-                      result = [ else_ ]
+                      result = [ val[0] ]
                     }
                 | case_body
 

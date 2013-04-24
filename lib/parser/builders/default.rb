@@ -681,13 +681,14 @@ module Parser
     # Case matching
 
     def when(when_t, patterns, then_t, body)
-      n(:when, (patterns << body),
-        nil)
+      children = patterns << body
+      n(:when, children,
+        keyword_map(when_t, then_t, children, nil))
     end
 
-    def case(case_t, expr, body, end_t)
-      n(:case, [ expr, *body ],
-        nil)
+    def case(case_t, expr, when_bodies, else_t, else_body, end_t)
+      n(:case, [ expr, *(when_bodies << else_body)],
+        condition_map(case_t, nil, nil, else_t, end_t))
     end
 
     # Loops
@@ -953,10 +954,14 @@ module Parser
     end
 
     def keyword_map(keyword_t, begin_t, args, end_t)
+      args ||= []
+
       if end_t
         end_l = loc(end_t)
-      elsif args && args.any?
+      elsif args.any? && !synthesized_nil?(args.last)
         end_l = args.last.src.expression
+      elsif args.any? && args.count > 1
+        end_l = args[-2].src.expression
       else
         end_l = loc(keyword_t)
       end
@@ -1004,6 +1009,10 @@ module Parser
     def collapse_string_parts?(parts)
       parts.one? &&
           [:str, :dstr].include?(parts.first.type)
+    end
+
+    def synthesized_nil?(node)
+      node.type == :nil && node.src.nil?
     end
 
     def value(token)

@@ -180,7 +180,17 @@ module Parser
       end
 
       alias on_when     process_regular_node
-      alias on_case     process_regular_node
+
+      def on_case(node)
+        cond_node, *bodies = *node
+        when_nodes, else_node = bodies[0..-2], bodies[-1]
+
+        else_node = process(else_node) if else_node
+        node.updated(nil, [
+          process(cond_node),
+          *(process_all(when_nodes) << else_node)
+        ])
+      end
 
       def on_resbody(node)
         exc_list_node, exc_var_node, body_node = *node
@@ -198,9 +208,10 @@ module Parser
         body_node, *handlers = *node
         handler_nodes, else_node = handlers[0..-2], handlers[-1]
 
+        else_node = else_node if process(else_node)
         node.updated(nil, [
           process(body_node),
-          *(process_all(handler_nodes) << process(else_node))
+          *(process_all(handler_nodes) << else_node)
         ])
       end
 
