@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
                           lib/parser/ruby20.rb
                           lib/parser/ruby21.rb
                        )
-  spec.executables   = spec.files.grep(%r{^bin/})
+  spec.executables   = %w(ruby-parse ruby-rewrite)
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
