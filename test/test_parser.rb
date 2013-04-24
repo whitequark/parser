@@ -2201,7 +2201,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa: 1); end},
-      %q{            ^^^ location
+      %q{            ^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9))
 
@@ -2215,7 +2215,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa:); end},
-      %q{            ^^^ location
+      %q{            ^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9 2.0))
   end

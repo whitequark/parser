@@ -1269,7 +1269,7 @@ class Parser::Lexer
       => {
         fhold;
         if tok.start_with? '-'
-          emit(:tUMINUS_NUM, '-')
+          emit(:tUMINUS_NUM, '-', @ts, @ts + 1)
           fnext expr_end; fbreak;
         end
       };

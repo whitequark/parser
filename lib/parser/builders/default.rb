@@ -31,7 +31,7 @@ module Parser
       val = -val if negate
 
       n(:int, [ val ],
-        token_map(integer_t))
+        numeric_map(integer_t, negate))
     end
 
     def __LINE__(__LINE__t)
@@ -44,7 +44,7 @@ module Parser
       val = -val if negate
 
       n(:float, [ val ],
-        token_map(float_t))
+        numeric_map(float_t, negate))
     end
 
     # Strings
@@ -485,13 +485,12 @@ module Parser
 
     def kwarg(name_t)
       n(:kwarg, [ value(name_t).to_sym ],
-        variable_map(name_t))
+        kwarg_map(name_t))
     end
 
     def kwoptarg(name_t, value)
       n(:kwoptarg, [ value(name_t).to_sym, value ],
-        variable_map(name_t).
-          with_expression(loc(name_t).join(value.src.expression)))
+        kwarg_map(name_t, value))
     end
 
     def kwrestarg(dstar_t, name_t=nil)
@@ -853,6 +852,19 @@ module Parser
       Source::Map.new(loc(token))
     end
 
+    def numeric_map(num_t, negate)
+      if negate
+        num_range = loc(num_t)
+        range = Source::Range.new(num_range.source_buffer,
+                                  num_range.begin_pos - 1,
+                                  num_range.end_pos)
+
+        Source::Map.new(range)
+      else
+        token_map(num_t)
+      end
+    end
+
     def expr_map(loc)
       Source::Map.new(loc)
     end
@@ -910,6 +922,21 @@ module Parser
       end
 
       Source::Map::Variable.new(loc(name_t), expr_l)
+    end
+
+    def kwarg_map(name_t, value_e=nil)
+      label_range = loc(name_t)
+      name_range  = Source::Range.new(label_range.source_buffer,
+                                      label_range.begin_pos,
+                                      label_range.end_pos - 1)
+
+      if value_e
+        expr_l = loc(name_t).join(value_e.src.expression)
+      else
+        expr_l = loc(name_t)
+      end
+
+      Source::Map::Variable.new(name_range, expr_l)
     end
 
     def definition_map(keyword_t, operator_t, name_t, end_t)

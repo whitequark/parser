@@ -47,10 +47,10 @@ module ParseHelper
     assert range.is_a?(Parser::Source::Range),
            "(#{version}) #{range.inspect}.is_a?(Source::Range) for #{what}"
 
-    assert_equal begin_pos, range.begin,
+    assert_equal begin_pos, range.begin_pos,
                  "(#{version}) begin of #{what}"
 
-    assert_equal end_pos, range.end,
+    assert_equal end_pos, range.end_pos,
                  "(#{version}) end of #{what}"
   end
 
