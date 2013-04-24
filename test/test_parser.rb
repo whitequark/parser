@@ -107,6 +107,13 @@ class TestParser < MiniTest::Unit::TestCase
       %q{^ begin
         |       ^ end
         |~~~~~~~~ expression})
+
+    assert_parses(
+      s(:str, 'foobar'),
+      %q{%q(foobar)},
+      %q{^^^ begin
+        |         ^ end
+        |~~~~~~~~~~ expression})
   end
 
   def test_string_interp
@@ -140,12 +147,10 @@ class TestParser < MiniTest::Unit::TestCase
           s(:ivar, :@a)),
         s(:str, 'bar')),
       %q{"foo#@a" "bar"},
-      %q{^ begin
-        |^ begin (dstr)
+      %q{^ begin (dstr)
         |       ^ end (dstr)
         |         ^ begin (str)
         |             ^ end (str)
-        |             ^ end
         |~~~~~~~~~~~~~~ expression})
   end
 
@@ -167,7 +172,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:sym, :foo),
       %q{:'foo'},
-      %q{^ begin
+      %q{^^ begin
         |     ^ end
         |~~~~~~ expression})
   end
@@ -179,7 +184,7 @@ class TestParser < MiniTest::Unit::TestCase
         s(:lvar, :bar),
         s(:str, 'baz')),
       %q{:"foo#{bar}baz"},
-      %q{^ begin
+      %q{^^ begin
         |              ^ end
         |~~~~~~~~~~~~~~~ expression})
   end

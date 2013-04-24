@@ -13,7 +13,7 @@ module Parser
     end
 
     def initialize
-      @slop         = Slop.new(strict: true)
+      @slop         = Slop.new(:strict => true)
       @parser_class = nil
       @parser       = nil
       @files        = []
@@ -41,7 +41,7 @@ module Parser
     def setup_option_parsing
       @slop.banner "Usage: #{runner_name} [options] FILE|DIRECTORY..."
 
-      @slop.on 'h', 'help', 'Display this help message and exit', tail: true do
+      @slop.on 'h', 'help', 'Display this help message and exit', :tail => true do
         puts @slop.help
         puts <<-HELP
 
@@ -53,7 +53,7 @@ module Parser
         exit
       end
 
-      @slop.on 'V', 'version', 'Output version information and exit', tail: true do
+      @slop.on 'V', 'version', 'Output version information and exit', :tail => true do
         puts "#{runner_name} based on parser version #{Parser::VERSION}"
         exit
       end

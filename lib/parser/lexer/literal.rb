@@ -2,7 +2,7 @@ module Parser
 
   class Lexer::Literal
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
-    MONOLITHIC = { :tSTRING_BEG => :tSTRING, :tSYMBEG => :tSYMBOL }
+    MONOLITHIC = { :tSTRING_BEG => :tSTRING }
 
     TYPES = {
     # type      start token     interpolate?
@@ -64,12 +64,11 @@ module Parser
 
       # Monolithic strings are glued into a single token, e.g.
       # tSTRING_BEG tSTRING_CONTENT tSTRING_END -> tSTRING.
-      @monolithic  = (
-          [:tSTRING_BEG, :tSYMBEG].include?(type) &&
-          !heredoc?
-      )
+      @monolithic  = (@start_tok == :tSTRING_BEG  &&
+                      %w(' ").include?(str_type) &&
+                      !heredoc?)
 
-      # Also capture delimiter in %w() style literals
+      # Capture opening delimiter in percent-literals.
       unless @heredoc_e || @str_type.end_with?(delimiter)
         @str_type << delimiter
       end

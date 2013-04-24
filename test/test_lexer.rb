@@ -27,7 +27,7 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def util_escape(expected, input)
     source_buffer = Parser::Source::Buffer.new('(util_escape)')
-    source_buffer.source = "%Q[\\#{input}]"
+    source_buffer.source = "\"\\#{input}\""
 
     @lex.reset
     @lex.source_buffer = source_buffer
@@ -1805,7 +1805,9 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_double_nested_curlies
     util_lex_token('%{nest{one{two}one}nest}',
-                   :tSTRING, "nest{one{two}one}nest")
+                   :tSTRING_BEG,     '%{',
+                   :tSTRING_CONTENT, "nest{one{two}one}nest",
+                   :tSTRING_END,     '}')
   end
 
   def test_string_double_no_interp
@@ -1823,7 +1825,9 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_Q
     util_lex_token("%Q[s1 s2]",
-                   :tSTRING, "s1 s2")
+                   :tSTRING_BEG,     '%Q[',
+                   :tSTRING_CONTENT, "s1 s2",
+                   :tSTRING_END,     ']')
   end
 
   def test_string_pct_W
@@ -1876,12 +1880,16 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_string_pct_angle
     util_lex_token("%<blah>",
-                   :tSTRING, "blah")
+                   :tSTRING_BEG,     '%<',
+                   :tSTRING_CONTENT, "blah",
+                   :tSTRING_END,     '>')
   end
 
-  def test_string_pct_other
+  def test_string_pct_pct
     util_lex_token("%%blah%",
-                   :tSTRING, "blah")
+                   :tSTRING_BEG,     '%',
+                   :tSTRING_CONTENT, "blah",
+                   :tSTRING_END,     '%')
   end
 
   def test_string_pct_w
@@ -1971,12 +1979,16 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_symbol_double
     util_lex_token(":\"symbol\"",
-                   :tSYMBOL, "symbol")
+                   :tSYMBEG,         ":\"",
+                   :tSTRING_CONTENT, "symbol",
+                   :tSTRING_END,     "\"")
   end
 
   def test_symbol_single
     util_lex_token(":'symbol'",
-                   :tSYMBOL, "symbol")
+                   :tSYMBEG,         ":'",
+                   :tSTRING_CONTENT, "symbol",
+                   :tSTRING_END,     "'")
   end
 
   def test_ternary
@@ -2123,11 +2135,15 @@ class TestLexer < MiniTest::Unit::TestCase
   def test_bug_expr_beg_percent
     @lex.state = :expr_beg
     util_lex_token("%=foo=",
-                   :tSTRING, "foo")
+                   :tSTRING_BEG,     "%=",
+                   :tSTRING_CONTENT, 'foo',
+                   :tSTRING_END,     "=")
 
     @lex.state = :expr_beg
     util_lex_token("% = ",
-                   :tSTRING, "=")
+                   :tSTRING_BEG,     "% ",
+                   :tSTRING_CONTENT, '=',
+                   :tSTRING_END,     ' ')
   end
 
   def test_bug_expr_beg_document
@@ -2165,7 +2181,9 @@ class TestLexer < MiniTest::Unit::TestCase
 
     @lex.state = :expr_arg
     util_lex_token(" %[1]",
-                   :tSTRING,     "1")
+                   :tSTRING_BEG,     "%[",
+                   :tSTRING_CONTENT, '1',
+                   :tSTRING_END,     ']')
 
     @lex.state = :expr_arg
     util_lex_token(" %=1=",

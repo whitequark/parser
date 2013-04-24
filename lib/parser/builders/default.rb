@@ -51,12 +51,17 @@ module Parser
 
     def string(string_t)
       n(:str, [ value(string_t) ],
-        token_map(string_t))
+        string_part_map(string_t))
     end
 
     def string_compose(begin_t, parts, end_t)
       if collapse_string_parts?(parts)
-        parts.first
+        if begin_t.nil? && end_t.nil?
+          parts.first
+        else
+          n(:str, parts.first.children,
+            collection_map(begin_t, parts, end_t))
+        end
       else
         n(:dstr, [ *parts ],
           collection_map(begin_t, parts, end_t))
@@ -72,12 +77,21 @@ module Parser
 
     def symbol(symbol_t)
       n(:sym, [ value(symbol_t).to_sym ],
-        token_map(symbol_t))
+        unquoted_symbol_map(symbol_t))
     end
 
     def symbol_compose(begin_t, parts, end_t)
-      n(:dsym, [ *parts ],
-        collection_map(begin_t, parts, end_t))
+      if collapse_string_parts?(parts)
+        str = parts.first
+
+        n(:sym, [ str.children.first.to_sym ],
+          collection_map(begin_t, str.src.expression, end_t))
+      elsif @parser.version == 18 && parts.empty?
+        diagnostic(:error, ERRORS[:empty_symbol], loc(begin_t).join(loc(end_t)))
+      else
+        n(:dsym, [ *parts ],
+          collection_map(begin_t, parts, end_t))
+      end
     end
 
     # Executable strings
@@ -863,6 +877,16 @@ module Parser
       else
         token_map(num_t)
       end
+    end
+
+    def string_part_map(string_t)
+      Source::Map::Collection.new(loc(string_t).begin, loc(string_t).end,
+                                  loc(string_t))
+    end
+
+    def unquoted_symbol_map(symbol_t)
+      Source::Map::Collection.new(nil, nil,
+                                  loc(symbol_t))
     end
 
     def expr_map(loc)

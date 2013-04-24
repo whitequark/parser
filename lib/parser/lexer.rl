@@ -1641,7 +1641,7 @@ class Parser::Lexer
       ) %{ tm = p } c_alpha?
       => {
         unless (char = tok(tm, @te)).empty?
-          diagnostic :fatal, Parser::ERRORS[:unexpected] % { character: char },
+          diagnostic :fatal, Parser::ERRORS[:unexpected] % { :character => char },
                      range(tm, tm + 1)
         end
 
@@ -1677,7 +1677,7 @@ class Parser::Lexer
       ) %{ tm = p } c_alpha?
       => {
         unless (char = tok(tm, @te)).empty?
-          diagnostic :fatal, Parser::ERRORS[:unexpected] % { character: char },
+          diagnostic :fatal, Parser::ERRORS[:unexpected] % { :character => char },
                      range(tm, tm + 1)
         end
 

@@ -38,13 +38,13 @@ module Parser
             if hilight_line[col_range] =~ /^\s*$/
               hilight_line[col_range] = '~' * range.length + " #{name}"
             else
-              print_line.(hilight_line)
+              print_line.call(hilight_line)
               hilight_line = ""
               redo
             end
           end
 
-          print_line.(hilight_line) unless hilight_line.empty?
+          print_line.call(hilight_line) unless hilight_line.empty?
         end
 
         super
