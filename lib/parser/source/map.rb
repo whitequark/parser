@@ -19,6 +19,10 @@ module Parser
         with { |map| map.update_expression(expression_l) }
       end
 
+      def with_begin_end(begin_l, end_l)
+        with_expression(begin_l.join(end_l))
+      end
+
       def with_operator(operator_l)
         Operator.new(operator_l, @expression)
       end

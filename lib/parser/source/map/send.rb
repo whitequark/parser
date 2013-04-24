@@ -3,6 +3,7 @@ module Parser
 
     class Map::Send < Map
       attr_reader :selector
+      attr_reader :operator
       attr_reader :begin
       attr_reader :end
 
@@ -11,6 +12,16 @@ module Parser
         @begin, @end = begin_l, end_l
 
         super(expression_l)
+      end
+
+      def with_operator(operator_l)
+        with { |map| map.update_operator(operator_l) }
+      end
+
+      protected
+
+      def update_operator(operator_l)
+        @operator = operator_l
       end
     end
 

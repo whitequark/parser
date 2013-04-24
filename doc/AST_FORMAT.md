@@ -840,6 +840,8 @@ Format:
 (send nil :foo (lvar :bar))
 "foo(bar)"
  ~~~ selector
+    ^ begin
+        ^ end
  ~~~~~~~~ expression
 ```
 
@@ -850,6 +852,8 @@ Format:
 (send (lvar :foo) :bar (int 1))
 "foo.bar(1)"
      ~~~ selector
+        ^ begin
+          ^ end
  ~~~~~~~~~~ expression
 
 (send (lvar :foo) :+ (int 1))
@@ -864,22 +868,18 @@ Format:
 
 (send (lvar :foo) :a= (int 1))
 "foo.a = 1"
-     ~~~ selector
+     ~ selector
        ^ operator
  ~~~~~~~~~ expression
 
 (send (lvar :foo) :[] (int 1))
 "foo[i]"
     ~~~ selector
-    ^ begin
-      ^ end
  ~~~~~~ expression
 
 (send (lvar :bar) :[]= (int 1) (int 2) (lvar :baz))
 "bar[1, 2] = baz"
-    ~~~~~~~~ selector
-    ^ begin
-        ^ end
+    ~~~~~~ selector
            ^ operator
  ~~~~~~~~~~~~~~~ expression
 
@@ -1248,8 +1248,6 @@ Format:
 (return (lvar :foo))
 "return(foo)"
  ~~~~~~ keyword
-       ^ begin
-           ^ end
  ~~~~~~~~~~~ expression
 ```
 

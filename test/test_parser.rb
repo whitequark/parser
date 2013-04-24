@@ -429,8 +429,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q[{ foo: 2 }],
       %q{^ begin
         |         ^ end
-        |     ^ operator (pair)
-        |  ~~~ expression (pair.sym)
+        |  ~~~~ expression (pair.sym)
         |  ~~~~~~ expression (pair)
         |~~~~~~~~~~ expression},
         ALL_VERSIONS - %w(1.8))
@@ -781,7 +780,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q{(foo, bar) = 1, 2},
       %q{^ begin (mlhs)
         |         ^ end (mlhs)
-        |~~~~~~~~~~ expression})
+        |~~~~~~~~~~ expression (mlhs)
+        |~~~~~~~~~~~~~~~~~ expression})
 
     assert_parses(
       s(:masgn,
@@ -2161,19 +2161,19 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa=1); end},
-      %q{            ^^^^ location
+      %q{            ^^ location
         |        ~~ highlights (0)})
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, *aa); end},
-      %q{            ^^^ location
+      %q{             ^^ location
         |        ~~ highlights (0)})
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, &aa); end},
-      %q{            ^^^ location
+      %q{             ^^ location
         |        ~~ highlights (0)})
 
     assert_diagnoses(
@@ -2201,14 +2201,14 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa: 1); end},
-      %q{            ^^^^^ location
+      %q{            ^^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9))
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, **aa); end},
-      %q{            ^^^^ location
+      %q{              ^^ location
         |        ~~ highlights (0)},
       ALL_VERSIONS - %w(1.8 1.9))
 
@@ -2718,7 +2718,8 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:send, s(:lvar, :foo), :a=, s(:int, 1)),
       %q{foo.a = 1},
-      %q{    ~~~ selector
+      %q{    ~ selector
+        |      ^ operator
         |~~~~~~~~~ expression})
 
     assert_parses(
@@ -2740,8 +2741,6 @@ class TestParser < MiniTest::Unit::TestCase
         s(:int, 1), s(:int, 2)),
       %q{foo[1, 2]},
       %q{   ~~~~~~ selector
-        |   ^ begin
-        |        ^ end
         |~~~~~~~~~ expression})
   end
 
@@ -2757,9 +2756,8 @@ class TestParser < MiniTest::Unit::TestCase
       s(:send, s(:lvar, :foo), :[]=,
         s(:int, 1), s(:int, 2), s(:int, 3)),
       %q{foo[1, 2] = 3},
-      %q{   ~~~~~~~~ selector
-        |   ^ begin
-        |        ^ end
+      %q{   ~~~~~~ selector
+        |          ^ operator
         |~~~~~~~~~~~~~ expression})
   end
 
@@ -3740,8 +3738,6 @@ class TestParser < MiniTest::Unit::TestCase
       s(:break, s(:lvar, :foo)),
       %q{break(foo)},
       %q{~~~~~ keyword
-        |     ^ begin
-        |         ^ end
         |~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
@@ -3777,8 +3773,6 @@ class TestParser < MiniTest::Unit::TestCase
       s(:return, s(:lvar, :foo)),
       %q{return(foo)},
       %q{~~~~~~ keyword
-        |      ^ begin
-        |          ^ end
         |~~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
@@ -3814,8 +3808,6 @@ class TestParser < MiniTest::Unit::TestCase
       s(:next, s(:lvar, :foo)),
       %q{next(foo)},
       %q{~~~~ keyword
-        |    ^ begin
-        |        ^ end
         |~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
