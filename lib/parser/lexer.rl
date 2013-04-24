@@ -992,6 +992,9 @@ class Parser::Lexer
       => { emit(KEYWORDS[tok]);
            fnext expr_endfn; fbreak; };
 
+      constant
+      => { emit(:tCONSTANT) };
+
       bareword [?=!]?
       => { emit(:tIDENTIFIER)
            fnext expr_endfn; fbreak; };
