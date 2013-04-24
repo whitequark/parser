@@ -28,8 +28,8 @@ module Parser
             next if range.nil?
 
             length    = range.length + 1 + name.length
-            end_col   = range.begin_column + length
-            col_range = range.begin_column...end_col
+            end_col   = range.begin.column + length
+            col_range = range.begin.column...end_col
 
             if hilight_line.length < end_col
               hilight_line = hilight_line.ljust(end_col)
