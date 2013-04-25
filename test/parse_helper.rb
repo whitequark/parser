@@ -175,7 +175,7 @@ module ParseHelper
 
       if (match = SOURCE_MAP_DESCRIPTION_RE.match(line))
         begin_pos        = match[1].length
-        end_pos          = begin_pos + match[2].length - 1
+        end_pos          = begin_pos + match[2].length
         source_map_field = match[3]
 
         if match[5]

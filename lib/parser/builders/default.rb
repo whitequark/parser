@@ -885,7 +885,17 @@ module Parser
     end
 
     def string_part_map(string_t)
-      Source::Map::Collection.new(loc(string_t).begin, loc(string_t).end,
+      str_range = loc(string_t)
+
+      begin_l = Source::Range.new(str_range.source_buffer,
+                                  str_range.begin_pos,
+                                  str_range.begin_pos + 1)
+
+      end_l   = Source::Range.new(str_range.source_buffer,
+                                  str_range.end_pos - 1,
+                                  str_range.end_pos)
+
+      Source::Map::Collection.new(begin_l, end_l,
                                   loc(string_t))
     end
 

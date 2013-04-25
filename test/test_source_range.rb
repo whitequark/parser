@@ -14,7 +14,7 @@ class TestSourceRange < MiniTest::Unit::TestCase
   end
 
   def test_size
-    sr = Parser::Source::Range.new(@sfile, 1, 2)
+    sr = Parser::Source::Range.new(@sfile, 1, 3)
     assert_equal 2, sr.size
   end
 
@@ -41,7 +41,7 @@ class TestSourceRange < MiniTest::Unit::TestCase
     sr = Parser::Source::Range.new(@sfile, 7, 8)
     assert_equal 0, sr.begin.column
     assert_equal 1, sr.end.column
-    assert_equal 0..1, sr.column_range
+    assert_equal 0...1, sr.column_range
   end
 
   def test_begin_end

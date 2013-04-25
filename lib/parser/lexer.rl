@@ -206,9 +206,9 @@ class Parser::Lexer
     if @token_queue.any?
       @token_queue.shift
     elsif @cs == self.class.lex_error
-      [ false, [ '$error', range(p - 1, p) ] ]
+      [ false, [ '$error', range(p, p) ] ]
     else
-      [ false, [ '$eof',   range(p - 1, p) ] ]
+      [ false, [ '$eof',   range(p, p) ] ]
     end
   end
 
@@ -240,7 +240,7 @@ class Parser::Lexer
   end
 
   def range(s = @ts, e = @te)
-    Parser::Source::Range.new(@source_buffer, s, e - 1)
+    Parser::Source::Range.new(@source_buffer, s, e)
   end
 
   def emit(type, value = tok, s = @ts, e = @te)

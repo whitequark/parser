@@ -5,8 +5,8 @@ class TestDiagnostic < MiniTest::Unit::TestCase
     @buffer = Parser::Source::Buffer.new('(string)')
     @buffer.source = "if (this is some bad code + bugs)"
 
-    @range1 = Parser::Source::Range.new(@buffer, 0, 1) # if
-    @range2 = Parser::Source::Range.new(@buffer, 4, 7) # this
+    @range1 = Parser::Source::Range.new(@buffer, 0, 2) # if
+    @range2 = Parser::Source::Range.new(@buffer, 4, 8) # this
   end
 
   def test_verifies_levels
@@ -29,11 +29,11 @@ class TestDiagnostic < MiniTest::Unit::TestCase
   end
 
   def test_render
-    location = Parser::Source::Range.new(@buffer, 26, 26)
+    location = Parser::Source::Range.new(@buffer, 26, 27)
 
     highlights = [
-      Parser::Source::Range.new(@buffer, 21, 24),
-      Parser::Source::Range.new(@buffer, 28, 31)
+      Parser::Source::Range.new(@buffer, 21, 25),
+      Parser::Source::Range.new(@buffer, 28, 32)
     ]
 
     diag  = Parser::Diagnostic.new(:error, "code far too bad",

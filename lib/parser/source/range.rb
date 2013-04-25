@@ -21,7 +21,7 @@ module Parser
       end
 
       def size
-        @end_pos - @begin_pos + 1
+        @end_pos - @begin_pos
       end
 
       alias length size
@@ -39,7 +39,7 @@ module Parser
       end
 
       def column_range
-        self.begin.column..self.end.column
+        self.begin.column...self.end.column
       end
 
       def source_line
@@ -55,11 +55,11 @@ module Parser
       def join(other)
         Range.new(@source_buffer,
             [@begin_pos, other.begin_pos].min,
-            [@end_pos, other.end_pos].max)
+            [@end_pos,   other.end_pos].max)
       end
 
       def inspect
-        "#<Source::Range #{@source_buffer.name} #{@begin_pos}..#{@end_pos}>"
+        "#<Source::Range #{@source_buffer.name} #{@begin_pos}...#{@end_pos}>"
       end
     end
 

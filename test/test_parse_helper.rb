@@ -25,29 +25,29 @@ class TestParseHelper < MiniTest::Unit::TestCase
   end
 
   def test_parse_mapsation_description
-    assert_equal [[0, 3, 'expr', [], '~~~~ expr']],
+    assert_equal [[0, 4, 'expr', [], '~~~~ expr']],
                  parse_maps('~~~~ expr')
 
-    assert_equal [[0, 3, 'expr', [], '^~~~ expr']],
+    assert_equal [[0, 4, 'expr', [], '^~~~ expr']],
                  parse_maps('^~~~ expr')
 
-    assert_equal [[0, 3, 'expr', [], '^^^^ expr']],
+    assert_equal [[0, 4, 'expr', [], '^^^^ expr']],
                  parse_maps('^^^^ expr')
 
-    assert_equal [[2, 2, 'op', [], '  ^ op']],
+    assert_equal [[2, 3, 'op', [], '  ^ op']],
                  parse_maps('  ^ op')
 
-    assert_equal [[2, 2, 'op', ['foo'], '  ~ op (foo)']],
+    assert_equal [[2, 3, 'op', ['foo'], '  ~ op (foo)']],
                  parse_maps('  ~ op (foo)')
 
-    assert_equal [[2, 3, 'op', ['foo', 'bar'], '  ~~ op (foo.bar)']],
+    assert_equal [[2, 4, 'op', ['foo', 'bar'], '  ~~ op (foo.bar)']],
                  parse_maps('  ~~ op (foo.bar)')
 
-    assert_equal [[2, 3, 'op', ['foo/2', 'bar'], '  ~~ op (foo/2.bar)']],
+    assert_equal [[2, 4, 'op', ['foo/2', 'bar'], '  ~~ op (foo/2.bar)']],
                  parse_maps('  ~~ op (foo/2.bar)')
 
-    assert_equal [[0, 3, 'expr', [], '~~~~ expr'],
-                  [5, 6, 'op', ['str', 'e_h'], '     ~~ op (str.e_h)']],
+    assert_equal [[0, 4, 'expr', [], '~~~~ expr'],
+                  [5, 7, 'op', ['str', 'e_h'], '     ~~ op (str.e_h)']],
                  parse_maps(%{
                             |~~~~ expr
                             |     ~~ op (str.e_h)
