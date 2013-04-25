@@ -17,6 +17,9 @@ module Parser
   require 'parser/source/buffer'
   require 'parser/source/range'
 
+  require 'parser/source/rewriter'
+  require 'parser/source/rewriter/action'
+
   require 'parser/source/map'
   require 'parser/source/map/operator'
   require 'parser/source/map/collection'
@@ -46,6 +49,8 @@ module Parser
   end
 
   require 'parser/base'
+
+  require 'parser/rewriter'
 
   ERRORS = {
     # Lexer errors

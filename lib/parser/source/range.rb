@@ -46,6 +46,14 @@ module Parser
         @source_buffer.source_line(line)
       end
 
+      def to_source
+        source_line[column_range]
+      end
+
+      def is?(*what)
+        what.include?(to_source)
+      end
+
       def to_s
         line, column = @source_buffer.decompose_position(@begin_pos)
 
@@ -56,6 +64,13 @@ module Parser
         Range.new(@source_buffer,
             [@begin_pos, other.begin_pos].min,
             [@end_pos,   other.end_pos].max)
+      end
+
+      def ==(other)
+        other.is_a?(Range) &&
+          @source_buffer == other.source_buffer &&
+          @begin_pos     == other.begin_pos     &&
+          @end_pos       == other.end_pos
       end
 
       def inspect
