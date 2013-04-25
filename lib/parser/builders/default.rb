@@ -339,9 +339,6 @@ module Parser
       when :back_ref, :nth_ref
         message = ERRORS[:backref_assignment]
         diagnostic :error, message, node.src.expression
-
-      else
-        raise NotImplementedError, "build_assignable #{node.inspect}"
       end
     end
 
@@ -375,9 +372,6 @@ module Parser
       when :back_ref, :nth_ref
         message = ERRORS[:backref_assignment]
         diagnostic :error, message, lhs.src.expression
-
-      else
-        raise NotImplementedError, "build op_assign #{lhs.inspect}"
       end
     end
 
@@ -1085,7 +1079,7 @@ module Parser
                         exc_var_e, then_t,
                         compstmt_e)
       end_l = compstmt_e.src.expression ||
-              loc(then_t) ||
+              loc(then_t)               ||
               exc_var_e.src.expression  ||
               exc_list_e.src.expression ||
               loc(keyword_t)
