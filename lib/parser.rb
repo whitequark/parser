@@ -29,6 +29,7 @@ module Parser
   require 'parser/source/map/condition'
   require 'parser/source/map/ternary'
   require 'parser/source/map/for'
+  require 'parser/source/map/rescue_body'
 
   require 'parser/syntax_error'
   require 'parser/diagnostic'

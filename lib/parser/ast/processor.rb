@@ -208,7 +208,7 @@ module Parser
         body_node, *handlers = *node
         handler_nodes, else_node = handlers[0..-2], handlers[-1]
 
-        else_node = else_node if process(else_node)
+        else_node = process(else_node) if else_node
         node.updated(nil, [
           process(body_node),
           *(process_all(handler_nodes) << else_node)

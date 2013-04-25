@@ -3060,32 +3060,32 @@ class TestParser < MiniTest::Unit::TestCase
   def test_space_args_cmd
     assert_parses(
       s(:send, nil, :fun,
-        s(:send, nil, :f, s(:lvar, :bar))),
+        s(:begin, s(:send, nil, :f, s(:lvar, :bar)))),
       %q{fun (f bar)})
   end
 
   def test_space_args_arg
     assert_parses(
-      s(:send, nil, :fun, s(:int, 1)),
+      s(:send, nil, :fun, s(:begin, s(:int, 1))),
       %q{fun (1)})
   end
 
   def test_space_args_arg_block
     assert_parses(
       s(:block,
-        s(:send, nil, :fun, s(:int, 1)),
+        s(:send, nil, :fun, s(:begin, s(:int, 1))),
         s(:args), s(:nil)),
       %q{fun (1) {}})
 
     assert_parses(
       s(:block,
-        s(:send, s(:lvar, :foo), :fun, s(:int, 1)),
+        s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
         s(:args), s(:nil)),
       %q{foo.fun (1) {}})
 
     assert_parses(
       s(:block,
-        s(:send, s(:lvar, :foo), :fun, s(:int, 1)),
+        s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
         s(:args), s(:nil)),
       %q{foo::fun (1) {}})
   end
@@ -3093,7 +3093,7 @@ class TestParser < MiniTest::Unit::TestCase
   def test_space_args_arg_call
     assert_parses(
       s(:send, nil, :fun,
-        s(:send, s(:int, 1), :to_i)),
+        s(:send, s(:begin, s(:int, 1)), :to_i)),
       %q{fun (1).to_i})
   end
 
@@ -3505,21 +3505,28 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{if (a, b = foo); end},
-      %q{   ~~~~~~~~~~~~ location})
+      %q{    ~~~~~~~~~~ location})
   end
 
   def test_if_mod_masgn
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{1 if (a, b = foo)},
-      %q{     ~~~~~~~~~~~~ location})
+      %q{      ~~~~~~~~~~ location})
   end
 
   def test_tern_masgn
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{(a, b = foo) ? 1 : 2},
-      %q{~~~~~~~~~~~~ location})
+      %q{ ~~~~~~~~~~ location})
+  end
+
+  def test_cond_begin_masgn
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{if (bar; a, b = foo); end},
+      %q{         ~~~~~~~~~~ location})
   end
 
   # Case matching
@@ -3698,14 +3705,14 @@ class TestParser < MiniTest::Unit::TestCase
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{while (a, b = foo); end},
-      %q{      ~~~~~~~~~~~~ location})
+      %q{       ~~~~~~~~~~ location})
   end
 
   def test_while_mod_masgn
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{foo while (a, b = foo)},
-      %q{          ~~~~~~~~~~~~ location})
+      %q{           ~~~~~~~~~~ location})
   end
 
   def test_for
@@ -3745,14 +3752,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_break
     assert_parses(
-      s(:break, s(:lvar, :foo)),
+      s(:break, s(:begin, s(:lvar, :foo))),
       %q{break(foo)},
       %q{~~~~~ keyword
         |~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
     assert_parses(
-      s(:break, s(:lvar, :foo)),
+      s(:break, s(:begin, s(:lvar, :foo))),
       %q{break(foo)},
       %q{~~~~~ keyword
         |~~~~~~~~~~ expression},
@@ -3780,14 +3787,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_return
     assert_parses(
-      s(:return, s(:lvar, :foo)),
+      s(:return, s(:begin, s(:lvar, :foo))),
       %q{return(foo)},
       %q{~~~~~~ keyword
         |~~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
     assert_parses(
-      s(:return, s(:lvar, :foo)),
+      s(:return, s(:begin, s(:lvar, :foo))),
       %q{return(foo)},
       %q{~~~~~~ keyword
         |~~~~~~~~~~~ expression},
@@ -3815,14 +3822,14 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_next
     assert_parses(
-      s(:next, s(:lvar, :foo)),
+      s(:next, s(:begin, s(:lvar, :foo))),
       %q{next(foo)},
       %q{~~~~ keyword
         |~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
     assert_parses(
-      s(:next, s(:lvar, :foo)),
+      s(:next, s(:begin, s(:lvar, :foo))),
       %q{next(foo)},
       %q{~~~~ keyword
         |~~~~~~~~~ expression},
@@ -3860,25 +3867,28 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_rescue
     assert_parses(
-      s(:rescue, s(:send, nil, :meth),
-        s(:resbody, nil, nil, s(:lvar, :foo)),
-        nil),
+      s(:begin,
+        s(:rescue, s(:send, nil, :meth),
+          s(:resbody, nil, nil, s(:lvar, :foo)),
+          nil)),
       %q{begin; meth; rescue; foo; end},
       %q{~~~~~ begin
+        |             ~~~~~~ keyword (rescue.resbody)
+        |             ~~~~~~~~~~~ expression (rescue.resbody)
+        |       ~~~~~~~~~~~~~~~~~ expression (rescue)
         |                          ~~~ end
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
   def test_rescue_else
     assert_parses(
-      s(:rescue, s(:send, nil, :meth),
-        s(:resbody, nil, nil, s(:lvar, :foo)),
-        s(:lvar, :bar)),
+      s(:begin,
+        s(:rescue, s(:send, nil, :meth),
+          s(:resbody, nil, nil, s(:lvar, :foo)),
+          s(:lvar, :bar))),
       %q{begin; meth; rescue; foo; else; bar; end},
-      %q{~~~~~ begin
-        |                          ~~~~ else
-        |                                     ~~~ end
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
+      %q{                          ~~~~ else (rescue)
+        |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
   end
 
   def test_rescue_else_useless
@@ -3890,52 +3900,61 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_ensure
     assert_parses(
-      s(:ensure, s(:send, nil, :meth),
-        s(:lvar, :bar)),
+      s(:begin,
+        s(:ensure, s(:send, nil, :meth),
+          s(:lvar, :bar))),
       %q{begin; meth; ensure; bar; end},
       %q{~~~~~ begin
-        |             ~~~~~~ keyword
+        |             ~~~~~~ keyword (ensure)
+        |       ~~~~~~~~~~~~~~~~~ expression (ensure)
         |                          ~~~ end
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
+  def test_ensure_empty
+    assert_parses(
+      s(:begin,
+        s(:ensure, s(:nil),
+          s(:nil))),
+      %q{begin ensure end},
+      %q{~~~~~ begin
+        |      ~~~~~~ keyword (ensure)
+        |      ~~~~~~ expression (ensure)
+        |             ~~~ end
+        |~~~~~~~~~~~~~~~~ expression})
+  end
+
   def test_rescue_ensure
     assert_parses(
-      s(:ensure,
-        s(:rescue,
-          s(:send, nil, :meth),
-          s(:resbody, nil, nil, s(:lvar, :baz)),
-          nil),
-        s(:lvar, :bar)),
+      s(:begin,
+        s(:ensure,
+          s(:rescue,
+            s(:send, nil, :meth),
+            s(:resbody, nil, nil, s(:lvar, :baz)),
+            nil),
+          s(:lvar, :bar))),
       %q{begin; meth; rescue; baz; ensure; bar; end},
-      %q{~~~~~ begin
-        |~~~~~ begin (rescue)
-        |                          ~~~~~~ keyword
-        |             ~~~~~~ keyword (rescue)
-        |                                       ~~~ end
-        |                                       ~~~ end (rescue)
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
+      %q{                          ~~~~~~ keyword (ensure)
+        |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (ensure)
+        |             ~~~~~~ keyword (ensure.rescue.resbody)
+        |       ~~~~~~~~~~~~~~~~~ expression (ensure.rescue)})
   end
 
   def test_rescue_else_ensure
     assert_parses(
-      s(:ensure,
-        s(:rescue,
-          s(:send, nil, :meth),
-          s(:resbody, nil, nil, s(:lvar, :baz)),
-          s(:lvar, :foo)),
-        s(:lvar, :bar)),
+      s(:begin,
+        s(:ensure,
+          s(:rescue,
+            s(:send, nil, :meth),
+            s(:resbody, nil, nil, s(:lvar, :baz)),
+            s(:lvar, :foo)),
+          s(:lvar, :bar))),
       %q{begin; meth; rescue; baz; else foo; ensure; bar end},
-      %q{~~~~~ begin
-        |~~~~~ begin (rescue)
-        |                                    ~~~~~~ keyword
-        |             ~~~~~~ keyword (rescue)
-        |                          ~~~~ else (rescue)
-        |                                                ~~~ end
-        |                                                ~~~ end (rescue)
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
+      %q{                                    ~~~~~~ keyword (ensure)
+        |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (ensure)
+        |             ~~~~~~ keyword (ensure.rescue.resbody)
+        |                          ~~~~ else (ensure.rescue)
+        |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (ensure.rescue)})
   end
 
   def test_rescue_mod
@@ -3946,6 +3965,7 @@ class TestParser < MiniTest::Unit::TestCase
         nil),
       %q{meth rescue bar},
       %q{     ~~~~~~ keyword (resbody)
+        |     ~~~~~~~~~~ expression (resbody)
         |~~~~~~~~~~~~~~~ expression})
   end
 
@@ -3958,6 +3978,7 @@ class TestParser < MiniTest::Unit::TestCase
           nil)),
       %q{foo = meth rescue bar},
       %q{           ~~~~~~ keyword (rescue.resbody)
+        |           ~~~~~~~~~~ expression (rescue.resbody)
         |      ~~~~~~~~~~~~~~~ expression (rescue)
         |~~~~~~~~~~~~~~~~~~~~~ expression})
   end
@@ -3972,6 +3993,7 @@ class TestParser < MiniTest::Unit::TestCase
           nil)),
       %q{foo += meth rescue bar},
       %q{            ~~~~~~ keyword (rescue.resbody)
+        |            ~~~~~~~~~~ expression (rescue.resbody)
         |       ~~~~~~~~~~~~~~~ expression (rescue)
         |~~~~~~~~~~~~~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
@@ -3979,55 +4001,60 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_resbody_list
     assert_parses(
-      s(:rescue,
-        s(:send, nil, :meth),
-        s(:resbody,
-          s(:array, s(:const, nil, :Exception)),
-          nil,
-          s(:lvar, :bar)),
-        nil),
+      s(:begin,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody,
+            s(:array, s(:const, nil, :Exception)),
+            nil,
+            s(:lvar, :bar)),
+          nil)),
       %q{begin; meth; rescue Exception; bar; end})
   end
 
   def test_resbody_list_mrhs
     assert_parses(
-      s(:rescue,
-        s(:send, nil, :meth),
-        s(:resbody,
-          s(:array,
-            s(:const, nil, :Exception),
-            s(:lvar, :foo)),
-          nil,
-          s(:lvar, :bar)),
-        nil),
+      s(:begin,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody,
+            s(:array,
+              s(:const, nil, :Exception),
+              s(:lvar, :foo)),
+            nil,
+            s(:lvar, :bar)),
+          nil)),
       %q{begin; meth; rescue Exception, foo; bar; end})
   end
 
   def test_resbody_var
     assert_parses(
-      s(:rescue,
-        s(:send, nil, :meth),
-        s(:resbody, nil, s(:lvasgn, :ex), s(:lvar, :bar)),
-        nil),
+      s(:begin,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, s(:lvasgn, :ex), s(:lvar, :bar)),
+          nil)),
       %q{begin; meth; rescue => ex; bar; end})
 
     assert_parses(
-      s(:rescue,
-        s(:send, nil, :meth),
-        s(:resbody, nil, s(:ivasgn, :@ex), s(:lvar, :bar)),
-        nil),
+      s(:begin,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, s(:ivasgn, :@ex), s(:lvar, :bar)),
+          nil)),
       %q{begin; meth; rescue => @ex; bar; end})
   end
 
   def test_resbody_list_var
     assert_parses(
-      s(:rescue,
-        s(:send, nil, :meth),
-        s(:resbody,
-          s(:array, s(:lvar, :foo)),
-          s(:lvasgn, :ex),
-          s(:lvar, :bar)),
-        nil),
+      s(:begin,
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody,
+            s(:array, s(:lvar, :foo)),
+            s(:lvasgn, :ex),
+            s(:lvar, :bar)),
+          nil)),
       %q{begin; meth; rescue foo => ex; bar; end})
   end
 
@@ -4080,10 +4107,11 @@ class TestParser < MiniTest::Unit::TestCase
   def test_begin_cmdarg
     assert_parses(
       s(:send, nil, :p,
-        s(:block,
-          s(:send, s(:int, 1), :times),
-          s(:args),
-          s(:int, 1))),
+        s(:begin,
+          s(:block,
+            s(:send, s(:int, 1), :times),
+            s(:args),
+            s(:int, 1)))),
       %q{p begin 1.times do 1 end end},
       %{},
       ALL_VERSIONS - %w(1.8 1.9))

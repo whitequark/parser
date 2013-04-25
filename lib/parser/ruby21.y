@@ -78,17 +78,17 @@ rule
         bodystmt: compstmt opt_rescue opt_else opt_ensure
                     {
                       rescue_bodies     = val[1]
-                      else_,   t_else   = val[2]
-                      ensure_, t_ensure = val[3]
+                      else_t,   else_   = val[2]
+                      ensure_t, ensure_ = val[3]
 
                       if rescue_bodies.empty? && !else_.nil?
-                        diagnostic :warning, :useless_else, t_else
+                        diagnostic :warning, :useless_else, else_t
                       end
 
                       result = @builder.begin_body(val[0],
                                   rescue_bodies,
-                                  else_,   t_else,
-                                  ensure_, t_ensure)
+                                  else_t,   else_,
+                                  ensure_t, ensure_)
                     }
 
         compstmt: stmts opt_terms
@@ -374,7 +374,7 @@ rule
                     }
                 | tLPAREN mlhs_inner rparen
                     {
-                      result = @builder.parenthesize(val[0], val[1], val[2])
+                      result = @builder.begin(val[0], val[1], val[2])
                     }
 
       mlhs_inner: mlhs_basic
@@ -436,7 +436,7 @@ rule
        mlhs_item: mlhs_node
                 | tLPAREN mlhs_inner rparen
                     {
-                      result = @builder.parenthesize(val[0], val[1], val[2])
+                      result = @builder.begin(val[0], val[1], val[2])
                     }
 
        mlhs_head: mlhs_item tCOMMA
@@ -992,7 +992,7 @@ rule
                     }
                     opt_nl tRPAREN
                     {
-                      result = @builder.parenthesize(val[0], val[1], val[4])
+                      result = @builder.begin(val[0], val[1], val[4])
                     }
                 | tLPAREN_ARG
                     {
@@ -1000,11 +1000,11 @@ rule
                     }
                     opt_nl tRPAREN
                     {
-                      result = @builder.parenthesize(val[0], nil, val[3])
+                      result = @builder.begin(val[0], nil, val[3])
                     }
                 | tLPAREN compstmt tRPAREN
                     {
-                      result = @builder.parenthesize(val[0], val[1], val[2])
+                      result = @builder.begin(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
