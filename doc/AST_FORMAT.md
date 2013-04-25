@@ -592,7 +592,7 @@ s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
 
 Format:
 ```
-(module (const nil :Foo) (begin))
+(module (const nil :Foo) (nil))
 "module Foo; end"
  ~~~~~~ keyword
              ~~~ end
@@ -602,13 +602,13 @@ Format:
 
 Format:
 ```
-(class (const nil :Foo) (const nil :Bar) (begin))
+(class (const nil :Foo) (const nil :Bar) (nil))
 "class Foo < Bar; end"
  ~~~~~ keyword    ~~~ end
            ~ operator
  ~~~~~~~~~~~~~~~~~~~~ expression
 
-(class (const nil :Foo) nil (begin))
+(class (const nil :Foo) nil (nil))
 "class Foo; end"
  ~~~~~ keyword
             ~~~ end
@@ -619,7 +619,7 @@ Format:
 
 Format:
 ```
-(sclass (lvar :a) (begin))
+(sclass (lvar :a) (nil))
 "class << a; end"
  ~~~~~ keyword
        ~~ operator
@@ -1072,9 +1072,10 @@ Format:
 Format:
 ```
 (when (regexp "foo" (regopt)) (begin (lvar :bar)))
-"when /foo/; bar"
+"when /foo/ then bar"
  ~~~~ keyword
- ~~~~~~~~~~ expression
+            ~~~~ begin
+ ~~~~~~~~~~~~~~~~~~~ expression
 
 (when (int 1) (int 2) (send nil :meth))
 "when 1, 2; meth"
@@ -1259,20 +1260,21 @@ Format:
 ```
 (resbody (array (const nil :Exception) (const nil :A)) (lvasgn :bar) (int 1))
 "rescue Exception, A => bar; 1"
- ~~~~~~ keyword      ~~ operator
+ ~~~~~~ keyword      ~~ assoc
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
 
 "rescue Exception, A => bar then 1"
- ~~~~~~ keyword      ~~ operator
+ ~~~~~~ keyword      ~~ assoc
                             ~~~~ begin
 
 (resbody (array (const nil :Exception)) (ivasgn :bar) (int 1))
 "rescue Exception => @bar; 1"
- ~~~~~~ keyword   ~~ operator
+ ~~~~~~ keyword   ~~ assoc
 
 (resbody nil (lvasgn :bar) (int 1))
 "rescue => bar; 1"
  ~~~~~~ keyword
-        ~~ operator
+        ~~ assoc
 
 (resbody nil nil (int 1))
 "rescue; 1"
@@ -1285,27 +1287,34 @@ Format:
 
 Format:
 ```
-(rescue (send nil :foo) (resbody ...) (resbody ...) nil)
+(begin
+  (rescue (send nil :foo) (resbody ...) (resbody ...) nil))
 "begin; foo; rescue Exception; rescue; end"
  ~~~~~ begin                           ~~~ end
+             ~~~~~~~~~~~~~~~~~ expression (rescue.resbody/1)
+                               ~~~~~~~ expression (rescue.resbody/2)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)
 ```
 
 ##### With else
 
 Format:
 ```
-(rescue (send nil :foo) (resbody ...) (resbody ...) (true))
+(begin
+  (rescue (send nil :foo) (resbody ...) (resbody ...) (true)))
 "begin; foo; rescue Exception; rescue; else true end"
- ~~~~~ begin                           ~~~~ else ~~~ end
+ ~~~~~ begin                           ~~~~ else (rescue)
+                                                 ~~~ end
 ```
 
 #### Ensure statement
 
 Format:
 ```
-(ensure (send nil :foo) (send nil :bar))
+(begin
+  (ensure (send nil :foo) (send nil :bar))
 "begin; foo; ensure; bar; end"
- ~~~~~ begin ~~~~~~ keyword
+ ~~~~~ begin ~~~~~~ keyword (ensure)
                           ~~~ end
 ```
 
@@ -1313,14 +1322,17 @@ Format:
 
 Format:
 ```
-(ensure (rescue (send nil :foo) (resbody ...) (int 1)) (send nil :bar))
+(begin
+  (ensure
+    (rescue (send nil :foo) (resbody ...) (int 1))
+    (send nil :bar))
 "begin; foo; rescue; nil; else; 1; ensure; bar; end"
- ~~~~~ begin (rescue)
- ~~~~~ begin (ensure)
-                          ~~~~ else (rescue)
+ ~~~~~ begin
+                          ~~~~ else (ensure.rescue)
+             ~~~~~~~~~~~~~~~~~~~~~ expression (rescue)
                                    ~~~~~~ keyword (ensure)
-                                                ~~~ end (rescue)
-                                                ~~~ end (ensure)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (ensure)
+                                                ~~~ end
 ```
 
 #### Retry
