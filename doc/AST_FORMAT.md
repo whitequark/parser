@@ -1,7 +1,7 @@
 AST and Source Location RFC
 ===========================
 
-# Open questions:
+## Open questions:
 
  * Should we handle these cases at all? They do not have special syntax associated.
    1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
@@ -14,6 +14,7 @@ AST and Source Location RFC
 ### Singletons
 
 Format:
+
 ```
 (true)
 "true"
@@ -31,6 +32,7 @@ Format:
 ### Integer
 
 Format:
+
 ```
 (int 123)
 "123"
@@ -40,6 +42,7 @@ Format:
 ### Float
 
 Format:
+
 ```
 (float 1.0)
 "1.0"
@@ -51,6 +54,7 @@ Format:
 #### Plain
 
 Format:
+
 ```
 (str "foo")
 "'foo'"
@@ -62,6 +66,7 @@ Format:
 #### With interpolation
 
 Format:
+
 ```
 (dstr (str "foo") (lvar bar) (str "baz"))
 '"foo#{bar}baz"'
@@ -74,6 +79,7 @@ Format:
 #### Plain
 
 Format:
+
 ```
 (sym :foo)
 ":foo"
@@ -88,6 +94,7 @@ Format:
 #### With interpolation
 
 Format:
+
 ```
 (dsym (str "foo") (lvar bar) (str "baz"))
 ':"foo#{bar}baz"'
@@ -98,6 +105,7 @@ Format:
 ### Execute-string
 
 Format:
+
 ```
 (xstr (str "foo") (lvar bar))
 "`foo#{bar}`"
@@ -110,6 +118,7 @@ Format:
 #### Options
 
 Format:
+
 ```
 (regopt :i :m)
 "im"
@@ -119,6 +128,7 @@ Format:
 #### Regexp
 
 Format:
+
 ```
 (regexp (str "foo") (lvar :bar) (regopt :i))
 "/foo#{bar}/i"
@@ -131,6 +141,7 @@ Format:
 #### Plain
 
 Format:
+
 ```
 (array (int 1) (int 2))
 
@@ -143,6 +154,7 @@ Format:
 Can also be used in argument lists: `foo(bar, *baz)`
 
 Format:
+
 ```
 (splat (lvar :foo))
 "*foo"
@@ -153,6 +165,7 @@ Format:
 #### With interpolation
 
 Format:
+
 ```
 (array (int 1) (splat (lvar :foo)) (int 2))
 
@@ -168,6 +181,7 @@ Format:
 ##### With hashrocket
 
 Format:
+
 ```
 (pair (int 1) (int 2))
 "1 => 2"
@@ -178,6 +192,7 @@ Format:
 ##### With label (1.9)
 
 Format:
+
 ```
 (pair (sym :answer) (int 42))
 "answer: 42"
@@ -189,6 +204,7 @@ Format:
 #### Plain
 
 Format:
+
 ```
 (hash (pair (int 1) (int 2)) (pair (int 3) (int 4)))
 "{1 => 2, 3 => 4}"
@@ -201,6 +217,7 @@ Format:
 Can also be used in argument lists: `foo(bar, **baz)`
 
 Format:
+
 ```
 (kwsplat (lvar :foo))
 "**foo"
@@ -211,6 +228,7 @@ Format:
 #### With interpolation (2.0)
 
 Format:
+
 ```
 (hash (pair (sym :foo) (int 2)) (kwsplat (lvar :bar)))
 "{ foo: 2, **bar }"
@@ -223,6 +241,7 @@ Format:
 #### Inclusive
 
 Format:
+
 ```
 (irange (int 1) (int 2))
 "1..2"
@@ -233,6 +252,7 @@ Format:
 #### Exclusive
 
 Format:
+
 ```
 (erange (int 1) (int 2))
 "1...2"
@@ -245,6 +265,7 @@ Format:
 ### Self
 
 Format:
+
 ```
 (self)
 "self"
@@ -254,6 +275,7 @@ Format:
 ### Local variable
 
 Format:
+
 ```
 (lvar :foo)
 "foo"
@@ -263,6 +285,7 @@ Format:
 ### Instance variable
 
 Format:
+
 ```
 (ivar :@foo)
 "@foo"
@@ -272,6 +295,7 @@ Format:
 ### Class variable
 
 Format:
+
 ```
 (cvar :$foo)
 "$foo"
@@ -281,6 +305,7 @@ Format:
 ### Global variable
 
 Format:
+
 ```
 (gvar :$foo)
 "$foo"
@@ -292,6 +317,7 @@ Format:
 #### Top-level constant
 
 Format:
+
 ```
 (const (cbase) :Foo)
 "::Foo"
@@ -303,6 +329,7 @@ Format:
 #### Scoped constant
 
 Format:
+
 ```
 (const (lvar :a) :Foo)
 "a::Foo"
@@ -314,6 +341,7 @@ Format:
 #### Unscoped constant
 
 Format:
+
 ```
 (const nil :Foo)
 "Foo"
@@ -324,6 +352,7 @@ Format:
 ### defined?
 
 Format:
+
 ```
 (defined? (lvar :a))
 "defined? a"
@@ -342,6 +371,7 @@ Format:
 ### To local variable
 
 Format:
+
 ```
 (lvasgn :foo (lvar :bar))
 "foo = bar"
@@ -352,6 +382,7 @@ Format:
 ### To instance variable
 
 Format:
+
 ```
 (ivasgn :@foo (lvar :bar))
 "@foo = bar"
@@ -364,6 +395,7 @@ Format:
 #### Inside a class scope
 
 Format:
+
 ```
 (cvdecl :@@foo (lvar :bar))
 "@@foo = bar"
@@ -374,6 +406,7 @@ Format:
 #### Inside a method scope
 
 Format:
+
 ```
 (cvasgn :@@foo (lvar :bar))
 "@@foo = bar"
@@ -384,6 +417,7 @@ Format:
 ### To global variable
 
 Format:
+
 ```
 (gvasgn :$foo (lvar :bar))
 "$foo = bar"
@@ -396,6 +430,7 @@ Format:
 #### Top-level constant
 
 Format:
+
 ```
 (cdecl (cbase) :Foo (int 1))
 "::Foo = 1"
@@ -407,6 +442,7 @@ Format:
 #### Scoped constant
 
 Format:
+
 ```
 (cdecl (lvar :a) :Foo (int 1))
 "a::Foo = 1"
@@ -418,6 +454,7 @@ Format:
 #### Unscoped constant
 
 Format:
+
 ```
 (cdecl nil :Foo (int 1))
 "Foo = 1"
@@ -432,6 +469,7 @@ Format:
 #### Multiple left hand side
 
 Format:
+
 ```
 (mlhs (lvasgn :a) (lvasgn :b))
 "a, b"
@@ -451,6 +489,7 @@ side-effect free assignments (`lvasgn`, etc) and side-effectful
 assignments (`send`).
 
 Format:
+
 ```
 (masgn (mlhs (lvasgn :foo) (lvasgn :bar)) (array (int 1) (int 2)))
 "foo, bar = 1, 2"
@@ -474,6 +513,7 @@ Binary operator-assignment features the same "incomplete assignments" and "incom
 #### Variable binary operator-assignment
 
 Format:
+
 ```
 (op-asgn (lvasgn :a) :+ (int 1))
 "a += 1"
@@ -496,6 +536,7 @@ s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:int, 1)))
 #### Method binary operator-assignment
 
 Format:
+
 ```
 (op-asgn (send (ivar :@a) :b) :+ (int 1))
 "@a.b += 1"
@@ -528,6 +569,7 @@ Logical operator-assignment features the same "incomplete assignments" and "inco
 #### Variable logical operator-assignment
 
 Format:
+
 ```
 (or-asgn (iasgn :@a) (int 1))
 "@a ||= 1"
@@ -552,6 +594,7 @@ s(:op_asgn_and, s(:lvar, :a), s(:lasgn, :a, s(:int, 1)))
 #### Method logical operator-assignment
 
 Format:
+
 ```
 (or-asgn (send (ivar :@foo) :bar) (int 1))
 "@foo.bar ||= 1"
@@ -591,6 +634,7 @@ s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
 ### Module
 
 Format:
+
 ```
 (module (const nil :Foo) (nil))
 "module Foo; end"
@@ -601,6 +645,7 @@ Format:
 ### Class
 
 Format:
+
 ```
 (class (const nil :Foo) (const nil :Bar) (nil))
 "class Foo < Bar; end"
@@ -618,6 +663,7 @@ Format:
 ### Singleton class
 
 Format:
+
 ```
 (sclass (lvar :a) (nil))
 "class << a; end"
@@ -632,6 +678,7 @@ Format:
 ### Instance methods
 
 Format:
+
 ```
 (def :foo (args) nil)
 "def foo; end"
@@ -644,6 +691,7 @@ Format:
 ### Singleton methods
 
 Format:
+
 ```
 (defs (self) (args) nil)
 "def self.foo; end"
@@ -656,6 +704,7 @@ Format:
 ### Undefinition
 
 Format:
+
 ```
 (undef (sym :foo) (sym :bar) (dsym (str "foo") (int 1)))
 "undef foo :bar :"foo#{1}""
@@ -668,6 +717,7 @@ Format:
 ### Method aliasing
 
 Format:
+
 ```
 (alias (sym :foo) (dsym (str "foo") (int 1)))
 "alias foo :"foo#{1}""
@@ -678,6 +728,7 @@ Format:
 ### Global variable aliasing
 
 Format:
+
 ```
 (alias (gvar :$foo) (gvar :$bar))
 "alias $foo $bar"
@@ -693,6 +744,7 @@ Format:
 ## Formal arguments
 
 Format:
+
 ```
 (args (arg :foo))
 "(foo)"
@@ -702,6 +754,7 @@ Format:
 ### Required argument
 
 Format:
+
 ```
 (arg :foo)
 "foo"
@@ -712,6 +765,7 @@ Format:
 ### Optional argument
 
 Format:
+
 ```
 (optarg :foo (int 1))
 "foo = 1"
@@ -723,6 +777,7 @@ Format:
 ### Named splat argument
 
 Format:
+
 ```
 (restarg :foo)
 "*foo"
@@ -735,6 +790,7 @@ Begin of the `expression` points to `*`.
 ### Unnamed splat argument
 
 Format:
+
 ```
 (restarg)
 "*"
@@ -744,6 +800,7 @@ Format:
 ### Block argument
 
 Format:
+
 ```
 (blockarg :foo)
 "&foo"
@@ -760,6 +817,7 @@ such as `@var` or `foo.bar`. Such expressions should be treated as
 if they were on the lhs of a multiple assignment.
 
 Format:
+
 ```
 (args (arg_expr (ivasgn :@bar)))
 "|@bar|"
@@ -777,6 +835,7 @@ Format:
 ### Block shadow arguments
 
 Format:
+
 ```
 (args (shadowarg :foo) (shadowarg :bar))
 "|; foo, bar|"
@@ -785,6 +844,7 @@ Format:
 ### Decomposition
 
 Format:
+
 ```
 (def :f (args (arg :a) (mlhs (arg :foo) (restarg :bar))))
 "def f(a, (foo, *bar)); end"
@@ -795,6 +855,7 @@ Format:
 ### Required keyword argument
 
 Format:
+
 ```
 (kwarg :foo (int 1))
 "foo:"
@@ -805,6 +866,7 @@ Format:
 ### Optional keyword argument
 
 Format:
+
 ```
 (kwoptarg :foo (int 1))
 "foo: 1"
@@ -815,6 +877,7 @@ Format:
 ### Named keyword splat argument
 
 Format:
+
 ```
 (kwrestarg :foo)
 "**foo"
@@ -825,6 +888,7 @@ Format:
 ### Unnamed keyword splat argument
 
 Format:
+
 ```
 (kwrestarg)
 "**"
@@ -836,6 +900,7 @@ Format:
 ### To self
 
 Format:
+
 ```
 (send nil :foo (lvar :bar))
 "foo(bar)"
@@ -848,6 +913,7 @@ Format:
 ### To receiver
 
 Format:
+
 ```
 (send (lvar :foo) :bar (int 1))
 "foo.bar(1)"
@@ -913,6 +979,7 @@ Format of super without arguments (**z**ero-arity):
 ### To block argument
 
 Format:
+
 ```
 (yield (lvar :foo))
 "yield(foo)"
@@ -950,6 +1017,7 @@ Used when passing expression as block `foo(&bar)`
 #### Binary (and or && ||)
 
 Format:
+
 ```
 (and (lvar :foo) (lvar :bar))
 "foo and bar"
@@ -960,6 +1028,7 @@ Format:
 #### Unary (! not) (1.8)
 
 Format:
+
 ```
 (not (lvar :foo))
 "!foo"
@@ -973,6 +1042,7 @@ Format:
 #### Without else
 
 Format:
+
 ```
 (if (lvar :cond) (lvar :iftrue) nil)
 "if cond then iftrue; end"
@@ -1010,6 +1080,7 @@ Format:
 #### With else
 
 Format:
+
 ```
 (if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
 "if cond then iftrue; else; iffalse; end"
@@ -1043,6 +1114,7 @@ Format:
 #### With elsif
 
 Format:
+
 ```
 (if (lvar :cond1) (int 1) (if (lvar :cond2 (int 2) (int 3))))
 "if cond1; 1; elsif cond2; 2; else 3; end"
@@ -1057,6 +1129,7 @@ Format:
 #### Ternary
 
 Format:
+
 ```
 (if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
 "cond ? iftrue : iffalse"
@@ -1070,6 +1143,7 @@ Format:
 #### When clause
 
 Format:
+
 ```
 (when (regexp "foo" (regopt)) (begin (lvar :bar)))
 "when /foo/ then bar"
@@ -1092,6 +1166,7 @@ Format:
 ##### Without else
 
 Format:
+
 ```
 (case (lvar :foo) (when (str "bar") (lvar :bar)) nil)
 "case foo; when "bar"; bar; end"
@@ -1101,6 +1176,7 @@ Format:
 ##### With else
 
 Format:
+
 ```
 (case (lvar :foo) (when (str "bar") (lvar :bar)) (lvar :baz))
 "case foo; when "bar"; bar; else baz; end"
@@ -1112,6 +1188,7 @@ Format:
 ##### Without else
 
 Format:
+
 ```
 (case nil (when (lvar :bar) (lvar :bar)) nil)
 "case; when bar; bar; end"
@@ -1121,6 +1198,7 @@ Format:
 ##### With else
 
 Format:
+
 ```
 (case nil (when (lvar :bar) (lvar :bar)) (lvar :baz))
 "case; when bar; bar; else baz; end"
@@ -1138,6 +1216,7 @@ Format:
 #### With precondition
 
 Format:
+
 ```
 (while (lvar :condition) (send nil :foo))
 "while condition do foo; end"
@@ -1176,6 +1255,7 @@ Format:
 #### With postcondition
 
 Format:
+
 ```
 (while-post (lvar :condition) (begin (send nil :foo)))
 "begin; foo; end while condition"
@@ -1193,6 +1273,7 @@ Format:
 #### For-in
 
 Format:
+
 ```
 (for (lasgn :a) (lvar :array) (send nil :p (lvar :a)))
 "for a in array do p a; end"
@@ -1215,6 +1296,7 @@ Format:
 #### Break
 
 Format:
+
 ```
 (break (int 1))
 "break 1"
@@ -1225,6 +1307,7 @@ Format:
 #### Next
 
 Format:
+
 ```
 (next (int 1))
 "next 1"
@@ -1235,6 +1318,7 @@ Format:
 #### Redo
 
 Format:
+
 ```
 (redo)
 "redo"
@@ -1245,6 +1329,7 @@ Format:
 ### Return
 
 Format:
+
 ```
 (return (lvar :foo))
 "return(foo)"
@@ -1257,6 +1342,7 @@ Format:
 #### Rescue body
 
 Format:
+
 ```
 (resbody (array (const nil :Exception) (const nil :A)) (lvasgn :bar) (int 1))
 "rescue Exception, A => bar; 1"
@@ -1286,6 +1372,7 @@ Format:
 ##### Without else
 
 Format:
+
 ```
 (begin
   (rescue (send nil :foo) (resbody ...) (resbody ...) nil))
@@ -1299,6 +1386,7 @@ Format:
 ##### With else
 
 Format:
+
 ```
 (begin
   (rescue (send nil :foo) (resbody ...) (resbody ...) (true)))
@@ -1310,6 +1398,7 @@ Format:
 #### Ensure statement
 
 Format:
+
 ```
 (begin
   (ensure (send nil :foo) (send nil :bar))
@@ -1321,6 +1410,7 @@ Format:
 #### Rescue with ensure
 
 Format:
+
 ```
 (begin
   (ensure
@@ -1338,6 +1428,7 @@ Format:
 #### Retry
 
 Format:
+
 ```
 (retry)
 "retry"
@@ -1348,6 +1439,7 @@ Format:
 ### BEGIN and END
 
 Format:
+
 ```
 (preexe (send nil :puts (str "foo")))
 "BEGIN { puts "foo" }"

@@ -1,1 +1,4 @@
--m markdown - doc/*
+--markup-provider redcarpet
+--markup markdown
+-o yardoc/
+- doc/*
