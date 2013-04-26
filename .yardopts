@@ -1,4 +1,6 @@
 --markup-provider redcarpet
 --markup markdown
+--private
+--protected
 -o yardoc/
 - doc/*
