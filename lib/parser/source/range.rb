@@ -54,6 +54,10 @@ module Parser
         what.include?(to_source)
       end
 
+      def to_a
+        (@begin_pos...@end_pos).to_a
+      end
+
       def to_s
         line, column = @source_buffer.decompose_position(@begin_pos)
 
