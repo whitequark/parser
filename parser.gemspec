@@ -36,7 +36,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'simplecov-sublime-ruby-coverage'
 
-  spec.add_development_dependency 'redcarpet', '~> 1.0'
   spec.add_development_dependency 'github-markup'
   spec.add_development_dependency 'yard'
 end
