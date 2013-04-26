@@ -658,7 +658,7 @@ module Parser
     def condition(cond_t, cond, then_t,
                   if_true, else_t, if_false, end_t)
       n(:if, [ check_condition(cond), if_true, if_false ],
-        condition_map(cond_t, then_t, if_true, else_t, if_false, end_t))
+        condition_map(cond_t, cond, then_t, if_true, else_t, if_false, end_t))
     end
 
     def condition_mod(if_true, if_false, cond_t, cond)
@@ -681,7 +681,7 @@ module Parser
 
     def case(case_t, expr, when_bodies, else_t, else_body, end_t)
       n(:case, [ expr, *(when_bodies << else_body)],
-        condition_map(case_t, nil, nil, else_t, else_body, end_t))
+        condition_map(case_t, expr, nil, nil, else_t, else_body, end_t))
     end
 
     # Loops
@@ -1056,17 +1056,19 @@ module Parser
                                join_exprs(pre_e, post_e))
     end
 
-    def condition_map(keyword_t, begin_t, body_e, else_t, else_e, end_t)
+    def condition_map(keyword_t, cond_e, begin_t, body_e, else_t, else_e, end_t)
       if end_t
         end_l = loc(end_t)
       elsif else_e && else_e.src.expression
         end_l = else_e.src.expression
-      elsif else_t
+      elsif loc(else_t)
         end_l = loc(else_t)
       elsif body_e.src.expression
         end_l = body_e.src.expression
-      else
+      elsif loc(begin_t)
         end_l = loc(begin_t)
+      else
+        end_l = cond_e.src.expression
       end
 
       Source::Map::Condition.new(loc(keyword_t),
@@ -1088,11 +1090,10 @@ module Parser
     def rescue_body_map(keyword_t, exc_list_e, assoc_t,
                         exc_var_e, then_t,
                         compstmt_e)
-      end_l = compstmt_e.src.expression ||
-              loc(then_t)               ||
-              exc_var_e.src.expression  ||
-              exc_list_e.src.expression ||
-              loc(keyword_t)
+      end_l = compstmt_e.src.expression || loc(then_t)
+      end_l = exc_var_e.src.expression  if end_l.nil? && exc_var_e
+      end_l = exc_list_e.src.expression if end_l.nil? && exc_list_e
+      end_l = loc(keyword_t)            if end_l.nil?
 
       Source::Map::RescueBody.new(loc(keyword_t), loc(assoc_t), loc(then_t),
                                   loc(keyword_t).join(end_l))
@@ -1101,7 +1102,11 @@ module Parser
     def eh_keyword_map(compstmt_e, keyword_t, body_es,
                        else_t, else_e)
       if synthesized_nil?(compstmt_e)
-        begin_l = loc(keyword_t)
+        if keyword_t.nil?
+          begin_l = body_es.first.src.expression
+        else
+          begin_l = loc(keyword_t)
+        end
       else
         begin_l = compstmt_e.src.expression
       end
@@ -1136,7 +1141,8 @@ module Parser
     end
 
     def loc(token)
-      token[1] if token
+      # Pass through `nil`s and return nil for tNL.
+      token[1] if token && token[0]
     end
 
     def diagnostic(type, message, location, highlights=[])
