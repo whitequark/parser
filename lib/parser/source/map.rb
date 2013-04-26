@@ -15,6 +15,10 @@ module Parser
         freeze
       end
 
+      def line
+        @expression.line
+      end
+
       def with_expression(expression_l)
         with { |map| map.update_expression(expression_l) }
       end
