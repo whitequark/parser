@@ -1,11 +1,11 @@
 require 'helper'
 
-class TestRewriter < MiniTest::Unit::TestCase
+class TestSourceRewriter < MiniTest::Unit::TestCase
   def setup
     @buf = Parser::Source::Buffer.new('(rewriter)')
     @buf.source = 'foo bar baz'
 
-    @rewriter = Parser::Rewriter.new(@buf)
+    @rewriter = Parser::Source::Rewriter.new(@buf)
   end
 
   def range(from, len)
