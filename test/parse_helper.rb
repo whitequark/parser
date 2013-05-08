@@ -71,7 +71,13 @@ module ParseHelper
       source_file = Parser::Source::Buffer.new('(assert_parses)')
       source_file.source = code
 
-      parsed_ast = parser.parse(source_file)
+      begin
+        parsed_ast = parser.parse(source_file)
+      rescue => exc
+        new_exc = exc.class.new("(#{version}) #{exc.message}")
+        new_exc.set_backtrace(exc.backtrace)
+        raise new_exc
+      end
 
       assert_equal ast, parsed_ast,
                    "(#{version}) AST equality"
