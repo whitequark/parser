@@ -2168,6 +2168,16 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tREGEXP_OPT,     "")
   end
 
+  def test_bug_expr_beg_heredoc
+    util_lex_token("<<EOL % [\nfoo\nEOL\n]",
+                   :tSTRING_BEG,      '"',
+                   :tSTRING_CONTENT,  "foo\n",
+                   :tSTRING_END,      'EOL',
+                   :tPERCENT,         '%',
+                   :tLBRACK,          '[',
+                   :tRBRACK,          ']')
+  end
+
   def test_bug_expr_arg_percent
     @lex.state = :expr_arg
     util_lex_token("%[",
@@ -2309,14 +2319,12 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tNL,     nil)
   end
 
-  def test_bug_expr_beg_heredoc
-    util_lex_token("<<EOL % [\nfoo\nEOL\n]",
-                   :tSTRING_BEG,      '"',
-                   :tSTRING_CONTENT,  "foo\n",
-                   :tSTRING_END,      'EOL',
-                   :tPERCENT,         '%',
-                   :tLBRACK,          '[',
-                   :tRBRACK,          ']')
+  def test_bug_expr_value_rescue_colon2
+    @lex.state = :expr_value
+    util_lex_token("rescue::Exception",
+                   :kRESCUE,    'rescue',
+                   :tCOLON3,    '::',
+                   :tCONSTANT,  'Exception')
   end
 
   def test_bug_ragel_stack
