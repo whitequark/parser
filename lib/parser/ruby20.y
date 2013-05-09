@@ -1987,8 +1987,6 @@ keyword_variable: kNIL
                 | f_args term
                     {
                       result = @builder.args(nil, val[0], nil)
-
-                      @lexer.state = :expr_value
                     }
 
        args_tail: f_kwarg tCOMMA f_kwrest opt_f_block_arg

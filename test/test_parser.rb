@@ -4172,4 +4172,10 @@ class TestParser < MiniTest::Unit::TestCase
       s(:array, s(:dstr, s(:int, 1))),
       %q{%W"#{1}"})
   end
+
+  def test_bug_def_no_paren_eql_begin
+    assert_parses(
+      s(:def, :foo, s(:args), s(:nil)),
+      %Q{def foo\n=begin\n=end\nend})
+  end
 end
