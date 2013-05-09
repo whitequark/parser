@@ -1006,7 +1006,7 @@ class Parser::Lexer
 
       # If the handling was to be delegated to expr_end,
       # these cases would transition to something else than
-      # expr_end, which is undesirable.
+      # expr_endfn, which is incorrect.
       operator_fname      |
       operator_arithmetic |
       operator_rest
@@ -1525,7 +1525,6 @@ class Parser::Lexer
 
       # TODO whitespace rule
       c_space;
-      e_heredoc_nl;
 
       c_any
       => { fhold; fgoto expr_beg; };

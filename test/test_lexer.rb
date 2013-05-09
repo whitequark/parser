@@ -2286,6 +2286,12 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tIDENTIFIER, 'print')
   end
 
+  def test_bug_expr_value_document
+    util_lex_token("1;\n=begin\n=end",
+                   :tINTEGER, 1,
+                   :tSEMI,    ";")
+  end
+
   def test_bug_expr_end_colon
     util_lex_token("'foo':'bar'",
                    :tSTRING, 'foo',
