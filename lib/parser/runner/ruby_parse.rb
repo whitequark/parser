@@ -107,11 +107,7 @@ module Parser
       @slop.on 'E', 'explain', 'Explain how the source is tokenized' do
         ENV['RACC_DEBUG'] = '1'
 
-        Parser::Base.class_eval do
-          def next_token
-            @lexer.advance_and_explain
-          end
-        end
+        Lexer.send :prepend, Lexer::Explanation
       end
     end
 

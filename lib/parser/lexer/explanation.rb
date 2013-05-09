@@ -4,14 +4,21 @@ module Parser
 
     # Like #advance, but also pretty-print the token and its position
     # in the stream to `stdout`.
-    def advance_and_explain
-      type, (val, range) = advance
+    def advance
+      type, (val, range) = super
 
       puts decorate(range,
                     "\e[0;32m#{type} #{val.inspect}\e[0m",
-                    "#{state.to_s.ljust(10)} #{@cond} #{@cmdarg}\e[0m")
+                    "#{state.to_s.ljust(12)} #{@cond} #{@cmdarg}\e[0m")
 
       [ type, [val, range] ]
+    end
+
+    def state=(new_state)
+      puts "  \e[1;33m>>> STATE SET <<<\e[0m " +
+           "#{new_state.to_s.ljust(12)} #{@cond} #{@cmdarg}".rjust(66)
+
+      super
     end
 
     private
@@ -31,7 +38,5 @@ module Parser
     end
 
   end
-
-  Lexer.send :include, Lexer::Explanation
 
 end
