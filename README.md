@@ -4,7 +4,7 @@
 [![Code Climate](https://codeclimate.com/github/whitequark/parser.png)](https://codeclimate.com/github/whitequark/parser)
 [![Coverage Status](https://coveralls.io/repos/whitequark/parser/badge.png?branch=master)](https://coveralls.io/r/whitequark/parser)
 
-_Parser_ is a Ruby parser written in pure Ruby.
+_Parser_ is a production-ready Ruby parser written in pure Ruby. It performs on par or better than Ripper, ruby_parser or JRubyParser.
 
 ## Installation
 
