@@ -15,7 +15,7 @@ AST and Source Location RFC
 
 Format:
 
-```
+~~~
 (true)
 "true"
  ~~~~ expression
@@ -27,27 +27,27 @@ Format:
 (nil)
 "nil"
  ~~~ expression
-```
+~~~
 
 ### Integer
 
 Format:
 
-```
+~~~
 (int 123)
 "123"
  ~~~ expression
-```
+~~~
 
 ### Float
 
 Format:
 
-```
+~~~
 (float 1.0)
 "1.0"
  ~~~ expression
-```
+~~~
 
 ### String
 
@@ -55,24 +55,24 @@ Format:
 
 Format:
 
-```
+~~~
 (str "foo")
 "'foo'"
  ^ begin
      ^ end
  ~~~~~ expresion
-```
+~~~
 
 #### With interpolation
 
 Format:
 
-```
+~~~
 (dstr (str "foo") (lvar bar) (str "baz"))
 '"foo#{bar}baz"'
  ^ begin      ^ end
  ~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Symbol
 
@@ -80,7 +80,7 @@ Format:
 
 Format:
 
-```
+~~~
 (sym :foo)
 ":foo"
  ~~~~ expresion
@@ -89,29 +89,29 @@ Format:
   ^ begin
       ^ end
  ~~~~~~ expression
-```
+~~~
 
 #### With interpolation
 
 Format:
 
-```
+~~~
 (dsym (str "foo") (lvar bar) (str "baz"))
 ':"foo#{bar}baz"'
   ^ begin      ^ end
  ~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Execute-string
 
 Format:
 
-```
+~~~
 (xstr (str "foo") (lvar bar))
 "`foo#{bar}`"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression
-```
+~~~
 
 ### Regexp
 
@@ -119,22 +119,22 @@ Format:
 
 Format:
 
-```
+~~~
 (regopt :i :m)
 "im"
  ~~ expression
-```
+~~~
 
 #### Regexp
 
 Format:
 
-```
+~~~
 (regexp (str "foo") (lvar :bar) (regopt :i))
 "/foo#{bar}/i"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression
-```
+~~~
 
 ### Array
 
@@ -142,12 +142,12 @@ Format:
 
 Format:
 
-```
+~~~
 (array (int 1) (int 2))
 
 "[1, 2]"
  ~~~~~~ expression
-```
+~~~
 
 #### Splat
 
@@ -155,24 +155,24 @@ Can also be used in argument lists: `foo(bar, *baz)`
 
 Format:
 
-```
+~~~
 (splat (lvar :foo))
 "*foo"
  ^ operator
  ~~~~ expression
-```
+~~~
 
 #### With interpolation
 
 Format:
 
-```
+~~~
 (array (int 1) (splat (lvar :foo)) (int 2))
 
 "[1, *foo, 2]"
  ^ begin    ^ end
  ~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Hash
 
@@ -182,35 +182,35 @@ Format:
 
 Format:
 
-```
+~~~
 (pair (int 1) (int 2))
 "1 => 2"
    ~~ operator
  ~~~~~~ expression
-```
+~~~
 
 ##### With label (1.9)
 
 Format:
 
-```
+~~~
 (pair (sym :answer) (int 42))
 "answer: 42"
        ^ operator (pair)
  ~~~~~~ expression (sym)
  ~~~~~~~~~~ expression (pair)
-```
+~~~
 
 #### Plain
 
 Format:
 
-```
+~~~
 (hash (pair (int 1) (int 2)) (pair (int 3) (int 4)))
 "{1 => 2, 3 => 4}"
  ^ begin        ^ end
  ~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 #### Keyword splat (2.0)
 
@@ -218,23 +218,23 @@ Can also be used in argument lists: `foo(bar, **baz)`
 
 Format:
 
-```
+~~~
 (kwsplat (lvar :foo))
 "**foo"
  ~~ operator
  ~~~~~ expression
-```
+~~~
 
 #### With interpolation (2.0)
 
 Format:
 
-```
+~~~
 (hash (pair (sym :foo) (int 2)) (kwsplat (lvar :bar)))
 "{ foo: 2, **bar }"
  ^ begin         ^ end
  ~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Range
 
@@ -242,23 +242,23 @@ Format:
 
 Format:
 
-```
+~~~
 (irange (int 1) (int 2))
 "1..2"
   ~~ operator
  ~~~~ expression
-```
+~~~
 
 #### Exclusive
 
 Format:
 
-```
+~~~
 (erange (int 1) (int 2))
 "1...2"
   ~~~ operator
  ~~~~~ expression
-```
+~~~
 
 ## Access
 
@@ -266,51 +266,51 @@ Format:
 
 Format:
 
-```
+~~~
 (self)
 "self"
  ~~~~ expression
-```
+~~~
 
 ### Local variable
 
 Format:
 
-```
+~~~
 (lvar :foo)
 "foo"
  ~~~ expression
-```
+~~~
 
 ### Instance variable
 
 Format:
 
-```
+~~~
 (ivar :@foo)
 "@foo"
  ~~~~ expression
-```
+~~~
 
 ### Class variable
 
 Format:
 
-```
+~~~
 (cvar :$foo)
 "$foo"
  ~~~~ expression
-```
+~~~
 
 ### Global variable
 
 Format:
 
-```
+~~~
 (gvar :$foo)
 "$foo"
  ~~~~ expression
-```
+~~~
 
 ### Constant
 
@@ -318,42 +318,42 @@ Format:
 
 Format:
 
-```
+~~~
 (const (cbase) :Foo)
 "::Foo"
    ~~~ name
  ~~ double_colon
  ~~~~~ expression
-```
+~~~
 
 #### Scoped constant
 
 Format:
 
-```
+~~~
 (const (lvar :a) :Foo)
 "a::Foo"
     ~~~ name
   ~~ double_colon
  ~~~~~~ expression
-```
+~~~
 
 #### Unscoped constant
 
 Format:
 
-```
+~~~
 (const nil :Foo)
 "Foo"
  ~~~ name
  ~~~ expression
-```
+~~~
 
 ### defined?
 
 Format:
 
-```
+~~~
 (defined? (lvar :a))
 "defined? a"
  ~~~~~~~~ keyword
@@ -364,7 +364,7 @@ Format:
          ^ begin
            ^ end
  ~~~~~~~~~~~ expression
-```
+~~~
 
 ## Assignment
 
@@ -372,23 +372,23 @@ Format:
 
 Format:
 
-```
+~~~
 (lvasgn :foo (lvar :bar))
 "foo = bar"
      ^ operator
  ~~~~~~~~~ expression
-```
+~~~
 
 ### To instance variable
 
 Format:
 
-```
+~~~
 (ivasgn :@foo (lvar :bar))
 "@foo = bar"
       ^ operator
  ~~~~~~~~~~ expression
-```
+~~~
 
 ### To class variable
 
@@ -396,34 +396,34 @@ Format:
 
 Format:
 
-```
+~~~
 (cvdecl :@@foo (lvar :bar))
 "@@foo = bar"
        ^ operator
  ~~~~~~~~~~~ expression
-```
+~~~
 
 #### Inside a method scope
 
 Format:
 
-```
+~~~
 (cvasgn :@@foo (lvar :bar))
 "@@foo = bar"
        ^ operator
  ~~~~~~~~~~~ expression
-```
+~~~
 
 ### To global variable
 
 Format:
 
-```
+~~~
 (gvasgn :$foo (lvar :bar))
 "$foo = bar"
       ^ operator
  ~~~~~~~~~~ expression
-```
+~~~
 
 ### To constant
 
@@ -431,37 +431,37 @@ Format:
 
 Format:
 
-```
+~~~
 (cdecl (cbase) :Foo (int 1))
 "::Foo = 1"
    ~~~ name
        ~ operator
  ~~~~~~~ expression
-```
+~~~
 
 #### Scoped constant
 
 Format:
 
-```
+~~~
 (cdecl (lvar :a) :Foo (int 1))
 "a::Foo = 1"
     ~~~ name
         ~ operator
  ~~~~~~~~ expression
-```
+~~~
 
 #### Unscoped constant
 
 Format:
 
-```
+~~~
 (cdecl nil :Foo (int 1))
 "Foo = 1"
  ~~~ name
      ~ operator
  ~~~~~~~ expression
-```
+~~~
 
 
 ### Multiple assignment
@@ -470,7 +470,7 @@ Format:
 
 Format:
 
-```
+~~~
 (mlhs (lvasgn :a) (lvasgn :b))
 "a, b"
  ~~~~ expression
@@ -478,7 +478,7 @@ Format:
  ^ begin
       ^ end
  ~~~~~~ expression
-```
+~~~
 
 #### Assignment
 
@@ -490,7 +490,7 @@ assignments (`send`).
 
 Format:
 
-```
+~~~
 (masgn (mlhs (lvasgn :foo) (lvasgn :bar)) (array (int 1) (int 2)))
 "foo, bar = 1, 2"
           ^ operator
@@ -504,7 +504,7 @@ Format:
 
 (masgn (mlhs (send (self) :a=) (send (self) :[]= (int 1))) (lvar :a))
 "self.a, self[1] = a"
-```
+~~~
 
 ### Binary operator-assignment
 
@@ -514,7 +514,7 @@ Binary operator-assignment features the same "incomplete assignments" and "incom
 
 Format:
 
-```
+~~~
 (op-asgn (lvasgn :a) :+ (int 1))
 "a += 1"
    ~~ operator
@@ -522,22 +522,22 @@ Format:
 
 (op-asgn (ivasgn :a) :+ (int 1))
 "@a += 1"
-```
+~~~
 
 Ruby_parser output for reference:
-```
+~~~
 "a += 1"
 s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:int, 1)))
 
 "@a += 1"
 s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:int, 1)))
-```
+~~~
 
 #### Method binary operator-assignment
 
 Format:
 
-```
+~~~
 (op-asgn (send (ivar :@a) :b) :+ (int 1))
 "@a.b += 1"
     ~ selector (send)
@@ -551,16 +551,16 @@ Format:
  ~~~~~~~~ expression (send)
           ~~ operator (op-asgn)
  ~~~~~~~~~~~~~ expression (op-asgn)
-```
+~~~
 
 Ruby_parser output for reference:
-```
+~~~
 "@a.b += 1"
 s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:int, 1))
 
 "@a[0, 1] += 1"
 s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:int, 0), s(:int, 1)), :+, s(:int, 1))
-```
+~~~
 
 ### Logical operator-assignment
 
@@ -570,7 +570,7 @@ Logical operator-assignment features the same "incomplete assignments" and "inco
 
 Format:
 
-```
+~~~
 (or-asgn (iasgn :@a) (int 1))
 "@a ||= 1"
     ~~~ operator
@@ -580,22 +580,22 @@ Format:
 "a &&= 1"
    ~~~ operator
  ~~~~~~~ expression
-```
+~~~
 
 Ruby_parser output for reference:
-```
+~~~
 "@a ||= 1"
 s(:op_asgn_or, s(:ivar, :@a), s(:iasgn, :@a, s(:int, 1)))
 
 "a &&= 1"
 s(:op_asgn_and, s(:lvar, :a), s(:lasgn, :a, s(:int, 1)))
-```
+~~~
 
 #### Method logical operator-assignment
 
 Format:
 
-```
+~~~
 (or-asgn (send (ivar :@foo) :bar) (int 1))
 "@foo.bar ||= 1"
       ~~~ selector (send)
@@ -617,17 +617,17 @@ Format:
             ~~~ operator (or-asgn)
  ~~~~~~~~~~~~~~~~ expression (or-asgn)
 
-```
+~~~
 
 Ruby_parser output for reference:
-```
+~~~
 "@foo.bar &&= 1"
 s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:int, 1))
 
 "@foo[0] ||= 1"
 s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
 
-```
+~~~
 
 ## Class and module definition
 
@@ -635,18 +635,18 @@ s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
 
 Format:
 
-```
+~~~
 (module (const nil :Foo) (nil))
 "module Foo; end"
  ~~~~~~ keyword
              ~~~ end
-```
+~~~
 
 ### Class
 
 Format:
 
-```
+~~~
 (class (const nil :Foo) (const nil :Bar) (nil))
 "class Foo < Bar; end"
  ~~~~~ keyword    ~~~ end
@@ -658,20 +658,20 @@ Format:
  ~~~~~ keyword
             ~~~ end
  ~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Singleton class
 
 Format:
 
-```
+~~~
 (sclass (lvar :a) (nil))
 "class << a; end"
  ~~~~~ keyword
        ~~ operator
              ~~~ end
  ~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ## Method (un)definition
 
@@ -679,38 +679,38 @@ Format:
 
 Format:
 
-```
+~~~
 (def :foo (args) nil)
 "def foo; end"
  ~~~ keyword
      ~~~ name
           ~~~ end
  ~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Singleton methods
 
 Format:
 
-```
+~~~
 (defs (self) (args) nil)
 "def self.foo; end"
  ~~~ keyword
           ~~~ name
                ~~~ end
  ~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Undefinition
 
 Format:
 
-```
+~~~
 (undef (sym :foo) (sym :bar) (dsym (str "foo") (int 1)))
 "undef foo :bar :"foo#{1}""
  ~~~~~ keyword
  ~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ## Aliasing
 
@@ -718,18 +718,18 @@ Format:
 
 Format:
 
-```
+~~~
 (alias (sym :foo) (dsym (str "foo") (int 1)))
 "alias foo :"foo#{1}""
  ~~~~~ keyword
  ~~~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Global variable aliasing
 
 Format:
 
-```
+~~~
 (alias (gvar :$foo) (gvar :$bar))
 "alias $foo $bar"
  ~~~~~ keyword
@@ -739,51 +739,51 @@ Format:
 "alias $foo $&"
  ~~~~~ keyword
  ~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ## Formal arguments
 
 Format:
 
-```
+~~~
 (args (arg :foo))
 "(foo)"
  ~~~~~ expression
-```
+~~~
 
 ### Required argument
 
 Format:
 
-```
+~~~
 (arg :foo)
 "foo"
  ~~~ expression
  ~~~ name
-```
+~~~
 
 ### Optional argument
 
 Format:
 
-```
+~~~
 (optarg :foo (int 1))
 "foo = 1"
  ~~~~~~~ expression
      ^ operator
  ~~~ name
-```
+~~~
 
 ### Named splat argument
 
 Format:
 
-```
+~~~
 (restarg :foo)
 "*foo"
  ~~~~ expression
   ~~~ name
-```
+~~~
 
 Begin of the `expression` points to `*`.
 
@@ -791,22 +791,22 @@ Begin of the `expression` points to `*`.
 
 Format:
 
-```
+~~~
 (restarg)
 "*"
  ^ expression
-```
+~~~
 
 ### Block argument
 
 Format:
 
-```
+~~~
 (blockarg :foo)
 "&foo"
   ~~~ name
  ~~~~ expression
-```
+~~~
 
 Begin of the `expression` points to `&`.
 
@@ -818,7 +818,7 @@ if they were on the lhs of a multiple assignment.
 
 Format:
 
-```
+~~~
 (args (arg_expr (ivasgn :@bar)))
 "|@bar|"
 
@@ -830,70 +830,70 @@ Format:
 
 (args (blockarg_expr (ivasgn :@bar)))
 "|&@bar|"
-```
+~~~
 
 ### Block shadow arguments
 
 Format:
 
-```
+~~~
 (args (shadowarg :foo) (shadowarg :bar))
 "|; foo, bar|"
-```
+~~~
 
 ### Decomposition
 
 Format:
 
-```
+~~~
 (def :f (args (arg :a) (mlhs (arg :foo) (restarg :bar))))
 "def f(a, (foo, *bar)); end"
           ^ begin   ^ end
           ~~~~~~~~~~~ expression
-```
+~~~
 
 ### Required keyword argument
 
 Format:
 
-```
+~~~
 (kwarg :foo (int 1))
 "foo:"
  ~~~~ expression
  ~~~~ name
-```
+~~~
 
 ### Optional keyword argument
 
 Format:
 
-```
+~~~
 (kwoptarg :foo (int 1))
 "foo: 1"
  ~~~~~~ expression
  ~~~~ name
-```
+~~~
 
 ### Named keyword splat argument
 
 Format:
 
-```
+~~~
 (kwrestarg :foo)
 "**foo"
  ~~~~~ expression
    ~~~ name
-```
+~~~
 
 ### Unnamed keyword splat argument
 
 Format:
 
-```
+~~~
 (kwrestarg)
 "**"
  ~~ expression
-```
+~~~
 
 ## Send
 
@@ -901,20 +901,20 @@ Format:
 
 Format:
 
-```
+~~~
 (send nil :foo (lvar :bar))
 "foo(bar)"
  ~~~ selector
     ^ begin
         ^ end
  ~~~~~~~~ expression
-```
+~~~
 
 ### To receiver
 
 Format:
 
-```
+~~~
 (send (lvar :foo) :bar (int 1))
 "foo.bar(1)"
      ~~~ selector
@@ -949,12 +949,12 @@ Format:
            ^ operator
  ~~~~~~~~~~~~~~~ expression
 
-```
+~~~
 
 ### To superclass
 
 Format of super with arguments:
-```
+~~~
 (super (lvar :a))
 "super a"
  ~~~~~ keyword
@@ -966,49 +966,49 @@ Format of super with arguments:
        ^ end
  ~~~~~ keyword
  ~~~~~~~ expression
-```
+~~~
 
 Format of super without arguments (**z**ero-arity):
-```
+~~~
 (zsuper)
 "super"
  ~~~~~ keyword
  ~~~~~ expression
-```
+~~~
 
 ### To block argument
 
 Format:
 
-```
+~~~
 (yield (lvar :foo))
 "yield(foo)"
  ~~~~~ keyword
       ^ begin
           ^ end
  ~~~~~~~~~~ expression
-```
+~~~
 
 ### Passing a literal block
 
-```
+~~~
 (block (send nil :foo) (args (arg :bar)) (begin ...))
 "foo do |bar|; end"
      ~~ begin
                ~~~ end
      ~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Passing expression as block
 
 Used when passing expression as block `foo(&bar)`
 
-```
+~~~
 (send nil :foo (int 1) (block-pass (lvar :foo)))
 "foo(1, &foo)"
         ^ operator
         ~~~~ expression
-```
+~~~
 
 ## Control flow
 
@@ -1018,24 +1018,24 @@ Used when passing expression as block `foo(&bar)`
 
 Format:
 
-```
+~~~
 (and (lvar :foo) (lvar :bar))
 "foo and bar"
      ~~~ operator
  ~~~~~~~~~~~ expression
-```
+~~~
 
 #### Unary (! not) (1.8)
 
 Format:
 
-```
+~~~
 (not (lvar :foo))
 "!foo"
  ^ operator
 "not foo"
  ~~~ operator
-```
+~~~
 
 ### Branching
 
@@ -1043,7 +1043,7 @@ Format:
 
 Format:
 
-```
+~~~
 (if (lvar :cond) (lvar :iftrue) nil)
 "if cond then iftrue; end"
  ~~ keyword
@@ -1075,13 +1075,13 @@ Format:
 "iftrue unless cond"
         ~~~~~~ keyword
  ~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 #### With else
 
 Format:
 
-```
+~~~
 (if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
 "if cond then iftrue; else; iffalse; end"
  ~~ keyword
@@ -1109,13 +1109,13 @@ Format:
                       ~~~~ else
                                      ~~~ end
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 #### With elsif
 
 Format:
 
-```
+~~~
 (if (lvar :cond1) (int 1) (if (lvar :cond2 (int 2) (int 3))))
 "if cond1; 1; elsif cond2; 2; else 3; end"
  ~~ keyword (left)
@@ -1124,19 +1124,19 @@ Format:
               ~~~~~ keyword (right)
                               ~~~~ else (right)
                                       ~~~ end (right)
-```
+~~~
 
 #### Ternary
 
 Format:
 
-```
+~~~
 (if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
 "cond ? iftrue : iffalse"
       ^ question
                ^ colon
  ~~~~~~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 ### Case matching
 
@@ -1144,7 +1144,7 @@ Format:
 
 Format:
 
-```
+~~~
 (when (regexp "foo" (regopt)) (begin (lvar :bar)))
 "when /foo/ then bar"
  ~~~~ keyword
@@ -1159,7 +1159,7 @@ Format:
 
 (when (splat (lvar :foo)) (send nil :meth))
 "when *foo; meth"
-```
+~~~
 
 #### Case-expression clause
 
@@ -1167,21 +1167,21 @@ Format:
 
 Format:
 
-```
+~~~
 (case (lvar :foo) (when (str "bar") (lvar :bar)) nil)
 "case foo; when "bar"; bar; end"
  ~~~~ keyword               ~~~ end
-```
+~~~
 
 ##### With else
 
 Format:
 
-```
+~~~
 (case (lvar :foo) (when (str "bar") (lvar :bar)) (lvar :baz))
 "case foo; when "bar"; bar; else baz; end"
  ~~~~ keyword               ~~~~ else ~~~ end
-```
+~~~
 
 #### Case-conditions clause
 
@@ -1189,17 +1189,17 @@ Format:
 
 Format:
 
-```
+~~~
 (case nil (when (lvar :bar) (lvar :bar)) nil)
 "case; when bar; bar; end"
  ~~~~ keyword         ~~~ end
-```
+~~~
 
 ##### With else
 
 Format:
 
-```
+~~~
 (case nil (when (lvar :bar) (lvar :bar)) (lvar :baz))
 "case; when bar; bar; else baz; end"
  ~~~~ keyword         ~~~~ else ~~~ end
@@ -1209,7 +1209,7 @@ Format:
  ~~~~ keyword
        ~~~~ else
                  ~~~ end
-```
+~~~
 
 ### Looping
 
@@ -1217,7 +1217,7 @@ Format:
 
 Format:
 
-```
+~~~
 (while (lvar :condition) (send nil :foo))
 "while condition do foo; end"
  ~~~~~ keyword
@@ -1250,13 +1250,13 @@ Format:
 "foo until condition"
      ~~~~~ keyword
  ~~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 
 #### With postcondition
 
 Format:
 
-```
+~~~
 (while-post (lvar :condition) (begin (send nil :foo)))
 "begin; foo; end while condition"
  ~~~~~ begin (begin)
@@ -1268,13 +1268,13 @@ Format:
  ~~~~~ begin (begin)
              ~~~ end (begin)
                  ~~~~~ keyword (until-post)
-```
+~~~
 
 #### For-in
 
 Format:
 
-```
+~~~
 (for (lasgn :a) (lvar :array) (send nil :p (lvar :a)))
 "for a in array do p a; end"
  ~~~ keyword
@@ -1291,51 +1291,51 @@ Format:
   (mlhs (lasgn :a) (lasgn :b)) (lvar :array)
   (send nil :p (lvar :a) (lvar :b)))
 "for a, b in array; p a, b; end"
-```
+~~~
 
 #### Break
 
 Format:
 
-```
+~~~
 (break (int 1))
 "break 1"
  ~~~~~ keyword
  ~~~~~~~ expression
-```
+~~~
 
 #### Next
 
 Format:
 
-```
+~~~
 (next (int 1))
 "next 1"
  ~~~~ keyword
  ~~~~~~ expression
-```
+~~~
 
 #### Redo
 
 Format:
 
-```
+~~~
 (redo)
 "redo"
  ~~~~ keyword
  ~~~~ expression
-```
+~~~
 
 ### Return
 
 Format:
 
-```
+~~~
 (return (lvar :foo))
 "return(foo)"
  ~~~~~~ keyword
  ~~~~~~~~~~~ expression
-```
+~~~
 
 ### Exception handling
 
@@ -1343,7 +1343,7 @@ Format:
 
 Format:
 
-```
+~~~
 (resbody (array (const nil :Exception) (const nil :A)) (lvasgn :bar) (int 1))
 "rescue Exception, A => bar; 1"
  ~~~~~~ keyword      ~~ assoc
@@ -1365,7 +1365,7 @@ Format:
 (resbody nil nil (int 1))
 "rescue; 1"
  ~~~~~~ keyword
-```
+~~~
 
 #### Rescue statement
 
@@ -1373,7 +1373,7 @@ Format:
 
 Format:
 
-```
+~~~
 (begin
   (rescue (send nil :foo) (resbody ...) (resbody ...) nil))
 "begin; foo; rescue Exception; rescue; end"
@@ -1381,37 +1381,37 @@ Format:
              ~~~~~~~~~~~~~~~~~ expression (rescue.resbody/1)
                                ~~~~~~~ expression (rescue.resbody/2)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)
-```
+~~~
 
 ##### With else
 
 Format:
 
-```
+~~~
 (begin
   (rescue (send nil :foo) (resbody ...) (resbody ...) (true)))
 "begin; foo; rescue Exception; rescue; else true end"
  ~~~~~ begin                           ~~~~ else (rescue)
                                                  ~~~ end
-```
+~~~
 
 #### Ensure statement
 
 Format:
 
-```
+~~~
 (begin
   (ensure (send nil :foo) (send nil :bar))
 "begin; foo; ensure; bar; end"
  ~~~~~ begin ~~~~~~ keyword (ensure)
                           ~~~ end
-```
+~~~
 
 #### Rescue with ensure
 
 Format:
 
-```
+~~~
 (begin
   (ensure
     (rescue (send nil :foo) (resbody ...) (int 1))
@@ -1423,24 +1423,24 @@ Format:
                                    ~~~~~~ keyword (ensure)
              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (ensure)
                                                 ~~~ end
-```
+~~~
 
 #### Retry
 
 Format:
 
-```
+~~~
 (retry)
 "retry"
  ~~~~~ keyword
  ~~~~~ expression
-```
+~~~
 
 ### BEGIN and END
 
 Format:
 
-```
+~~~
 (preexe (send nil :puts (str "foo")))
 "BEGIN { puts "foo" }"
  ~~~~~ keyword
@@ -1452,5 +1452,5 @@ Format:
  ~~~ keyword
      ^ begin      ^ end
  ~~~~~~~~~~~~~~~~~~ expression
-```
+~~~
 

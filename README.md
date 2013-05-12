@@ -14,18 +14,18 @@ _Parser_ is a production-ready Ruby parser written in pure Ruby. It performs on 
 
 Parse a chunk of code:
 
-``` ruby
+~~~ ruby
 require 'parser/ruby20'
 
 p Parser::Ruby20.parse("2 + 2")
 # (send
 #   (int 2) :+
 #   (int 2))
-```
+~~~
 
 Parse a chunk of code and display all diagnostics:
 
-```ruby
+~~~ ruby
 parser = Parser::Ruby20.new
 parser.diagnostics.consumer = lambda do |diag|
   puts diag.render
@@ -41,7 +41,7 @@ p parser.parse(buffer)
 # (send nil :foo
 #   (splat
 #     (send nil :bar)))
-```
+~~~
 
 If you reuse the same parser object for multiple `#parse` runs, you need to `#reset` it.
 

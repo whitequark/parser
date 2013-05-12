@@ -1,4 +1,5 @@
---markup-provider redcarpet
+--markup-provider kramdown
 --markup markdown
 -o yardoc/
-- doc/*
+-
+doc/*

@@ -55,7 +55,7 @@ module ParseHelper
   end
 
   # Use like this:
-  # ```
+  # ~~~
   # assert_parses(
   #   s(:send, s(:lit, 10), :+, s(:lit, 20))
   #   %q{10 + 20},
@@ -65,7 +65,7 @@ module ParseHelper
   #     },
   #     %w(1.8 1.9) # optional
   # )
-  # ```
+  # ~~~
   def assert_parses(ast, code, source_maps='', versions=ALL_VERSIONS)
     with_versions(code, versions) do |version, parser|
       source_file = Parser::Source::Buffer.new('(assert_parses)')
@@ -103,13 +103,13 @@ module ParseHelper
   end
 
   # Use like this:
-  # ```
+  # ~~~
   # assert_diagnoses(
   #   [:warning, :ambiguous_prefix, { prefix: '*' }],
   #   %q{foo *bar},
   #   %q{    ^ location
   #     |     ~~~ highlights (0)})
-  # ```
+  # ~~~
   def assert_diagnoses(diagnostic, code, source_maps='', versions=ALL_VERSIONS)
     with_versions(code, versions) do |version, parser|
       source_file = Parser::Source::Buffer.new('(assert_diagnoses)')
