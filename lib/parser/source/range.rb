@@ -47,7 +47,7 @@ module Parser
       end
 
       def to_source
-        source_line[column_range]
+        @source_buffer.source[self.begin_pos...self.end_pos]
       end
 
       def is?(*what)
