@@ -529,6 +529,14 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~~~~ expression})
   end
 
+  def test_gvar_dash_empty
+    assert_diagnoses(
+      [:fatal, :unexpected, :character => '$'],
+      %q{$- },
+      %q{^ location},
+      %w(2.1))
+  end
+
   def test_back_ref
     assert_parses(
       s(:back_ref, :$+),

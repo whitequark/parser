@@ -622,9 +622,10 @@ class TestLexer < MiniTest::Unit::TestCase
     util_lex_token("$`", :tBACK_REF, "$`")
   end
 
-  def test_global_dash_nothing
-    util_lex_token("$- ", :tGVAR, "$-")
-  end
+  # This was removed in 2.1.
+  # def test_global_dash_nothing
+  #   util_lex_token("$- ", :tGVAR, "$-")
+  # end
 
   def test_global_dash_something
     util_lex_token("$-x", :tGVAR, "$-x")

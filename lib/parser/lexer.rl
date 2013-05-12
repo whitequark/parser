@@ -461,7 +461,7 @@ class Parser::Lexer
   global_var     = '$'
       ( bareword | digit+
       | [`'+~*$&?!@/\\;,.=:<>"] # `
-      | '-' [A-Za-z0-9_]?
+      | '-' c_alnum
       )
   ;
 
