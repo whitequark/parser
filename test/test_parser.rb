@@ -531,7 +531,7 @@ class TestParser < MiniTest::Unit::TestCase
 
   def test_gvar_dash_empty
     assert_diagnoses(
-      [:fatal, :unexpected, :character => '$'],
+      [:fatal, :unexpected, { :character => '$' }],
       %q{$- },
       %q{^ location},
       %w(2.1))
