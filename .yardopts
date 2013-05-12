@@ -1,7 +1,7 @@
 ./lib/parser/**/*.rb ./lib/parser.rb
 -m markdown
 -M redcarpet
--o ./doc/build
+-o ./yardoc
 -r ./README.md
 --private
 --protected
