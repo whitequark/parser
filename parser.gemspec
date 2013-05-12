@@ -10,6 +10,7 @@ Gem::Specification.new do |spec|
   spec.summary       = spec.description
   spec.homepage      = 'http://github.com/whitequark/parser'
   spec.license       = 'MIT'
+  spec.has_rdoc      = 'yard'
 
   spec.files         = `git ls-files`.split($/) + %w(
                           lib/parser/lexer.rb

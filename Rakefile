@@ -40,6 +40,11 @@ task :clean_env do
   ENV.delete 'RACC_DEBUG'
 end
 
+desc 'Generates YARD documentation'
+task :yard => :generate do
+  sh('yard doc')
+end
+
 rule '.rb' => '.rl' do |t|
   sh "ragel -R #{t.source} -o #{t.name}"
 end
