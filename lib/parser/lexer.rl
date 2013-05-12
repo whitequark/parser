@@ -1802,7 +1802,7 @@ class Parser::Lexer
 
       c_any
       => {
-        message = Parser::ERRORS[:unexpected] % { :character => tok.inspect }
+        message = Parser::ERRORS[:unexpected] % { :character => tok.inspect[1..-2] }
         diagnostic :fatal, message
       };
 
