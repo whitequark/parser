@@ -1285,6 +1285,7 @@ class TestParser < MiniTest::Unit::TestCase
         s(:nil)),
       %q{module Foo; nil; end},
       %q{~~~~~~ keyword
+        |       ~~~ name
         |                 ~~~ end})
   end
 
@@ -1322,6 +1323,7 @@ class TestParser < MiniTest::Unit::TestCase
         s(:nil)),
       %q{class Foo; nil; end},
       %q{~~~~~ keyword
+        |      ~~~ name
         |                ~~~ end})
   end
 

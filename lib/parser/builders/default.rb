@@ -393,19 +393,19 @@ module Parser
                   lt_t, superclass,
                   body, end_t)
       n(:class, [ name, superclass, body ],
-        definition_map(class_t, lt_t, nil, end_t))
+        module_definition_map(class_t, name, lt_t, end_t))
     end
 
     def def_sclass(class_t, lshft_t, expr,
                    body, end_t)
       n(:sclass, [ expr, body ],
-        definition_map(class_t, lshft_t, nil, end_t))
+        module_definition_map(class_t, nil, lshft_t, end_t))
     end
 
     def def_module(module_t, name,
                    body, end_t)
       n(:module, [ name, body ],
-        definition_map(module_t, nil, nil, end_t))
+        module_definition_map(module_t, name, nil, end_t))
     end
 
     #
@@ -976,6 +976,16 @@ module Parser
       end
 
       Source::Map::Variable.new(name_range, expr_l)
+    end
+
+    def module_definition_map(keyword_t, name_e, operator_t, end_t)
+      if name_e
+        name_l = name_e.src.expression
+      end
+
+      Source::Map::Definition.new(loc(keyword_t),
+                                  loc(operator_t), name_l,
+                                  loc(end_t))
     end
 
     def definition_map(keyword_t, operator_t, name_t, end_t)
