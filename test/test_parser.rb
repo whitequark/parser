@@ -637,24 +637,13 @@ class TestParser < MiniTest::Unit::TestCase
         })
   end
 
-  def test_cvdecl
+  def test_cvasgn
     assert_parses(
-      s(:cvdecl, :@@var, s(:int, 10)),
+      s(:cvasgn, :@@var, s(:int, 10)),
       %q{@@var = 10},
       %q{~~~~~ name
         |      ^ operator
         |~~~~~~~~~~ expression
-        })
-  end
-
-  def test_cvasgn
-    assert_parses(
-      s(:def, :a, s(:args),
-        s(:cvasgn, :@@var, s(:int, 10))),
-      %q{def a; @@var = 10; end},
-      %q{       ~~~~~ name (cvasgn)
-        |             ^ operator (cvasgn)
-        |       ~~~~~~~~~~ expression (cvasgn)
         })
   end
 
@@ -723,9 +712,9 @@ class TestParser < MiniTest::Unit::TestCase
 
   # Constants
 
-  def test_cdecl_toplevel
+  def test_casgn_toplevel
     assert_parses(
-      s(:cdecl, s(:cbase), :Foo, s(:int, 10)),
+      s(:casgn, s(:cbase), :Foo, s(:int, 10)),
       %q{::Foo = 10},
       %q{  ~~~ name
         |      ^ operator
@@ -734,9 +723,9 @@ class TestParser < MiniTest::Unit::TestCase
         })
   end
 
-  def test_cdecl_scoped
+  def test_casgn_scoped
     assert_parses(
-      s(:cdecl, s(:const, nil, :Bar), :Foo, s(:int, 10)),
+      s(:casgn, s(:const, nil, :Bar), :Foo, s(:int, 10)),
       %q{Bar::Foo = 10},
       %q{     ~~~ name
         |         ^ operator
@@ -745,9 +734,9 @@ class TestParser < MiniTest::Unit::TestCase
         })
   end
 
-  def test_cdecl_unscoped
+  def test_casgn_unscoped
     assert_parses(
-      s(:cdecl, nil, :Foo, s(:int, 10)),
+      s(:casgn, nil, :Foo, s(:int, 10)),
       %q{Foo = 10},
       %q{~~~ name
         |    ^ operator
@@ -755,7 +744,7 @@ class TestParser < MiniTest::Unit::TestCase
         })
   end
 
-  def test_cdecl_invalid
+  def test_casgn_invalid
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def f; Foo = 1; end},
@@ -809,7 +798,7 @@ class TestParser < MiniTest::Unit::TestCase
   def test_masgn_splat
     assert_parses(
       s(:masgn,
-        s(:mlhs, s(:ivasgn, :@foo), s(:cvdecl, :@@bar)),
+        s(:mlhs, s(:ivasgn, :@foo), s(:cvasgn, :@@bar)),
         s(:array, s(:splat, s(:lvar, :foo)))),
       %q{@foo, @@bar = *foo},
       %q{              ^ operator (array.splat)
@@ -951,7 +940,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:masgn,
         s(:mlhs,
-          s(:cdecl, s(:self), :A),
+          s(:casgn, s(:self), :A),
           s(:lvasgn, :foo)),
         s(:lvar, :foo)),
       %q{self::A, foo = foo})
@@ -959,7 +948,7 @@ class TestParser < MiniTest::Unit::TestCase
     assert_parses(
       s(:masgn,
         s(:mlhs,
-          s(:cdecl, s(:cbase), :A),
+          s(:casgn, s(:cbase), :A),
           s(:lvasgn, :foo)),
         s(:lvar, :foo)),
       %q{::A, foo = foo})
@@ -1038,7 +1027,7 @@ class TestParser < MiniTest::Unit::TestCase
         |~~~~~~~ expression})
 
     assert_parses(
-      s(:op_asgn, s(:cvdecl, :@@var), :|, s(:int, 10)),
+      s(:op_asgn, s(:cvasgn, :@@var), :|, s(:int, 10)),
       %q{@@var |= 10})
 
     assert_parses(
@@ -1065,13 +1054,13 @@ class TestParser < MiniTest::Unit::TestCase
   def test_const_op_asgn
     assert_parses(
       s(:op_asgn,
-        s(:cdecl, nil, :A), :+,
+        s(:casgn, nil, :A), :+,
         s(:int, 1)),
       %q{A += 1})
 
     assert_parses(
       s(:op_asgn,
-        s(:cdecl, s(:cbase), :A), :+,
+        s(:casgn, s(:cbase), :A), :+,
         s(:int, 1)),
       %q{::A += 1},
       %q{},
@@ -1079,7 +1068,7 @@ class TestParser < MiniTest::Unit::TestCase
 
     assert_parses(
       s(:op_asgn,
-        s(:cdecl, s(:const, nil, :B), :A), :+,
+        s(:casgn, s(:const, nil, :B), :A), :+,
         s(:int, 1)),
       %q{B::A += 1},
       %q{},
@@ -2751,7 +2740,7 @@ class TestParser < MiniTest::Unit::TestCase
       "foo.A = 1")
 
     assert_parses(
-      s(:cdecl, s(:lvar, :foo), :A, s(:int, 1)),
+      s(:casgn, s(:lvar, :foo), :A, s(:int, 1)),
       "foo::A = 1")
   end
 

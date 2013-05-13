@@ -11,8 +11,7 @@ module Parser
     private
 
     def assignment?(node)
-      [:lvasgn, :ivasgn, :gvasgn,
-       :cvasgn, :cvdecl, :cdecl].include?(node.type)
+      [:lvasgn, :ivasgn, :gvasgn, :cvasgn, :casgn].include?(node.type)
     end
 
     def remove(range)

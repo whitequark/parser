@@ -48,7 +48,6 @@ module Parser
       alias on_lvasgn   process_var_asgn_node
       alias on_ivasgn   process_var_asgn_node
       alias on_gvasgn   process_var_asgn_node
-      alias on_cvdecl   process_var_asgn_node
       alias on_cvasgn   process_var_asgn_node
 
       alias on_and_asgn process_regular_node
@@ -72,7 +71,7 @@ module Parser
         node.updated(nil, [ scope_node, name ])
       end
 
-      def on_cdecl(node)
+      def on_casgn(node)
         scope_node, name, value_node = *node
 
         scope_node = process(scope_node) if scope_node

@@ -392,19 +392,6 @@ Format:
 
 ### To class variable
 
-#### Inside a class scope
-
-Format:
-
-~~~
-(cvdecl :@@foo (lvar :bar))
-"@@foo = bar"
-       ^ operator
- ~~~~~~~~~~~ expression
-~~~
-
-#### Inside a method scope
-
 Format:
 
 ~~~
@@ -432,7 +419,7 @@ Format:
 Format:
 
 ~~~
-(cdecl (cbase) :Foo (int 1))
+(casgn (cbase) :Foo (int 1))
 "::Foo = 1"
    ~~~ name
        ~ operator
@@ -444,7 +431,7 @@ Format:
 Format:
 
 ~~~
-(cdecl (lvar :a) :Foo (int 1))
+(casgn (lvar :a) :Foo (int 1))
 "a::Foo = 1"
     ~~~ name
         ~ operator
@@ -456,7 +443,7 @@ Format:
 Format:
 
 ~~~
-(cdecl nil :Foo (int 1))
+(casgn nil :Foo (int 1))
 "Foo = 1"
  ~~~ name
      ~ operator

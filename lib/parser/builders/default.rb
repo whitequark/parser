@@ -305,11 +305,7 @@ module Parser
     def assignable(node)
       case node.type
       when :cvar
-        if @parser.in_def?
-          node.updated(:cvasgn)
-        else
-          node.updated(:cvdecl)
-        end
+        node.updated(:cvasgn)
 
       when :ivar
         node.updated(:ivasgn)
@@ -323,7 +319,7 @@ module Parser
           diagnostic :error, message, node.src.expression
         end
 
-        node.updated(:cdecl)
+        node.updated(:casgn)
 
       when :ident
         name, = *node
@@ -351,10 +347,7 @@ module Parser
 
     def op_assign(lhs, op_t, rhs)
       case lhs.type
-      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :cvdecl,
-           :cdecl,
-           :send
-
+      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :casgn, :send
         operator   = value(op_t)[0..-1].to_sym
         source_map = lhs.src.
                         with_operator(loc(op_t)).
