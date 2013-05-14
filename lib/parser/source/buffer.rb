@@ -94,15 +94,7 @@ module Parser
 
       def source_line(line)
         unless @lines
-          @lines = @source.lines.map do |source_line|
-            # Line endings will be commonly present for all lines
-            # except the last one. It does not make sense to keep them.
-            if source_line.end_with? "\n"
-              source_line.chomp
-            else
-              source_line
-            end
-          end
+          @lines = @source.lines.map(&:chomp)
         end
 
         @lines[line - @first_line]
