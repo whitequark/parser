@@ -18,8 +18,15 @@ class TestSourceBuffer < MiniTest::Unit::TestCase
     @buffer.source = 'foo'
     assert_equal 'foo', @buffer.source
 
-    assert @buffer.frozen?
     assert @buffer.source.frozen?
+  end
+
+  def test_source_double_setter
+    @buffer.source = 'foo'
+
+    assert_raises(ArgumentError) do
+      @buffer.source = 'bar'
+    end
   end
 
   def test_read
@@ -31,7 +38,6 @@ class TestSourceBuffer < MiniTest::Unit::TestCase
     buffer.read
     assert_equal 'foobar', buffer.source
 
-    assert buffer.frozen?
     assert buffer.source.frozen?
   end
 
@@ -39,11 +45,6 @@ class TestSourceBuffer < MiniTest::Unit::TestCase
     assert_raises RuntimeError do
       @buffer.source
     end
-  end
-
-  def test_line_begin_positions
-    @buffer.source = "1\nfoo\nbar"
-    assert_equal [0, 2, 6], @buffer.send(:line_begin_positions)
   end
 
   def test_decompose_position
