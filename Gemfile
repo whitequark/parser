@@ -4,5 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'rubocop', :platform => :ruby_19
+  gem 'rubocop', :platform => [:ruby_19, :ruby_20]
 end
