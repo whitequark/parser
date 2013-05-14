@@ -49,9 +49,12 @@ module Parser
       end
 
       def initialize(name, first_line = 1)
-        @name       = name
-        @first_line = first_line
-        @source     = nil
+        @name        = name
+        @source      = nil
+        @first_line  = first_line
+
+        @lines       = nil
+        @line_begins = nil
       end
 
       def read
@@ -71,56 +74,70 @@ module Parser
       end
 
       def source=(source)
+        if @source
+          raise ArgumentError, "Source::Buffer is immutable"
+        end
+
         if source.respond_to? :encoding
           source = source.dup if source.frozen?
           source = self.class.reencode_string(source)
         end
 
-        @source  = source.freeze
-
-        freeze
+        @source = source.freeze
       end
 
       def decompose_position(position)
-        line       = line_for(position)
-        line_begin = line_begin_positions[line]
+        line_no, line_begin = line_for(position)
 
-        [ @first_line + line, position - line_begin ]
+        [ @first_line + line_no, position - line_begin ]
       end
 
       def source_line(line)
-        mapped_line = line - @first_line
-
-        # Consider improving this naïve implementation.
-        source_line = source.lines.drop(mapped_line).first
-
-        # Line endings will be commonly present for all lines
-        # except the last one. It does not make sense to keep them.
-        if source_line.end_with? "\n"
-          source_line.chomp
-        else
-          source_line
+        unless @lines
+          @lines = @source.lines.map do |source_line|
+            # Line endings will be commonly present for all lines
+            # except the last one. It does not make sense to keep them.
+            if source_line.end_with? "\n"
+              source_line.chomp
+            else
+              source_line
+            end
+          end
         end
+
+        @lines[line - @first_line]
       end
 
       private
 
-      def line_begin_positions
-        # TODO: Optimize this.
-        [0] + source.
-          each_char.
-          with_index.
-          select do |char, index|
-            char == "\n"
-          end.map do |char, index|
-            index + 1
+      def line_begins
+        unless @line_begins
+          @line_begins, index = [ [ 0, 0 ] ], 1
+
+          @source.each_char do |char|
+            if char == "\n"
+              @line_begins << [ @line_begins.length, index ]
+            end
+
+            index += 1
           end
+
+          @line_begins = @line_begins.reverse
+        end
+
+        @line_begins
       end
 
       def line_for(position)
-        # TODO: Optimize this.
-        line_begin_positions.rindex do |line_beg|
-          line_beg <= position
+        if line_begins.respond_to? :bsearch
+          line_begins.bsearch do |line, line_begin|
+            line_begin <= position
+          end
+        else
+          # Slower variant for <= Ruby 2.0.
+          line_begins.find do |line, line_begin|
+            line_begin <= position
+          end
         end
       end
     end
