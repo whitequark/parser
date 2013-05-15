@@ -1,25 +1,27 @@
 # encoding: utf-8
+
 require File.expand_path('../lib/parser/version', __FILE__)
+require 'English'
 
 Gem::Specification.new do |spec|
   spec.name          = 'parser'
   spec.version       = Parser::VERSION
   spec.authors       = ['Peter Zotov']
   spec.email         = ['whitequark@whitequark.org']
-  spec.description   = %q{A Ruby parser written in pure Ruby.}
+  spec.description   = 'A Ruby parser written in pure Ruby.'
   spec.summary       = spec.description
   spec.homepage      = 'http://github.com/whitequark/parser'
   spec.license       = 'MIT'
   spec.has_rdoc      = 'yard'
 
-  spec.files         = `git ls-files`.split($/) + %w(
+  spec.files         = `git ls-files`.split($RS) + %w(
                           lib/parser/lexer.rb
                           lib/parser/ruby18.rb
                           lib/parser/ruby19.rb
                           lib/parser/ruby20.rb
                           lib/parser/ruby21.rb
                        )
-  spec.executables   = %w(ruby-parse ruby-rewrite)
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
