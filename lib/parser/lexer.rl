@@ -1717,7 +1717,7 @@ class Parser::Lexer
 
       constant
       => { emit(:tCONSTANT)
-           fbreak; };
+           fnext expr_arg; fbreak; };
 
       constant ambiguous_const_suffix
       => { emit(:tCONSTANT, tok(@ts, tm), @ts, tm)
