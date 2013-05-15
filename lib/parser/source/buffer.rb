@@ -98,7 +98,7 @@ module Parser
           @lines = @source.lines.map(&:chomp)
         end
 
-        @lines[line - @first_line]
+        @lines[line - @first_line].dup
       end
 
       private
