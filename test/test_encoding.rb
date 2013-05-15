@@ -25,7 +25,11 @@ class TestEncoding < MiniTest::Unit::TestCase
     end
 
     def test_empty
-      assert_equal Encoding::UTF_8, recognize("")
+      assert_equal Encoding::BINARY, recognize("")
+    end
+
+    def test_false_positive
+      assert_equal Encoding::BINARY, recognize(%{require 'cane/encoding_aware_iterator'})
     end
   end
 end
