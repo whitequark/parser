@@ -28,8 +28,13 @@ class TestEncoding < MiniTest::Unit::TestCase
       assert_equal Encoding::BINARY, recognize("")
     end
 
-    def test_false_positive
+    def test_no_comment
       assert_equal Encoding::BINARY, recognize(%{require 'cane/encoding_aware_iterator'})
+    end
+
+    def test_adjacent
+      assert_equal Encoding::BINARY, recognize("# codingkoi8-r")
+      assert_equal Encoding::BINARY, recognize("# coding koi8-r")
     end
   end
 end

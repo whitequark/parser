@@ -26,7 +26,7 @@ module Parser
           encoding_line = first_line
         end
 
-        if encoding_line =~ /^#.*coding[:=]?\s*([a-z0-9_-]+)/
+        if encoding_line =~ /^#.*coding[:=]\s*([a-z0-9_-]+)/
           Encoding.find($1)
         else
           string.encoding
