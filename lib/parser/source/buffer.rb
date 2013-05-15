@@ -106,7 +106,7 @@ module Parser
           end
         end
 
-        @lines[line - @first_line]
+        @lines[line - @first_line].dup
       end
 
       private
