@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require File.expand_path('../lib/parser/version', __FILE__)
-require 'English'
 
 Gem::Specification.new do |spec|
   spec.name          = 'parser'
@@ -14,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
   spec.has_rdoc      = 'yard'
 
-  spec.files         = `git ls-files`.split($RS) + %w(
+  spec.files         = `git ls-files`.split + %w(
                           lib/parser/lexer.rb
                           lib/parser/ruby18.rb
                           lib/parser/ruby19.rb
