@@ -2117,6 +2117,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kSELF,  "self")
   end
 
+  def test_bug_const_expr_end
+    util_lex_token("Option",
+                   :tCONSTANT, 'Option')
+
+    assert_equal :expr_arg, @lex.state
+  end
+
   def test_bug_expr_beg_div
     @lex.state = :expr_beg
     util_lex_token("/=/",
