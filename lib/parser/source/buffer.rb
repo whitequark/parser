@@ -8,12 +8,15 @@ module Parser
 
       def self.recognize_encoding(string)
         if string.empty?
-          return Encoding::UTF_8
+          return Encoding::BINARY
         end
 
         # TODO: Make this more efficient.
         first_line, second_line = string.lines.first(2)
-        first_line.force_encoding(Encoding::ASCII_8BIT)
+
+        [first_line, second_line].each do |line|
+          line.force_encoding(Encoding::ASCII_8BIT) if line
+        end
 
         if first_line =~ /\A\xef\xbb\xbf/ # BOM
           return Encoding::UTF_8
@@ -23,9 +26,7 @@ module Parser
           encoding_line = first_line
         end
 
-        encoding_line.force_encoding(Encoding::ASCII_8BIT)
-
-        if encoding_line =~ /coding[:=]?\s*([a-z0-9_-]+)/
+        if encoding_line =~ /^#.*coding[:=]?\s*([a-z0-9_-]+)/
           Encoding.find($1)
         else
           string.encoding
