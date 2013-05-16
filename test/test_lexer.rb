@@ -481,16 +481,15 @@ class TestLexer < MiniTest::Unit::TestCase
                    :kEND, "end")
   end
 
-  # TODO
-  # def test_do_cond
-  #   @lex.cond.push true
+  def test_do_cond
+    @lex.cond.push true
 
-  #   util_lex_token("x do 42 end",
-  #                  :tIDENTIFIER, "x",
-  #                  :kDO_COND, "do",
-  #                  :tINTEGER, 42,
-  #                  :kEND, "end")
-  # end
+    util_lex_token("x do 42 end",
+                   :tIDENTIFIER, "x",
+                   :kDO_COND, "do",
+                   :tINTEGER, 42,
+                   :kEND, "end")
+  end
 
   def test_dot
     util_lex_token ".", :tDOT, "."
@@ -1219,7 +1218,7 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   def test_plus
-    util_lex_token("1 + 1", # TODO state?
+    util_lex_token("1 + 1",
                    :tINTEGER, 1,
                    :tPLUS, "+",
                    :tINTEGER, 1)
