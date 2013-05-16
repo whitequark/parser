@@ -2,12 +2,14 @@ module Parser
   module Source
 
     class Map::Send < Map
+      attr_reader :dot
       attr_reader :selector
       attr_reader :operator
       attr_reader :begin
       attr_reader :end
 
-      def initialize(selector_l, begin_l, end_l, expression_l)
+      def initialize(dot_l, selector_l, begin_l, end_l, expression_l)
+        @dot         = dot_l
         @selector    = selector_l
         @begin, @end = begin_l, end_l
 

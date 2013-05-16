@@ -2359,18 +2359,21 @@ class TestParser < MiniTest::Unit::TestCase
       s(:send, s(:lvar, :foo), :fun),
       %q{foo.fun},
       %q{    ~~~ selector
+        |   ^ dot
         |~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :fun),
       %q{foo::fun},
       %q{     ~~~ selector
+        |   ^^ dot
         |~~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :Fun),
       %q{foo::Fun()},
       %q{     ~~~ selector
+        |   ^^ dot
         |~~~~~~~~~~ expression})
   end
 
@@ -2379,18 +2382,21 @@ class TestParser < MiniTest::Unit::TestCase
       s(:send, s(:lvar, :foo), :fun, s(:lvar, :bar)),
       %q{foo.fun bar},
       %q{    ~~~ selector
+        |   ^ dot
         |~~~~~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :fun, s(:lvar, :bar)),
       %q{foo::fun bar},
       %q{     ~~~ selector
+        |   ^^ dot
         |~~~~~~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :Fun, s(:lvar, :bar)),
       %q{foo::Fun bar},
       %q{     ~~~ selector
+        |   ^^ dot
         |~~~~~~~~~~~~ expression})
   end
 
@@ -2431,6 +2437,7 @@ class TestParser < MiniTest::Unit::TestCase
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end.fun bar},
       %q{              ~~~ selector
+        |             ^ dot
         |~~~~~~~~~~~~~~~~~~~~~ expression})
 
     assert_parses(
@@ -2441,6 +2448,7 @@ class TestParser < MiniTest::Unit::TestCase
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end.fun(bar)},
       %q{              ~~~ selector
+        |             ^ dot
         |                 ^ begin
         |                     ^ end
         |~~~~~~~~~~~~~~~~~~~~~~ expression})
@@ -2453,6 +2461,7 @@ class TestParser < MiniTest::Unit::TestCase
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end::fun bar},
       %q{               ~~~ selector
+        |             ^^ dot
         |~~~~~~~~~~~~~~~~~~~~~~ expression})
 
     assert_parses(
@@ -2465,6 +2474,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{               ~~~ selector
         |                  ^ begin
         |                      ^ end
+        |             ^^ dot
         |~~~~~~~~~~~~~~~~~~~~~~~ expression})
 
     assert_parses(
@@ -2728,20 +2738,33 @@ class TestParser < MiniTest::Unit::TestCase
       s(:send, s(:lvar, :foo), :a=, s(:int, 1)),
       %q{foo.a = 1},
       %q{    ~ selector
+        |   ^ dot
         |      ^ operator
         |~~~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :a=, s(:int, 1)),
-      "foo::a = 1")
+      %q{foo::a = 1},
+      %q{     ~ selector
+        |   ^^ dot
+        |       ^ operator
+        |~~~~~~~~~~ expression})
 
     assert_parses(
       s(:send, s(:lvar, :foo), :A=, s(:int, 1)),
-      "foo.A = 1")
+      %q{foo.A = 1},
+      %q{    ~ selector
+        |   ^ dot
+        |      ^ operator
+        |~~~~~~~~~ expression})
 
     assert_parses(
       s(:casgn, s(:lvar, :foo), :A, s(:int, 1)),
-      "foo::A = 1")
+      %q{foo::A = 1},
+      %q{     ~ name
+        |   ^^ double_colon
+        |       ^ operator
+        |~~~~~~~~~~ expression})
   end
 
   def test_send_index
@@ -2837,6 +2860,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{foo.(1)},
       %q{    ^ begin
         |      ^ end
+        |   ^ dot
         |~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
@@ -2846,6 +2870,7 @@ class TestParser < MiniTest::Unit::TestCase
       %q{foo::(1)},
       %q{     ^ begin
         |       ^ end
+        |   ^^ dot
         |~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
   end
