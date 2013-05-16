@@ -2284,9 +2284,7 @@ keyword_variable: kNIL
                     }
                 | tLABEL arg_value
                     {
-                      # TODO: Extract colon
-                      key = @builder.symbol(val[0])
-                      result = @builder.pair(key, nil, val[1])
+                      result = @builder.pair_keyword(val[0], val[1])
                     }
                 | tDSTAR arg_value
                     {

@@ -185,14 +185,22 @@ module Parser
       end
     end
 
-    def associate(begin_t, pairs, end_t)
-      n(:hash, [ *pairs ],
-        collection_map(begin_t, pairs, end_t))
+    def pair_keyword(key_t, value)
+      key_map, pair_map = pair_keyword_map(key_t, value)
+
+      key = n(:sym, [ value(key_t).to_sym ], key_map)
+
+      n(:pair, [ key, value ], pair_map)
     end
 
     def kwsplat(dstar_t, arg)
       n(:kwsplat, [ arg ],
         unary_op_map(dstar_t, arg))
+    end
+
+    def associate(begin_t, pairs, end_t)
+      n(:hash, [ *pairs ],
+        collection_map(begin_t, pairs, end_t))
     end
 
     # Ranges
@@ -895,6 +903,25 @@ module Parser
     def unquoted_symbol_map(symbol_t)
       Source::Map::Collection.new(nil, nil,
                                   loc(symbol_t))
+    end
+
+    def pair_keyword_map(key_t, value_e)
+      key_range = loc(key_t)
+
+      key_l   = Source::Range.new(key_range.source_buffer,
+                                  key_range.begin_pos,
+                                  key_range.end_pos - 1)
+
+      colon_l = Source::Range.new(key_range.source_buffer,
+                                  key_range.end_pos - 1,
+                                  key_range.end_pos)
+
+        # key map
+      [ Source::Map::Collection.new(nil, nil,
+                                    key_l),
+        # pair map
+        Source::Map::Operator.new(colon_l,
+                                  key_range.join(value_e.src.expression)) ]
     end
 
     def expr_map(loc)

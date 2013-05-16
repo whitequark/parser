@@ -434,7 +434,8 @@ class TestParser < MiniTest::Unit::TestCase
       %q[{ foo: 2 }],
       %q{^ begin
         |         ^ end
-        |  ~~~~ expression (pair.sym)
+        |     ^ operator (pair)
+        |  ~~~ expression (pair.sym)
         |  ~~~~~~ expression (pair)
         |~~~~~~~~~~ expression},
         ALL_VERSIONS - %w(1.8))
