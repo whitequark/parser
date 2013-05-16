@@ -544,16 +544,16 @@ module Parser
                     lparen_t=nil, args=[], rparen_t=nil)
       if selector_t.nil?
         n(:send, [ receiver, :call, *args ],
-          send_map(receiver, nil, lparen_t, args, rparen_t))
+          send_map(receiver, dot_t, nil, lparen_t, args, rparen_t))
       else
         n(:send, [ receiver, value(selector_t).to_sym, *args ],
-          send_map(receiver, selector_t, lparen_t, args, rparen_t))
+          send_map(receiver, dot_t, selector_t, lparen_t, args, rparen_t))
       end
     end
 
     def call_lambda(lambda_t)
       n(:send, [ nil, :lambda ],
-        send_map(nil, lambda_t))
+        send_map(nil, nil, lambda_t))
     end
 
     def block(method_call, begin_t, args, body, end_t)
@@ -579,7 +579,7 @@ module Parser
 
       # Incomplete method call.
       n(:send, [ receiver, method_name ],
-        send_map(receiver, selector_t))
+        send_map(receiver, dot_t, selector_t))
     end
 
     def index(receiver, lbrack_t, indexes, rbrack_t)
@@ -994,7 +994,7 @@ module Parser
                                   loc(end_t))
     end
 
-    def send_map(receiver_e, selector_t, begin_t=nil, args=[], end_t=nil)
+    def send_map(receiver_e, dot_t, selector_t, begin_t=nil, args=[], end_t=nil)
       if receiver_e
         begin_l = receiver_e.src.expression
       elsif selector_t
@@ -1009,17 +1009,20 @@ module Parser
         end_l   = loc(selector_t)
       end
 
-      Source::Map::Send.new(loc(selector_t), loc(begin_t), loc(end_t),
+      Source::Map::Send.new(loc(dot_t),   loc(selector_t),
+                            loc(begin_t), loc(end_t),
                             begin_l.join(end_l))
     end
 
     def var_send_map(variable_e)
-      Source::Map::Send.new(variable_e.src.expression, nil, nil,
+      Source::Map::Send.new(nil, variable_e.src.expression,
+                            nil, nil,
                             variable_e.src.expression)
     end
 
     def send_binary_op_map(lhs_e, selector_t, rhs_e)
-      Source::Map::Send.new(loc(selector_t), nil, nil,
+      Source::Map::Send.new(nil, loc(selector_t),
+                            nil, nil,
                             join_exprs(lhs_e, rhs_e))
     end
 
@@ -1030,12 +1033,14 @@ module Parser
         expr_l = loc(selector_t).join(arg_e.src.expression)
       end
 
-      Source::Map::Send.new(loc(selector_t), nil, nil,
+      Source::Map::Send.new(nil, loc(selector_t),
+                            nil, nil,
                             expr_l)
     end
 
     def send_index_map(receiver_e, lbrack_t, rbrack_t)
-      Source::Map::Send.new(loc(lbrack_t).join(loc(rbrack_t)), nil, nil,
+      Source::Map::Send.new(nil, loc(lbrack_t).join(loc(rbrack_t)),
+                            nil, nil,
                             receiver_e.src.expression.join(loc(rbrack_t)))
     end
 
