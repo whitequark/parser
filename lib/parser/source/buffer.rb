@@ -109,13 +109,11 @@ module Parser
 
           @source.each_char do |char|
             if char == "\n"
-              @line_begins << [ @line_begins.length, index ]
+              @line_begins.unshift [ @line_begins.length, index ]
             end
 
             index += 1
           end
-
-          @line_begins = @line_begins.reverse
         end
 
         @line_begins
