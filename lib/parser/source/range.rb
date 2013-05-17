@@ -24,7 +24,7 @@ module Parser
         @end_pos - @begin_pos
       end
 
-      alias length size
+      alias_method :length, :size
 
       def line
         line, _ = @source_buffer.decompose_position(@begin_pos)
@@ -49,6 +49,8 @@ module Parser
       def to_source
         @source_buffer.source[self.begin_pos...self.end_pos]
       end
+
+      alias_method :to_src, :to_source
 
       def is?(*what)
         what.include?(to_source)
