@@ -19,6 +19,10 @@ module Parser
         @expression.line
       end
 
+      def column
+        @expression.column
+      end
+
       def with_expression(expression_l)
         with { |map| map.update_expression(expression_l) }
       end
