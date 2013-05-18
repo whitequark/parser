@@ -1,5 +1,6 @@
 # Parser
 
+[![Gem Version](https://badge.fury.io/rb/parser.png)](http://badge.fury.io/rb/parser)
 [![Build Status](https://travis-ci.org/whitequark/parser.png?branch=master)](https://travis-ci.org/whitequark/parser)
 [![Code Climate](https://codeclimate.com/github/whitequark/parser.png)](https://codeclimate.com/github/whitequark/parser)
 [![Coverage Status](https://coveralls.io/repos/whitequark/parser/badge.png?branch=master)](https://coveralls.io/r/whitequark/parser)
