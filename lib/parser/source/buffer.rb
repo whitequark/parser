@@ -7,12 +7,11 @@ module Parser
       attr_reader :name, :first_line
 
       def self.recognize_encoding(string)
-        if string.empty?
-          return Encoding::BINARY
-        end
+        return Encoding::BINARY if string.empty?
 
-        # TODO: Make this more efficient.
-        first_line, second_line = string.lines.first(2)
+        # extract the first two lines in an efficient way
+        string =~ /(.*)\n?(.*\n)?/
+        first_line, second_line = $1, $2
 
         [first_line, second_line].each do |line|
           line.force_encoding(Encoding::ASCII_8BIT) if line
