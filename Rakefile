@@ -2,7 +2,7 @@ require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'rake/clean'
 
-task :default => [:generate, :test]
+task :default => [:test]
 
 Rake::TestTask.new do |t|
   t.libs       = %w(test/ lib/)
@@ -59,3 +59,4 @@ rule '.rb' => '.y' do |t|
   sh "racc", *opts
 end
 
+task :test => [:generate]
