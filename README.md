@@ -5,29 +5,49 @@
 [![Code Climate](https://codeclimate.com/github/whitequark/parser.png)](https://codeclimate.com/github/whitequark/parser)
 [![Coverage Status](https://coveralls.io/repos/whitequark/parser/badge.png?branch=master)](https://coveralls.io/r/whitequark/parser)
 
-_Parser_ is a production-ready Ruby parser written in pure Ruby. It performs on par or better than Ripper, Melbourne, JRubyParser or ruby_parser.
+_Parser_ is a production-ready Ruby parser written in pure Ruby. It
+performs on par or better than Ripper, Melbourne, JRubyParser or
+ruby_parser.
 
 ## Installation
 
-    $ gem install parser
+~~~
+$ gem install parser
+~~~
 
 ## Usage
 
 Parse a chunk of code:
 
 ~~~ ruby
-require 'parser/ruby20'
+require 'parser/current'
 
-p Parser::Ruby20.parse("2 + 2")
+p Parser::CurrentRuby.parse("2 + 2")
 # (send
 #   (int 2) :+
 #   (int 2))
 ~~~
 
+Access the AST's source map:
+
+~~~ ruby
+p Parser::CurrentRuby.parse("2 + 2").src
+
+#  <Parser::Source::Map::Send:0x007fe0ca8a69b8
+#  @begin=nil,
+#  @end=nil,
+#  @expression=#<Source::Range (string) 0...5>,
+#  @selector=#<Source::Range (string) 2...3>>
+
+p Parser::CurrentRuby.parse("2 + 2").src.selector.to_source
+
+#=> "+"
+~~~
+
 Parse a chunk of code and display all diagnostics:
 
 ~~~ ruby
-parser = Parser::Ruby20.new
+parser = Parser::CurrentRuby.new
 parser.diagnostics.consumer = lambda do |diag|
   puts diag.render
 end
@@ -45,6 +65,38 @@ p parser.parse(buffer)
 ~~~
 
 If you reuse the same parser object for multiple `#parse` runs, you need to `#reset` it.
+
+You can also use the `ruby-parse` utility (it's bundled with the gem) to play with Parser:
+
+~~~
+$ ruby-parse -L -e "2+2"
+
+(send
+  (int 2) :+
+  (int 2))
+2+2
+ ~ selector
+~~~ expression
+(int 2)
+2+2
+~ expression
+(int 2)
+2+2
+
+$ ruby-parse -E -e "2+2"
+
+2+2
+^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
+2+2
+ ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
+2+2
+  ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
+2+2
+  ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
+(send
+  (int 2) :+
+  (int 2))
+~~~
 
 ## Features
 
