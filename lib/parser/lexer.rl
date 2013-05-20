@@ -1520,7 +1520,7 @@ class Parser::Lexer
   expr_value := |*
       # a:b: a(:b), a::B, A::B
       bareword ':' (c_any - ':')
-      => { p = @ts - 2
+      => { p = @ts - 1
            fgoto expr_end; };
 
       # TODO whitespace rule
