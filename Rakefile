@@ -1,3 +1,5 @@
+# encoding:utf-8
+
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'rake/clean'
@@ -9,7 +11,7 @@ Rake::TestTask.new do |t|
   t.test_files = FileList["test/**/test_*.rb"]
 end
 
-task :build => :generate_release
+task :build => [:generate_release, :changelog]
 
 GENERATED_FILES = %w(lib/parser/lexer.rb
                      lib/parser/ruby18.rb
@@ -40,9 +42,68 @@ task :clean_env do
   ENV.delete 'RACC_DEBUG'
 end
 
-desc 'Generates YARD documentation'
+desc 'Generate YARD documentation'
 task :yard => :generate do
   sh('yard doc')
+end
+
+desc 'Generate Changelog'
+task :changelog do
+  fs     = ?\uFFFD
+  format = "%d#{fs}%s#{fs}%an#{fs}%ai"
+
+  # Format: version => { commit-class => changes }
+  changelog = Hash.new do |hash, version|
+    hash[version] = Hash.new do |hash, klass|
+      hash[klass] = []
+    end
+  end
+
+  IO.popen("git log --pretty='#{format}' --tags", 'r') do |io|
+    current_version = nil
+
+    io.each_line do |line|
+      version, message, author, date = line.
+            match(/^(?: \((.*)\))?#{fs}(.*)#{fs}(.*)#{fs}(.*)$/o).captures
+      date = Date.parse(date)
+
+      current_version = "#{version} (#{date})" if version =~ /^v\d+.\d+.\d+$/
+
+      next if current_version.nil? || message !~ /^[+*-]/
+
+      changelog[current_version][message[0]] << "#{message[1..-1]} (#{author})"
+    end
+  end
+
+  commit_classes = {
+    '*' => 'API modifications:',
+    '+' => 'Features implemented:',
+    '-' => 'Bugs fixed:',
+  }
+
+  File.open('Changelog.md', 'w') do |io|
+    io.puts 'Changelog'
+    io.puts '========='
+    io.puts
+
+    changelog.each do |version, commits|
+      io.puts version
+      io.puts '-' * version.length
+      io.puts
+
+      commit_classes.each do |sigil, description|
+        next unless commits[sigil].any?
+
+        io.puts description
+        commits[sigil].each do |commit|
+          io.puts " * #{commit.gsub('<', '\<').lstrip}"
+        end
+        io.puts
+      end
+    end
+  end
+
+  sh('git commit CHANGELOG.md -m "Update changelog."')
 end
 
 rule '.rb' => '.rl' do |t|
