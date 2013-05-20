@@ -4168,6 +4168,18 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~~ location})
   end
 
+  def test_unterminated_embedded_doc
+    assert_diagnoses(
+      [:fatal, :embedded_document],
+      %Q{=begin\nfoo\nend},
+      %q{~~~~~~ location})
+
+    assert_diagnoses(
+      [:fatal, :embedded_document],
+      %Q{=begin\nfoo\nend\n},
+      %q{~~~~~~ location})
+  end
+
   def test_on_error
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],

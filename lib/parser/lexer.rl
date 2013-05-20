@@ -120,6 +120,7 @@ class Parser::Lexer
     @literal_stack = []
 
     @comments      = ""  # collected comments
+    @eq_begin_s    = nil # location of last encountered =begin
 
     @newline_s     = nil # location of last encountered newline
 
@@ -1827,17 +1828,17 @@ class Parser::Lexer
   #
 
   line_comment := |*
-      '=end' c_line* c_nl
-      => { @comments << tok
+      '=end' c_line* c_nl?
+      => { @comments << tok(@eq_begin_s, @te)
            fgoto line_begin; };
 
-      c_line* c_nl
-      => { @comments << tok };
+      c_line*;
+      c_nl;
 
       c_eof
       => {
-        # TODO better location information here
-        diagnostic :fatal, Parser::ERRORS[:embedded_document], range(p - 1, p)
+        diagnostic :fatal, Parser::ERRORS[:embedded_document],
+                   range(@eq_begin_s, @eq_begin_s + '=begin'.length)
       };
   *|;
 
@@ -1850,7 +1851,7 @@ class Parser::Lexer
            fhold; };
 
       '=begin' ( c_space | c_eol )
-      => { @comments << tok(@ts, @te)
+      => { @eq_begin_s = @ts
            fgoto line_comment; };
 
       '__END__' c_eol
