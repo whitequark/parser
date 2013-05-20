@@ -115,7 +115,6 @@ module Parser
       token_name = token_to_str(error_token_id)
       _, location = error_value
 
-      # TODO add "expected: ..." here
       message = ERRORS[:unexpected_token] % { :token => token_name }
       @diagnostics.process(
           Diagnostic.new(:error, message, location))
