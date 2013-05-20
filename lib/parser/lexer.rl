@@ -487,21 +487,23 @@ class Parser::Lexer
   action unicode_points {
     @escape = ""
 
-    codepoints = tok(@escape_s + 2, p - 1)
+    codepoints  = tok(@escape_s + 2, p - 1)
+    codepoint_s = @escape_s + 2
+
     codepoints.split(/[ \t]/).each do |codepoint_str|
       codepoint = codepoint_str.to_i(16)
 
       if codepoint >= 0x110000
         @escape = lambda do
-          # TODO better location reporting
           diagnostic :error, Parser::ERRORS[:unicode_point_too_large],
-                     range(@escape_s, p)
+                     range(codepoint_s, codepoint_s + codepoint_str.length)
         end
 
         break
       end
 
       @escape += codepoint.chr(Encoding::UTF_8)
+      codepoint_s += codepoint_str.length + 1
     end
   }
 

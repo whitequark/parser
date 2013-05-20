@@ -4180,6 +4180,14 @@ class TestParser < MiniTest::Unit::TestCase
       %q{~~~~~~ location})
   end
 
+  def test_codepoint_too_large
+    assert_diagnoses(
+      [:error, :unicode_point_too_large],
+      %q{"\u{120 120000}"},
+      %q{        ~~~~~~ location},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_on_error
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],
