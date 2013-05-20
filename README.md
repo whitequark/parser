@@ -107,7 +107,7 @@ $ ruby-parse -E -e "2+2"
  * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8 and 1.9 mode.
- * Single runtime dependency: the [ast][] gem.
+ * Only two runtime dependencies: the [ast][] and the [slop][] gems.
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
  * 100% test coverage for Bison grammars (except error recovery).
