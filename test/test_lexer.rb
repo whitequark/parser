@@ -2334,6 +2334,13 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tCONSTANT,  'Exception')
   end
 
+  def test_bug_line_begin_label
+    setup_lexer(19)
+    util_lex_token("foo:bar",
+                   :tIDENTIFIER, 'foo',
+                   :tSYMBOL,     'bar')
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",
