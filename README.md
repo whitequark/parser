@@ -32,16 +32,14 @@ Access the AST's source map:
 
 ~~~ ruby
 p Parser::CurrentRuby.parse("2 + 2").src
-
-#  <Parser::Source::Map::Send:0x007fe0ca8a69b8
-#  @begin=nil,
-#  @end=nil,
-#  @expression=#<Source::Range (string) 0...5>,
-#  @selector=#<Source::Range (string) 2...3>>
+# #<Parser::Source::Map::Send:0x007fe0ca8a69b8
+#   @begin=nil,
+#   @end=nil,
+#   @expression=#<Source::Range (string) 0...5>,
+#   @selector=#<Source::Range (string) 2...3>>
 
 p Parser::CurrentRuby.parse("2 + 2").src.selector.to_source
-
-#=> "+"
+# "+"
 ~~~
 
 Parse a chunk of code and display all diagnostics:
@@ -70,7 +68,6 @@ You can also use the `ruby-parse` utility (it's bundled with the gem) to play wi
 
 ~~~
 $ ruby-parse -L -e "2+2"
-
 (send
   (int 2) :+
   (int 2))
@@ -84,7 +81,6 @@ $ ruby-parse -L -e "2+2"
 2+2
 
 $ ruby-parse -E -e "2+2"
-
 2+2
 ^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
 2+2
@@ -107,7 +103,7 @@ $ ruby-parse -E -e "2+2"
  * Parsing error recovery.
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8 and 1.9 mode.
- * Single runtime dependency: the [ast][] gem.
+ * Only two runtime dependencies: the gems [ast][] and [slop][].
  * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
  * 100% test coverage for Bison grammars (except error recovery).
@@ -115,6 +111,7 @@ $ ruby-parse -E -e "2+2"
 
   [clang-like]: http://clang.llvm.org/diagnostics.html
   [ast]: http://rubygems.org/gems/ast
+  [slop]: http://rubygems.org/gems/slop
   [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
 ## Contributors
