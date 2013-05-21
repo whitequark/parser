@@ -46,12 +46,12 @@ module Parser
         @source_buffer.source_line(line)
       end
 
-      def to_source
+      def source
         @source_buffer.source[self.begin_pos...self.end_pos]
       end
 
       def is?(*what)
-        what.include?(to_source)
+        what.include?(source)
       end
 
       def to_a

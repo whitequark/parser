@@ -56,12 +56,18 @@ class TestSourceRange < MiniTest::Unit::TestCase
     assert_equal 5, sr_end.end_pos
   end
 
-  def test_to_source
+  def test_source
     sr = Parser::Source::Range.new(@sfile, 0, 3)
-    assert_equal "foo", sr.to_source
+    assert_equal "foo", sr.source
 
     sr_multi = Parser::Source::Range.new(@sfile, 0, 10)
-    assert_equal "foobar\nbaz", sr_multi.to_source
+    assert_equal "foobar\nbaz", sr_multi.source
+  end
+
+  def test_is?
+    sr = Parser::Source::Range.new(@sfile, 0, 3)
+    assert sr.is?('foo')
+    refute sr.is?('bar')
   end
 
   def test_to_s
