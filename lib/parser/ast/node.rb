@@ -2,13 +2,13 @@ module Parser
   module AST
 
     class Node < ::AST::Node
-      attr_reader :source_map
+      attr_reader :location
 
-      alias src source_map
+      alias loc location
 
       def assign_properties(properties)
-        if (source_map = properties[:source_map])
-          @source_map = source_map
+        if (location = properties[:location])
+          @location = location
         end
       end
     end

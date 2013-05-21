@@ -85,7 +85,7 @@ module Parser
         str = parts.first
 
         n(:sym, [ str.children.first.to_sym ],
-          collection_map(begin_t, str.src.expression, end_t))
+          collection_map(begin_t, str.loc.expression, end_t))
       elsif @parser.version == 18 && parts.empty?
         diagnostic(:error, ERRORS[:empty_symbol], loc(begin_t).join(loc(end_t)))
       else
@@ -175,7 +175,7 @@ module Parser
     def pair_list_18(list)
       if list.size % 2 != 0
         message = ERRORS[:odd_hash]
-        diagnostic :error, message, list.last.src.expression
+        diagnostic :error, message, list.last.loc.expression
       else
         list.
           each_slice(2).map do |key, value|
@@ -257,16 +257,16 @@ module Parser
     def accessible(node)
       case node.type
       when :__FILE__
-        n(:str, [ node.src.expression.source_buffer.name ],
-          node.src)
+        n(:str, [ node.loc.expression.source_buffer.name ],
+          node.loc)
 
       when :__LINE__
-        n(:int, [ node.src.expression.line ],
-          node.src)
+        n(:int, [ node.loc.expression.line ],
+          node.loc)
 
       when :__ENCODING__
         n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
-          node.src)
+          node.loc)
 
       when :ident
         name, = *node
@@ -324,7 +324,7 @@ module Parser
       when :const
         if @parser.in_def?
           message = ERRORS[:dynamic_const]
-          diagnostic :error, message, node.src.expression
+          diagnostic :error, message, node.loc.expression
         end
 
         node.updated(:casgn)
@@ -338,17 +338,17 @@ module Parser
       when :nil, :self, :true, :false,
            :__FILE__, :__LINE__, :__ENCODING__
         message = ERRORS[:invalid_assignment]
-        diagnostic :error, message, node.src.expression
+        diagnostic :error, message, node.loc.expression
 
       when :back_ref, :nth_ref
         message = ERRORS[:backref_assignment]
-        diagnostic :error, message, node.src.expression
+        diagnostic :error, message, node.loc.expression
       end
     end
 
     def assign(lhs, eql_t, rhs)
       (lhs << rhs).updated(nil, nil,
-        :source_map => lhs.src.
+        :location => lhs.loc.
           with_operator(loc(eql_t)).
           with_expression(join_exprs(lhs, rhs)))
     end
@@ -357,7 +357,7 @@ module Parser
       case lhs.type
       when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :casgn, :send
         operator   = value(op_t)[0..-1].to_sym
-        source_map = lhs.src.
+        source_map = lhs.loc.
                         with_operator(loc(op_t)).
                         with_expression(join_exprs(lhs, rhs))
 
@@ -372,7 +372,7 @@ module Parser
 
       when :back_ref, :nth_ref
         message = ERRORS[:backref_assignment]
-        diagnostic :error, message, lhs.src.expression
+        diagnostic :error, message, lhs.loc.expression
       end
     end
 
@@ -427,7 +427,7 @@ module Parser
            :regexp, :array, :hash
 
         message = ERRORS[:singleton_literal]
-        diagnostic :error, message, definee.src.expression
+        diagnostic :error, message, definee.loc.expression
 
       else
         n(:defs, [ definee, value(name_t).to_sym, args, body ],
@@ -463,7 +463,7 @@ module Parser
       n(:optarg, [ value(name_t).to_sym, value ],
         variable_map(name_t).
           with_operator(loc(eql_t)).
-          with_expression(loc(name_t).join(value.src.expression)))
+          with_expression(loc(name_t).join(value.loc.expression)))
     end
 
     def restarg(star_t, name_t=nil)
@@ -513,7 +513,7 @@ module Parser
         expr.updated(:arg)
       else
         n(:arg_expr, [ expr ],
-          expr.src)
+          expr.loc)
       end
     end
 
@@ -524,7 +524,7 @@ module Parser
         expr.updated(:restarg)
       else
         n(:restarg_expr, [ expr ],
-          expr.src)
+          expr.loc)
       end
     end
 
@@ -533,7 +533,7 @@ module Parser
         expr.updated(:blockarg)
       else
         n(:blockarg_expr, [ expr ],
-          expr.src)
+          expr.loc)
       end
     end
 
@@ -563,11 +563,11 @@ module Parser
 
       if last_arg && last_arg.type == :block_pass
         diagnostic :error, ERRORS[:block_and_blockarg],
-                   last_arg.src.expression
+                   last_arg.loc.expression
       end
 
       n(:block, [ method_call, args, body ],
-        block_map(method_call.src.expression, begin_t, end_t))
+        block_map(method_call.loc.expression, begin_t, end_t))
     end
 
     def block_pass(amper_t, arg)
@@ -783,7 +783,7 @@ module Parser
           expr_map(loc(begin_t).join(loc(end_t))))
       elsif body.type == :mlhs  ||
            (body.type == :begin &&
-            body.src.begin.nil? && body.src.end.nil?)
+            body.loc.begin.nil? && body.loc.end.nil?)
         # Synthesized (begin) from compstmt "a; b" or (mlhs)
         # from multi_lhs "(a, b) = *foo".
         n(body.type, body.children,
@@ -803,7 +803,7 @@ module Parser
     def check_condition(cond)
       if cond.type == :masgn
         diagnostic :error, ERRORS[:masgn_as_condition],
-                   cond.src.expression
+                   cond.loc.expression
       elsif cond.type == :begin
         check_condition(cond.children.last)
       end
@@ -827,7 +827,7 @@ module Parser
             map[this_name] = this_arg
           elsif arg_name_collides?(this_name, that_name)
             diagnostic :error, ERRORS[:duplicate_argument],
-                       this_arg.src.name, [ that_arg.src.name ]
+                       this_arg.loc.name, [ that_arg.loc.name ]
           end
 
         when :mlhs
@@ -855,17 +855,17 @@ module Parser
     # SOURCE MAPS
     #
 
-    def n(type, children, map)
-      AST::Node.new(type, children, :source_map => map)
+    def n(type, children, source_map)
+      AST::Node.new(type, children, :location => source_map)
     end
 
-    def n0(type, map)
-      n(type, [], map)
+    def n0(type, source_map)
+      n(type, [], source_map)
     end
 
     def join_exprs(left_expr, right_expr)
-      left_expr.src.expression.
-        join(right_expr.src.expression)
+      left_expr.loc.expression.
+        join(right_expr.loc.expression)
     end
 
     def token_map(token)
@@ -921,7 +921,7 @@ module Parser
                                     key_l),
         # pair map
         Source::Map::Operator.new(colon_l,
-                                  key_range.join(value_e.src.expression)) ]
+                                  key_range.join(value_e.loc.expression)) ]
     end
 
     def expr_map(loc)
@@ -942,14 +942,14 @@ module Parser
 
     def regexp_map(begin_t, end_t, options_e)
       Source::Map::Collection.new(loc(begin_t), loc(end_t),
-                                  loc(begin_t).join(options_e.src.expression))
+                                  loc(begin_t).join(options_e.loc.expression))
     end
 
     def constant_map(scope, colon2_t, name_t)
       if scope.nil?
         expr_l = loc(name_t)
       else
-        expr_l = scope.src.expression.join(loc(name_t))
+        expr_l = scope.loc.expression.join(loc(name_t))
       end
 
       Source::Map::Constant.new(loc(colon2_t), loc(name_t), expr_l)
@@ -967,7 +967,7 @@ module Parser
       if arg_e.nil?
         expr_l = loc(op_t)
       else
-        expr_l = loc(op_t).join(arg_e.src.expression)
+        expr_l = loc(op_t).join(arg_e.loc.expression)
       end
 
       Source::Map::Operator.new(loc(op_t), expr_l)
@@ -990,7 +990,7 @@ module Parser
                                       label_range.end_pos - 1)
 
       if value_e
-        expr_l = loc(name_t).join(value_e.src.expression)
+        expr_l = loc(name_t).join(value_e.loc.expression)
       else
         expr_l = loc(name_t)
       end
@@ -1000,7 +1000,7 @@ module Parser
 
     def module_definition_map(keyword_t, name_e, operator_t, end_t)
       if name_e
-        name_l = name_e.src.expression
+        name_l = name_e.loc.expression
       end
 
       Source::Map::Definition.new(loc(keyword_t),
@@ -1016,7 +1016,7 @@ module Parser
 
     def send_map(receiver_e, dot_t, selector_t, begin_t=nil, args=[], end_t=nil)
       if receiver_e
-        begin_l = receiver_e.src.expression
+        begin_l = receiver_e.loc.expression
       elsif selector_t
         begin_l = loc(selector_t)
       end
@@ -1024,7 +1024,7 @@ module Parser
       if end_t
         end_l   = loc(end_t)
       elsif args.any?
-        end_l   = args.last.src.expression
+        end_l   = args.last.loc.expression
       elsif selector_t
         end_l   = loc(selector_t)
       end
@@ -1035,9 +1035,9 @@ module Parser
     end
 
     def var_send_map(variable_e)
-      Source::Map::Send.new(nil, variable_e.src.expression,
+      Source::Map::Send.new(nil, variable_e.loc.expression,
                             nil, nil,
-                            variable_e.src.expression)
+                            variable_e.loc.expression)
     end
 
     def send_binary_op_map(lhs_e, selector_t, rhs_e)
@@ -1050,7 +1050,7 @@ module Parser
       if arg_e.nil?
         expr_l = loc(selector_t)
       else
-        expr_l = loc(selector_t).join(arg_e.src.expression)
+        expr_l = loc(selector_t).join(arg_e.loc.expression)
       end
 
       Source::Map::Send.new(nil, loc(selector_t),
@@ -1061,7 +1061,7 @@ module Parser
     def send_index_map(receiver_e, lbrack_t, rbrack_t)
       Source::Map::Send.new(nil, loc(lbrack_t).join(loc(rbrack_t)),
                             nil, nil,
-                            receiver_e.src.expression.join(loc(rbrack_t)))
+                            receiver_e.loc.expression.join(loc(rbrack_t)))
     end
 
     def block_map(receiver_l, begin_t, end_t)
@@ -1075,9 +1075,9 @@ module Parser
       if end_t
         end_l = loc(end_t)
       elsif args.any? && !synthesized_nil?(args.last)
-        end_l = args.last.src.expression
+        end_l = args.last.loc.expression
       elsif args.any? && args.count > 1
-        end_l = args[-2].src.expression
+        end_l = args[-2].loc.expression
       else
         end_l = loc(keyword_t)
       end
@@ -1094,16 +1094,16 @@ module Parser
     def condition_map(keyword_t, cond_e, begin_t, body_e, else_t, else_e, end_t)
       if end_t
         end_l = loc(end_t)
-      elsif else_e && else_e.src.expression
-        end_l = else_e.src.expression
+      elsif else_e && else_e.loc.expression
+        end_l = else_e.loc.expression
       elsif loc(else_t)
         end_l = loc(else_t)
-      elsif body_e.src.expression
-        end_l = body_e.src.expression
+      elsif body_e.loc.expression
+        end_l = body_e.loc.expression
       elsif loc(begin_t)
         end_l = loc(begin_t)
       else
-        end_l = cond_e.src.expression
+        end_l = cond_e.loc.expression
       end
 
       Source::Map::Condition.new(loc(keyword_t),
@@ -1125,9 +1125,9 @@ module Parser
     def rescue_body_map(keyword_t, exc_list_e, assoc_t,
                         exc_var_e, then_t,
                         compstmt_e)
-      end_l = compstmt_e.src.expression || loc(then_t)
-      end_l = exc_var_e.src.expression  if end_l.nil? && exc_var_e
-      end_l = exc_list_e.src.expression if end_l.nil? && exc_list_e
+      end_l = compstmt_e.loc.expression || loc(then_t)
+      end_l = exc_var_e.loc.expression  if end_l.nil? && exc_var_e
+      end_l = exc_list_e.loc.expression if end_l.nil? && exc_list_e
       end_l = loc(keyword_t)            if end_l.nil?
 
       Source::Map::RescueBody.new(loc(keyword_t), loc(assoc_t), loc(then_t),
@@ -1138,18 +1138,18 @@ module Parser
                        else_t, else_e)
       if synthesized_nil?(compstmt_e)
         if keyword_t.nil?
-          begin_l = body_es.first.src.expression
+          begin_l = body_es.first.loc.expression
         else
           begin_l = loc(keyword_t)
         end
       else
-        begin_l = compstmt_e.src.expression
+        begin_l = compstmt_e.loc.expression
       end
 
       if else_t
-        end_l = else_e.src.expression
+        end_l = else_e.loc.expression
       elsif !synthesized_nil?(body_es.last)
-        end_l = body_es.last.src.expression
+        end_l = body_es.last.loc.expression
       else
         end_l = loc(keyword_t)
       end
@@ -1168,7 +1168,7 @@ module Parser
     end
 
     def synthesized_nil?(node)
-      node.type == :nil && node.src.expression.nil?
+      node.type == :nil && node.loc.expression.nil?
     end
 
     def value(token)

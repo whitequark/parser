@@ -92,10 +92,10 @@ module ParseHelper
           raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
         end
 
-        assert astlet.source_map.respond_to?(map_field),
-               "(#{version}) #{astlet.source_map.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
+        assert astlet.location.respond_to?(map_field),
+               "(#{version}) #{astlet.location.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
 
-        range = astlet.source_map.send(map_field)
+        range = astlet.location.send(map_field)
 
         assert_source_range(begin_pos, end_pos, range, version, line.inspect)
       end
