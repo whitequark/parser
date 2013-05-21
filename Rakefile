@@ -49,7 +49,7 @@ end
 
 desc 'Generate Changelog'
 task :changelog do
-  fs     = ?\uFFFD
+  fs     = 0xFFFD.chr
   format = "%d#{fs}%s#{fs}%an#{fs}%ai"
 
   # Format: version => { commit-class => changes }
