@@ -64,7 +64,7 @@ module Parser
       @lexer.source_buffer = source_buffer
       @lexer.comments      = []
 
-      do_parse
+      [ do_parse, @lexer.comments ]
     ensure
       # Don't keep references to the source file.
       @source_buffer       = nil
@@ -84,9 +84,9 @@ module Parser
     def tokenize(source_buffer)
       @lexer.tokens = []
 
-      ast = parse(source_buffer)
+      ast, comments = parse(source_buffer)
 
-      [ ast, @lexer.tokens ]
+      [ ast, comments, @lexer.tokens ]
     ensure
       @lexer.tokens = nil
     end
