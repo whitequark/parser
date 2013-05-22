@@ -1790,6 +1790,12 @@ class TestParser < MiniTest::Unit::TestCase
         s(:kwarg, :foo)),
       %Q{foo:\n},
       ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses_args(
+      s(:args,
+        s(:kwoptarg, :foo, s(:int, -1))),
+      %Q{foo: -1\n},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
   end
 
   def assert_parses_margs(ast, code, versions=ALL_VERSIONS - %w(1.8))

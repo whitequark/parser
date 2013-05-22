@@ -414,14 +414,14 @@ module Parser
     #
 
     def def_method(def_t, name_t, args,
-                   body, end_t, comments)
+                   body, end_t)
       n(:def, [ value(name_t).to_sym, args, body ],
         definition_map(def_t, nil, name_t, end_t))
     end
 
     def def_singleton(def_t, definee, dot_t,
                       name_t, args,
-                      body, end_t, comments)
+                      body, end_t)
       case definee.type
       when :int, :str, :dstr, :sym, :dsym,
            :regexp, :array, :hash

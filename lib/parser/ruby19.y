@@ -1112,7 +1112,6 @@ rule
                         diagnostic(:error, :class_in_def, val[0])
                       end
 
-                      @comments.push @lexer.clear_comments
                       @static_env.extend_static
                     }
                     bodystmt kEND
@@ -1123,7 +1122,6 @@ rule
                                                   val[4], val[5])
 
                       @static_env.unextend
-                      @lexer.clear_comments
                     }
                 | kCLASS tLSHFT expr term
                     {
@@ -1138,7 +1136,6 @@ rule
                                                    val[5], val[6])
 
                       @static_env.unextend
-                      @lexer.clear_comments
 
                       @def_level = val[4]
                     }
@@ -1148,7 +1145,6 @@ rule
                         diagnostic(:error, :module_in_def, val[0])
                       end
 
-                      @comments.push @lexer.clear_comments
                       @static_env.extend_static
                     }
                     bodystmt kEND
@@ -1157,26 +1153,22 @@ rule
                                                    val[3], val[4])
 
                       @static_env.unextend
-                      @lexer.clear_comments
                     }
                 | kDEF fname
                     {
-                      @comments.push @lexer.clear_comments
                       @def_level += 1
                       @static_env.extend_static
                     }
                     f_arglist bodystmt kEND
                     {
                       result = @builder.def_method(val[0], val[1],
-                                  val[3], val[4], val[5], @comments.pop)
+                                  val[3], val[4], val[5])
 
                       @static_env.unextend
                       @def_level -= 1
-                      @lexer.clear_comments
                     }
                 | kDEF singleton dot_or_colon
                     {
-                      @comments.push @lexer.clear_comments
                       @lexer.state = :expr_fname
                     }
                     fname
@@ -1187,11 +1179,10 @@ rule
                     f_arglist bodystmt kEND
                     {
                       result = @builder.def_singleton(val[0], val[1], val[2],
-                                  val[4], val[6], val[7], val[8], @comments.pop)
+                                  val[4], val[6], val[7], val[8])
 
                       @static_env.unextend
                       @def_level -= 1
-                      @lexer.clear_comments
                     }
                 | kBREAK
                     {

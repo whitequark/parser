@@ -88,20 +88,19 @@ class Parser::Lexer
 
   attr_accessor :cond, :cmdarg
 
-  attr_accessor :token_stream
-
-  attr_reader   :comments
+  attr_accessor :tokens, :comments
 
   def initialize(version)
     @version    = version
     @static_env = nil
 
+    @tokens     = nil
+    @comments   = nil
+
     reset
   end
 
   def reset(reset_state=true)
-    @token_stream = nil
-
     # Ragel state:
     if reset_state
       # Unit tests set state prior to resetting lexer.
@@ -123,8 +122,8 @@ class Parser::Lexer
     @token_queue   = []
     @literal_stack = []
 
-    @comments      = ""  # collected comments
     @eq_begin_s    = nil # location of last encountered =begin
+    @sharp_s       = nil # location of last encountered #
 
     @newline_s     = nil # location of last encountered newline
 
@@ -217,14 +216,6 @@ class Parser::Lexer
     end
   end
 
-  # Return the current collected comment block and clear the storage.
-  def clear_comments
-    comments  = @comments
-    @comments = ""
-
-    comments
-  end
-
   protected
 
   def eof_char?(char)
@@ -250,9 +241,10 @@ class Parser::Lexer
 
   def emit(type, value = tok, s = @ts, e = @te)
     token = [ type, [ value, range(s, e) ] ]
-    @token_queue  << token
 
-    @token_stream << token if @token_stream
+    @token_queue.push(token)
+
+    @tokens.push(token) if @tokens
 
     token
   end
@@ -261,6 +253,18 @@ class Parser::Lexer
     value = tok(s, e)
 
     emit(table[value], value, s, e)
+  end
+
+  def emit_comment(s = @ts, e = @te)
+    if @comments
+      @comments.push(Parser::Source::Comment.new(range(s, e)))
+    end
+
+    if @tokens
+      @tokens.push([ :tCOMMENT, [ tok(s, e), range(s, e) ] ])
+    end
+
+    nil
   end
 
   def diagnostic(type, message, location=range, highlights=[])
@@ -899,6 +903,44 @@ class Parser::Lexer
   *|;
 
   #
+  # === WHITESPACE HANDLING ===
+  #
+
+  # Various contexts in Ruby allow various kinds of whitespace
+  # to be used. They are grouped to clarify the lexing machines
+  # and ease collection of comments.
+
+  # A line of code with inline #comment at end is always equivalent
+  # to a line of code ending with just a newline, so an inline
+  # comment is deemed equivalent to non-newline whitespace
+  # (c_space character class).
+
+  w_space =
+      c_space+
+    | '\\' e_heredoc_nl
+    | '#' %{ @sharp_s = p - 1 } c_line* %{ emit_comment(@sharp_s, p) }
+    ;
+
+  # A newline in non-literal context always interoperates with
+  # here document logic and can always be escaped by a backslash,
+  # still interoperating with here document logic in the same way,
+  # yet being invisible to anything else.
+  #
+  # To demonstrate:
+  #
+  #     foo = <<FOO \
+  #     bar
+  #     FOO
+  #      + 2
+  #
+  # is equivalent to `foo = "bar\n" + 2`.
+
+  w_newline = e_heredoc_nl;
+
+  w_space_newline = w_space | w_newline;
+
+
+  #
   # === EXPRESSION PARSING ===
   #
 
@@ -1031,9 +1073,7 @@ class Parser::Lexer
       ':'
       => { fhold; fgoto expr_beg; };
 
-      # TODO whitespace rule
-      c_space;
-      e_heredoc_nl;
+      w_space_newline;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1049,10 +1089,9 @@ class Parser::Lexer
   expr_endfn := |*
       bareword ':'
       => { emit(:tLABEL, tok(@ts, @te - 1))
-           fnext expr_end; fbreak; };
+           fnext expr_beg; fbreak; };
 
-      # TODO whitespace rule
-      c_space;
+      w_space;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1084,11 +1123,7 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_arg; fbreak; };
 
-      # TODO whitespace rule
-      c_space;
-      e_heredoc_nl;
-      '\\' e_heredoc_nl;
-      '#' c_line*;
+      w_space_newline;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1206,7 +1241,7 @@ class Parser::Lexer
         fgoto expr_end;
       };
 
-      c_space* ( '#' c_line* )? c_nl
+      w_space? w_newline
       => { fhold; fgoto expr_end; };
 
       c_any
@@ -1239,7 +1274,7 @@ class Parser::Lexer
       => { emit(:kDO_BLOCK)
            fnext expr_value; };
 
-      c_space;
+      w_space;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1257,11 +1292,8 @@ class Parser::Lexer
       => { emit_table(KEYWORDS)
            fnext expr_beg; fbreak; };
 
-      # TODO whitespace rule
-      c_space;
-      '#' c_line*;
-
-      e_heredoc_nl
+      w_space;
+      w_newline
       => { fhold; fgoto expr_end; };
 
       c_any
@@ -1499,14 +1531,7 @@ class Parser::Lexer
       # WHITESPACE
       #
 
-      # TODO whitespace rule
-      c_space;
-      e_heredoc_nl;
-      '\\' e_heredoc_nl;
-
-      '#' c_line* c_eol
-      => { @comments << tok
-           fhold; };
+      w_space_newline;
 
       e_heredoc_nl '=begin' ( c_space | c_eol )
       => { p = @ts - 1
@@ -1535,8 +1560,7 @@ class Parser::Lexer
       => { p = @ts - 1
            fgoto expr_end; };
 
-      # TODO whitespace rule
-      c_space;
+      w_space;
 
       c_any
       => { fhold; fgoto expr_beg; };
@@ -1791,26 +1815,19 @@ class Parser::Lexer
       # WHITESPACE
       #
 
-      # TODO whitespace rule
-      '\\' e_heredoc_nl;
+      w_space;
+      w_newline
+      => { fgoto leading_dot; };
+
+      ';'
+      => { emit_table(PUNCTUATION)
+           fnext expr_value; fbreak; };
 
       '\\' c_line {
         diagnostic :error, Parser::ERRORS[:bare_backslash],
                    range(@ts, @ts + 1)
         fhold;
       };
-
-      c_space+;
-
-      '#' c_line*
-      => { @comments << tok(@ts, @te + 1) };
-
-      e_heredoc_nl
-      => { fgoto leading_dot; };
-
-      ';'
-      => { emit_table(PUNCTUATION)
-           fnext expr_value; fbreak; };
 
       c_any
       => {
@@ -1840,11 +1857,12 @@ class Parser::Lexer
 
   line_comment := |*
       '=end' c_line* c_nl?
-      => { @comments << tok(@eq_begin_s, @te)
-           fgoto line_begin; };
+      => {
+        emit_comment(@eq_begin_s, @te)
+        fgoto line_begin;
+      };
 
-      c_line*;
-      c_nl;
+      c_any;
 
       c_eof
       => {
@@ -1854,12 +1872,7 @@ class Parser::Lexer
   *|;
 
   line_begin := |*
-      # TODO whitespace rule
-      c_space_nl+;
-
-      '#' c_line* c_eol
-      => { @comments << tok
-           fhold; };
+      w_space_newline;
 
       '=begin' ( c_space | c_eol )
       => { @eq_begin_s = @ts

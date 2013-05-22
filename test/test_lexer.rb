@@ -6,6 +6,7 @@ class TestLexer < MiniTest::Unit::TestCase
   def setup_lexer(version)
     @lex = Parser::Lexer.new(version)
 
+    @lex.comments = []
     @lex.diagnostics = Parser::Diagnostic::Engine.new
     @lex.diagnostics.all_errors_are_fatal = true
     # @lex.diagnostics.consumer = lambda { |diag| $stderr.puts "", diag.render }
@@ -376,7 +377,10 @@ class TestLexer < MiniTest::Unit::TestCase
                    :tINTEGER, 1,
                    :tNL, nil,
                    :tINTEGER, 2)
-    assert_equal "# one\n# two\n", @lex.comments
+
+    assert_equal 2, @lex.comments.length
+    assert_equal '# one', @lex.comments[0].text
+    assert_equal '# two', @lex.comments[1].text
   end
 
   def test_comment_expr_beg
@@ -388,7 +392,8 @@ class TestLexer < MiniTest::Unit::TestCase
   def test_comment_begin
     util_lex_token("=begin\nblah\nblah\n=end\n42",
                    :tINTEGER, 42)
-    assert_equal "=begin\nblah\nblah\n=end\n", @lex.comments
+    assert_equal 1, @lex.comments.length
+    assert_equal "=begin\nblah\nblah\n=end\n", @lex.comments[0].text
   end
 
   def test_comment_begin_bad
@@ -409,12 +414,16 @@ class TestLexer < MiniTest::Unit::TestCase
 
   def test_comment_begin_space
     util_lex_token("=begin blah\nblah\n=end\n")
-    assert_equal "=begin blah\nblah\n=end\n", @lex.comments
+
+    assert_equal 1, @lex.comments.length
+    assert_equal "=begin blah\nblah\n=end\n", @lex.comments[0].text
   end
 
   def test_comment_end_space_and_text
     util_lex_token("=begin blah\nblah\n=end blab\n")
-    assert_equal "=begin blah\nblah\n=end blab\n", @lex.comments
+
+    assert_equal 1, @lex.comments.length
+    assert_equal "=begin blah\nblah\n=end blab\n", @lex.comments[0].text
   end
 
   def test_comment_eos
@@ -2103,6 +2112,239 @@ class TestLexer < MiniTest::Unit::TestCase
   end
 
   #
+  # Tests for whitespace.
+  #
+
+  def test_whitespace_fname
+    @lex.state = :expr_fname
+    util_lex_token('class',
+                   :kCLASS, 'class')
+
+    @lex.state = :expr_fname
+    util_lex_token(' class',
+                   :kCLASS, 'class')
+
+    @lex.state = :expr_fname
+    util_lex_token("\nclass",
+                   :kCLASS, 'class')
+
+    @lex.state = :expr_fname
+    util_lex_token("\\\nclass",
+                   :kCLASS, 'class')
+
+    @lex.state = :expr_fname
+    util_lex_token("#foo\nclass",
+                   :kCLASS, 'class')
+  end
+
+  def test_whitespace_endfn
+    setup_lexer(21)
+
+    @lex.state = :expr_endfn
+    util_lex_token('foo:',
+                   :tLABEL, 'foo')
+
+    @lex.state = :expr_endfn
+    util_lex_token(' foo:',
+                   :tLABEL, 'foo')
+
+    @lex.state = :expr_endfn
+    util_lex_token("\nfoo:",
+                   :tNL,         nil,
+                   :tIDENTIFIER, 'foo',
+                   :tCOLON,      ':')
+
+    @lex.state = :expr_endfn
+    util_lex_token("\\\nfoo:",
+                   :tLABEL, 'foo')
+
+    @lex.state = :expr_endfn
+    util_lex_token("#foo\nfoo:",
+                   :tNL,         nil,
+                   :tIDENTIFIER, 'foo',
+                   :tCOLON,      ':')
+  end
+
+  def test_whitespace_dot
+    @lex.state = :expr_dot
+    util_lex_token('class',
+                   :tIDENTIFIER, 'class')
+
+    @lex.state = :expr_dot
+    util_lex_token(' class',
+                   :tIDENTIFIER, 'class')
+
+    @lex.state = :expr_dot
+    util_lex_token("\nclass",
+                   :tIDENTIFIER, 'class')
+
+    @lex.state = :expr_dot
+    util_lex_token("\\\nclass",
+                   :tIDENTIFIER, 'class')
+
+    @lex.state = :expr_dot
+    util_lex_token("#foo\nclass",
+                   :tIDENTIFIER, 'class')
+  end
+
+  def test_whitespace_arg
+    @lex.state = :expr_arg
+    util_lex_token('+',
+                   :tPLUS,  '+')
+
+    @lex.state = :expr_arg
+    util_lex_token(' +',
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_arg
+    util_lex_token("\n+",
+                   :tNL,    nil,
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_arg
+    util_lex_token("\\\n+",
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_arg
+    util_lex_token("\\\n +",
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_arg
+    util_lex_token("#foo\n+",
+                   :tNL,    nil,
+                   :tUPLUS, '+')
+  end
+
+  def test_whitespace_endarg
+    @lex.state = :expr_endarg
+    util_lex_token('{',
+                   :tLBRACE_ARG, '{')
+
+    @lex.state = :expr_endarg
+    util_lex_token(' {',
+                   :tLBRACE_ARG, '{')
+
+    @lex.state = :expr_endarg
+    util_lex_token("\n{",
+                   :tNL,         nil,
+                   :tLBRACE,     '{')
+
+    @lex.state = :expr_endarg
+    util_lex_token("\\\n{",
+                   :tLBRACE_ARG, '{')
+
+    @lex.state = :expr_endarg
+    util_lex_token("#foo\n{",
+                   :tNL,         nil,
+                   :tLBRACE,     '{')
+  end
+
+  def test_whitespace_mid
+    @lex.state = :expr_mid
+    util_lex_token('+',
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_mid
+    util_lex_token(' +',
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_mid
+    util_lex_token("\n+",
+                   :tNL,    nil,
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_mid
+    util_lex_token("\\\n+",
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_mid
+    util_lex_token("#foo\n+",
+                   :tNL,    nil,
+                   :tUPLUS, '+')
+  end
+
+  def test_whitespace_beg
+    @lex.state = :expr_beg
+    util_lex_token('+',
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_beg
+    util_lex_token(' +',
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_beg
+    util_lex_token("\n+",
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_beg
+    util_lex_token("\\\n+",
+                   :tUPLUS, '+')
+
+    @lex.state = :expr_beg
+    util_lex_token("#foo\n+",
+                   :tUPLUS, '+')
+  end
+
+  def test_whitespace_value
+    setup_lexer(20)
+
+    @lex.state = :expr_value
+    util_lex_token('a:b',
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b')
+
+    @lex.state = :expr_value
+    util_lex_token(' a:b',
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b')
+
+    @lex.state = :expr_value
+    util_lex_token("\na:b",
+                   :tLABEL,      'a',
+                   :tIDENTIFIER, 'b')
+
+    @lex.state = :expr_value
+    util_lex_token("\\\na:b",
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b')
+
+    @lex.state = :expr_value
+    util_lex_token("#foo\na:b",
+                   :tLABEL,      'a',
+                   :tIDENTIFIER, 'b')
+  end
+
+  def test_whitespace_end
+    @lex.state = :expr_end
+    util_lex_token('+ 1',
+                   :tPLUS,    '+',
+                   :tINTEGER, 1)
+
+    @lex.state = :expr_end
+    util_lex_token(' + 1',
+                   :tPLUS,    '+',
+                   :tINTEGER, 1)
+
+    @lex.state = :expr_end
+    util_lex_token("\n+ 1",
+                   :tNL,      nil,
+                   :tUPLUS,   '+',
+                   :tINTEGER, 1)
+
+    @lex.state = :expr_end
+    util_lex_token("\\\n+ 1",
+                   :tPLUS,    '+',
+                   :tINTEGER, 1)
+
+    @lex.state = :expr_end
+    util_lex_token("#foo\n+ 1",
+                   :tNL,      nil,
+                   :tUPLUS,   '+',
+                   :tINTEGER, 1)
+  end
+
+
+  #
   # Tests for bugs.
   #
   # These tests should be moved from nursery and properly
@@ -2306,7 +2548,7 @@ class TestLexer < MiniTest::Unit::TestCase
   def test_bug_expr_value_document
     util_lex_token("1;\n=begin\n=end",
                    :tINTEGER, 1,
-                   :tSEMI,    ";")
+                   :tSEMI,    ';')
   end
 
   def test_bug_expr_end_colon

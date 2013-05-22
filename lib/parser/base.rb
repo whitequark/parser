@@ -62,12 +62,14 @@ module Parser
     def parse(source_buffer)
       @source_buffer       = source_buffer
       @lexer.source_buffer = source_buffer
+      @lexer.comments      = []
 
       do_parse
     ensure
       # Don't keep references to the source file.
       @source_buffer       = nil
       @lexer.source_buffer = nil
+      @lexer.comments      = nil
     end
 
     # Currently, token stream format returned by #lex is not documented,
@@ -80,13 +82,13 @@ module Parser
     # `:tSTRING "foo"`; such details must not be relied upon.
     #
     def tokenize(source_buffer)
-      @lexer.token_stream = []
+      @lexer.tokens = []
 
       ast = parse(source_buffer)
 
-      [ast, @lexer.token_stream]
+      [ ast, @lexer.tokens ]
     ensure
-      @lexer.token_stream = nil
+      @lexer.tokens = nil
     end
 
     # @api internal
