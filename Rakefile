@@ -49,7 +49,7 @@ end
 
 desc 'Generate Changelog'
 task :changelog do
-  fs     = 0xFFFD.chr
+  fs     = "\u{fffd}"
   format = "%d#{fs}%s#{fs}%an#{fs}%ai"
 
   # Format: version => { commit-class => changes }
@@ -67,7 +67,7 @@ task :changelog do
             match(/^(?: \((.*)\))?#{fs}(.*)#{fs}(.*)#{fs}(.*)$/o).captures
       date = Date.parse(date)
 
-      current_version = "#{version} (#{date})" if version =~ /^v\d+.\d+.\d+$/
+      current_version = "#{$1} (#{date})" if version =~ /(v\d+.\d+.\d+)/
 
       next if current_version.nil? || message !~ /^[+*-]/
 
@@ -81,7 +81,7 @@ task :changelog do
     '-' => 'Bugs fixed:',
   }
 
-  File.open('Changelog.md', 'w') do |io|
+  File.open('CHANGELOG.md', 'w') do |io|
     io.puts 'Changelog'
     io.puts '========='
     io.puts
