@@ -34,7 +34,7 @@ module ParseHelper
     parser
   end
 
-  def with_versions(code, versions)
+  def with_versions(versions)
     (versions & ALL_VERSIONS).each do |version|
       @diagnostics.clear
 
@@ -67,7 +67,7 @@ module ParseHelper
   # )
   # ~~~
   def assert_parses(ast, code, source_maps='', versions=ALL_VERSIONS)
-    with_versions(code, versions) do |version, parser|
+    with_versions(versions) do |version, parser|
       source_file = Parser::Source::Buffer.new('(assert_parses)')
       source_file.source = code
 
@@ -111,7 +111,7 @@ module ParseHelper
   #     |     ~~~ highlights (0)})
   # ~~~
   def assert_diagnoses(diagnostic, code, source_maps='', versions=ALL_VERSIONS)
-    with_versions(code, versions) do |version, parser|
+    with_versions(versions) do |version, parser|
       source_file = Parser::Source::Buffer.new('(assert_diagnoses)')
       source_file.source = code
 

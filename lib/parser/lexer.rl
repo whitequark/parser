@@ -88,6 +88,8 @@ class Parser::Lexer
 
   attr_accessor :cond, :cmdarg
 
+  attr_accessor :token_stream
+
   attr_reader   :comments
 
   def initialize(version)
@@ -98,7 +100,9 @@ class Parser::Lexer
   end
 
   def reset(reset_state=true)
-    # Ragel-related variables:
+    @token_stream = nil
+
+    # Ragel state:
     if reset_state
       # Unit tests set state prior to resetting lexer.
       @cs     = self.class.lex_en_line_begin
@@ -245,7 +249,12 @@ class Parser::Lexer
   end
 
   def emit(type, value = tok, s = @ts, e = @te)
-    @token_queue << [ type, [ value, range(s, e) ] ]
+    token = [ type, [ value, range(s, e) ] ]
+    @token_queue  << token
+
+    @token_stream << token if @token_stream
+
+    token
   end
 
   def emit_table(table, s = @ts, e = @te)

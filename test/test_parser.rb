@@ -4196,6 +4196,31 @@ class TestParser < MiniTest::Unit::TestCase
   end
 
   #
+  # Tokenizing
+  #
+
+  def test_tokenize
+    with_versions(ALL_VERSIONS) do |_ver, parser|
+      source_file = Parser::Source::Buffer.new('(tokenize)')
+      source_file.source = "1 + 2"
+
+      range = lambda do |from, to|
+        Parser::Source::Range.new(source_file, from, to)
+      end
+
+      ast, tokens = parser.tokenize(source_file)
+
+      assert_equal s(:send, s(:int, 1), :+, s(:int, 2)), ast
+
+      assert_equal [
+                     [:tINTEGER, [ 1,   range.call(0, 1) ]],
+                     [:tPLUS,    [ '+', range.call(2, 3) ]],
+                     [:tINTEGER, [ 2,   range.call(4, 5) ]],
+                   ], tokens
+    end
+  end
+
+  #
   # Bug-specific tests
   #
 

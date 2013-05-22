@@ -51,7 +51,7 @@ module Parser
 
     def reset
       @source_buffer = nil
-      @def_level   = 0 # count of nested def's.
+      @def_level     = 0 # count of nested def's.
 
       @lexer.reset
       @static_env.reset
@@ -70,6 +70,26 @@ module Parser
       @lexer.source_buffer = nil
     end
 
+    # Currently, token stream format returned by #lex is not documented,
+    # but is considered part of a public API and only changed according
+    # to Semantic Versioning.
+    #
+    # However, note that the exact token composition of various constructs
+    # might vary. For example, a string `"foo"` is represented equally well
+    # by `:tSTRING_BEG " :tSTRING_CONTENT foo :tSTRING_END "` and
+    # `:tSTRING "foo"`; such details must not be relied upon.
+    #
+    def tokenize(source_buffer)
+      @lexer.token_stream = []
+
+      ast = parse(source_buffer)
+
+      [ast, @lexer.token_stream]
+    ensure
+      @lexer.token_stream = nil
+    end
+
+    # @api internal
     def in_def?
       @def_level > 0
     end
