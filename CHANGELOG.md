@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v1.4.0 (2013-05-22)
+-------------------
+
+Features implemented:
+ * Add `dot' source map to (send) nodes (fixes #34). (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl: fix lexing label at line_begin "foo:bar" (fixes #48). (Peter Zotov)
+
 v1.3.4 (2013-05-16)
 -------------------
 
