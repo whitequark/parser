@@ -1,29 +1,32 @@
 Changelog
 =========
 
-v1.4.0 (2013-05-22)
--------------------
+2.0.0.beta1 (2013-05-25)
+------------------------
+
+API modifications:
+ * Completely rewrite whitespace handling in lexer (fixes #36). (Peter Zotov)
+ * Rename Parser::AST::Node#source_map to #location, #src to #loc (closes #40). (Peter Zotov)
+ * Rename Parser::Source::Range#to_source to #source (refs #40). (Peter Zotov)
+ * Rename (cdecl) node to (casgn), remove (cvdecl) nodes (fixes #26). (Peter Zotov)
 
 Features implemented:
+ * Add Source::Comment.associate for mapping comments back to nodes (fixes #31). (Peter Zotov)
+ * Return AST and comments from Parser::Base#parse_with_comments. (Peter Zotov)
+ * Return comments from Parser::Base#tokenize (fixes #46). (Peter Zotov)
+ * Add tokenizer, Parser::Base#tokenize (refs #46). (Peter Zotov)
+ * lexer.rl: better location reporting for invalid unicode codepoints (fixes #38). (Peter Zotov)
+ * lexer.rl: better location reporting for unterminated =begin (fixes #37). (Peter Zotov)
+ * Better location reporting for hashes with labels. (Peter Zotov)
  * Add `dot' source map to (send) nodes (fixes #34). (Peter Zotov)
+ * Significantly improve performance of Source::Buffer (fixes #28). (Peter Zotov)
 
 Bugs fixed:
  * lexer.rl: fix lexing label at line_begin "foo:bar" (fixes #48). (Peter Zotov)
-
-v1.3.4 (2013-05-16)
--------------------
-
-Bugs fixed:
  * lexer.rl: "Option /^I/" is a method call (fixes #32). (Peter Zotov)
  * Don't allow destructive mutation of line cache in Source::Buffer. (Peter Zotov)
  * Fix quantifier in magic encoding parser (refs #33). (Peter Zotov)
  * Better handling of magic encoding comment edge cases (fixes #33). (Peter Zotov)
-
-v1.3.3 (2013-05-15)
--------------------
-
-Features implemented:
- * Significantly improve performance of Source::Buffer (fixes #28). (Peter Zotov)
 
 v1.3.2 (2013-05-13)
 -------------------
