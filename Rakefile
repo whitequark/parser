@@ -59,7 +59,7 @@ task :changelog do
     end
   end
 
-  IO.popen("git log --pretty='#{format}' --tags", 'r') do |io|
+  IO.popen("git log --pretty='#{format}' HEAD", 'r') do |io|
     current_version = nil
 
     io.each_line do |line|
@@ -68,6 +68,7 @@ task :changelog do
       date = Date.parse(date)
 
       current_version = "#{$1} (#{date})" if version =~ /(v\d+.\d+.\d+)/
+      current_version = "#{Parser::VERSION} (#{date})" if version =~ /HEAD/
 
       next if current_version.nil? || message !~ /^[+*-]/
 
