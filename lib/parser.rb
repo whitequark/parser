@@ -18,6 +18,7 @@ module Parser
   require 'parser/source/range'
 
   require 'parser/source/comment'
+  require 'parser/source/comment/associator'
 
   require 'parser/source/rewriter'
   require 'parser/source/rewriter/action'

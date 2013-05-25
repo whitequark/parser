@@ -7,6 +7,11 @@ module Parser
       attr_reader  :location
       alias_method :loc, :location
 
+      def self.associate(ast, comments)
+        associator = Associator.new(comments, ast)
+        associator.associate
+      end
+
       def initialize(location)
         @location = location
         @text     = location.source.freeze
