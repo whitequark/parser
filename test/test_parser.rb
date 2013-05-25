@@ -4225,7 +4225,7 @@ class TestParser < MiniTest::Unit::TestCase
   def test_tokenize
     with_versions(ALL_VERSIONS) do |_ver, parser|
       source_file = Parser::Source::Buffer.new('(tokenize)')
-      source_file.source = "1 + 2"
+      source_file.source = "1 + # foo\n 2"
 
       range = lambda do |from, to|
         Parser::Source::Range.new(source_file, from, to)
@@ -4234,9 +4234,10 @@ class TestParser < MiniTest::Unit::TestCase
       _ast, _comments, tokens = parser.tokenize(source_file)
 
       assert_equal [
-                     [:tINTEGER, [ 1,   range.call(0, 1) ]],
-                     [:tPLUS,    [ '+', range.call(2, 3) ]],
-                     [:tINTEGER, [ 2,   range.call(4, 5) ]],
+                     [:tINTEGER, [ 1,       range.call(0, 1) ]],
+                     [:tPLUS,    [ '+',     range.call(2, 3) ]],
+                     [:tCOMMENT, [ '# foo', range.call(4, 9) ]],
+                     [:tINTEGER, [ 2,       range.call(11, 12) ]],
                    ], tokens
     end
   end
