@@ -60,16 +60,22 @@ module Parser
     end
 
     def parse(source_buffer)
-      @source_buffer       = source_buffer
       @lexer.source_buffer = source_buffer
-      @lexer.comments      = []
+      @source_buffer       = source_buffer
 
-      [ do_parse, @lexer.comments ]
+      do_parse
     ensure
       # Don't keep references to the source file.
       @source_buffer       = nil
       @lexer.source_buffer = nil
-      @lexer.comments      = nil
+    end
+
+    def parse_with_comments(source_buffer)
+      @lexer.comments = []
+
+      [ parse(source_buffer), @lexer.comments ]
+    ensure
+      @lexer.comments = nil
     end
 
     # Currently, token stream format returned by #lex is not documented,

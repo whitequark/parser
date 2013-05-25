@@ -4214,7 +4214,7 @@ class TestParser < MiniTest::Unit::TestCase
         Parser::Source::Range.new(source_file, from, to)
       end
 
-      _ast, comments = parser.parse(source_file)
+      _ast, comments = parser.parse_with_comments(source_file)
 
       assert_equal [
                      Parser::Source::Comment.new(range.call(4, 9))

@@ -72,7 +72,7 @@ module ParseHelper
       source_file.source = code
 
       begin
-        parsed_ast, = parser.parse(source_file)
+        parsed_ast = parser.parse(source_file)
       rescue => exc
         new_exc = exc.class.new("(#{version}) #{exc.message}")
         new_exc.set_backtrace(exc.backtrace)
