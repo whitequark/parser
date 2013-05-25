@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestLexer < MiniTest::Unit::TestCase
+class TestLexer < Minitest::Test
   def setup_lexer(version)
     @lex = Parser::Lexer.new(version)
 

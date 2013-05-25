@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestDiagnosticEngine < MiniTest::Unit::TestCase
+class TestDiagnosticEngine < Minitest::Test
   def setup
     @buffer  = Parser::Source::Buffer.new('(source)')
     @buffer.source = 'foobar'

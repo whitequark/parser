@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestSourceBuffer < MiniTest::Unit::TestCase
+class TestSourceBuffer < Minitest::Test
   def setup
     @buffer = Parser::Source::Buffer.new('(string)')
   end

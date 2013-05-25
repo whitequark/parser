@@ -1,7 +1,7 @@
 require 'helper'
 require 'parser/current'
 
-class TestCurrent < MiniTest::Unit::TestCase
+class TestCurrent < Minitest::Test
   def test_current
     case RUBY_VERSION
     when '1.8.7'

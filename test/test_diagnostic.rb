@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestDiagnostic < MiniTest::Unit::TestCase
+class TestDiagnostic < Minitest::Test
   def setup
     @buffer = Parser::Source::Buffer.new('(string)')
     @buffer.source = "if (this is some bad code + bugs)"

@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestSourceRewriterAction < MiniTest::Unit::TestCase
+class TestSourceRewriterAction < Minitest::Test
   def setup
     @buf = Parser::Source::Buffer.new('(rewriter_action)')
     @buf.source = 'foo bar baz'

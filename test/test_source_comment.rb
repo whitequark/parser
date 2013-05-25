@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestSourceComment < MiniTest::Unit::TestCase
+class TestSourceComment < Minitest::Test
   def setup
     @buf = Parser::Source::Buffer.new('(string)')
     @buf.source = "# foo\n=begin foo\nbar\n=end baz\n"

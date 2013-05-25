@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestEncoding < MiniTest::Unit::TestCase
+class TestEncoding < Minitest::Test
   def recognize(string)
     Parser::Source::Buffer.recognize_encoding(string)
   end

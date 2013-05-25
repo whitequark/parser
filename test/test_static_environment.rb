@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestStaticEnvironment < MiniTest::Unit::TestCase
+class TestStaticEnvironment < Minitest::Test
   def setup
     @env = Parser::StaticEnvironment.new
   end

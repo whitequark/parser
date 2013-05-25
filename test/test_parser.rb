@@ -3,7 +3,7 @@
 require 'helper'
 require 'parse_helper'
 
-class TestParser < MiniTest::Unit::TestCase
+class TestParser < Minitest::Test
   include ParseHelper
 
   def parser_for_ruby_version(version)

@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestLexerStackState < MiniTest::Unit::TestCase
+class TestLexerStackState < Minitest::Test
   def setup
     @state = Parser::Lexer::StackState.new('state')
   end

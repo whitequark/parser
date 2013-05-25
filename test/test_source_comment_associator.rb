@@ -1,7 +1,7 @@
 require 'helper'
 require 'parser/ruby18'
 
-class TestSourceCommentAssociator < MiniTest::Unit::TestCase
+class TestSourceCommentAssociator < Minitest::Test
   def test_associate
     parser = Parser::Ruby18.new
 
