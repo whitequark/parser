@@ -33,8 +33,6 @@ module Parser
 
       @static_env  = StaticEnvironment.new
 
-      @comments    = []
-
       @lexer = Lexer.new(version)
       @lexer.diagnostics = @diagnostics
       @lexer.static_env  = @static_env
