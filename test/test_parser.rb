@@ -4214,7 +4214,10 @@ class TestParser < Minitest::Test
         Parser::Source::Range.new(source_file, from, to)
       end
 
-      _ast, comments = parser.parse_with_comments(source_file)
+      ast, comments = parser.parse_with_comments(source_file)
+
+      assert_equal s(:send, s(:int, 1), :+, s(:int, 2)),
+                   ast
 
       assert_equal [
                      Parser::Source::Comment.new(range.call(4, 9))
@@ -4231,7 +4234,14 @@ class TestParser < Minitest::Test
         Parser::Source::Range.new(source_file, from, to)
       end
 
-      _ast, _comments, tokens = parser.tokenize(source_file)
+      ast, comments, tokens = parser.tokenize(source_file)
+
+      assert_equal s(:send, s(:int, 1), :+, s(:int, 2)),
+                   ast
+
+      assert_equal [
+                     Parser::Source::Comment.new(range.call(4, 9))
+                   ], comments
 
       assert_equal [
                      [:tINTEGER, [ 1,       range.call(0, 1) ]],

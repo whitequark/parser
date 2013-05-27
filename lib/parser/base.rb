@@ -88,7 +88,7 @@ module Parser
     def tokenize(source_buffer)
       @lexer.tokens = []
 
-      ast, comments = parse(source_buffer)
+      ast, comments = parse_with_comments(source_buffer)
 
       [ ast, comments, @lexer.tokens ]
     ensure
