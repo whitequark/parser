@@ -1,8 +1,14 @@
 Changelog
 =========
 
-2.0.0.beta1 (2013-05-25)
+2.0.0.beta2 (2013-05-27)
 ------------------------
+
+Bugs fixed:
+ * Actually return comments from Parser::Base#tokenize instead of nil. (Peter Zotov)
+
+v2.0.0 (2013-05-25)
+-------------------
 
 API modifications:
  * Completely rewrite whitespace handling in lexer (fixes #36). (Peter Zotov)
