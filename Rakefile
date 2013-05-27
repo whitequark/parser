@@ -67,8 +67,8 @@ task :changelog do
             match(/^(?: \((.*)\))?#{fs}(.*)#{fs}(.*)#{fs}(.*)$/o).captures
       date = Date.parse(date)
 
-      current_version = "#{$1} (#{date})" if version =~ /(v\d+.\d+.\d+)/
-      current_version = "#{Parser::VERSION} (#{date})" if version =~ /HEAD/
+      current_version = "#{$1} (#{date})" if version =~ /(v[\d\w.]+)/
+      current_version = "v#{Parser::VERSION} (#{date})" if version =~ /HEAD/
 
       next if current_version.nil? || message !~ /^[+*-]/
 
