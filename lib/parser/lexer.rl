@@ -1241,7 +1241,7 @@ class Parser::Lexer
         fgoto expr_end;
       };
 
-      w_space? w_newline
+      w_space* w_newline
       => { fhold; fgoto expr_end; };
 
       c_any
