@@ -75,7 +75,7 @@ module Parser
         scope_node, name, value_node = *node
 
         scope_node = process(scope_node) if scope_node
-        value_node = process(value_node)
+        value_node = process(value_node) if value_node
         node.updated(nil, [ scope_node, name, value_node ])
       end
 
