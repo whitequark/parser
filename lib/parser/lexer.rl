@@ -150,7 +150,7 @@ class Parser::Lexer
       #
       # Patches accepted.
       #
-      @source = @source_buffer.source.gsub(/\r\n/, "\n") + "\0\0\0"
+      @source = @source_buffer.source + "\0\0\0"
     else
       @source = nil
     end
@@ -363,7 +363,7 @@ class Parser::Lexer
     @newline_s = p
   }
 
-  c_nl       = '\n' $ do_nl;
+  c_nl       = '\r'? '\n' $ do_nl;
   c_space    = [ \t\r\f\v];
   c_space_nl = c_space | c_nl;
   c_eof      = 0x04 | 0x1a | 0; # ^D, ^Z, EOF

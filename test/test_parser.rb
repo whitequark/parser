@@ -4139,6 +4139,25 @@ class TestParser < MiniTest::Unit::TestCase
   # Miscellanea
   #
 
+  def test_crlf_line_endings
+    with_versions(ALL_VERSIONS) do |_ver, parser|
+      source_file = Parser::Source::Buffer.new('(comments)')
+      source_file.source = "\r\nfoo"
+
+      range = lambda do |from, to|
+        Parser::Source::Range.new(source_file, from, to)
+      end
+
+      ast = parser.parse(source_file)
+
+      assert_equal s(:lvar, :foo),
+                   ast
+
+      assert_equal range.call(2, 5),
+                   ast.loc.expression
+    end
+  end
+
   def test_begin_cmdarg
     assert_parses(
       s(:send, nil, :p,
