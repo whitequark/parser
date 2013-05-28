@@ -184,9 +184,10 @@ module Parser
         cond_node, *bodies = *node
         when_nodes, else_node = bodies[0..-2], bodies[-1]
 
+        cond_node = process(cond_node) if cond_node
         else_node = process(else_node) if else_node
         node.updated(nil, [
-          process(cond_node),
+          cond_node,
           *(process_all(when_nodes) << else_node)
         ])
       end
