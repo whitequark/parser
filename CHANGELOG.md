@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v2.0.0.beta3 (2013-05-29)
+-------------------------
+
+Bugs fixed:
+ * AST::Processor: traverse "A, B = foo" (fixes #55). (Peter Zotov)
+ * lexer.rl: correctly handle CRLF line endings (fixes #56). (Peter Zotov)
+ * Fix traversing of "case; when a?; when b?; end" by AST::Processor. (Peter Zotov)
+ * Correctly lex "foo a, b # comment\nbar" (fixes #54). (Peter Zotov)
+
 v2.0.0.beta2 (2013-05-27)
 -------------------------
 
