@@ -4140,7 +4140,7 @@ class TestParser < MiniTest::Unit::TestCase
   #
 
   def test_crlf_line_endings
-    with_versions(ALL_VERSIONS) do |_ver, parser|
+    with_versions(nil, ALL_VERSIONS) do |_ver, parser|
       source_file = Parser::Source::Buffer.new('(comments)')
       source_file.source = "\r\nfoo"
 
@@ -4154,7 +4154,7 @@ class TestParser < MiniTest::Unit::TestCase
                    ast
 
       assert_equal range.call(2, 5),
-                   ast.loc.expression
+                   ast.src.expression
     end
   end
 
