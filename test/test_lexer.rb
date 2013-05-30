@@ -811,6 +811,16 @@ class TestLexer < Minitest::Test
                    :tNL,             nil)
   end
 
+  def test_heredoc_one_character
+    util_lex_token("a = <<E\nABCDEF\nE\n",
+                   :tIDENTIFIER,     "a",
+                   :tEQL,              "=",
+                   :tSTRING_BEG,     "\"",
+                   :tSTRING_CONTENT, "ABCDEF\n",
+                   :tSTRING_END,     "E",
+                   :tNL,             nil)
+  end
+
   def test_identifier
     util_lex_token("identifier", :tIDENTIFIER, "identifier")
   end

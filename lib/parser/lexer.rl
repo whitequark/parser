@@ -683,10 +683,10 @@ class Parser::Lexer
   };
 
   action extend_string {
-    if literal.nest_and_try_closing tok, @ts, @te
+    if !literal.heredoc? && literal.nest_and_try_closing(tok, @ts, @te)
       fnext *pop_literal; fbreak;
     else
-      literal.extend_string tok, @ts, @te
+      literal.extend_string(tok, @ts, @te)
     end
   }
 
@@ -1362,11 +1362,11 @@ class Parser::Lexer
       # Heredoc start.
       # <<EOF | <<-END | <<"FOOBAR" | <<-`SMTH`
       '<<' '-'?
-        ( '"' ( c_any - c_nl - '"' )* '"'
-        | "'" ( c_any - c_nl - "'" )* "'"
-        | "`" ( c_any - c_nl - "`" )* "`"
-        | bareword )           % { @heredoc_e     = p }
-        ( c_any - c_nl )* c_nl % { new_herebody_s = p }
+        ( '"' ( c_line - '"' )* '"'
+        | "'" ( c_line - "'" )* "'"
+        | "`" ( c_line - "`" )* "`"
+        | bareword ) % { @heredoc_e     = p }
+        c_line* c_nl % { new_herebody_s = p }
       => {
         tok(@ts, @heredoc_e) =~ /^<<(-?)(["'`]?)(.*)\2$/
 
