@@ -114,6 +114,10 @@ $ ruby-parse -E -e "2+2"
   [slop]: http://rubygems.org/gems/slop
   [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
+## Documentation
+
+Documentation for parser is available online on [rdoc.info](http://rdoc.info/github/whitequark/parser).
+
 ## Contributors
 
  * Peter Zotov ([whitequark][])
