@@ -2509,6 +2509,14 @@ class TestLexer < Minitest::Test
                    :kEND,            "end")
   end
 
+  def test_bug_heredoc_cr_lf
+    util_lex_token("<<FIN\r\nfoo\r\nFIN\r\n",
+                   :tSTRING_BEG,     "\"",
+                   :tSTRING_CONTENT, "foo\r\n",
+                   :tSTRING_END,     "EOS",
+                   :tNL,             nil)
+  end
+
   def test_bug_eh_symbol_no_newline
     util_lex_token("?\"\nfoo",
                    :tINTEGER,     34,

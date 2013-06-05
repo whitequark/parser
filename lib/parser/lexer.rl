@@ -673,7 +673,7 @@ class Parser::Lexer
   # @heredoc_s to literal.saved_herebody_s, and after an interpolation (possibly
   # containing another heredocs) is closed, the previous value is restored.
 
-  e_heredoc_nl = c_nl $ {
+  e_heredoc_nl = c_nl % {
     # After every heredoc was parsed, @herebody_s contains the
     # position of next token after all heredocs.
     if @herebody_s
@@ -744,8 +744,8 @@ class Parser::Lexer
     if literal.heredoc?
       # Try ending the heredoc with the complete most recently
       # scanned line. @herebody_s always refers to the start of such line.
-      if literal.nest_and_try_closing(tok(@herebody_s, @te - 1),
-                                      @herebody_s, @te - 1)
+      if literal.nest_and_try_closing(tok(@herebody_s, @ts),
+                                      @herebody_s, @ts)
         # Adjust @herebody_s to point to the next line.
         @herebody_s = @te
 
