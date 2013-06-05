@@ -2513,7 +2513,7 @@ class TestLexer < Minitest::Test
     util_lex_token("<<FIN\r\nfoo\r\nFIN\r\n",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_CONTENT, "foo\r\n",
-                   :tSTRING_END,     "EOS",
+                   :tSTRING_END,     "FIN",
                    :tNL,             nil)
   end
 
