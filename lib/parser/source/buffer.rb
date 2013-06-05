@@ -7,7 +7,7 @@ module Parser
       attr_reader :name, :first_line
 
       def self.recognize_encoding(string)
-        return Encoding::BINARY if string.empty?
+        return Encoding::UTF_8 if string.empty?
 
         # extract the first two lines in an efficient way
         string =~ /(.*)\n?(.*\n)?/
@@ -28,7 +28,7 @@ module Parser
         if encoding_line =~ /^#.*coding[:=]\s*([a-z0-9_-]+)/
           Encoding.find($1)
         else
-          string.encoding
+          Encoding::UTF_8
         end
       end
 
