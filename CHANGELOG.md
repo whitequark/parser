@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2.0.0.beta4 (2013-06-05)
+-------------------------
+
+Bugs fixed:
+ * lexer.rl: fix heredoc parsing with CRLF line endings (closes #61). (Peter Zotov)
+ * lexer.rl: fix premature ending of heredoc "\<\<D\nABCDEF\nD" (fixes #59). (Peter Zotov)
+
 v2.0.0.beta3 (2013-05-29)
 -------------------------
 
