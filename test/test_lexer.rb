@@ -239,6 +239,15 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, "b")
   end
 
+  def test_label_fid__19
+    setup_lexer 19
+
+    util_lex_token("{a?:true",
+                   :tLBRACE,     '{',
+                   :tLABEL,      'a?',
+                   :kTRUE,       'true')
+  end
+
   def test_command_start__19
     setup_lexer 19
 

@@ -1488,7 +1488,7 @@ class Parser::Lexer
       # RUBY 1.9 HASH LABELS
       #
 
-      bareword ':' ( c_any - ':' )
+      bareword [?!]? ':' ( c_any - ':' )
       => {
         fhold;
 
