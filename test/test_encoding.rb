@@ -25,6 +25,14 @@ class TestEncoding < Minitest::Test
       assert_equal Encoding::KOI8_R, recognize("#!/bin/foo\n# coding:koi8-r\nfoobar")
     end
 
+    def test_case
+      assert_equal Encoding::KOI8_R, recognize("#!/bin/foo\n# coding:KoI8-r\nfoobar")
+    end
+
+    def test_space
+      assert_equal Encoding::KOI8_R, recognize("#!/bin/foo\n# coding : koi8-r\nfoobar")
+    end
+
     def test_empty
       assert_equal Encoding::UTF_8, recognize("")
     end

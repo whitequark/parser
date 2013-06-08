@@ -25,7 +25,7 @@ module Parser
           encoding_line = first_line
         end
 
-        if encoding_line =~ /^#.*coding[:=]\s*([a-z0-9_-]+)/
+        if encoding_line =~ /^#.*coding\s*[:=]\s*([A-Za-z0-9_-]+)/
           Encoding.find($1)
         else
           Encoding::UTF_8
