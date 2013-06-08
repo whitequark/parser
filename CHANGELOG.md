@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v2.0.0.beta5 (2013-06-08)
+-------------------------
+
+Bugs fixed:
+ * Source::Buffer: better magic encoding comment recognition (fixes #65). (Peter Zotov)
+ * lexer.rl: "{success?: true}" (fixes #66). (Peter Zotov)
+ * Source::Buffer: if in doubt, treat data as UTF-8 (closes #60). (Peter Zotov)
+
 v2.0.0.beta4 (2013-06-05)
 -------------------------
 
