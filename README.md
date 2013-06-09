@@ -31,14 +31,14 @@ p Parser::CurrentRuby.parse("2 + 2")
 Access the AST's source map:
 
 ~~~ ruby
-p Parser::CurrentRuby.parse("2 + 2").src
+p Parser::CurrentRuby.parse("2 + 2").loc
 # #<Parser::Source::Map::Send:0x007fe0ca8a69b8
 #   @begin=nil,
 #   @end=nil,
 #   @expression=#<Source::Range (string) 0...5>,
 #   @selector=#<Source::Range (string) 2...3>>
 
-p Parser::CurrentRuby.parse("2 + 2").src.selector.to_source
+p Parser::CurrentRuby.parse("2 + 2").loc.selector.to_source
 # "+"
 ~~~
 
