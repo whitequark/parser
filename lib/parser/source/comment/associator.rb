@@ -47,6 +47,8 @@ module Parser
       end
 
       def current_comment_between?(prev_node, next_node)
+        return false if current_comment.nil?
+
         comment_loc = current_comment.location
         next_loc    = next_node.location.expression
 

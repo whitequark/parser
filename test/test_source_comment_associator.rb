@@ -2,11 +2,20 @@ require 'helper'
 require 'parser/ruby18'
 
 class TestSourceCommentAssociator < Minitest::Test
-  def test_associate
+  def associate(code)
     parser = Parser::Ruby18.new
 
     buffer = Parser::Source::Buffer.new('(comments)')
-    buffer.source = <<-END
+    buffer.source = code
+
+    ast, comments = parser.parse_with_comments(buffer)
+    associations  = Parser::Source::Comment.associate(ast, comments)
+
+    [ ast, associations ]
+  end
+
+  def test_associate
+    ast, associations = associate(<<-END)
 # Class comment
 # another class comment
 class Foo
@@ -22,9 +31,6 @@ class Foo
   end
 end
     END
-
-    ast, comments = parser.parse_with_comments(buffer)
-    associations  = Parser::Source::Comment.associate(ast, comments)
 
     klass_node         = ast
     attr_accessor_node = ast.children[2].children[0]
@@ -43,6 +49,18 @@ end
                  associations[expr_node].map(&:text)
     assert_equal ['# intermediate comment'],
                  associations[intermediate_node].map(&:text)
+  end
+
+  def test_associate_no_body
+    ast, associations = associate(<<-END)
+# foo
+class Foo
+end
+    END
+
+    assert_equal 1, associations.size
+    assert_equal ['# foo'],
+                 associations[ast].map(&:text)
   end
 
 end
