@@ -1246,6 +1246,9 @@ rule
             then: term
                 | kTHEN
                 | term kTHEN
+                    {
+                      result = val[1]
+                    }
 
               do: term
                 | kDO_COND

@@ -1253,6 +1253,9 @@ rule
                 | tCOLON
                 | kTHEN
                 | term kTHEN
+                    {
+                      result = val[1]
+                    }
 
               do: term
                 | tCOLON

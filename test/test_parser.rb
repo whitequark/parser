@@ -3439,6 +3439,13 @@ class TestParser < Minitest::Test
         |~~~~~~~~~~~~~~~~ expression})
   end
 
+  def test_if_nl_then
+    assert_parses(
+      s(:if, s(:lvar, :foo), s(:lvar, :bar), nil),
+      %Q{if foo\nthen bar end},
+       %q{       ~~~~ begin})
+  end
+
   def test_if_mod
     assert_parses(
       s(:if, s(:lvar, :foo), s(:lvar, :bar), nil),
