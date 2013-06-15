@@ -650,7 +650,7 @@ module Parser
     # Logical operations: and, or
 
     def logical_op(type, lhs, op_t, rhs)
-      n(type, [ check_condition(lhs), check_condition(rhs) ],
+      n(type, [ lhs, rhs ],
         binary_op_map(lhs, op_t, rhs))
     end
 
@@ -801,11 +801,25 @@ module Parser
     #
 
     def check_condition(cond)
-      if cond.type == :masgn
+      case cond.type
+      when :masgn
         diagnostic :error, ERRORS[:masgn_as_condition],
                    cond.loc.expression
-      elsif cond.type == :begin
-        check_condition(cond.children.last)
+
+      when :begin
+        if cond.children.count == 1
+          check_condition(cond.children.last)
+        else
+          cond
+        end
+
+      when :and, :or
+        lhs, rhs = *cond
+
+        cond.updated(nil, [
+          check_condition(lhs),
+          check_condition(rhs)
+        ])
       end
 
       cond

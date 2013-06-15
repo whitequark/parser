@@ -3410,13 +3410,23 @@ class TestParser < Minitest::Test
         |~~~~~~~~~~ expression})
   end
 
-  def test_and_or_masgn_invalid
-    assert_diagnoses(
-      [:error, :masgn_as_condition],
+  def test_and_or_masgn
+    assert_parses(
+      s(:and,
+        s(:lvar, :foo),
+        s(:begin,
+          s(:masgn,
+            s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
+            s(:lvar, :bar)))),
       %q{foo && (a, b = bar)})
 
-    assert_diagnoses(
-      [:error, :masgn_as_condition],
+    assert_parses(
+      s(:or,
+        s(:lvar, :foo),
+        s(:begin,
+          s(:masgn,
+            s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
+            s(:lvar, :bar)))),
       %q{foo || (a, b = bar)})
   end
 
@@ -3561,10 +3571,28 @@ class TestParser < Minitest::Test
   end
 
   def test_cond_begin_masgn
+    assert_parses(
+      s(:if,
+        s(:begin,
+          s(:lvar, :bar),
+          s(:masgn,
+            s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
+            s(:lvar, :foo))),
+        s(:nil),
+        nil),
+      %q{if (bar; a, b = foo); end})
+  end
+
+  def test_cond_begin_and_or_masgn
     assert_diagnoses(
       [:error, :masgn_as_condition],
-      %q{if (bar; a, b = foo); end},
-      %q{         ~~~~~~~~~~ location})
+      %q{if foo && (a, b = bar); end},
+      %q{           ~~~~~~~~~~ location})
+
+    assert_diagnoses(
+      [:error, :masgn_as_condition],
+      %q{if foo || (a, b = bar); end},
+      %q{           ~~~~~~~~~~ location})
   end
 
   # Case matching
