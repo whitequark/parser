@@ -1,11 +1,6 @@
 AST and Source Location RFC
 ===========================
 
-## Open questions:
-
- * Should we handle these cases at all? They do not have special syntax associated.
-   1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
-
 ## Literals
 
 ### Singletons
@@ -361,31 +356,6 @@ Format:
          ^ begin
            ^ end
  ~~~~~~~~~~~ expression
-~~~
-
-### Flip-flops
-
-Format:
-
-~~~
-(iflipflop (lvar :a) (lvar :b))
-"if a..b; end"
-     ~~ operator
-    ~~~~ expression
-
-(eflipflop (lvar :a) (lvar :b))
-"if a...b; end"
-     ~~~ operator
-    ~~~~~ expression
-~~~
-
-### Implicit matches
-
-Format:
-
-~~~
-(match-current-line (regexp (str "a") (regopt)))
-"if /a/; end"
 ~~~
 
 ## Assignment
@@ -1463,3 +1433,40 @@ Format:
  ~~~~~~~~~~~~~~~~~~ expression
 ~~~
 
+## Miscellanea
+
+### Flip-flops
+
+Format:
+
+~~~
+(iflipflop (lvar :a) (lvar :b))
+"if a..b; end"
+     ~~ operator
+    ~~~~ expression
+
+(eflipflop (lvar :a) (lvar :b))
+"if a...b; end"
+     ~~~ operator
+    ~~~~~ expression
+~~~
+
+### Implicit matches
+
+Format:
+
+~~~
+(match-current-line (regexp (str "a") (regopt)))
+"if /a/; end"
+~~~
+
+### Local variable injecting matches
+
+Format:
+
+~~~
+(match-with-lvasgn (regexp (str "(?<match>bar)") (regopt)) (lvar :baz))
+"/(?<match>bar)/ =~ baz"
+                 ~~ selector
+ ~~~~~~~~~~~~~~~~~~~~~~ expression
+~~~
