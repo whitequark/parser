@@ -616,6 +616,28 @@ module Parser
         source_map)
     end
 
+    def match_op(receiver, match_t, arg)
+      source_map = send_binary_op_map(receiver, match_t, arg)
+
+      if receiver.type == :regexp &&
+            receiver.children.count == 2 &&
+            receiver.children.first.type == :str
+
+        regexp_str, _regopt = *receiver
+        regexp_body, = *regexp_str
+
+        Regexp.new(regexp_body).names.each do |name|
+          @parser.static_env.declare(name)
+        end
+
+        n(:match_with_lvasgn, [ receiver, arg ],
+          source_map)
+      else
+        n(:send, [ receiver, :=~, arg ],
+          source_map)
+      end
+    end
+
     def unary_op(op_t, receiver)
       case value(op_t)
       when '+', '-'

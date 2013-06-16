@@ -797,7 +797,7 @@ rule
                     }
                 | arg tMATCH arg
                     {
-                      result = @builder.binary_op(val[0], val[1], val[2])
+                      result = @builder.match_op(val[0], val[1], val[2])
                     }
                 | arg tNMATCH arg
                     {

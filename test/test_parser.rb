@@ -2882,6 +2882,32 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_lvar_injecting_match
+    assert_parses(
+      s(:begin,
+        s(:match_with_lvasgn,
+          s(:regexp,
+            s(:str, '(?<match>bar)'),
+            s(:regopt)),
+          s(:str, 'bar')),
+        s(:lvar, :match)),
+      %q{/(?<match>bar)/ =~ 'bar'; match},
+      %q{                ~~ selector (match_with_lvasgn)
+        |~~~~~~~~~~~~~~~~~~~~~~~~ expression (match_with_lvasgn)})
+  end
+
+  # TODO not yet
+  # def test_non_lvar_injecting_match
+  #   assert_parses(
+  #     s(:send,
+  #       s(:regexp,
+  #         s(:str, '(?<match>bar)'),
+  #         s(:regopt)),
+  #       :=~,
+  #       s(:str, 'bar')),
+  #     %q{/#{'(?<match>bar)'}/ =~ 'bar'})
+  # end
+
   # To superclass
 
   def test_super
