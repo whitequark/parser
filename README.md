@@ -104,7 +104,6 @@ $ ruby-parse -E -e "2+2"
  * Improved [clang-like][] diagnostic messages with location information.
  * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8 and 1.9 mode.
  * Only two runtime dependencies: the gems [ast][] and [slop][].
- * RubyParser compatibility (WIP, no, not really yet).
  * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
  * 100% test coverage for Bison grammars (except error recovery).
  * Readable, commented source code.
@@ -128,7 +127,7 @@ Documentation for parser is available online on [rdoc.info](http://rdoc.info/git
 
 ## Acknowledgements
 
-The lexer testsuite and ruby_parser compatibility testsuite are derived from [ruby_parser](http://github.com/seattlerb/ruby_parser).
+The lexer testsuite is derived from [ruby_parser](http://github.com/seattlerb/ruby_parser).
 
 The Bison parser rules are derived from [Ruby MRI](http://github.com/ruby/ruby) parse.y.
 
