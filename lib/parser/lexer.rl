@@ -819,9 +819,9 @@ class Parser::Lexer
     if literal
       if literal.end_interp_brace_and_try_closing
         if version?(18, 19)
-          emit(:tRCURLY, '}')
+          emit(:tRCURLY, '}', p - 1, p)
         else
-          emit(:tSTRING_DEND, '}')
+          emit(:tSTRING_DEND, '}', p - 1, p)
         end
 
         if literal.saved_herebody_s

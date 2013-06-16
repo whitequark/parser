@@ -120,11 +120,14 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:dstr,
         s(:str, 'foo'),
-        s(:lvar, :bar),
+        s(:begin, s(:lvar, :bar)),
         s(:str, 'baz')),
       %q{"foo#{bar}baz"},
       %q{^ begin
         |             ^ end
+        |    ^^ begin (begin)
+        |         ^ end (begin)
+        |    ~~~~~~ expression (begin)
         |~~~~~~~~~~~~~~ expression})
   end
 
@@ -181,11 +184,14 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:dsym,
         s(:str, 'foo'),
-        s(:lvar, :bar),
+        s(:begin, s(:lvar, :bar)),
         s(:str, 'baz')),
       %q{:"foo#{bar}baz"},
       %q{^^ begin
         |              ^ end
+        |     ^^ begin (begin)
+        |          ^ end (begin)
+        |     ~~~~~~ expression (begin)
         |~~~~~~~~~~~~~~~ expression})
   end
 
@@ -218,11 +224,14 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:xstr,
         s(:str, 'foo'),
-        s(:lvar, :bar),
+        s(:begin, s(:lvar, :bar)),
         s(:str, 'baz')),
       %q{`foo#{bar}baz`},
       %q{^ begin
         |             ^ end
+        |    ^^ begin (begin)
+        |         ^ end (begin)
+        |    ~~~~~~ expression (begin)
         |~~~~~~~~~~~~~~ expression})
   end
 
@@ -242,11 +251,14 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:regexp,
         s(:str, 'foo'),
-        s(:lvar, :bar),
+        s(:begin, s(:lvar, :bar)),
         s(:str, 'baz'),
         s(:regopt)),
       %q{/foo#{bar}baz/},
       %q{^ begin
+        |    ^^ begin (begin)
+        |         ^ end (begin)
+        |    ~~~~~~ expression (begin)
         |             ^ end
         |~~~~~~~~~~~~~~ expression})
   end
@@ -325,18 +337,24 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:array,
         s(:str, "foo"),
-        s(:dstr, s(:lvar, :bar))),
+        s(:dstr, s(:begin, s(:lvar, :bar)))),
       %q{%W[foo #{bar}]},
       %q{^^^ begin
+        |       ^^ begin (dstr.begin)
+        |            ^ end (dstr.begin)
+        |       ~~~~~~ expression (dstr.begin)
         |             ^ end
         |   ~~~ expression (str)
-        |         ~~~ expression (dstr.lvar)
+        |         ~~~ expression (dstr.begin.lvar)
         |~~~~~~~~~~~~~~ expression})
 
     assert_parses(
       s(:array,
         s(:str, "foo"),
-        s(:dstr, s(:lvar, :bar), s(:str, 'foo'), s(:ivar, :@baz))),
+        s(:dstr,
+          s(:begin, s(:lvar, :bar)),
+          s(:str, 'foo'),
+          s(:ivar, :@baz))),
       %q{%W[foo #{bar}foo#@baz]})
   end
 
@@ -368,17 +386,23 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:array,
         s(:sym, :foo),
-        s(:dsym, s(:lvar, :bar))),
+        s(:dsym, s(:begin, s(:lvar, :bar)))),
       %q{%I[foo #{bar}]},
       %q{^^^ begin
         |             ^ end
         |   ~~~ expression (sym)
-        |         ~~~ expression (dsym.lvar)
+        |       ^^ begin (dsym.begin)
+        |            ^ end (dsym.begin)
+        |       ~~~~~~ expression (dsym.begin)
+        |         ~~~ expression (dsym.begin.lvar)
         |~~~~~~~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8 1.9))
 
     assert_parses(
-      s(:array, s(:dsym, s(:str, "foo"),  s(:lvar, :bar))),
+      s(:array,
+        s(:dsym,
+          s(:str, "foo"),
+          s(:begin, s(:lvar, :bar)))),
       %q{%I[foo#{bar}]},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -1466,7 +1490,7 @@ class TestParser < Minitest::Test
       s(:undef,
         s(:sym, :foo),
         s(:sym, :bar),
-        s(:dsym, s(:str, "foo"), s(:int, 1))),
+        s(:dsym, s(:str, "foo"), s(:begin, s(:int, 1)))),
       %q{undef foo, :bar, :"foo#{1}"},
       %q{~~~~~ keyword
         |      ~~~ expression (sym/1)
@@ -4376,11 +4400,11 @@ class TestParser < Minitest::Test
 
   def test_bug_interp_single
     assert_parses(
-      s(:dstr, s(:int, 1)),
+      s(:dstr, s(:begin, s(:int, 1))),
       %q{"#{1}"})
 
     assert_parses(
-      s(:array, s(:dstr, s(:int, 1))),
+      s(:array, s(:dstr, s(:begin, s(:int, 1)))),
       %q{%W"#{1}"})
   end
 

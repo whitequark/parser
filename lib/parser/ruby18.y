@@ -1614,7 +1614,7 @@ xstring_contents: # nothing
                       @lexer.cond.lexpop
                       @lexer.cmdarg.lexpop
 
-                      result = val[2]
+                      result = @builder.begin(val[0], val[2], val[3])
                     }
 
      string_dvar: tGVAR
