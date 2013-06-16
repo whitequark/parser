@@ -2893,7 +2893,8 @@ class TestParser < Minitest::Test
         s(:lvar, :match)),
       %q{/(?<match>bar)/ =~ 'bar'; match},
       %q{                ~~ selector (match_with_lvasgn)
-        |~~~~~~~~~~~~~~~~~~~~~~~~ expression (match_with_lvasgn)})
+        |~~~~~~~~~~~~~~~~~~~~~~~~ expression (match_with_lvasgn)},
+      ALL_VERSIONS - %w(1.8))
   end
 
   # TODO not yet
