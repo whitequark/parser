@@ -826,6 +826,9 @@ module Parser
           check_condition(rhs)
         ])
 
+      when :regexp
+        n(:match_current_line, [ cond ], nil)
+
       else
         cond
       end

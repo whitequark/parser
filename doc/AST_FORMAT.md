@@ -5,7 +5,6 @@ AST and Source Location RFC
 
  * Should we handle these cases at all? They do not have special syntax associated.
    1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
-   1. How to handle magic match (`foo if /bar/`)?
 
 ## Literals
 
@@ -378,6 +377,15 @@ Format:
 "if a...b; end"
      ~~~ operator
     ~~~~~ expression
+~~~
+
+### Implicit matches
+
+Format:
+
+~~~
+(match-current-line (regexp (str "a") (regopt)))
+"if /a/; end"
 ~~~
 
 ## Assignment

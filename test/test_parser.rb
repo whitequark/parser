@@ -3612,6 +3612,17 @@ class TestParser < Minitest::Test
         |      ~~~ operator (eflipflop)})
   end
 
+  def test_cond_match_current_line
+    assert_parses(
+      s(:if,
+        s(:match_current_line,
+          s(:regexp,
+            s(:str, 'wat'),
+            s(:regopt))),
+        s(:nil), nil),
+      %q{if /wat/; end})
+  end
+
   # Case matching
 
   def test_case_expr
