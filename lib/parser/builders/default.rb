@@ -816,6 +816,8 @@ module Parser
       end
     end
 
+    alias :begin_keyword :begin
+
     private
 
     #

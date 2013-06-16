@@ -954,7 +954,7 @@ rule
                     }
                 | kBEGIN bodystmt kEND
                     {
-                      result = @builder.begin(val[0], val[1], val[2])
+                      result = @builder.begin_keyword(val[0], val[1], val[2])
                     }
                 | tLPAREN_ARG expr
                     {

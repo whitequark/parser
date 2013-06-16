@@ -983,7 +983,7 @@ rule
                     {
                       @lexer.cmdarg = val[1]
 
-                      result = @builder.begin(val[0], val[2], val[3])
+                      result = @builder.begin_keyword(val[0], val[2], val[3])
                     }
                 | tLPAREN_ARG expr
                     {
