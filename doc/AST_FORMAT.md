@@ -6,8 +6,6 @@ AST and Source Location RFC
  * Should we handle these cases at all? They do not have special syntax associated.
    1. How to handle lvar-injecting match (`if /(?<a>foo)/ =~ bar`)?
    1. How to handle magic match (`foo if /bar/`)?
-   1. How to handle sed-like flip-flop?
-   1. How to handle awk-like flip-flop?
 
 ## Literals
 
@@ -364,6 +362,22 @@ Format:
          ^ begin
            ^ end
  ~~~~~~~~~~~ expression
+~~~
+
+### Flip-flops
+
+Format:
+
+~~~
+(iflip (lvar :a) (lvar :b))
+"if a..b; end"
+     ~~ operator
+    ~~~~ expression
+
+(eflip (lvar :a) (lvar :b))
+"if a...b; end"
+     ~~~ operator
+    ~~~~~ expression
 ~~~
 
 ## Assignment
