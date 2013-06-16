@@ -112,11 +112,11 @@ module Parser
     end
 
     def process_all_input
-      super
-
       if input_size > 1
         puts "Using #{@parser_class} to parse #{input_size} files."
       end
+
+      super
     end
 
     def process(buffer)
