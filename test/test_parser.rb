@@ -3594,22 +3594,22 @@ class TestParser < Minitest::Test
       %q{           ~~~~~~~~~~ location})
   end
 
-  def test_cond_iflip
+  def test_cond_iflipflop
     assert_parses(
-      s(:if, s(:iflip, s(:lvar, :foo), s(:lvar, :bar)),
+      s(:if, s(:iflipflop, s(:lvar, :foo), s(:lvar, :bar)),
         s(:nil), nil),
       %q{if foo..bar; end},
-      %q{   ~~~~~~~~ expression (iflip)
-        |      ~~ operator (iflip)})
+      %q{   ~~~~~~~~ expression (iflipflop)
+        |      ~~ operator (iflipflop)})
   end
 
-  def test_cond_eflip
+  def test_cond_eflipflop
     assert_parses(
-      s(:if, s(:eflip, s(:lvar, :foo), s(:lvar, :bar)),
+      s(:if, s(:eflipflop, s(:lvar, :foo), s(:lvar, :bar)),
         s(:nil), nil),
       %q{if foo...bar; end},
-      %q{   ~~~~~~~~~ expression (eflip)
-        |      ~~~ operator (eflip)})
+      %q{   ~~~~~~~~~ expression (eflipflop)
+        |      ~~~ operator (eflipflop)})
   end
 
   # Case matching

@@ -817,8 +817,8 @@ module Parser
         lhs, rhs = *cond
 
         type = case cond.type
-        when :irange; :iflip
-        when :erange; :eflip
+        when :irange; :iflipflop
+        when :erange; :eflipflop
         end
 
         cond.updated(type, [

@@ -369,12 +369,12 @@ Format:
 Format:
 
 ~~~
-(iflip (lvar :a) (lvar :b))
+(iflipflop (lvar :a) (lvar :b))
 "if a..b; end"
      ~~ operator
     ~~~~ expression
 
-(eflip (lvar :a) (lvar :b))
+(eflipflop (lvar :a) (lvar :b))
 "if a...b; end"
      ~~~ operator
     ~~~~~ expression
