@@ -3578,8 +3578,7 @@ class TestParser < Minitest::Test
           s(:masgn,
             s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
             s(:lvar, :foo))),
-        s(:nil),
-        nil),
+        s(:nil), nil),
       %q{if (bar; a, b = foo); end})
   end
 
@@ -3593,6 +3592,24 @@ class TestParser < Minitest::Test
       [:error, :masgn_as_condition],
       %q{if foo || (a, b = bar); end},
       %q{           ~~~~~~~~~~ location})
+  end
+
+  def test_cond_iflip
+    assert_parses(
+      s(:if, s(:iflip, s(:lvar, :foo), s(:lvar, :bar)),
+        s(:nil), nil),
+      %q{if foo..bar; end},
+      %q{   ~~~~~~~~ expression (iflip)
+        |      ~~ operator (iflip)})
+  end
+
+  def test_cond_eflip
+    assert_parses(
+      s(:if, s(:eflip, s(:lvar, :foo), s(:lvar, :bar)),
+        s(:nil), nil),
+      %q{if foo...bar; end},
+      %q{   ~~~~~~~~~ expression (eflip)
+        |      ~~~ operator (eflip)})
   end
 
   # Case matching

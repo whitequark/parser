@@ -813,16 +813,22 @@ module Parser
           cond
         end
 
-      when :and, :or
+      when :and, :or, :irange, :erange
         lhs, rhs = *cond
 
-        cond.updated(nil, [
+        type = case cond.type
+        when :irange; :iflip
+        when :erange; :eflip
+        end
+
+        cond.updated(type, [
           check_condition(lhs),
           check_condition(rhs)
         ])
-      end
 
-      cond
+      else
+        cond
+      end
     end
 
     def check_duplicate_args(args, map={})
