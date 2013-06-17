@@ -1056,7 +1056,7 @@ class Parser::Lexer
 
       global_var
       => { p = @ts - 1
-           fcall expr_variable; };
+           fnext expr_end; fcall expr_variable; };
 
       # If the handling was to be delegated to expr_end,
       # these cases would transition to something else than
