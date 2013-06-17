@@ -2565,6 +2565,14 @@ class TestLexer < Minitest::Test
                    :tNL,             nil)
   end
 
+  def test_bug_heredoc_lshft
+    util_lex_token("<<RULES << CLEANINGS\nRULES",
+                   :tSTRING_BEG, '"',
+                   :tSTRING_END, 'RULES',
+                   :tLSHFT,      '<<',
+                   :tCONSTANT,   'CLEANINGS')
+  end
+
   def test_bug_expr_dot_comment
     util_lex_token("foo. #bar\nbaz",
                    :tIDENTIFIER, 'foo',

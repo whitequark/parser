@@ -677,7 +677,7 @@ class Parser::Lexer
     # After every heredoc was parsed, @herebody_s contains the
     # position of next token after all heredocs.
     if @herebody_s
-      p = @herebody_s - 1
+      p = @herebody_s
       @herebody_s = nil
     end
   };
