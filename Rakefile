@@ -23,6 +23,7 @@ CLEAN.include(GENERATED_FILES)
 
 desc 'Generate the Ragel lexer and Bison parser.'
 task :generate => GENERATED_FILES do
+  Rake::Task[:ragel_check].invoke
   GENERATED_FILES.each do |filename|
     content = File.read(filename)
     content = "# -*- encoding:utf-8; warn-indent:false -*-\n" + content
@@ -40,6 +41,20 @@ task :generate_release => [:clean_env, :regenerate]
 
 task :clean_env do
   ENV.delete 'RACC_DEBUG'
+end
+
+task :ragel_check do
+  major_req, minor_req = 6, 8
+
+  ragel_check = `which ragel && ragel --version`
+  ragel_version = ragel_check.match(/version (([0-9]+)\.([0-9]+))/)
+  raise 'command-line dependency ragel not installed!' unless ragel_version
+
+  _, version_str, major, minor = *ragel_version
+  if (major.to_i != major_req || minor.to_i < minor_req) # ~> major.minor
+    raise "command-line dependency ragel must be " +
+          "~> #{major_req}.#{minor_req}; got #{version_str}"
+  end
 end
 
 desc 'Generate YARD documentation'
