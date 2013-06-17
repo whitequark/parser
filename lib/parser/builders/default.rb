@@ -1147,7 +1147,7 @@ module Parser
         end_l = else_e.loc.expression
       elsif loc(else_t)
         end_l = loc(else_t)
-      elsif body_e.loc.expression
+      elsif body_e && body_e.loc.expression
         end_l = body_e.loc.expression
       elsif loc(begin_t)
         end_l = loc(begin_t)
@@ -1174,7 +1174,8 @@ module Parser
     def rescue_body_map(keyword_t, exc_list_e, assoc_t,
                         exc_var_e, then_t,
                         compstmt_e)
-      end_l = compstmt_e.loc.expression || loc(then_t)
+      end_l = compstmt_e.loc.expression if compstmt_e
+      end_l = loc(then_t)               if end_l.nil? && then_t
       end_l = exc_var_e.loc.expression  if end_l.nil? && exc_var_e
       end_l = exc_list_e.loc.expression if end_l.nil? && exc_list_e
       end_l = loc(keyword_t)            if end_l.nil?
