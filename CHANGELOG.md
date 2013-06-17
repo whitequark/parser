@@ -1,6 +1,26 @@
 Changelog
 =========
 
+v2.0.0.beta6 (2013-06-17)
+-------------------------
+
+API modifications:
+ * Get rid of "synthesized (nil)". If it's not in source, it's not in AST (fixes #71). (Peter Zotov)
+ * lexer.rl, ruby{18,19,20,21}.y: source maps for interpolation (fixes #27). (Peter Zotov)
+
+Features implemented:
+ * ruby{18,19,20,21}.y, builders/default: lvar-injecting match (closes #69). (Peter Zotov)
+ * builders/default: implicit matches (refs #69). (Peter Zotov)
+ * builders/default: flip-flops (refs #69). (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl: fix an off-by-1 error in heredoc parsing. (Peter Zotov)
+ * lexer.rl: don't fail on "alias $a $b\n# comment\nalias $c $d". (Peter Zotov)
+ * builders/default: fix treatment of masgn in &&/|| (refs #69). (Peter Zotov)
+ * ruby-parse: make -L command line option work again. (Peter Zotov)
+ * ruby{18,19,20,21}.y: begin source map for "if foo\nthen bar end" (fixes #68). (Peter Zotov)
+ * Source::Comment::Associator: gracefully terminate when out of comments (fixes #67). (Peter Zotov)
+
 v2.0.0.beta5 (2013-06-08)
 -------------------------
 
