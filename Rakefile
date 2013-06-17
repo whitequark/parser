@@ -44,7 +44,7 @@ task :clean_env do
 end
 
 task :ragel_check do
-  major_req, minor_req = 6, 8
+  major_req, minor_req = 6, 7
 
   ragel_check = `which ragel && ragel --version`
   ragel_version = ragel_check.match(/version (([0-9]+)\.([0-9]+))/)

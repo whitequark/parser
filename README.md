@@ -133,7 +133,7 @@ The Bison parser rules are derived from [Ruby MRI](http://github.com/ruby/ruby) 
 
 ## Contributing
 
-1. Make sure you have [Ragel 6.8](http://www.complang.org/ragel/) installed
+1. Make sure you have [Ragel ~> 6.7](http://www.complang.org/ragel/) installed
 2. Fork it
 3. Create your feature branch (`git checkout -b my-new-feature`)
 4. Commit your changes (`git commit -am 'Add some feature'`)
