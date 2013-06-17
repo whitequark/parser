@@ -718,6 +718,10 @@ module Parser
     end
 
     def loop_mod(type, body, keyword_t, cond)
+      if body.type == :kwbegin
+        type = :"#{type}_post"
+      end
+
       n(type, [ check_condition(cond), body ],
         keyword_mod_map(body, keyword_t, cond))
     end
@@ -802,7 +806,7 @@ module Parser
 
     def begin(begin_t, body, end_t)
       if body.nil?
-        # A nil expression: `()' or `begin end'.
+        # A nil expression: `()'.
         n0(:begin,
           collection_map(begin_t, nil, end_t))
       elsif body.type == :mlhs  ||
@@ -818,7 +822,21 @@ module Parser
       end
     end
 
-    alias :begin_keyword :begin
+    def begin_keyword(begin_t, body, end_t)
+      if body.nil?
+        # A nil expression: `begin end'.
+        n0(:kwbegin,
+          collection_map(begin_t, nil, end_t))
+      elsif (body.type == :begin &&
+             body.loc.begin.nil? && body.loc.end.nil?)
+        # Synthesized (begin) from compstmt "a; b".
+        n(:kwbegin, body.children,
+          collection_map(begin_t, body.children, end_t))
+      else
+        n(:kwbegin, [ body ],
+          collection_map(begin_t, [ body ], end_t))
+      end
+    end
 
     private
 

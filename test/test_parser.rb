@@ -53,6 +53,22 @@ class TestParser < Minitest::Test
       %q{~~~ expression})
   end
 
+  def test_nil_expression
+    assert_parses(
+      s(:begin),
+      %q{()},
+      %q{^ begin
+        | ^ end
+        |~~ expression})
+
+    assert_parses(
+      s(:kwbegin),
+      %q{begin end},
+      %q{~~~~~ begin
+        |      ~~~ end
+        |~~~~~~~~~ expression})
+  end
+
   def test_true
     assert_parses(
       s(:true),
@@ -3829,21 +3845,21 @@ class TestParser < Minitest::Test
       %q{     ~~~~~ keyword})
   end
 
-  # TODO implement this
-  # def test_while_post
-  #   assert_parses(
-  #     s(:while_post, s(:lvar, :foo), s(:send, nil, :meth)),
-  #     %q{begin meth end while foo},
-  #     %q{               ~~~~~ keyword})
-  # end
+  def test_while_post
+    assert_parses(
+      s(:while_post, s(:lvar, :foo),
+        s(:kwbegin, s(:send, nil, :meth))),
+      %q{begin meth end while foo},
+      %q{               ~~~~~ keyword})
+  end
 
-  # TODO implement this
-  # def test_until_post
-  #   assert_parses(
-  #     s(:until_post, s(:lvar, :foo), s(:send, nil, :meth)),
-  #     %q{begin meth end until foo},
-  #     %q{               ~~~~~ keyword})
-  # end
+  def test_until_post
+    assert_parses(
+      s(:until_post, s(:lvar, :foo),
+        s(:kwbegin, s(:send, nil, :meth))),
+      %q{begin meth end until foo},
+      %q{               ~~~~~ keyword})
+  end
 
   def test_while_masgn
     assert_diagnoses(
@@ -4011,7 +4027,7 @@ class TestParser < Minitest::Test
 
   def test_rescue
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue, s(:send, nil, :meth),
           s(:resbody, nil, nil, s(:lvar, :foo)),
           nil)),
@@ -4026,7 +4042,7 @@ class TestParser < Minitest::Test
 
   def test_rescue_else
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue, s(:send, nil, :meth),
           s(:resbody, nil, nil, s(:lvar, :foo)),
           s(:lvar, :bar))),
@@ -4044,7 +4060,7 @@ class TestParser < Minitest::Test
 
   def test_ensure
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:ensure, s(:send, nil, :meth),
           s(:lvar, :bar))),
       %q{begin; meth; ensure; bar; end},
@@ -4057,7 +4073,7 @@ class TestParser < Minitest::Test
 
   def test_ensure_empty
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:ensure, nil, nil)),
       %q{begin ensure end},
       %q{~~~~~ begin
@@ -4069,7 +4085,7 @@ class TestParser < Minitest::Test
 
   def test_rescue_ensure
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:ensure,
           s(:rescue,
             s(:send, nil, :meth),
@@ -4085,7 +4101,7 @@ class TestParser < Minitest::Test
 
   def test_rescue_else_ensure
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:ensure,
           s(:rescue,
             s(:send, nil, :meth),
@@ -4144,7 +4160,7 @@ class TestParser < Minitest::Test
 
   def test_resbody_list
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue,
           s(:send, nil, :meth),
           s(:resbody,
@@ -4157,7 +4173,7 @@ class TestParser < Minitest::Test
 
   def test_resbody_list_mrhs
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue,
           s(:send, nil, :meth),
           s(:resbody,
@@ -4172,7 +4188,7 @@ class TestParser < Minitest::Test
 
   def test_resbody_var
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue,
           s(:send, nil, :meth),
           s(:resbody, nil, s(:lvasgn, :ex), s(:lvar, :bar)),
@@ -4180,7 +4196,7 @@ class TestParser < Minitest::Test
       %q{begin; meth; rescue => ex; bar; end})
 
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue,
           s(:send, nil, :meth),
           s(:resbody, nil, s(:ivasgn, :@ex), s(:lvar, :bar)),
@@ -4190,7 +4206,7 @@ class TestParser < Minitest::Test
 
   def test_resbody_list_var
     assert_parses(
-      s(:begin,
+      s(:kwbegin,
         s(:rescue,
           s(:send, nil, :meth),
           s(:resbody,
@@ -4247,6 +4263,14 @@ class TestParser < Minitest::Test
   # Miscellanea
   #
 
+  def test_kwbegin_compstmt
+    assert_parses(
+      s(:kwbegin,
+        s(:send, nil, :foo!),
+        s(:send, nil, :bar!)),
+      %q{begin foo!; bar! end})
+  end
+
   def test_crlf_line_endings
     with_versions(ALL_VERSIONS) do |_ver, parser|
       source_file = Parser::Source::Buffer.new('(comments)')
@@ -4269,7 +4293,7 @@ class TestParser < Minitest::Test
   def test_begin_cmdarg
     assert_parses(
       s(:send, nil, :p,
-        s(:begin,
+        s(:kwbegin,
           s(:block,
             s(:send, s(:int, 1), :times),
             s(:args),
