@@ -23,12 +23,12 @@ if SimpleCov.usable?
       Coveralls::SimpleCov::Formatter
     ]
 
-    add_group "Grammars" do |source_file|
+    add_group 'Grammars' do |source_file|
       source_file.filename =~ %r{\.y$}
     end
 
     # Exclude the testsuite itself.
-    add_filter "/test/"
+    add_filter '/test/'
 
     # Exclude generated files.
     add_filter do |source_file|

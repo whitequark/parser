@@ -34,7 +34,7 @@ class TestSourceRange < Minitest::Test
 
   def test_source_line
     sr = Parser::Source::Range.new(@buf, 7, 8)
-    assert_equal "baz", sr.source_line
+    assert_equal 'baz', sr.source_line
   end
 
   def test_columns
@@ -58,7 +58,7 @@ class TestSourceRange < Minitest::Test
 
   def test_source
     sr = Parser::Source::Range.new(@buf, 0, 3)
-    assert_equal "foo", sr.source
+    assert_equal 'foo', sr.source
 
     sr_multi = Parser::Source::Range.new(@buf, 0, 10)
     assert_equal "foobar\nbaz", sr_multi.source
@@ -72,6 +72,6 @@ class TestSourceRange < Minitest::Test
 
   def test_to_s
     sr = Parser::Source::Range.new(@buf, 8, 9)
-    assert_equal "(string):2:2", sr.to_s
+    assert_equal '(string):2:2', sr.to_s
   end
 end

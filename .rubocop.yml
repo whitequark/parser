@@ -8,3 +8,18 @@ AllCops:
 
 HashSyntax:
   Enabled: false
+
+LineLength:
+  Max: 120
+
+MethodLength:
+  Enabled: false
+
+SymbolName:
+  Enabled: false
+
+IfUnlessModifier:
+  Enabled: false
+
+Lambda:
+  Enabled: false

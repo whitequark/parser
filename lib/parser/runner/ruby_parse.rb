@@ -11,15 +11,15 @@ module Parser
           p node
 
           source_line_no = nil
-          source_line    = ""
-          hilight_line   = ""
+          source_line    = ''
+          hilight_line   = ''
 
           print_line = lambda do
             unless hilight_line.empty?
               puts hilight_line.
                 gsub(/[a-z_]+/) { |m| "\e[1;33m#{m}\e[0m" }.
                 gsub(/[~.]+/)   { |m| "\e[1;35m#{m}\e[0m" }
-              hilight_line = ""
+              hilight_line = ''
             end
           end
 

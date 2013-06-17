@@ -75,7 +75,7 @@ module Parser
 
       def source=(source)
         if @source
-          raise ArgumentError, "Source::Buffer is immutable"
+          raise ArgumentError, 'Source::Buffer is immutable'
         end
 
         if source.respond_to? :encoding

@@ -9,7 +9,7 @@ class TestEncoding < Minitest::Test
 
   if defined?(Encoding)
     def test_default
-      assert_equal Encoding::UTF_8, recognize("foobar")
+      assert_equal Encoding::UTF_8, recognize('foobar')
     end
 
     def test_bom
@@ -34,7 +34,7 @@ class TestEncoding < Minitest::Test
     end
 
     def test_empty
-      assert_equal Encoding::UTF_8, recognize("")
+      assert_equal Encoding::UTF_8, recognize('')
     end
 
     def test_no_comment
@@ -42,8 +42,8 @@ class TestEncoding < Minitest::Test
     end
 
     def test_adjacent
-      assert_equal Encoding::UTF_8, recognize("# codingkoi8-r")
-      assert_equal Encoding::UTF_8, recognize("# coding koi8-r")
+      assert_equal Encoding::UTF_8, recognize('# codingkoi8-r')
+      assert_equal Encoding::UTF_8, recognize('# coding koi8-r')
     end
   end
 end

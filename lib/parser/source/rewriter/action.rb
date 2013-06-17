@@ -4,7 +4,7 @@ module Parser
     class Rewriter::Action
       attr_reader :range, :replacement
 
-      def initialize(range, replacement="")
+      def initialize(range, replacement='')
         @range, @replacement = range, replacement
 
         freeze
@@ -12,7 +12,7 @@ module Parser
 
       def to_s
         if @range.length == 0 && @replacement.empty?
-          "do nothing"
+          'do nothing'
         elsif @range.length == 0
           "insert #{@replacement.inspect}"
         elsif @replacement.empty?

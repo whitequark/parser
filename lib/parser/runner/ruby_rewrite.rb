@@ -54,7 +54,7 @@ module Parser
         new_ast = @parser.parse(new_buffer)
 
         unless ast == new_ast
-          $stderr.puts "ASTs do not match:"
+          $stderr.puts 'ASTs do not match:'
 
           old = Tempfile.new('old')
           old.write ast.inspect + "\n"; old.flush

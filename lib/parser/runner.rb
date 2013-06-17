@@ -102,7 +102,7 @@ module Parser
       end
 
       if @files.empty? && @fragments.empty?
-        $stderr.puts "Need something to parse!"
+        $stderr.puts 'Need something to parse!'
         exit 1
       end
 

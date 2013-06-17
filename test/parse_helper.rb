@@ -20,10 +20,10 @@ module ParseHelper
 
   def parser_for_ruby_version(version)
     case version
-    when '1.8'; parser = Parser::Ruby18.new
-    when '1.9'; parser = Parser::Ruby19.new
-    when '2.0'; parser = Parser::Ruby20.new
-    when '2.1'; parser = Parser::Ruby21.new
+    when '1.8' then parser = Parser::Ruby18.new
+    when '1.9' then parser = Parser::Ruby19.new
+    when '2.0' then parser = Parser::Ruby20.new
+    when '2.1' then parser = Parser::Ruby21.new
     else raise "Unrecognized Ruby version #{version}"
     end
 
@@ -143,7 +143,7 @@ module ParseHelper
         when 'location'
           assert_source_range begin_pos, end_pos,
                               emitted_diagnostic.location,
-                              version, "location"
+                              version, 'location'
 
         when 'highlights'
           index = ast_path.first.to_i

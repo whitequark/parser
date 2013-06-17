@@ -341,7 +341,7 @@ class TestParser < Minitest::Test
 
   def test_array_words
     assert_parses(
-      s(:array, s(:str, "foo"), s(:str, "bar")),
+      s(:array, s(:str, 'foo'), s(:str, 'bar')),
       %q{%w[foo bar]},
       %q{^^^ begin
         |          ^ end
@@ -352,7 +352,7 @@ class TestParser < Minitest::Test
   def test_array_words_interp
     assert_parses(
       s(:array,
-        s(:str, "foo"),
+        s(:str, 'foo'),
         s(:dstr, s(:begin, s(:lvar, :bar)))),
       %q{%W[foo #{bar}]},
       %q{^^^ begin
@@ -366,7 +366,7 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:array,
-        s(:str, "foo"),
+        s(:str, 'foo'),
         s(:dstr,
           s(:begin, s(:lvar, :bar)),
           s(:str, 'foo'),
@@ -417,7 +417,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:array,
         s(:dsym,
-          s(:str, "foo"),
+          s(:str, 'foo'),
           s(:begin, s(:lvar, :bar)))),
       %q{%I[foo#{bar}]},
       %q{},
@@ -1506,7 +1506,7 @@ class TestParser < Minitest::Test
       s(:undef,
         s(:sym, :foo),
         s(:sym, :bar),
-        s(:dsym, s(:str, "foo"), s(:begin, s(:int, 1)))),
+        s(:dsym, s(:str, 'foo'), s(:begin, s(:int, 1)))),
       %q{undef foo, :bar, :"foo#{1}"},
       %q{~~~~~ keyword
         |      ~~~ expression (sym/1)
@@ -4415,7 +4415,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, nil, :desc,
-          s(:str, "foo")),
+          s(:str, 'foo')),
         s(:args), nil),
       %q{desc "foo" do end})
   end

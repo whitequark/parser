@@ -30,7 +30,7 @@ module Parser
       line[from...to] = "\e[4m#{line[from...to]}\e[0m"
 
       tail_len   = to - from - 1
-      tail       = "~" * (tail_len >= 0 ? tail_len : 0)
+      tail       = '~' * (tail_len >= 0 ? tail_len : 0)
       decoration =  "#{" " * from}\e[1;31m^#{tail}\e[0m #{token} ".
                         ljust(70) + info
 

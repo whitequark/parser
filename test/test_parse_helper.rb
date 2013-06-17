@@ -58,7 +58,7 @@ class TestParseHelper < Minitest::Test
     ast = s(:send,
             s(:int, 1), :+,
             s(:dstr,
-              s(:str, "foo"),
+              s(:str, 'foo'),
               s(:int, 2),
               s(:int, 3)))
 
@@ -67,7 +67,7 @@ class TestParseHelper < Minitest::Test
     assert_equal s(:int, 1), traverse_ast(ast, %w(int))
     assert_equal nil, traverse_ast(ast, %w(str))
 
-    assert_equal s(:str, "foo"), traverse_ast(ast, %w(dstr str))
+    assert_equal s(:str, 'foo'), traverse_ast(ast, %w(dstr str))
     assert_equal s(:int, 2), traverse_ast(ast, %w(dstr int))
     assert_equal s(:int, 2), traverse_ast(ast, %w(dstr int/1))
     assert_equal s(:int, 3), traverse_ast(ast, %w(dstr int/2))

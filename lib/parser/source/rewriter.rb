@@ -16,7 +16,7 @@ module Parser
       end
 
       def remove(range)
-        append Rewriter::Action.new(range, "")
+        append Rewriter::Action.new(range, '')
       end
 
       def insert_before(range, content)

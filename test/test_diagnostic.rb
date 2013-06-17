@@ -3,7 +3,7 @@ require 'helper'
 class TestDiagnostic < Minitest::Test
   def setup
     @buffer = Parser::Source::Buffer.new('(string)')
-    @buffer.source = "if (this is some bad code + bugs)"
+    @buffer.source = 'if (this is some bad code + bugs)'
 
     @range1 = Parser::Source::Range.new(@buffer, 0, 2) # if
     @range2 = Parser::Source::Range.new(@buffer, 4, 8) # this
@@ -11,12 +11,12 @@ class TestDiagnostic < Minitest::Test
 
   def test_verifies_levels
     assert_raises ArgumentError, /level/ do
-      Parser::Diagnostic.new(:foobar, "foo", @range1)
+      Parser::Diagnostic.new(:foobar, 'foo', @range1)
     end
   end
 
   def test_freezes
-    string     = "foo"
+    string     = 'foo'
     highlights = [@range2]
 
     diag = Parser::Diagnostic.new(:error, string, @range1, highlights)
@@ -36,12 +36,12 @@ class TestDiagnostic < Minitest::Test
       Parser::Source::Range.new(@buffer, 28, 32)
     ]
 
-    diag  = Parser::Diagnostic.new(:error, "code far too bad",
+    diag  = Parser::Diagnostic.new(:error, 'code far too bad',
                                    location, highlights)
     assert_equal([
-      "(string):1:27: error: code far too bad",
-      "if (this is some bad code + bugs)",
-      "                     ~~~~ ^ ~~~~ "
+      '(string):1:27: error: code far too bad',
+      'if (this is some bad code + bugs)',
+      '                     ~~~~ ^ ~~~~ '
     ], diag.render)
   end
 end

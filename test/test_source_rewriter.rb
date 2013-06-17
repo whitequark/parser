@@ -69,7 +69,7 @@ class TestSourceRewriter < Minitest::Test
     assert_equal 2, diagnostics.count
 
     assert_equal :error, diagnostics.first.level
-    assert_equal "cannot remove 1 character(s)",
+    assert_equal 'cannot remove 1 character(s)',
                  diagnostics.first.message
     assert_equal range(3, 1), diagnostics.first.location
 
