@@ -258,11 +258,11 @@ rule
                     }
                 | kNOT opt_nl expr
                     {
-                      result = @builder.not_op(val[0], val[2])
+                      result = @builder.not_op(val[0], nil, val[2], nil)
                     }
                 | tBANG command_call
                     {
-                      result = @builder.not_op(val[0], val[1])
+                      result = @builder.not_op(val[0], nil, val[1], nil)
                     }
                 | arg
 
@@ -785,7 +785,7 @@ rule
                     }
                 | tBANG arg
                     {
-                      result = @builder.not_op(val[0], val[1])
+                      result = @builder.not_op(val[0], nil, val[1], nil)
                     }
                 | tTILDE arg
                     {
@@ -1007,11 +1007,11 @@ rule
                     }
                 | kNOT tLPAREN2 expr rparen
                     {
-                      result = @builder.not_op(val[0], val[2])
+                      result = @builder.not_op(val[0], val[1], val[2], val[3])
                     }
                 | kNOT tLPAREN2 rparen
                     {
-                      result = @builder.not_op(val[0])
+                      result = @builder.not_op(val[0], val[1], nil, val[2])
                     }
                 | operation brace_block
                     {

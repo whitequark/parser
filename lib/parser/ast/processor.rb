@@ -20,7 +20,7 @@ module Parser
       def on_var(node)
         name, = *node
 
-        node.updated
+        node
       end
 
       def process_variable_node(node)
@@ -37,8 +37,9 @@ module Parser
       def on_vasgn(node)
         name, value_node = *node
 
-        value_node = process(value_node) if value_node
-        node.updated(nil, [ name, value_node ])
+        node.updated(nil, [
+          name, process(value_node)
+        ])
       end
 
       def process_var_asgn_node(node)
@@ -67,16 +68,17 @@ module Parser
       def on_const(node)
         scope_node, name = *node
 
-        scope_node = process(scope_node) if scope_node
-        node.updated(nil, [ scope_node, name ])
+        node.updated(nil, [
+          process(scope_node), name
+        ])
       end
 
       def on_casgn(node)
         scope_node, name, value_node = *node
 
-        scope_node = process(scope_node) if scope_node
-        value_node = process(value_node) if value_node
-        node.updated(nil, [ scope_node, name, value_node ])
+        node.updated(nil, [
+          process(scope_node), name, process(value_node)
+        ])
       end
 
       alias on_args     process_regular_node
@@ -84,8 +86,9 @@ module Parser
       def on_argument(node)
         arg_name, value_node = *node
 
-        value_node = process(value_node) if value_node
-        node.updated(nil, [ arg_name, value_node ])
+        node.updated(nil, [
+          arg_name, process(value_node)
+        ])
       end
 
       def process_argument_node(node)
@@ -104,18 +107,9 @@ module Parser
       alias on_restarg_expr   process_regular_node
       alias on_blockarg_expr  process_regular_node
 
-      alias on_module   process_regular_node
-
-      def on_class(node)
-        name_node, superclass_node, body_node = *node
-
-        superclass_node = process(superclass_node) if superclass_node
-        node.updated(nil, [
-          name_node, superclass_node, process(body_node)
-        ])
-      end
-
-      alias on_sclass   process_regular_node
+      alias on_module         process_regular_node
+      alias on_class          process_regular_node
+      alias on_sclass         process_regular_node
 
       def on_def(node)
         name, args_node, body_node = *node
@@ -166,55 +160,13 @@ module Parser
       alias on_and      process_regular_node
       alias on_or       process_regular_node
 
-      def on_if(node)
-        cond_node, if_true_node, if_false_node = *node
-
-        if_true_node  = process(if_true_node)  if if_true_node
-        if_false_node = process(if_false_node) if if_false_node
-
-        node.updated(nil, [
-          process(cond_node),
-          if_true_node, if_false_node
-        ])
-      end
+      alias on_if       process_regular_node
 
       alias on_when     process_regular_node
+      alias on_case     process_regular_node
 
-      def on_case(node)
-        cond_node, *bodies = *node
-        when_nodes, else_node = bodies[0..-2], bodies[-1]
-
-        cond_node = process(cond_node) if cond_node
-        else_node = process(else_node) if else_node
-        node.updated(nil, [
-          cond_node,
-          *(process_all(when_nodes) << else_node)
-        ])
-      end
-
-      def on_resbody(node)
-        exc_list_node, exc_var_node, body_node = *node
-
-        exc_list_node = process(exc_list_node) if exc_list_node
-        exc_var_node  = process(exc_var_node)  if exc_var_node
-
-        node.updated(nil, [
-          exc_list_node, exc_var_node,
-          process(body_node)
-        ])
-      end
-
-      def on_rescue(node)
-        body_node, *handlers = *node
-        handler_nodes, else_node = handlers[0..-2], handlers[-1]
-
-        else_node = process(else_node) if else_node
-        node.updated(nil, [
-          process(body_node),
-          *(process_all(handler_nodes) << else_node)
-        ])
-      end
-
+      alias on_resbody  process_regular_node
+      alias on_rescue   process_regular_node
       alias on_ensure   process_regular_node
 
       alias on_begin    process_regular_node

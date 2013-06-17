@@ -7,13 +7,9 @@ module Parser
 
     class LocationProcessor < Parser::AST::Processor
       def process(node)
-        p node
+        if node
+          p node
 
-        if node.loc.nil?
-          puts "\e[31m[no location info]\e[0m"
-        elsif node.loc.expression.nil?
-          puts "\e[31m[location info present but empty]\e[0m"
-        else
           source_line_no = nil
           source_line    = ""
           hilight_line   = ""

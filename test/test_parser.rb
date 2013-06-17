@@ -42,7 +42,7 @@ class TestParser < Minitest::Test
 
   def test_empty_stmt
     assert_parses(
-      s(:nil),
+      nil,
       %q{})
   end
 
@@ -1304,11 +1304,11 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:module,
         s(:const, nil, :Foo),
-        s(:nil)),
-      %q{module Foo; nil; end},
+        nil),
+      %q{module Foo; end},
       %q{~~~~~~ keyword
         |       ~~~ name
-        |                 ~~~ end})
+        |            ~~~ end})
   end
 
   def test_module_invalid
@@ -1321,20 +1321,20 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:module,
         s(:const, s(:cbase), :Foo),
-        s(:nil)),
-      %q{module ::Foo; nil; end})
+        nil),
+      %q{module ::Foo; end})
 
     assert_parses(
       s(:module,
         s(:const, s(:const, nil, :Bar), :Foo),
-        s(:nil)),
-      %q{module Bar::Foo; nil; end})
+        nil),
+      %q{module Bar::Foo; end})
   end
 
   def test_cpath_invalid
     assert_diagnoses(
       [:error, :module_name_const],
-      %q{module foo; nil; end})
+      %q{module foo; end})
   end
 
   def test_class
@@ -1342,11 +1342,11 @@ class TestParser < Minitest::Test
       s(:class,
         s(:const, nil, :Foo),
         nil,
-        s(:nil)),
-      %q{class Foo; nil; end},
+        nil),
+      %q{class Foo; end},
       %q{~~~~~ keyword
         |      ~~~ name
-        |                ~~~ end})
+        |           ~~~ end})
   end
 
   def test_class_super
@@ -1354,11 +1354,11 @@ class TestParser < Minitest::Test
       s(:class,
         s(:const, nil, :Foo),
         s(:const, nil, :Bar),
-        s(:nil)),
-      %q{class Foo < Bar; nil; end},
+        nil),
+      %q{class Foo < Bar; end},
       %q{~~~~~ keyword
         |          ^ operator
-        |                      ~~~ end})
+        |                 ~~~ end})
   end
 
   def test_class_super_label
@@ -1367,7 +1367,7 @@ class TestParser < Minitest::Test
         s(:const, nil, :Foo),
         s(:send, nil, :a,
           s(:sym, :b)),
-        s(:nil)),
+        nil),
       %q{class Foo < a:b; end},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -1396,50 +1396,50 @@ class TestParser < Minitest::Test
 
   def test_def
     assert_parses(
-      s(:def, :foo, s(:args), s(:nil)),
-      %q{def foo; nil; end},
+      s(:def, :foo, s(:args), nil),
+      %q{def foo; end},
       %q{~~~ keyword
         |    ~~~ name
-        |              ~~~ end})
+        |         ~~~ end})
 
     assert_parses(
-      s(:def, :String, s(:args), s(:nil)),
+      s(:def, :String, s(:args), nil),
       %q{def String; end})
 
     assert_parses(
-      s(:def, :String=, s(:args), s(:nil)),
+      s(:def, :String=, s(:args), nil),
       %q{def String=; end})
   end
 
   def test_defs
     assert_parses(
-      s(:defs, s(:self), :foo, s(:args), s(:nil)),
-      %q{def self.foo; nil; end},
+      s(:defs, s(:self), :foo, s(:args), nil),
+      %q{def self.foo; end},
       %q{~~~ keyword
         |        ^ operator
         |         ~~~ name
-        |                   ~~~ end})
+        |              ~~~ end})
 
     assert_parses(
-      s(:defs, s(:self), :foo, s(:args), s(:nil)),
-      %q{def self::foo; nil; end},
+      s(:defs, s(:self), :foo, s(:args), nil),
+      %q{def self::foo; end},
       %q{~~~ keyword
         |        ^^ operator
         |          ~~~ name
-        |                    ~~~ end})
+        |               ~~~ end})
 
     assert_parses(
-      s(:defs, s(:lvar, :foo), :foo, s(:args), s(:nil)),
+      s(:defs, s(:lvar, :foo), :foo, s(:args), nil),
       %q{def (foo).foo; end})
 
     assert_parses(
       s(:defs, s(:const, nil, :String), :foo,
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{def String.foo; end})
 
     assert_parses(
       s(:defs, s(:const, nil, :String), :foo,
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{def String::foo; end})
   end
 
@@ -1886,7 +1886,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, nil, :f),
-        ast, s(:nil)),
+        ast, nil),
       %Q{f{ #{code} }},
       %q{},
       versions)
@@ -2270,7 +2270,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:def, :foo,
         s(:args, s(:arg, :_), s(:arg, :_)),
-        s(:nil)),
+        nil),
       %q{def foo(_, _); end},
       %q{},
       ALL_VERSIONS - %w(1.8))
@@ -2284,7 +2284,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:def, :foo,
         s(:args, s(:arg, :_a), s(:arg, :_a)),
-        s(:nil)),
+        nil),
       %q{def foo(_a, _a); end},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -2360,19 +2360,19 @@ class TestParser < Minitest::Test
 
   def test_send_self_block
     assert_parses(
-      s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
+      s(:block, s(:send, nil, :fun), s(:args), nil),
       %q{fun { }})
 
     assert_parses(
-      s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
+      s(:block, s(:send, nil, :fun), s(:args), nil),
       %q{fun() { }})
 
     assert_parses(
-      s(:block, s(:send, nil, :fun, s(:int, 1)), s(:args), s(:nil)),
+      s(:block, s(:send, nil, :fun, s(:int, 1)), s(:args), nil),
       %q{fun(1) { }})
 
     assert_parses(
-      s(:block, s(:send, nil, :fun), s(:args), s(:nil)),
+      s(:block, s(:send, nil, :fun), s(:args), nil),
       %q{fun do end})
   end
 
@@ -2464,7 +2464,7 @@ class TestParser < Minitest::Test
       s(:send,
         s(:block,
           s(:send, nil, :meth, s(:int, 1)),
-          s(:args), s(:nil)),
+          s(:args), nil),
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end.fun bar},
       %q{              ~~~ selector
@@ -2475,7 +2475,7 @@ class TestParser < Minitest::Test
       s(:send,
         s(:block,
           s(:send, nil, :meth, s(:int, 1)),
-          s(:args), s(:nil)),
+          s(:args), nil),
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end.fun(bar)},
       %q{              ~~~ selector
@@ -2488,7 +2488,7 @@ class TestParser < Minitest::Test
       s(:send,
         s(:block,
           s(:send, nil, :meth, s(:int, 1)),
-          s(:args), s(:nil)),
+          s(:args), nil),
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end::fun bar},
       %q{               ~~~ selector
@@ -2499,7 +2499,7 @@ class TestParser < Minitest::Test
       s(:send,
         s(:block,
           s(:send, nil, :meth, s(:int, 1)),
-          s(:args), s(:nil)),
+          s(:args), nil),
         :fun, s(:lvar, :bar)),
       %q{meth 1 do end::fun(bar)},
       %q{               ~~~ selector
@@ -2513,9 +2513,9 @@ class TestParser < Minitest::Test
         s(:send,
           s(:block,
             s(:send, nil, :meth, s(:int, 1)),
-            s(:args), s(:nil)),
+            s(:args), nil),
           :fun, s(:lvar, :bar)),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{meth 1 do end.fun bar do end},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -2525,9 +2525,9 @@ class TestParser < Minitest::Test
         s(:send,
           s(:block,
             s(:send, nil, :meth, s(:int, 1)),
-            s(:args), s(:nil)),
+            s(:args), nil),
           :fun, s(:lvar, :bar)),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{meth 1 do end.fun(bar) {}},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -2537,9 +2537,9 @@ class TestParser < Minitest::Test
         s(:send,
           s(:block,
             s(:send, nil, :meth, s(:int, 1)),
-            s(:args), s(:nil)),
+            s(:args), nil),
           :fun),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{meth 1 do end.fun {}},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -2550,7 +2550,7 @@ class TestParser < Minitest::Test
       s(:send, nil, :foo,
         s(:block,
           s(:send, nil, :meth, s(:int, 1)),
-          s(:args), s(:nil))),
+          s(:args), nil)),
       %q{foo(meth 1 do end)},
       %q{},
       %w(1.8))
@@ -2560,7 +2560,7 @@ class TestParser < Minitest::Test
         s(:int, 1),
         s(:block,
           s(:send, nil, :meth, s(:int, 1)),
-          s(:args), s(:nil))),
+          s(:args), nil)),
       %q{foo(1, meth 1 do end)},
       %q{},
       %w(1.8))
@@ -2734,7 +2734,7 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8))
 
     assert_parses(
-      s(:send, s(:nil), :'!'),
+      s(:send, s(:begin), :'!'),
       %q{not()},
       %{},
       ALL_VERSIONS - %w(1.8))
@@ -2827,7 +2827,7 @@ class TestParser < Minitest::Test
   def test_send_lambda
     assert_parses(
       s(:block, s(:send, nil, :lambda),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{->{ }},
       %q{~~ selector (send)
         |  ^ begin
@@ -2837,7 +2837,7 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:block, s(:send, nil, :lambda),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{-> do end},
       %q{~~ selector (send)
         |   ^^ begin
@@ -2851,7 +2851,7 @@ class TestParser < Minitest::Test
       s(:block, s(:send, nil, :lambda),
         s(:args,
           s(:arg, :a)),
-        s(:nil)),
+        nil),
       %q{->(a) { }},
       %q{~~ selector (send)
         |  ^ begin (args)
@@ -2865,7 +2865,7 @@ class TestParser < Minitest::Test
       s(:block, s(:send, nil, :lambda),
         s(:args,
           s(:arg, :a)),
-        s(:nil)),
+        nil),
       %q{-> (a) { }},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
@@ -2878,7 +2878,7 @@ class TestParser < Minitest::Test
           s(:arg, :a),
           s(:shadowarg, :foo),
           s(:shadowarg, :bar)),
-        s(:nil)),
+        nil),
       %q{->(a; foo, bar) { }},
       %q{      ~~~ expression (args.shadowarg)},
       ALL_VERSIONS - %w(1.8))
@@ -3155,19 +3155,19 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, nil, :fun, s(:begin, s(:int, 1))),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{fun (1) {}})
 
     assert_parses(
       s(:block,
         s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{foo.fun (1) {}})
 
     assert_parses(
       s(:block,
         s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{foo::fun (1) {}})
   end
 
@@ -3392,7 +3392,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, nil, :fun),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{fun () {}},
       %q{    ^ begin (send)
         |     ^ end (send)},
@@ -3401,7 +3401,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, s(:lvar, :foo), :fun),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{foo.fun () {}},
       %q{        ^ begin (send)
         |         ^ end (send)},
@@ -3410,7 +3410,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, s(:lvar, :foo), :fun),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{foo::fun () {}},
       %q{         ^ begin (send)
         |          ^ end (send)},
@@ -3419,10 +3419,10 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, nil, :fun,
-          s(:nil)),
-        s(:args), s(:nil)),
+          s(:begin)),
+        s(:args), nil),
       %q{fun () {}},
-      %q{    ~~ expression (send.nil)},
+      %q{    ~~ expression (send.begin)},
       ALL_VERSIONS - %w(1.8 1.9))
   end
 
@@ -3628,7 +3628,7 @@ class TestParser < Minitest::Test
           s(:masgn,
             s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
             s(:lvar, :foo))),
-        s(:nil), nil),
+        nil, nil),
       %q{if (bar; a, b = foo); end})
   end
 
@@ -3647,7 +3647,7 @@ class TestParser < Minitest::Test
   def test_cond_iflipflop
     assert_parses(
       s(:if, s(:iflipflop, s(:lvar, :foo), s(:lvar, :bar)),
-        s(:nil), nil),
+        nil, nil),
       %q{if foo..bar; end},
       %q{   ~~~~~~~~ expression (iflipflop)
         |      ~~ operator (iflipflop)})
@@ -3656,7 +3656,7 @@ class TestParser < Minitest::Test
   def test_cond_eflipflop
     assert_parses(
       s(:if, s(:eflipflop, s(:lvar, :foo), s(:lvar, :bar)),
-        s(:nil), nil),
+        nil, nil),
       %q{if foo...bar; end},
       %q{   ~~~~~~~~~ expression (eflipflop)
         |      ~~~ operator (eflipflop)})
@@ -3669,7 +3669,7 @@ class TestParser < Minitest::Test
           s(:regexp,
             s(:str, 'wat'),
             s(:regopt))),
-        s(:nil), nil),
+        nil, nil),
       %q{if /wat/; end})
   end
 
@@ -3772,7 +3772,7 @@ class TestParser < Minitest::Test
           s(:lvar, :bar)),
         s(:when,
           s(:splat, s(:lvar, :foo)),
-          s(:nil)),
+          nil),
         nil),
       %q{case foo; when 1, *baz; bar; when *foo; end},
       %q{                  ^ operator (when/1.splat)
@@ -3916,7 +3916,7 @@ class TestParser < Minitest::Test
         |~~~~~~~~~ expression})
 
     assert_parses(
-        s(:break, s(:nil)),
+        s(:break, s(:begin)),
       %q{break()},
       %q{~~~~~ keyword
         |~~~~~~~ expression},
@@ -3951,7 +3951,7 @@ class TestParser < Minitest::Test
         |~~~~~~~~~~ expression})
 
     assert_parses(
-      s(:return, s(:nil)),
+      s(:return, s(:begin)),
       %q{return()},
       %q{~~~~~~ keyword
         |~~~~~~~~ expression},
@@ -3986,7 +3986,7 @@ class TestParser < Minitest::Test
         |~~~~~~~~ expression})
 
     assert_parses(
-        s(:next, s(:nil)),
+        s(:next, s(:begin)),
       %q{next()},
       %q{~~~~ keyword
         |~~~~~~ expression},
@@ -4058,8 +4058,7 @@ class TestParser < Minitest::Test
   def test_ensure_empty
     assert_parses(
       s(:begin,
-        s(:ensure, s(:nil),
-          s(:nil))),
+        s(:ensure, nil, nil)),
       %q{begin ensure end},
       %q{~~~~~ begin
         |      ~~~~~~ keyword (ensure)
@@ -4393,7 +4392,7 @@ class TestParser < Minitest::Test
       s(:block,
         s(:send, nil, :desc,
           s(:str, "foo")),
-        s(:args), s(:nil)),
+        s(:args), nil),
       %q{desc "foo" do end})
   end
 
@@ -4409,7 +4408,7 @@ class TestParser < Minitest::Test
 
   def test_bug_def_no_paren_eql_begin
     assert_parses(
-      s(:def, :foo, s(:args), s(:nil)),
+      s(:def, :foo, s(:args), nil),
       %Q{def foo\n=begin\n=end\nend})
   end
 end

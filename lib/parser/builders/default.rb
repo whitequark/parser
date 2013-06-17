@@ -650,14 +650,17 @@ module Parser
         send_unary_op_map(op_t, receiver))
     end
 
-    def not_op(not_t, receiver=nil)
+    def not_op(not_t, begin_t=nil, receiver=nil, end_t=nil)
       if @parser.version == 18
         n(:not, [ receiver ],
           unary_op_map(not_t, receiver))
       else
         if receiver.nil?
-          n(:send, [ n0(:nil, nil), :'!' ],
-            send_unary_op_map(not_t, nil))
+          nil_node = n0(:begin, collection_map(begin_t, nil, end_t))
+
+          n(:send, [
+            nil_node, :'!'
+          ], send_unary_op_map(not_t, nil_node))
         else
           n(:send, [ receiver, :'!' ],
             send_unary_op_map(not_t, receiver))
@@ -787,10 +790,10 @@ module Parser
 
     def compstmt(statements)
       case
+      when statements.none?
+        nil
       when statements.one?
         statements.first
-      when statements.none?
-        n0(:nil, expr_map(nil))
       else
         n(:begin, statements,
           collection_map(nil, statements, nil))
@@ -798,11 +801,10 @@ module Parser
     end
 
     def begin(begin_t, body, end_t)
-      if body.nil? || synthesized_nil?(body)
-        # A nil expression, or a synthesized (nil) from compstmt
-        # without any inner statements.
-        n0(:nil,
-          expr_map(loc(begin_t).join(loc(end_t))))
+      if body.nil?
+        # A nil expression: `()' or `begin end'.
+        n0(:begin,
+          collection_map(begin_t, nil, end_t))
       elsif body.type == :mlhs  ||
            (body.type == :begin &&
             body.loc.begin.nil? && body.loc.end.nil?)
@@ -1121,7 +1123,7 @@ module Parser
 
       if end_t
         end_l = loc(end_t)
-      elsif args.any? && !synthesized_nil?(args.last)
+      elsif args.any? && !args.last.nil?
         end_l = args.last.loc.expression
       elsif args.any? && args.count > 1
         end_l = args[-2].loc.expression
@@ -1183,7 +1185,7 @@ module Parser
 
     def eh_keyword_map(compstmt_e, keyword_t, body_es,
                        else_t, else_e)
-      if synthesized_nil?(compstmt_e)
+      if compstmt_e.nil?
         if keyword_t.nil?
           begin_l = body_es.first.loc.expression
         else
@@ -1195,7 +1197,7 @@ module Parser
 
       if else_t
         end_l = else_e.loc.expression
-      elsif !synthesized_nil?(body_es.last)
+      elsif !body_es.last.nil?
         end_l = body_es.last.loc.expression
       else
         end_l = loc(keyword_t)
@@ -1212,10 +1214,6 @@ module Parser
     def collapse_string_parts?(parts)
       parts.one? &&
           [:str, :dstr].include?(parts.first.type)
-    end
-
-    def synthesized_nil?(node)
-      node.type == :nil && node.loc.expression.nil?
     end
 
     def value(token)

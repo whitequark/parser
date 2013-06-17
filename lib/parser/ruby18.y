@@ -227,11 +227,11 @@ rule
                     }
                 | kNOT expr
                     {
-                      result = @builder.not_op(val[0], val[1])
+                      result = @builder.not_op(val[0], nil, val[1], nil)
                     }
                 | tBANG command_call
                     {
-                      result = @builder.not_op(val[0], val[1])
+                      result = @builder.not_op(val[0], nil, val[1], nil)
                     }
                 | arg
 
@@ -714,7 +714,7 @@ rule
                     }
                 | tBANG arg
                     {
-                      result = @builder.not_op(val[0], val[1])
+                      result = @builder.not_op(val[0], nil, val[1], nil)
                     }
                 | tTILDE arg
                     {
