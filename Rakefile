@@ -51,9 +51,9 @@ task :ragel_check do
   raise 'command-line dependency ragel not installed!' unless ragel_version
 
   _, version_str, major, minor = *ragel_version
-  if (major.to_i < major_req) || (major.to_i == major_req && minor.to_i < minor_req)
+  if (major.to_i != major_req || minor.to_i < minor_req) # ~> major.minor
     raise "command-line dependency ragel must be " +
-          ">= #{major_req}.#{minor_req}; got #{version_str}"
+          "~> #{major_req}.#{minor_req}; got #{version_str}"
   end
 end
 
