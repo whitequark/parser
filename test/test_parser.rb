@@ -3636,6 +3636,15 @@ class TestParser < Minitest::Test
       %q{ ~~~~~~~~~~ location})
   end
 
+  def test_cond_begin
+    assert_parses(
+      s(:if,
+        s(:begin, s(:lvar, :bar)),
+        s(:lvar, :foo),
+        nil),
+      %q{if (bar); foo; end})
+  end
+
   def test_cond_begin_masgn
     assert_parses(
       s(:if,

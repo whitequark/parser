@@ -852,7 +852,9 @@ module Parser
 
       when :begin
         if cond.children.count == 1
-          check_condition(cond.children.last)
+          cond.updated(nil, [
+            check_condition(cond.children.last)
+          ])
         else
           cond
         end
