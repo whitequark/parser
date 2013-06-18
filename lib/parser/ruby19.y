@@ -2142,3 +2142,7 @@ Parser.check_for_encoding_support
   def version
     19
   end
+
+  def default_encoding
+    Encoding::BINARY
+  end

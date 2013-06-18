@@ -2327,3 +2327,7 @@ Parser.check_for_encoding_support
   def version
     20
   end
+
+  def default_encoding
+    Encoding::UTF_8
+  end

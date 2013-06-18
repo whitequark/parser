@@ -12,6 +12,8 @@ module Parser
         $stderr.puts(diagnostic.render)
       end
 
+      string = string.dup.force_encoding(parser.default_encoding)
+
       source_buffer = Source::Buffer.new(file, line)
       source_buffer.source = string
 

@@ -7,7 +7,7 @@ module Parser
       attr_reader :name, :first_line
 
       def self.recognize_encoding(string)
-        return Encoding::UTF_8 if string.empty?
+        return if string.empty?
 
         # extract the first two lines in an efficient way
         string =~ /(.*)\n?(.*\n)?/
@@ -28,7 +28,7 @@ module Parser
         if encoding_line =~ /^#.*coding\s*[:=]\s*([A-Za-z0-9_-]+)/
           Encoding.find($1)
         else
-          Encoding::UTF_8
+          nil
         end
       end
 
@@ -39,13 +39,15 @@ module Parser
       def self.reencode_string(string)
         encoding = recognize_encoding(string)
 
-        unless encoding.ascii_compatible?
-          raise RuntimeError, "Encoding #{encoding} is not ASCII-compatible"
+        if encoding.nil?
+          string
+        elsif encoding == Encoding::BINARY
+          string.force_encoding(Encoding::BINARY)
+        else
+          string.
+            force_encoding(encoding).
+            encode(Encoding::UTF_8)
         end
-
-        string.
-          force_encoding(encoding).
-          encode(Encoding::UTF_8)
       end
 
       def initialize(name, first_line = 1)

@@ -9,7 +9,7 @@ class TestEncoding < Minitest::Test
 
   if defined?(Encoding)
     def test_default
-      assert_equal Encoding::UTF_8, recognize('foobar')
+      assert_equal nil, recognize('foobar')
     end
 
     def test_bom
@@ -26,24 +26,24 @@ class TestEncoding < Minitest::Test
     end
 
     def test_case
-      assert_equal Encoding::KOI8_R, recognize("#!/bin/foo\n# coding:KoI8-r\nfoobar")
+      assert_equal Encoding::KOI8_R, recognize("# coding:KoI8-r\nfoobar")
     end
 
     def test_space
-      assert_equal Encoding::KOI8_R, recognize("#!/bin/foo\n# coding : koi8-r\nfoobar")
+      assert_equal Encoding::KOI8_R, recognize("# coding : koi8-r\nfoobar")
     end
 
     def test_empty
-      assert_equal Encoding::UTF_8, recognize('')
+      assert_equal nil, recognize('')
     end
 
     def test_no_comment
-      assert_equal Encoding::UTF_8, recognize(%{require 'cane/encoding_aware_iterator'})
+      assert_equal nil, recognize(%{require 'cane/encoding_aware_iterator'})
     end
 
     def test_adjacent
-      assert_equal Encoding::UTF_8, recognize('# codingkoi8-r')
-      assert_equal Encoding::UTF_8, recognize('# coding koi8-r')
+      assert_equal nil, recognize('# codingkoi8-r')
+      assert_equal nil, recognize('# coding koi8-r')
     end
   end
 end

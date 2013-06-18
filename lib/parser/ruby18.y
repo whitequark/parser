@@ -1942,3 +1942,7 @@ require 'parser'
   def version
     18
   end
+
+  def default_encoding
+    Encoding::BINARY
+  end

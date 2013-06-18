@@ -2347,3 +2347,7 @@ warn "warning: Ruby 2.1 is not released yet and parser support may be incomplete
   def version
     21
   end
+
+  def default_encoding
+    Encoding::BINARY
+  end

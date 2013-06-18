@@ -141,6 +141,8 @@ module Parser
 
     def process_fragments
       @fragments.each_with_index do |fragment, index|
+        fragment = fragment.dup.force_encoding(@parser.default_encoding)
+
         buffer = Source::Buffer.new("(fragment:#{index})")
         buffer.source = fragment
 
@@ -150,8 +152,11 @@ module Parser
 
     def process_files
       @files.each do |filename|
+        source = File.read(filename)
+        source.force_encoding(@parser.default_encoding)
+
         buffer = Parser::Source::Buffer.new(filename)
-        buffer.read
+        buffer.source = source
 
         process_buffer(buffer)
       end
