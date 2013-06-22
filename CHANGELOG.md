@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v2.0.0.beta7 (2013-06-22)
+-------------------------
+
+API modifications:
+ * Implement a much more sane encoding model (closes #60). (Peter Zotov)
+
+Features implemented:
+ * builders/default: (while-post) and (until-post); (kwbegin) (fixes #70). (Peter Zotov)
+
+Bugs fixed:
+ * builders/default: don't swallow (begin) in "if (foo); end" (fixes #75). (Peter Zotov)
+
 v2.0.0.beta6 (2013-06-17)
 -------------------------
 
