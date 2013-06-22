@@ -236,9 +236,6 @@ rule
                 | arg
 
       expr_value: expr
-                    {
-                      result = value_expr(val[0])
-                    }
 
     command_call: command
                 | block_command
@@ -748,9 +745,6 @@ rule
                 | primary
 
        arg_value: arg
-                    {
-                      result = value_expr(val[0])
-                    }
 
        aref_args: none
                 | command opt_nl
@@ -1245,9 +1239,6 @@ rule
                     }
 
    primary_value: primary
-                    {
-                      result = value_expr(val[0])
-                    }
 
             then: term
                 | tCOLON

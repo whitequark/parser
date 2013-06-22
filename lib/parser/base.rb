@@ -108,11 +108,6 @@ module Parser
       @lexer.advance
     end
 
-    def value_expr(v)
-      #p 'value_expr', v
-      v
-    end
-
     def check_kwarg_name(name_t)
       case name_t[0]
       when /^[a-z_]/
