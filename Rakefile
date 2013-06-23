@@ -44,17 +44,8 @@ task :clean_env do
 end
 
 task :ragel_check do
-  major_req, minor_req = 6, 7
-
-  ragel_check = `which ragel && ragel --version`
-  ragel_version = ragel_check.match(/version (([0-9]+)\.([0-9]+))/)
-  raise 'command-line dependency ragel not installed!' unless ragel_version
-
-  _, version_str, major, minor = *ragel_version
-  if (major.to_i != major_req || minor.to_i < minor_req) # ~> major.minor
-    raise "command-line dependency ragel must be " +
-          "~> #{major_req}.#{minor_req}; got #{version_str}"
-  end
+  require 'cliver'
+  Cliver.assert('ragel', '~> 6.7')
 end
 
 desc 'Generate YARD documentation'
