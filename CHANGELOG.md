@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2.0.0.beta8 (2013-06-24)
+-------------------------
+
+Bugs fixed:
+ * ast/processor: add missing node handlers (Yuji Nakayama)
+ * ast/processor: rename some obsolete node handlers (Yuji Nakayama)
+
 v2.0.0.beta7 (2013-06-22)
 -------------------------
 
