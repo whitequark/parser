@@ -97,11 +97,12 @@ module Parser
 
       alias on_arg            process_argument_node
       alias on_optarg         process_argument_node
-      alias on_splatarg       process_argument_node
+      alias on_restarg        process_argument_node
       alias on_blockarg       process_argument_node
+      alias on_shadowarg      process_argument_node
       alias on_kwarg          process_argument_node
       alias on_kwoptarg       process_argument_node
-      alias on_kwsplatarg     process_argument_node
+      alias on_kwrestarg      process_argument_node
 
       alias on_arg_expr       process_regular_node
       alias on_restarg_expr   process_regular_node
@@ -143,9 +144,11 @@ module Parser
 
       alias on_block    process_regular_node
 
-      alias on_while    process_regular_node
-      alias on_until    process_regular_node
-      alias on_for      process_regular_node
+      alias on_while      process_regular_node
+      alias on_while_post process_regular_node
+      alias on_until      process_regular_node
+      alias on_until_post process_regular_node
+      alias on_for        process_regular_node
 
       alias on_return   process_regular_node
       alias on_break    process_regular_node
@@ -165,11 +168,21 @@ module Parser
       alias on_when     process_regular_node
       alias on_case     process_regular_node
 
+      alias on_iflipflop process_regular_node
+      alias on_eflipflop process_regular_node
+
+      alias on_match_current_line process_regular_node
+      alias on_match_with_lvasgn  process_regular_node
+
       alias on_resbody  process_regular_node
       alias on_rescue   process_regular_node
       alias on_ensure   process_regular_node
 
       alias on_begin    process_regular_node
+      alias on_kwbegin  process_regular_node
+
+      alias on_preexe   process_regular_node
+      alias on_postexe  process_regular_node
     end
 
   end
