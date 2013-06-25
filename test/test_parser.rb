@@ -4369,24 +4369,36 @@ class TestParser < Minitest::Test
   # Token and comment extraction
   #
 
-  def test_comments
+  def assert_parses_with_comments(ast_pattern, source, comments_pattern)
     with_versions(ALL_VERSIONS) do |_ver, parser|
       source_file = Parser::Source::Buffer.new('(comments)')
-      source_file.source = "1 + # foo\n 2"
+      source_file.source = source
 
-      range = lambda do |from, to|
-        Parser::Source::Range.new(source_file, from, to)
+      comments_pattern_here = comments_pattern.map do |(from, to)|
+        range = Parser::Source::Range.new(source_file, from, to)
+        Parser::Source::Comment.new(range)
       end
 
       ast, comments = parser.parse_with_comments(source_file)
 
-      assert_equal s(:send, s(:int, 1), :+, s(:int, 2)),
-                   ast
+      assert_equal ast_pattern, ast
 
-      assert_equal [
-                     Parser::Source::Comment.new(range.call(4, 9))
-                   ], comments
+      assert_equal comments_pattern_here, comments
     end
+  end
+
+  def test_comment_interleaved
+    assert_parses_with_comments(
+      s(:send, s(:int, 1), :+, s(:int, 2)),
+      %Q{1 + # foo\n 2},
+      [ [4, 9]  ])
+  end
+
+  def test_comment_single
+    assert_parses_with_comments(
+      s(:send, nil, :puts),
+      %Q{puts # whatever},
+      [ [5, 15] ])
   end
 
   def test_tokenize

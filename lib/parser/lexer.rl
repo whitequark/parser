@@ -370,7 +370,8 @@ class Parser::Lexer
   # for scanners.
 
   action do_nl {
-    # Record position of a newline for precise line and column reporting.
+    # Record position of a newline for precise location reporting on tNL
+    # tokens.
     #
     # This action is embedded directly into c_nl, as it is idempotent and
     # there are no cases when we need to skip it.
@@ -918,7 +919,15 @@ class Parser::Lexer
   w_space =
       c_space+
     | '\\' e_heredoc_nl
-    | '#' %{ @sharp_s = p - 1 } c_line* %{ emit_comment(@sharp_s, p) }
+    ;
+
+  w_comment =
+      '#' %{ @sharp_s = p - 1 } c_line* %{ emit_comment(@sharp_s, p) }
+    ;
+
+  w_space_comment =
+      w_space
+    | w_comment
     ;
 
   # A newline in non-literal context always interoperates with
@@ -935,9 +944,14 @@ class Parser::Lexer
   #
   # is equivalent to `foo = "bar\n" + 2`.
 
-  w_newline = e_heredoc_nl;
+  w_newline =
+      e_heredoc_nl;
 
-  w_space_newline = w_space | w_newline;
+  w_any =
+      w_space
+    | w_comment
+    | w_newline
+    ;
 
 
   #
@@ -1073,7 +1087,7 @@ class Parser::Lexer
       ':'
       => { fhold; fgoto expr_beg; };
 
-      w_space_newline;
+      w_any;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1091,7 +1105,7 @@ class Parser::Lexer
       => { emit(:tLABEL, tok(@ts, @te - 1))
            fnext expr_beg; fbreak; };
 
-      w_space;
+      w_space_comment;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1123,7 +1137,7 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_arg; fbreak; };
 
-      w_space_newline;
+      w_any;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1141,7 +1155,7 @@ class Parser::Lexer
 
       # cmd (1 + 2)
       # See below the rationale about expr_endarg.
-      c_space+ e_lparen
+      w_space+ e_lparen
       => { emit(:tLPAREN_ARG, '(', @te - 1, @te)
            fnext expr_beg; fbreak; };
 
@@ -1153,13 +1167,13 @@ class Parser::Lexer
 
       # meth [...]
       # Array argument. Compare with indexing `meth[...]`.
-      c_space+ e_lbrack
+      w_space+ e_lbrack
       => { emit(:tLBRACK, '[', @te - 1, @te)
            fnext expr_beg; fbreak; };
 
       # cmd {}
       # Command: method call without parentheses.
-      c_space* e_lbrace
+      w_space* e_lbrace
       => {
         if @lambda_stack.last == @paren_nest
           p = @ts - 1
@@ -1176,11 +1190,11 @@ class Parser::Lexer
 
       # a ?b
       # Character literal.
-      c_space+ '?'
+      w_space+ '?'
       => { fhold; fgoto expr_beg; };
 
                # a %{1}, a %[1] (but not "a %=1=" or "a % foo")
-      c_space+ ( '%' [^= ]
+      w_space+ ( '%' [^= ]
                # a /foo/ (but not "a / foo" or "a /=foo")
                | '/' ( c_any - c_space_nl - '=' )
                # a <<HEREDOC
@@ -1190,7 +1204,7 @@ class Parser::Lexer
 
       # x /1
       # Ambiguous regexp literal.
-      c_space+ '/'
+      w_space+ '/'
       => {
         diagnostic :warning, Parser::ERRORS[:ambiguous_literal],
                    range(@te - 1, @te)
@@ -1200,7 +1214,7 @@ class Parser::Lexer
 
       # x *1
       # Ambiguous splat, kwsplat or block-pass.
-      c_space+ %{ tm = p } ( '+' | '-' | '*' | '&' | '**' )
+      w_space+ %{ tm = p } ( '+' | '-' | '*' | '&' | '**' )
       => {
         message = Parser::ERRORS[:ambiguous_prefix] % { :prefix => tok(tm, @te) }
         diagnostic :warning, message,
@@ -1212,12 +1226,12 @@ class Parser::Lexer
 
       # x ::Foo
       # Ambiguous toplevel constant access.
-      c_space+ '::'
+      w_space+ '::'
       => { fhold; fhold; fgoto expr_beg; };
 
       # x:b
       # Symbol.
-      c_space* ':'
+      w_space* ':'
       => { fhold; fgoto expr_beg; };
 
       #
@@ -1226,22 +1240,27 @@ class Parser::Lexer
 
       # a ? b
       # Ternary operator.
-      c_space+ '?' c_space_nl
+      w_space+ '?' c_space_nl
       => { fhold; fhold; fgoto expr_end; };
 
       # x + 1: Binary operator or operator-assignment.
-      c_space* operator_arithmetic
+      w_space* operator_arithmetic
                   ( '=' | c_space_nl )?    |
       # x rescue y: Modifier keyword.
-      c_space+ keyword_modifier            |
+      w_space+ keyword_modifier            |
       # Miscellanea.
-      c_space* punctuation_end
+      w_space* punctuation_end
       => {
         p = @ts - 1
         fgoto expr_end;
       };
 
-      w_space* w_newline
+      w_space;
+
+      w_comment
+      => { fgoto expr_end; };
+
+      w_newline
       => { fhold; fgoto expr_end; };
 
       c_any
@@ -1274,7 +1293,7 @@ class Parser::Lexer
       => { emit(:kDO_BLOCK)
            fnext expr_value; };
 
-      w_space;
+      w_space_comment;
 
       c_any
       => { fhold; fgoto expr_end; };
@@ -1292,7 +1311,8 @@ class Parser::Lexer
       => { emit_table(KEYWORDS)
            fnext expr_beg; fbreak; };
 
-      w_space;
+      w_space_comment;
+
       w_newline
       => { fhold; fgoto expr_end; };
 
@@ -1531,7 +1551,7 @@ class Parser::Lexer
       # WHITESPACE
       #
 
-      w_space_newline;
+      w_any;
 
       e_heredoc_nl '=begin' ( c_space | c_eol )
       => { p = @ts - 1
@@ -1560,7 +1580,7 @@ class Parser::Lexer
       => { p = @ts - 1
            fgoto expr_end; };
 
-      w_space;
+      w_space_comment;
 
       c_any
       => { fhold; fgoto expr_beg; };
@@ -1815,7 +1835,8 @@ class Parser::Lexer
       # WHITESPACE
       #
 
-      w_space;
+      w_space_comment;
+
       w_newline
       => { fgoto leading_dot; };
 
@@ -1872,7 +1893,7 @@ class Parser::Lexer
   *|;
 
   line_begin := |*
-      w_space_newline;
+      w_any;
 
       '=begin' ( c_space | c_eol )
       => { @eq_begin_s = @ts
