@@ -103,7 +103,7 @@ module Parser
       @slop.on 'E', 'explain', 'Explain how the source is tokenized' do
         ENV['RACC_DEBUG'] = '1'
 
-        Lexer.send :prepend, Lexer::Explanation
+        Lexer.send :include, Lexer::Explanation
       end
     end
 
