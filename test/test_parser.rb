@@ -1425,6 +1425,10 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:def, :String=, s(:args), nil),
       %q{def String=; end})
+
+    assert_parses(
+      s(:def, :until, s(:args), nil),
+      %q{def until; end})
   end
 
   def test_defs

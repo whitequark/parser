@@ -344,17 +344,17 @@ class Parser::Lexer
     'BEGIN'  => :klBEGIN,      'END'      => :klEND,
   }
 
-  %w(class module def undef begin end then elsif else ensure case when
-     for break next redo retry in do return yield super self nil true
-     false and or not alias __FILE__ __LINE__ __ENCODING__).each do |keyword|
-    KEYWORDS[keyword] = :"k#{keyword.upcase}"
-  end
-
   KEYWORDS_BEGIN = {
     'if'     => :kIF,          'unless' => :kUNLESS,
     'while'  => :kWHILE,       'until'  => :kUNTIL,
     'rescue' => :kRESCUE
   }
+
+  %w(class module def undef begin end then elsif else ensure case when
+     for break next redo retry in do return yield super self nil true
+     false and or not alias __FILE__ __LINE__ __ENCODING__).each do |keyword|
+    KEYWORDS_BEGIN[keyword] = KEYWORDS[keyword] = :"k#{keyword.upcase}"
+  end
 
   %%{
   # %
@@ -1057,7 +1057,7 @@ class Parser::Lexer
   #
   expr_fname := |*
       keyword
-      => { emit(KEYWORDS[tok]);
+      => { emit(KEYWORDS_BEGIN[tok]);
            fnext expr_endfn; fbreak; };
 
       constant
