@@ -1453,10 +1453,9 @@ class Parser::Lexer
       '?' c_space_nl
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
-                   "\v" => '\v', "\f" => '\f' }[tok[@ts + 1]]
+                   "\v" => '\v', "\f" => '\f' }[tok[1]]
         message = Parser::ERRORS[:invalid_escape_use] % { :escape => escape }
-        diagnostic :warning, message,
-                   range(@ts, @ts + 1)
+        diagnostic :warning, message, range
 
         p = @ts - 1
         fgoto expr_end;
