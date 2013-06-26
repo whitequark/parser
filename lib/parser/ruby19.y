@@ -168,10 +168,6 @@ rule
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
-                      if in_def?
-                        diagnostic(:warning, :end_in_method, val[0])
-                      end
-
                       result = @builder.postexe(val[0], val[1], val[2], val[3])
                     }
                 | command_asgn

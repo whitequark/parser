@@ -3388,12 +3388,6 @@ class TestParser < Minitest::Test
       %q{fun (1, 2)},
       %q{},
       %w(1.8))
-
-    assert_diagnoses(
-      [:warning, :space_before_lparen],
-      %q{fun (1, 2)},
-      %q{    ^ location},
-      %w(1.8))
   end
 
   def test_space_args_none
@@ -3401,12 +3395,6 @@ class TestParser < Minitest::Test
       s(:send, nil, :fun),
       %q{fun ()},
       %q{},
-      %w(1.8))
-
-    assert_diagnoses(
-      [:warning, :space_before_lparen],
-      %q{fun ()},
-      %q{    ^ location},
       %w(1.8))
   end
 
@@ -4267,11 +4255,6 @@ class TestParser < Minitest::Test
       %q{    ^ begin
         |        ^ end
         |~~~~~~~~~ expression})
-
-    assert_diagnoses(
-      [:warning, :end_in_method],
-      %q{def f; END{ 1 }; end},
-      %q{       ~~~ location})
   end
 
   #

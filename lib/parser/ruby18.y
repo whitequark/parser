@@ -150,10 +150,6 @@ rule
                     }
                 | klEND tLCURLY compstmt tRCURLY
                     {
-                      if in_def?
-                        diagnostic(:warning, :end_in_method, val[0])
-                      end
-
                       result = @builder.postexe(val[0], val[1], val[2], val[3])
                     }
                 | lhs tEQL command_call
@@ -930,8 +926,6 @@ rule
                     }
                     tRPAREN
                     {
-                      diagnostic(:warning, :space_before_lparen, val[0])
-
                       result = [ val[0], [], val[2] ]
                     }
                 | tLPAREN_ARG call_args2
@@ -940,8 +934,6 @@ rule
                     }
                     tRPAREN
                     {
-                      diagnostic(:warning, :space_before_lparen, val[0])
-
                       result = [ val[0], val[1], val[3] ]
                     }
 

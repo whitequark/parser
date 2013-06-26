@@ -104,8 +104,6 @@ module Parser
     :masgn_as_condition      => 'multiple assignment in conditional context',
 
     # Parser warnings
-    :end_in_method           => 'END in method; use at_exit',
-    :space_before_lparen     => "don't put space before argument parentheses",
     :useless_else            => 'else without rescue is useless',
   }.freeze
 
