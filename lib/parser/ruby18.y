@@ -1145,14 +1145,14 @@ rule
                     }
                 | kCLASS cpath superclass
                     {
-                      if in_def?
-                        diagnostic(:error, :class_in_def, val[0])
-                      end
-
                       @static_env.extend_static
                     }
                     bodystmt kEND
                     {
+                      if in_def?
+                        diagnostic(:error, :class_in_def, val[0])
+                      end
+
                       lt_t, superclass = val[2]
                       result = @builder.def_class(val[0], val[1],
                                                   lt_t, superclass,
@@ -1178,14 +1178,14 @@ rule
                     }
                 | kMODULE cpath
                     {
-                      if in_def?
-                        diagnostic(:error, :module_in_def, val[0])
-                      end
-
                       @static_env.extend_static
                     }
                     bodystmt kEND
                     {
+                      if in_def?
+                        diagnostic(:error, :module_in_def, val[0])
+                      end
+
                       result = @builder.def_module(val[0], val[1],
                                                    val[3], val[4])
 

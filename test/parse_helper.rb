@@ -121,12 +121,9 @@ module ParseHelper
         # do nothing; the diagnostic was reported
       end
 
-      # Remove this `if' when no diagnostics fail to render.
-      if @diagnostics.count != 1
-        assert_equal 1, @diagnostics.count,
-                     "(#{version}) emits a single diagnostic, not\n" \
-                     "#{@diagnostics.map(&:render).join("\n")}"
-      end
+      assert_equal 1, @diagnostics.count,
+                   "(#{version}) emits a single diagnostic, not\n" \
+                   "#{@diagnostics.map(&:render).join("\n")}"
 
       emitted_diagnostic = @diagnostics.first
 

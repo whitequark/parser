@@ -1330,7 +1330,8 @@ class TestParser < Minitest::Test
   def test_module_invalid
     assert_diagnoses(
       [:error, :module_in_def],
-      %q{def a; module Foo; end; end})
+      %q{def a; module Foo; end; end},
+      %q{       ^^^^^^ location})
   end
 
   def test_cpath
@@ -1392,7 +1393,8 @@ class TestParser < Minitest::Test
   def test_class_invalid
     assert_diagnoses(
       [:error, :class_in_def],
-      %q{def a; class Foo; end; end})
+      %q{def a; class Foo; end; end},
+      %q{       ^^^^^ location})
   end
 
   def test_sclass
