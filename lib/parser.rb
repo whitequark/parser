@@ -59,7 +59,6 @@ module Parser
     # Lexer errors
     :unicode_point_too_large => 'invalid Unicode codepoint (too large)',
     :invalid_escape          => 'invalid escape character syntax',
-    :invalid_escape_use      => 'invalid character syntax; use ?%{escape}',
     :incomplete_escape       => 'incomplete character syntax',
     :invalid_hex_escape      => 'invalid hex escape',
     :invalid_unicode_escape  => 'invalid Unicode escape',
@@ -78,6 +77,7 @@ module Parser
     :embedded_document       => 'embedded document meats end of file (and they embark on a romantic journey)',
 
     # Lexer warnings
+    :invalid_escape_use      => 'invalid character syntax; use ?%{escape}',
     :ambiguous_literal       => 'ambiguous first argument; parenthesize arguments or add whitespace to the right',
     :ambiguous_prefix        => "`%{prefix}' interpreted as argument prefix",
 
