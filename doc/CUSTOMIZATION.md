@@ -27,8 +27,8 @@ To use a custom node class you have to override the method
 `Parser::Builders::Default#n`:
 
     class MyBuilder < Parser::Builders::Default
-      def n(type, children, source_map)
-        return MyNodeClass.new(type, children, :source_map => source_map)
+      def n(type, children, location)
+        return MyNodeClass.new(type, children, :location => location)
       end
     end
 
