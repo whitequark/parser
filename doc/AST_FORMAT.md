@@ -1,5 +1,5 @@
-AST and Source Location RFC
-===========================
+AST and Source Location
+=======================
 
 ## Literals
 
