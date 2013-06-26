@@ -117,6 +117,14 @@ $ ruby-parse -E -e "2+2"
 
 Documentation for parser is available online on [rdoc.info](http://rdoc.info/github/whitequark/parser).
 
+## Known issues
+
+### Void value expressions
+
+So-called "void value expressions" are not handled by Parser. For a description of what a void value expression is, see [this gist](https://gist.github.com/JoshCheek/5625007) and [this Parser issue](https://github.com/whitequark/parser/issues/72).
+
+It is not clear which rules this piece of static analysis follows, or which problem does it solve. It is not implemented because there is no clear specification allowing us to verify the behavior.
+
 ## Contributors
 
  * Peter Zotov ([whitequark][])
