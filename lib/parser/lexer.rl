@@ -1592,7 +1592,7 @@ class Parser::Lexer
       # STABBY LAMBDA
       #
 
-      '->' c_space*
+      '->'
       => {
         emit_table(PUNCTUATION, @ts, @ts + 2)
 
@@ -1635,7 +1635,7 @@ class Parser::Lexer
       => { emit_table(KEYWORDS)
            fnext expr_fname; fbreak; };
 
-      'class' c_space_nl* '<<'
+      'class' w_any* '<<'
       => { emit(:kCLASS, 'class', @ts, @ts + 5)
            emit(:tLSHFT, '<<',    @te - 2, @te)
            fnext expr_value; fbreak; };
@@ -1802,11 +1802,11 @@ class Parser::Lexer
       # OPERATORS
       #
 
-      ( e_lparen            |
-        operator_arithmetic |
-        operator_rest
-      ) %{ tm = p } c_space_nl*
-      => { emit_table(PUNCTUATION, @ts, tm)
+      ( e_lparen
+      | operator_arithmetic
+      | operator_rest
+      )
+      => { emit_table(PUNCTUATION)
            fnext expr_beg; fbreak; };
 
       e_rbrace | e_rparen | ']'

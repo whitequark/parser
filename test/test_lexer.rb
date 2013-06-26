@@ -2573,6 +2573,16 @@ class TestLexer < Minitest::Test
                    :tCONSTANT,   'CLEANINGS')
   end
 
+  def test_bug_sclass_comment_lshft_label
+    util_lex_token("class # foo\n<< a:b;end",
+                   :kCLASS,      'class',
+                   :tLSHFT,      '<<',
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b',
+                   :tSEMI,       ';',
+                   :kEND,        'end')
+  end
+
   def test_bug_expr_dot_comment
     util_lex_token("foo. #bar\nbaz",
                    :tIDENTIFIER, 'foo',
