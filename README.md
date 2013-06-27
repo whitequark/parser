@@ -11,8 +11,10 @@ ruby_parser.
 
 ## Installation
 
+Most recent version of Parser is 2.0; however, per [release schedule](https://github.com/whitequark/parser/issues/51), it stays in the beta status for a while. However, it handles much more input than stable 1.x branch, and for new work it is advisable to use the beta versions.
+
 ~~~
-$ gem install parser
+$ gem install parser --pre
 ~~~
 
 ## Usage
