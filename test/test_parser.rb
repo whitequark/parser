@@ -4234,7 +4234,8 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:preexe, s(:int, 1)),
       %q{BEGIN { 1 }},
-      %q{      ^ begin
+      %q{~~~~~ keyword
+        |      ^ begin
         |          ^ end
         |~~~~~~~~~~~ expression})
   end
@@ -4252,7 +4253,8 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:postexe, s(:int, 1)),
       %q{END { 1 }},
-      %q{    ^ begin
+      %q{~~~ keyword
+        |    ^ begin
         |        ^ end
         |~~~~~~~~~ expression})
   end

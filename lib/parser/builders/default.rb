@@ -743,12 +743,12 @@ module Parser
 
     def preexe(preexe_t, lbrace_t, compstmt, rbrace_t)
       n(:preexe, [ compstmt ],
-        block_map(loc(preexe_t), lbrace_t, rbrace_t))
+        keyword_map(preexe_t, lbrace_t, [], rbrace_t))
     end
 
     def postexe(postexe_t, lbrace_t, compstmt, rbrace_t)
       n(:postexe, [ compstmt ],
-        block_map(loc(postexe_t), lbrace_t, rbrace_t))
+        keyword_map(postexe_t, lbrace_t, [], rbrace_t))
     end
 
     # Exception handling
