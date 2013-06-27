@@ -485,6 +485,8 @@ class Parser::Lexer
   class_var_v    = '@@' c_alnum+;
   instance_var_v = '@' c_alnum+;
 
+  label          = bareword [?!]? ':';
+
   #
   # === ESCAPE SEQUENCE PARSING ===
   #
@@ -1101,7 +1103,7 @@ class Parser::Lexer
   # Transitions to `expr_end` afterwards.
   #
   expr_endfn := |*
-      bareword ':'
+      label
       => { emit(:tLABEL, tok(@ts, @te - 1))
            fnext expr_beg; fbreak; };
 
@@ -1233,6 +1235,9 @@ class Parser::Lexer
       # Symbol.
       w_space* ':'
       => { fhold; fgoto expr_beg; };
+
+      w_space+ label
+      => { p = @ts - 1; fgoto expr_beg; };
 
       #
       # AMBIGUOUS TOKENS RESOLVED VIA EXPR_END
@@ -1507,7 +1512,7 @@ class Parser::Lexer
       # RUBY 1.9 HASH LABELS
       #
 
-      bareword [?!]? ':' ( c_any - ':' )
+      label ( any - ':' )
       => {
         fhold;
 
@@ -1575,7 +1580,7 @@ class Parser::Lexer
   #
   expr_value := |*
       # a:b: a(:b), a::B, A::B
-      bareword ':' (c_any - ':')
+      label (any - ':')
       => { p = @ts - 1
            fgoto expr_end; };
 
@@ -1868,7 +1873,7 @@ class Parser::Lexer
 
       any
       => { emit(:tNL, nil, @newline_s, @newline_s + 1)
-           fnext line_begin; fhold; fbreak; };
+           fhold; fnext line_begin; fbreak; };
   *|;
 
   #

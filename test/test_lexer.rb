@@ -2174,11 +2174,23 @@ class TestLexer < Minitest::Test
                    :tCOLON,      ':')
 
     @lex.state = :expr_endfn
+    util_lex_token("\nfoo: ",
+                   :tNL,         nil,
+                   :tIDENTIFIER, 'foo',
+                   :tCOLON,      ':')
+
+    @lex.state = :expr_endfn
     util_lex_token("\\\nfoo:",
                    :tLABEL, 'foo')
 
     @lex.state = :expr_endfn
     util_lex_token("#foo\nfoo:",
+                   :tNL,         nil,
+                   :tIDENTIFIER, 'foo',
+                   :tCOLON,      ':')
+
+    @lex.state = :expr_endfn
+    util_lex_token("#foo\nfoo: ",
                    :tNL,         nil,
                    :tIDENTIFIER, 'foo',
                    :tCOLON,      ':')
@@ -2507,6 +2519,18 @@ class TestLexer < Minitest::Test
     util_lex_token(" / 1",
                    :tDIVIDE,    "/",
                    :tINTEGER,   1)
+  end
+
+  def test_bug_expr_arg_label
+    setup_lexer 19
+
+    @lex.state = :expr_arg
+    util_lex_token(" unless:",
+                   :tLABEL,     'unless')
+
+    @lex.state = :expr_arg
+    util_lex_token(" unless: ",
+                   :tLABEL,     'unless')
   end
 
   def test_bug_heredoc_continuation
