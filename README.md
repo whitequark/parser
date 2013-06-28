@@ -9,6 +9,8 @@ _Parser_ is a production-ready Ruby parser written in pure Ruby. It
 performs on par or better than Ripper, Melbourne, JRubyParser or
 ruby_parser.
 
+You can also use [Unparser](https://github.com/mbj/unparser) to produce equivalent source code from Parser's ASTs.
+
 ## Installation
 
 Most recent version of Parser is 2.0; however, per [release schedule](https://github.com/whitequark/parser/issues/51), it stays in the beta status for a while. However, it handles much more input than stable 1.x branch, and for new work it is advisable to use the beta versions.
