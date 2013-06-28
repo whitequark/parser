@@ -3609,6 +3609,18 @@ class TestParser < Minitest::Test
         |~~~~~~~~~~~ expression})
   end
 
+  def test_ternary_ambiguous_symbol
+    assert_parses(
+      s(:begin,
+        s(:lvasgn, :t, s(:int, 1)),
+        s(:if, s(:begin, s(:lvar, :a)),
+          s(:lvar, :t),
+          s(:const, nil, :T))),
+      %q{t=1;(a)?t:T},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_if_masgn
     assert_diagnoses(
       [:error, :masgn_as_condition],

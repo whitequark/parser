@@ -1008,6 +1008,18 @@ class Parser::Lexer
     @paren_nest -= 1
   };
 
+  # Ruby >=1.9.2 is context-sensitive wrt/ local identifiers.
+  action local_ident {
+    emit(:tIDENTIFIER)
+
+    if !version?(18) &&
+          !@static_env.nil? && @static_env.declared?(tok)
+      fnext expr_end; fbreak;
+    else
+      fnext expr_arg; fbreak;
+    end
+  }
+
   # Variable lexing code is accessed from both expressions and
   # string interpolation related code.
   #
@@ -1539,17 +1551,7 @@ class Parser::Lexer
 
       # a = 42;     a [42]: Indexing.
       # def a; end; a [42]: Array argument.
-      call_or_var
-      => {
-        emit(:tIDENTIFIER)
-
-        if !version?(18) &&
-              !@static_env.nil? && @static_env.declared?(tok)
-          fnext expr_end; fbreak;
-        else
-          fnext expr_arg; fbreak;
-        end
-      };
+      call_or_var => local_ident;
 
       #
       # WHITESPACE
@@ -1794,9 +1796,7 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
 
-      call_or_var
-      => { emit(:tIDENTIFIER)
-           fnext expr_arg; fbreak; };
+      call_or_var => local_ident;
 
       call_or_var ambiguous_fid_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
