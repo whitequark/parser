@@ -9,7 +9,7 @@ _Parser_ is a production-ready Ruby parser written in pure Ruby. It
 performs on par or better than Ripper, Melbourne, JRubyParser or
 ruby_parser.
 
-You can also use [Unparser](https://github.com/mbj/unparser) to produce equivalent source code from Parser's ASTs.
+You can also use [unparser](https://github.com/mbj/unparser) to produce equivalent source code from Parser's ASTs.
 
 ## Installation
 
