@@ -3613,10 +3613,10 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:begin,
         s(:lvasgn, :t, s(:int, 1)),
-        s(:if, s(:begin, s(:lvar, :a)),
+        s(:if, s(:begin, s(:lvar, :foo)),
           s(:lvar, :t),
           s(:const, nil, :T))),
-      %q{t=1;(a)?t:T},
+      %q{t=1;(foo)?t:T},
       %q{},
       ALL_VERSIONS - %w(1.8))
   end
