@@ -1,6 +1,25 @@
 Changelog
 =========
 
+v2.0.0.beta9 (2013-06-28)
+-------------------------
+
+API modifications:
+ * ruby{18,19,20,21}.y: removed obsolete warnings and linting. (Peter Zotov)
+
+Features implemented:
+ * builders/default: add keyword source range for BEGIN/END (fixes #85). (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl: "t=1;(a)?t:T" context sensitivity in expr_value (fixes #87). (Peter Zotov)
+ * lexer.rl: keywords as labels, e.g. "unless:" (fixes #83, #84). (Peter Zotov)
+ * lexer.rl: rectify usage of c_space/c_space_nl (fixes #81). (Peter Zotov)
+ * ruby{18,19,20,21}.y: fix warnings for class/module in method body. (Peter Zotov)
+ * lexer.rl: fix warning for ?\s. (Peter Zotov)
+ * lexer.rl: expr_fname emits expr_beg-like keywords (fixes #82). (Peter Zotov)
+ * lexer.rl: get rid of harmful nondeterminism in w_space (fixes #80). (Peter Zotov)
+ * lexer/explanation: 1.8, 1.9 compatibility (fixes #76). (Peter Zotov)
+
 v2.0.0.beta8 (2013-06-24)
 -------------------------
 
