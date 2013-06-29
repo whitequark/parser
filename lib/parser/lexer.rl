@@ -329,6 +329,7 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
+    '!@'  => :tBANG,
   }
 
   PUNCTUATION_BEGIN = {
@@ -413,7 +414,7 @@ class Parser::Lexer
 
   # A list of operators which are valid in the function name context, but
   # have different semantics in others.
-  operator_fname      = '[]' | '[]=' | '`'  | '-@' | '+@' | '~@' ;
+  operator_fname      = '[]' | '[]=' | '`'  | '-@' | '+@' | '~@'  | '!@' ;
 
   # A list of operators which can occur within an assignment shortcut (+ → +=).
   operator_arithmetic = '&'  | '|'   | '&&' | '||' | '^'  | '+'   | '-'  |

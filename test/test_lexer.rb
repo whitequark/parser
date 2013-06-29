@@ -346,6 +346,13 @@ class TestLexer < Minitest::Test
     util_lex_token "!~", :tNMATCH, "!~"
   end
 
+  def test_def_ubang
+    setup_lexer(20)
+
+    @lex.state = :expr_fname
+    util_lex_token '!@', :tBANG, '!@'
+  end
+
   def test_carat
     util_lex_token "^", :tCARET, "^"
   end
