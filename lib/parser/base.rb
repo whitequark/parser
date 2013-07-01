@@ -1,6 +1,24 @@
 module Parser
 
+  ##
+  # @!attribute [r] diagnostics
+  #  @return [Parser::Diagnostic::Engine]
+  #
+  # @!attribute [r] static_env
+  #  @return [Parser::StaticEnvironment]
+  #
   class Base < Racc::Parser
+    ##
+    # Parses a string of Ruby code and returns the AST.
+    #
+    # @example
+    #  Parser::Base.parse('puts "hello"')
+    #
+    # @param [String] string The block of code to parse.
+    # @param [String] file The name of the file the code originated from.
+    # @param [Numeric] line The initial line number.
+    # @return [Parser::AST::Node]
+    #
     def self.parse(string, file='(string)', line=1)
       parser = new
 
@@ -20,6 +38,12 @@ module Parser
       parser.parse(source_buffer)
     end
 
+    ##
+    # Parses Ruby source code by reading it from a file.
+    #
+    # @param [String] filename Path to the file to parse.
+    # @see #parse
+    #
     def self.parse_file(filename)
       parse(File.read(filename), filename)
     end
@@ -30,6 +54,9 @@ module Parser
     # The source file currently being parsed.
     attr_reader :source_buffer
 
+    ##
+    # @param [Parser::Builders::Default] builder The AST builder to use.
+    #
     def initialize(builder=Parser::Builders::Default.new)
       @diagnostics = Diagnostic::Engine.new
 
@@ -49,6 +76,9 @@ module Parser
       reset
     end
 
+    ##
+    # Resets the state of the parser.
+    #
     def reset
       @source_buffer = nil
       @def_level     = 0 # count of nested def's.
@@ -59,6 +89,12 @@ module Parser
       self
     end
 
+    ##
+    # Parses a source buffer and returns the AST.
+    #
+    # @param [Parser::Source::Buffer] source_buffer The source buffer to parse.
+    # @return [Parser::AST::Node]
+    #
     def parse(source_buffer)
       @lexer.source_buffer = source_buffer
       @source_buffer       = source_buffer
@@ -70,6 +106,13 @@ module Parser
       @lexer.source_buffer = nil
     end
 
+    ##
+    # Parses a source buffer and returns the AST along with the comments of the
+    # Ruby source code.
+    #
+    # @see #parse
+    # @return [Array]
+    #
     def parse_with_comments(source_buffer)
       @lexer.comments = []
 
@@ -78,6 +121,7 @@ module Parser
       @lexer.comments = nil
     end
 
+    ##
     # Currently, token stream format returned by #lex is not documented,
     # but is considered part of a public API and only changed according
     # to Semantic Versioning.
@@ -86,6 +130,9 @@ module Parser
     # might vary. For example, a string `"foo"` is represented equally well
     # by `:tSTRING_BEG " :tSTRING_CONTENT foo :tSTRING_END "` and
     # `:tSTRING "foo"`; such details must not be relied upon.
+    #
+    # @param [Parser::Source::Buffer] source_buffer
+    # @return [Array]
     #
     def tokenize(source_buffer)
       @lexer.tokens = []
@@ -97,7 +144,10 @@ module Parser
       @lexer.tokens = nil
     end
 
+    ##
     # @api internal
+    # @return [TrueClass|FalseClass]
+    #
     def in_def?
       @def_level > 0
     end
