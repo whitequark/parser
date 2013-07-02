@@ -3,7 +3,6 @@ require 'find'
 require 'slop'
 
 require 'parser'
-require 'parser/compatibility/slop'
 
 module Parser
 
