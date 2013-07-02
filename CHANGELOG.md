@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2.0.0.beta10 (2013-07-02)
+--------------------------
+
+Bugs fixed:
+ * ruby-parse, ruby-rewrite: fix require of removed compatibility shim. (Peter Zotov)
+ * lexer.rl: "def !@; end" unary bang. (Peter Zotov)
+
 v2.0.0.beta9 (2013-06-28)
 -------------------------
 
