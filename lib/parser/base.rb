@@ -122,7 +122,7 @@ module Parser
     end
 
     ##
-    # Currently, token stream format returned by #lex is not documented,
+    # Currently, token stream format returned by #tokenize is not documented,
     # but is considered part of a public API and only changed according
     # to Semantic Versioning.
     #

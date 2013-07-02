@@ -27,8 +27,8 @@ module Parser
     ##
     # @param [Symbol] level
     # @param [String] message
-    # @param [Parser::Source::Map] location
-    # @param [Array] highlights
+    # @param [Parser::Source::Range] location
+    # @param [Array<Parser::Source::Range>] highlights
     #
     def initialize(level, message, location, highlights=[])
       unless LEVELS.include?(level)
@@ -46,9 +46,9 @@ module Parser
     end
 
     ##
-    # Renders the diagnostic message.
+    # Renders the diagnostic message as an array of three lines.
     #
-    # @return [Array]
+    # @return [Array<String>]
     #
     def render
       source_line    = @location.source_line
