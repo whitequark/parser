@@ -74,7 +74,7 @@ module Parser
     :no_dot_digit_literal    => 'no .<digit> floating literal anymore; put 0 before dot',
     :bare_backslash          => 'bare backslash only allowed before newline',
     :unexpected              => "unexpected `%{character}'",
-    :embedded_document       => 'embedded document meats end of file (and they embark on a romantic journey)',
+    :embedded_document       => 'embedded document meets end of file (and they embark on a romantic journey)',
 
     # Lexer warnings
     :invalid_escape_use      => 'invalid character syntax; use ?%{escape}',
