@@ -110,7 +110,7 @@ task :changelog do
     end
   end
 
-  sh('git commit CHANGELOG.md -m "Update changelog."')
+  sh('git commit CHANGELOG.md -m "Update changelog." || true')
 end
 
 rule '.rb' => '.rl' do |t|
