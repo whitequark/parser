@@ -4315,6 +4315,19 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9))
   end
 
+  def test_file_line_non_literals
+    with_versions(ALL_VERSIONS) do |_ver, parser|
+      parser.builder.emit_file_line_as_literals = false
+
+      source_file = Parser::Source::Buffer.new('(comments)')
+      source_file.source = "[__FILE__, __LINE__]"
+
+      ast = parser.parse(source_file)
+
+      assert_equal s(:array, s(:__FILE__), s(:__LINE__)), ast
+    end
+  end
+
   if defined?(Encoding)
     def test_magic_encoding_comment
       assert_parses(

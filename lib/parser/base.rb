@@ -49,9 +49,19 @@ module Parser
     end
 
     attr_reader :diagnostics
+
+    attr_reader :builder
+
+    ##
+    # @api internal
+    #
     attr_reader :static_env
 
+    ##
     # The source file currently being parsed.
+    #
+    # @api internal
+    #
     attr_reader :source_buffer
 
     ##

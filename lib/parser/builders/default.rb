@@ -2,6 +2,11 @@ module Parser
 
   class Builders::Default
     attr_accessor :parser
+    attr_accessor :emit_file_line_as_literals
+
+    def initialize
+      @emit_file_line_as_literals = true
+    end
 
     #
     # Literals
@@ -257,12 +262,20 @@ module Parser
     def accessible(node)
       case node.type
       when :__FILE__
-        n(:str, [ node.loc.expression.source_buffer.name ],
-          node.loc)
+        if @emit_file_line_as_literals
+          n(:str, [ node.loc.expression.source_buffer.name ],
+            node.loc)
+        else
+          node
+        end
 
       when :__LINE__
-        n(:int, [ node.loc.expression.line ],
-          node.loc)
+        if @emit_file_line_as_literals
+          n(:int, [ node.loc.expression.line ],
+            node.loc)
+        else
+          node
+        end
 
       when :__ENCODING__
         n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
