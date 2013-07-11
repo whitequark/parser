@@ -119,6 +119,52 @@ with Parser:
 Documentation for parser is available online on
 [rdoc.info](http://rdoc.info/github/whitequark/parser).
 
+### Node names
+
+Several Parser nodes seem to be confusing enough to warrant a dedicated README section.
+
+#### (block)
+
+The `(block)` node passes a Ruby block, that is, a closure, to a method call represented by its first child, a `send` node. To demonstrate:
+
+```
+$ ruby-parse -e 'foo { |x| x + 2 }'
+(block
+  (send nil :foo)
+  (args
+    (arg :x))
+  (send
+    (lvar :x) :+
+    (int 2)))
+```
+
+#### (begin) and (kwbegin)
+
+**TL;DR: Unless you perform rewriting, treat `(begin)` and `(kwbegin)` as the same node type.**
+
+Both `(begin)` and `(kwbegin)` nodes represent compound statements, that is, several expressions which are executed sequentally and the value of the last one is the value of entire compound statement. They may take several forms in the source code:
+
+  * `foo; bar`: without delimiters
+  * `(foo; bar)`: parenthesized
+  * `begin foo; bar; end`: grouped with `begin` keyword
+  * `def x; foo; bar; end`: grouped inside a method definition
+
+and so on.
+
+Note that, despite its name, `kwbegin` node only has tangential relation to the `begin` keyword. Normally, Parser AST is semantic, that is, if two constructs look differently but behave identically, they get parsed to the same node. However, there exists a peculiar construct called post-loop in Ruby:
+
+```
+begin
+  body
+end while condition
+```
+
+This specific syntactic construct, that is, keyword `begin..end` block followed by a postfix `while`, [behaves][postloop] very unlike other similar constructs, e.g. `(body) while condition`. While the body itself is wrapped into a `while-post` node, Parser also supports rewriting, and in that context it is important to not accidentally convert one kind of loop into another.
+
+  [postloop]: http://rosettacode.org/wiki/Loops/Do-while#Ruby
+
+(Parser also needs the `(kwbegin)` node type internally, and it is highly problematic to map it back to `(begin)`.)
+
 ## Known issues
 
 ### Void value expressions
