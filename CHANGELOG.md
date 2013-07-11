@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v2.0.0.pre2 (2013-07-11)
+------------------------
+
+Features implemented:
+ * Allow to differentiate between __FILE__/__LINE__ and literals (closes #89). (Peter Zotov)
+ * Add attribute `diagnostic' to Parser::SyntaxError (closes #88). (Peter Zotov)
+
+Bugs fixed:
+ * Don't treat byte order mark as an identifier (closes #91). (Peter Zotov)
+
 v2.0.0.beta10 (2013-07-02)
 --------------------------
 
