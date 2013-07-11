@@ -151,6 +151,19 @@ Both `(begin)` and `(kwbegin)` nodes represent compound statements, that is, sev
 
 and so on.
 
+```
+$ ruby-parse -e '(foo; bar)'
+(begin
+  (send nil :foo)
+  (send nil :bar))
+$ ruby-parse -e 'def x; foo; bar end'
+(def :x
+  (args)
+  (begin
+    (send nil :foo)
+    (send nil :bar)))
+```
+
 Note that, despite its name, `kwbegin` node only has tangential relation to the `begin` keyword. Normally, Parser AST is semantic, that is, if two constructs look differently but behave identically, they get parsed to the same node. However, there exists a peculiar construct called post-loop in Ruby:
 
 ```
@@ -162,6 +175,23 @@ end while condition
 This specific syntactic construct, that is, keyword `begin..end` block followed by a postfix `while`, [behaves][postloop] very unlike other similar constructs, e.g. `(body) while condition`. While the body itself is wrapped into a `while-post` node, Parser also supports rewriting, and in that context it is important to not accidentally convert one kind of loop into another.
 
   [postloop]: http://rosettacode.org/wiki/Loops/Do-while#Ruby
+
+```
+$ ruby-parse -e 'begin foo end while cond'
+(while-post
+  (send nil :cond)
+  (kwbegin
+    (send nil :foo)))
+$ ruby-parse -e 'foo while cond'
+(while
+  (send nil :cond)
+  (send nil :foo))
+$ ruby-parse -e '(foo) while cond'
+(while
+  (send nil :cond)
+  (begin
+    (send nil :foo)))
+```
 
 (Parser also needs the `(kwbegin)` node type internally, and it is highly problematic to map it back to `(begin)`.)
 
