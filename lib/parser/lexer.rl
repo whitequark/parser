@@ -155,6 +155,11 @@ class Parser::Lexer
       # Patches accepted.
       #
       @source = @source_buffer.source + "\0\0\0"
+
+      if @source.length > 0 && @source[0].ord == 0xfeff
+        # Skip byte order mark.
+        @p = 1
+      end
     else
       @source = nil
     end

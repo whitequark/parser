@@ -4329,6 +4329,14 @@ class TestParser < Minitest::Test
   end
 
   if defined?(Encoding)
+    def test_bom
+      assert_parses(
+        s(:int, 1),
+        %Q{\xef\xbb\xbf1}.force_encoding(Encoding::BINARY),
+        %q{},
+        %w(1.9 2.0 2.1))
+    end
+
     def test_magic_encoding_comment
       assert_parses(
         s(:begin,
