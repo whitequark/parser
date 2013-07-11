@@ -61,7 +61,7 @@ module Parser
       end
 
       if raise?(diagnostic)
-        raise Parser::SyntaxError, diagnostic.message
+        raise Parser::SyntaxError, diagnostic
       end
 
       self

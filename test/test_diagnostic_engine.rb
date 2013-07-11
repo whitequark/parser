@@ -32,9 +32,11 @@ class TestDiagnosticEngine < Minitest::Test
 
     error = Parser::Diagnostic.new(:error, 'foo', @buffer, 1..2)
 
-    assert_raises Parser::SyntaxError do
+    err = assert_raises Parser::SyntaxError, "foo" do
       @engine.process(error)
     end
+
+    assert_equal error, err.diagnostic
 
     assert_equal [error], @queue
   end
