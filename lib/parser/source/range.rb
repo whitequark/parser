@@ -64,6 +64,10 @@ module Parser
         [@source_buffer.name, line, column + 1].join(':')
       end
 
+      def resize(new_size)
+        Range.new(@source_buffer, @begin_pos, @begin_pos + new_size)
+      end
+
       def join(other)
         Range.new(@source_buffer,
             [@begin_pos, other.begin_pos].min,
