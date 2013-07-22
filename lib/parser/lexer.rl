@@ -110,6 +110,9 @@ class Parser::Lexer
       @cmdarg = StackState.new('cmdarg')
     end
 
+    @source        = nil # source string
+    @source_pts    = nil # @source as a codepoint array
+
     @p             = 0   # stream position (saved manually in #advance)
     @ts            = nil # token start
     @te            = nil # token end
@@ -154,14 +157,31 @@ class Parser::Lexer
       #
       # Patches accepted.
       #
-      @source = @source_buffer.source + "\0\0\0"
+      @source     = @source_buffer.source + "\0\0\0"
+      @source_pts = @source.unpack('U*')
 
-      if @source.length > 0 && @source[0].ord == 0xfeff
+      if @source_pts.size > 1_000_000 && @source.respond_to?(:encode)
+        # A heuristic: if the buffer is larger than 1M, then
+        # store it in UTF-32 and convert the tokens as they're
+        # going out. If it's smaller, the conversion overhead
+        # dominates runtime and this stops being beneficial.
+        #
+        # This is not really a good heuristic, as the result
+        # heavily depends on token/character ratio. If it's low,
+        # say the gem consists mostly of long identifiers and
+        # symbols, then storing the source in UTF-8 would be faster.
+        #
+        # Patches accepted.
+        @source   = @source.encode(Encoding::UTF_32LE)
+      end
+
+      if @source_pts[0] == 0xfeff
         # Skip byte order mark.
         @p = 1
       end
     else
-      @source = nil
+      @source     = nil
+      @source_pts = nil
     end
   end
 
@@ -237,7 +257,7 @@ class Parser::Lexer
   end
 
   def tok(s = @ts, e = @te)
-    @source[s...e]
+    @source[s...e].encode(Encoding::UTF_8)
   end
 
   def range(s = @ts, e = @te)
@@ -366,7 +386,7 @@ class Parser::Lexer
   # %
 
   access @;
-  getkey @source[p].ord;
+  getkey @source_pts[p];
 
   # === CHARACTER CLASSES ===
   #
