@@ -1861,9 +1861,18 @@ class Parser::Lexer
            fnext expr_beg; fbreak; };
 
       e_rbrace | e_rparen | ']'
-      => { emit_table(PUNCTUATION)
-           @cond.lexpop; @cmdarg.lexpop
-           fbreak; };
+      => {
+        emit_table(PUNCTUATION)
+        @cond.lexpop; @cmdarg.lexpop
+
+        if %w"} ]".include?(tok)
+          fnext expr_endarg;
+        else # )
+          # fnext expr_endfn; ?
+        end
+
+        fbreak;
+      };
 
       operator_arithmetic '='
       => { emit(:tOP_ASGN, tok(@ts, @te - 1))

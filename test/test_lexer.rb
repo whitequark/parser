@@ -2714,6 +2714,14 @@ class TestLexer < Minitest::Test
                    :tCONSTANT,  'Exception')
   end
 
+  def test_bug_expr_endarg_braces
+    util_lex_token("let [] {",
+                   :tIDENTIFIER, 'let',
+                   :tLBRACK,     '[',
+                   :tRBRACK,     ']',
+                   :tLBRACE_ARG, '{')
+  end
+
   def test_bug_line_begin_label
     setup_lexer(19)
     util_lex_token("foo:bar",
