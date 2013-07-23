@@ -1312,7 +1312,7 @@ class Parser::Lexer
       w_space* operator_arithmetic
                   ( '=' | c_space_nl )?    |
       # x rescue y: Modifier keyword.
-      w_space+ keyword_modifier            |
+      w_space* keyword_modifier            |
       # Miscellanea.
       w_space* punctuation_end
       => {

@@ -2663,6 +2663,15 @@ class TestLexer < Minitest::Test
                    :tINTEGER,    1)
   end
 
+  def test_bug_expr_dot_fid_mod
+    util_lex_token("foo.x!if 1",
+                   :tIDENTIFIER, 'foo',
+                   :tDOT,        '.',
+                   :tFID,        'x!',
+                   :kIF_MOD,     'if',
+                   :tINTEGER,    1)
+  end
+
   def test_bug_expr_mid_comment
     util_lex_token("rescue #bar\nprint",
                    :kRESCUE,     'rescue',
