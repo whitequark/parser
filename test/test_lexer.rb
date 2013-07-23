@@ -2465,6 +2465,11 @@ class TestLexer < Minitest::Test
                    :tRBRACK,          ']')
   end
 
+  def test_bug_expr_beg_fid
+    util_lex_token("Rainbows!",
+                   :tFID, 'Rainbows!')
+  end
+
   def test_bug_expr_arg_percent
     @lex.state = :expr_arg
     util_lex_token("%[",
@@ -2619,6 +2624,13 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 'foo',
                    :tDOT,        '.',
                    :tIDENTIFIER, 'baz')
+  end
+
+  def test_bug_expr_dot_fid
+    util_lex_token("foo.S?",
+                   :tIDENTIFIER, 'foo',
+                   :tDOT,        '.',
+                   :tFID,        'S?')
   end
 
   def test_bug_expr_mid_comment

@@ -1172,7 +1172,7 @@ class Parser::Lexer
       => { emit(:tIDENTIFIER)
            fnext expr_arg; fbreak; };
 
-      call_or_var ambiguous_ident_suffix
+      bareword ambiguous_ident_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
            fnext expr_arg; p = tm - 1; fbreak; };
 
@@ -1830,7 +1830,7 @@ class Parser::Lexer
 
       call_or_var => local_ident;
 
-      call_or_var ambiguous_fid_suffix
+      bareword ambiguous_fid_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
            p = tm - 1
            fnext expr_arg; fbreak; };
