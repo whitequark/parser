@@ -33,7 +33,12 @@ module Parser
       string = string.dup.force_encoding(parser.default_encoding)
 
       source_buffer = Source::Buffer.new(file, line)
-      source_buffer.source = string
+
+      if name == 'Parser::Ruby18'
+        source_buffer.raw_source = string
+      else
+        source_buffer.source     = string
+      end
 
       parser.parse(source_buffer)
     end

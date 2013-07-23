@@ -155,7 +155,12 @@ module Parser
         source.force_encoding(@parser.default_encoding)
 
         buffer = Parser::Source::Buffer.new(filename)
-        buffer.source = source
+
+        if @parser.is_a? Parser::Ruby18
+          buffer.raw_source = source
+        else
+          buffer.source     = source
+        end
 
         process_buffer(buffer)
       end

@@ -13,10 +13,6 @@ module Parser
         string =~ /\A(.*)\n?(.*\n)?/
         first_line, second_line = $1, $2
 
-        [first_line, second_line].each do |line|
-          line.force_encoding(Encoding::ASCII_8BIT) if line
-        end
-
         if first_line =~ /\A\xef\xbb\xbf/ # BOM
           return Encoding::UTF_8
         elsif first_line[0, 2] == '#!'
@@ -77,13 +73,17 @@ module Parser
       end
 
       def source=(source)
-        if @source
-          raise ArgumentError, 'Source::Buffer is immutable'
-        end
-
-        if source.respond_to? :encoding
+        if defined?(Encoding)
           source = source.dup if source.frozen?
           source = self.class.reencode_string(source)
+        end
+
+        self.raw_source = source
+      end
+
+      def raw_source=(source)
+        if @source
+          raise ArgumentError, 'Source::Buffer is immutable'
         end
 
         @source = source.freeze

@@ -1,8 +1,11 @@
 # encoding: binary
 
 require 'helper'
+require 'parser/all'
 
 class TestEncoding < Minitest::Test
+  include AST::Sexp
+
   def recognize(string)
     Parser::Source::Buffer.recognize_encoding(string)
   end
@@ -44,6 +47,17 @@ class TestEncoding < Minitest::Test
     def test_adjacent
       assert_equal nil, recognize('# codingkoi8-r')
       assert_equal nil, recognize('# coding koi8-r')
+    end
+
+    def test_parse_18_invalid_enc
+      ast = Parser::Ruby18.parse("# encoding:feynman-diagram\n1")
+      assert_equal ast, s(:int, 1)
+    end
+
+    def test_parse_19_invalid_enc
+      assert_raises(ArgumentError) do
+        Parser::Ruby19.parse("# encoding:feynman-diagram\n1")
+      end
     end
   end
 end
