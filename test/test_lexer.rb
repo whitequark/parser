@@ -1827,6 +1827,11 @@ class TestLexer < Minitest::Test
                    :tSTRING, "n = ABC")
   end
 
+  def test_string_double_escape_octal_wrap
+    util_lex_token('"\\753"',
+                   :tSTRING, "\xEB")
+  end
+
   def test_string_double_interp
     util_lex_token("\"blah #x a \#@a b \#$b c \#{3} # \"",
                    :tSTRING_BEG,     "\"",

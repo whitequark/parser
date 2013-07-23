@@ -605,7 +605,7 @@ class Parser::Lexer
   escape = (
       # \377
       [0-7]{1,3}
-      % { @escape = encode_escape(tok(@escape_s, p).to_i(8)) }
+      % { @escape = encode_escape(tok(@escape_s, p).to_i(8) % 0x100) }
 
       # \xff
     | ( 'x' xdigit{1,2}
