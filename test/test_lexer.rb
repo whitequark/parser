@@ -2354,8 +2354,8 @@ class TestLexer < Minitest::Test
 
     @lex.state = :expr_value
     util_lex_token("\na:b",
-                   :tLABEL,      'a',
-                   :tIDENTIFIER, 'b')
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b')
 
     @lex.state = :expr_value
     util_lex_token("\\\na:b",
@@ -2364,8 +2364,8 @@ class TestLexer < Minitest::Test
 
     @lex.state = :expr_value
     util_lex_token("#foo\na:b",
-                   :tLABEL,      'a',
-                   :tIDENTIFIER, 'b')
+                   :tIDENTIFIER, 'a',
+                   :tSYMBOL,     'b')
   end
 
   def test_whitespace_end
@@ -2734,6 +2734,12 @@ class TestLexer < Minitest::Test
       util_lex_token(%q{"café"}.force_encoding(Encoding::UTF_8),
                      :tSTRING, "café".force_encoding(Encoding::UTF_8))
     end
+  end
+
+  def test_bug_semi__END__
+    util_lex_token(%Q{foo;\n__END__},
+                   :tIDENTIFIER, 'foo',
+                   :tSEMI,       ';')
   end
 
   def test_bug_ragel_stack

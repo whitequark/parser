@@ -1636,6 +1636,9 @@ class Parser::Lexer
 
       w_space_comment;
 
+      w_newline
+      => { fgoto line_begin; };
+
       c_any
       => { fhold; fgoto expr_beg; };
 
