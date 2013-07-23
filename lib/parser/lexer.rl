@@ -1562,8 +1562,9 @@ class Parser::Lexer
 
       # rescue Exception => e: Block rescue.
       # Special because it should transition to expr_mid.
-      'rescue'
-      => { emit_table(KEYWORDS_BEGIN)
+      'rescue' %{ tm = p } '=>'?
+      => { emit_table(KEYWORDS_BEGIN, @ts, tm)
+           p = tm - 1
            fnext expr_mid; fbreak; };
 
       # if a: Statement if.

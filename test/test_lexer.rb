@@ -2491,6 +2491,12 @@ class TestLexer < Minitest::Test
                    :tFID, 'Rainbows!')
   end
 
+  def test_bug_expr_beg_rescue_assoc
+    util_lex_token("rescue=>",
+                   :kRESCUE, 'rescue',
+                   :tASSOC,  '=>')
+  end
+
   def test_bug_expr_arg_percent
     @lex.state = :expr_arg
     util_lex_token("%[",
