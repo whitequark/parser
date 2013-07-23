@@ -304,6 +304,16 @@ class Parser::Lexer
     emit(table[value], value, s, e)
   end
 
+  def emit_do(do_block=false)
+    if @cond.active?
+      emit(:kDO_COND)
+    elsif @cmdarg.active? || do_block
+      emit(:kDO_BLOCK)
+    else
+      emit(:kDO)
+    end
+  end
+
   def emit_comment(s = @ts, e = @te)
     if @comments
       @comments.push(Parser::Source::Comment.new(range(s, e)))
@@ -1359,8 +1369,8 @@ class Parser::Lexer
            fnext expr_value; };
 
       'do'
-      => { emit(:kDO_BLOCK)
-           fnext expr_value; };
+      => { emit_do(true)
+           fnext expr_value; fbreak; };
 
       w_space_comment;
 
@@ -1680,13 +1690,7 @@ class Parser::Lexer
           if tok == '{'
             emit_table(PUNCTUATION)
           else # 'do'
-            if @cond.active?
-              emit(:kDO_COND)
-            elsif @cmdarg.active?
-              emit(:kDO_BLOCK)
-            else
-              emit(:kDO)
-            end
+            emit_do
           end
         end
 

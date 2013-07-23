@@ -4496,4 +4496,12 @@ class TestParser < Minitest::Test
       s(:def, :foo, s(:args), nil),
       %Q{def foo\n=begin\n=end\nend})
   end
+
+  def test_bug_while_not_parens_do
+    assert_parses(
+      s(:while, s(:send, s(:begin, s(:true)), :!), nil),
+      %q{while not (true) do end},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
 end
