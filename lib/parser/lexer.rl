@@ -1757,18 +1757,13 @@ class Parser::Lexer
                ( '_' digit+ )* digit* '_'?
       | '0'       %{ @num_base = 8;  @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?
-      ) %{ tm = p } c_alpha?
+      )
       => {
-        unless (char = tok(tm, @te)).empty?
-          diagnostic :fatal, Parser::ERRORS[:unexpected] % { :character => char },
-                     range(tm, tm + 1)
-        end
-
-        digits = tok(@num_digits_s, tm)
+        digits = tok(@num_digits_s)
 
         if digits.end_with? '_'
-          diagnostic :error, Parser::ERRORS[:trailing_underscore],
-                     range(tm - 1, tm)
+          diagnostic :error, Parser::ERRORS[:trailing_in_number] % { :character => '_' },
+                     range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
           digits = "0"
@@ -1780,8 +1775,7 @@ class Parser::Lexer
                      range(invalid_s, invalid_s + 1)
         end
 
-        emit(:tINTEGER, digits.to_i(@num_base), @ts, tm)
-        p = tm - 1
+        emit(:tINTEGER, digits.to_i(@num_base))
         fbreak;
       };
 
@@ -1793,16 +1787,15 @@ class Parser::Lexer
       (
         ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
         ( '.' ( digit+ '_' )* digit+ )?
-        ( [eE] [+\-]? ( digit+ '_' )* digit+ )?
-      ) %{ tm = p } c_alpha?
+        ( [eE] [+\-]? ( digit+ '_' )* digit* )?
+      )
       => {
-        unless (char = tok(tm, @te)).empty?
-          diagnostic :fatal, Parser::ERRORS[:unexpected] % { :character => char },
-                     range(tm, tm + 1)
+        if tok.end_with? 'e'
+          diagnostic :error, Parser::ERRORS[:trailing_in_number] % { :character => 'e' },
+                     range(@te - 1, @te)
         end
 
-        emit(:tFLOAT, tok(@ts, tm).to_f, @ts, tm)
-        p = tm - 1
+        emit(:tFLOAT, tok.to_f)
         fbreak;
       };
 

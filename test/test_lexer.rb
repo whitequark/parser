@@ -2768,6 +2768,16 @@ class TestLexer < Minitest::Test
     util_lex_token(%Q{=begin\n#=end\n=end})
   end
 
+  def test_bug_num_adj_kw
+    util_lex_token(%q{1if},
+                   :tINTEGER, 1,
+                   :kIF_MOD,  'if')
+
+    util_lex_token(%q{1.0if},
+                   :tFLOAT,   1.0,
+                   :kIF_MOD,  'if')
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",

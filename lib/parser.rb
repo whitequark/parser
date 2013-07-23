@@ -68,7 +68,7 @@ module Parser
     :regexp_options          => 'unknown regexp options: %{options}',
     :cvar_name               => "`%{name}' is not allowed as a class variable name",
     :ivar_name               => "`%{name}' is not allowed as an instance variable name",
-    :trailing_underscore     => "trailing `_' in number",
+    :trailing_in_number      => "trailing `%{character}' in number",
     :empty_numeric           => 'numeric literal without digits',
     :invalid_octal           => 'invalid octal digit',
     :no_dot_digit_literal    => 'no .<digit> floating literal anymore; put 0 before dot',
