@@ -935,6 +935,10 @@ class TestLexer < Minitest::Test
     util_lex_fname "~", :tTILDE
   end
 
+  def test_identifier_defined?
+    util_lex_fname "defined?", :kDEFINED
+  end
+
   def test_index
     util_lex_fname "[]", :tAREF
   end

@@ -377,9 +377,9 @@ class Parser::Lexer
   }
 
   KEYWORDS_BEGIN = {
-    'if'     => :kIF,          'unless' => :kUNLESS,
-    'while'  => :kWHILE,       'until'  => :kUNTIL,
-    'rescue' => :kRESCUE
+    'if'     => :kIF,          'unless'   => :kUNLESS,
+    'while'  => :kWHILE,       'until'    => :kUNTIL,
+    'rescue' => :kRESCUE,      'defined?' => :kDEFINED,
   }
 
   %w(class module def undef begin end then elsif else ensure case when
