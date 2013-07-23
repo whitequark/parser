@@ -2312,6 +2312,22 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9))
   end
 
+  def test_arg_duplicate_proc
+    assert_parses(
+      s(:block, s(:send, nil, :proc),
+        s(:args, s(:arg, :a), s(:arg, :a)),
+        nil),
+      %q{proc{|a,a|}},
+      %q{},
+      %w(1.8))
+
+    assert_diagnoses(
+      [:error, :duplicate_argument],
+      %q{proc{|a,a|}},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_kwarg_invalid
     assert_diagnoses(
       [:error, :argument_const],

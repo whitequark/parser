@@ -462,8 +462,9 @@ module Parser
     # Formal arguments
     #
 
-    def args(begin_t, args, end_t)
-      n(:args, [ *check_duplicate_args(args) ],
+    def args(begin_t, args, end_t, check_args=true)
+      args = check_duplicate_args(args) if check_args
+      n(:args, args,
         collection_map(begin_t, args, end_t))
     end
 

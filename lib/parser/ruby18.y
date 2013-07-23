@@ -1340,7 +1340,7 @@ rule
                     }
                 | tPIPE block_var tPIPE
                     {
-                      result = @builder.args(val[0], val[1], val[2])
+                      result = @builder.args(val[0], val[1], val[2], false)
                     }
 
         do_block: kDO_BLOCK

@@ -156,7 +156,7 @@ module Parser
 
         buffer = Parser::Source::Buffer.new(filename)
 
-        if @parser.is_a? Parser::Ruby18
+        if @parser.class.name == 'Parser::Ruby18'
           buffer.raw_source = source
         else
           buffer.source     = source
