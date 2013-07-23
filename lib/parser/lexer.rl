@@ -1172,7 +1172,7 @@ class Parser::Lexer
       => { emit(:tIDENTIFIER)
            fnext expr_arg; fbreak; };
 
-      bareword ambiguous_ident_suffix
+      bareword ambiguous_fid_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
            fnext expr_arg; p = tm - 1; fbreak; };
 

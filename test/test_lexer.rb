@@ -2637,6 +2637,15 @@ class TestLexer < Minitest::Test
                    :tFID,        'S?')
   end
 
+  def test_bug_expr_dot_id_eq
+    util_lex_token("foo.x= 1",
+                   :tIDENTIFIER, 'foo',
+                   :tDOT,        '.',
+                   :tIDENTIFIER, 'x',
+                   :tEQL,        '=',
+                   :tINTEGER,    1)
+  end
+
   def test_bug_expr_mid_comment
     util_lex_token("rescue #bar\nprint",
                    :kRESCUE,     'rescue',
