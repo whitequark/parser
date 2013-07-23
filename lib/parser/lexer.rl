@@ -1763,14 +1763,15 @@ class Parser::Lexer
         fbreak;
       };
 
-      # Floating point literals cannot start with 0 except when a dot
-      # follows immediately, probably to avoid confusion with octal literals.
-      ( [1-9] [0-9]* ( '_' digit+ )* |
-        '0'
-      )?
+      '.' ( digit+ '_' )* digit+
+      => {
+        diagnostic :error, Parser::ERRORS[:no_dot_digit_literal]
+      };
+
       (
-          '.' ( digit+ '_' )* digit+ |
-        ( '.' ( digit+ '_' )* digit+ )? [eE] [+\-]? ( digit+ '_' )* digit+
+        ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
+        ( '.' ( digit+ '_' )* digit+ )?
+        ( [eE] [+\-]? ( digit+ '_' )* digit+ )?
       ) %{ tm = p } c_alpha?
       => {
         unless (char = tok(tm, @te)).empty?
@@ -1778,18 +1779,7 @@ class Parser::Lexer
                      range(tm, tm + 1)
         end
 
-        digits = tok(@ts, tm)
-
-        if digits.start_with? '.'
-          diagnostic :error, Parser::ERRORS[:no_dot_digit_literal]
-        elsif digits =~ /^[eE]/
-          # The rule above allows to specify floats as just `e10', which is
-          # certainly not a float. Send a patch if you can do this better.
-          emit(:tIDENTIFIER, digits, @ts, tm)
-          fbreak;
-        end
-
-        emit(:tFLOAT, digits.to_f, @ts, tm)
+        emit(:tFLOAT, tok(@ts, tm).to_f, @ts, tm)
         p = tm - 1
         fbreak;
       };

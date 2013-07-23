@@ -2666,6 +2666,13 @@ class TestLexer < Minitest::Test
                    :tSTRING, 'bar')
   end
 
+  def test_bug_const_e
+    util_lex_token('E10',
+                   :tCONSTANT, 'E10')
+    util_lex_token('E4U',
+                   :tCONSTANT, 'E4U')
+  end
+
   def test_bug_symbol_newline
     util_lex_token(":foo\n",
                    :tSYMBOL, 'foo',
