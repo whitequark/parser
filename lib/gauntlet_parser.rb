@@ -7,15 +7,8 @@ class ParserGauntlet < Gauntlet
   RUBY19 = 'ruby1.9.1'
   RUBY18 = '/opt/rubies/ruby-1.8.7-p370/bin/ruby'
 
-  def try(parser, ruby, file)
-    begin
-      parser.parse_file(file)
-    rescue Parser::SyntaxError => e
-      if e.diagnostic.location.resize(2).is?('<%')
-        puts "ERb."
-        return
-      end
-
+  def try(parser, ruby, file, show_ok: false)
+    try_ruby = lambda do |e|
       Process.spawn(%{#{ruby} -c #{Shellwords.escape file}},
                     :err => '/dev/null', :out => '/dev/null')
       _, status = Process.wait2
@@ -28,11 +21,33 @@ class ParserGauntlet < Gauntlet
         # No, this file is not Ruby.
         yield if block_given?
       end
+    end
+
+    begin
+      parser.parse_file(file)
+
+    rescue Parser::SyntaxError => e
+      if e.diagnostic.location.resize(2).is?('<%')
+        puts "ERb."
+        return
+      end
+
+      try_ruby.call(e)
+
+    rescue ArgumentError => e
+      puts "#{file}: #{e.class}: #{e.to_s}"
+
+      try_ruby.call(e)
+
     rescue Interrupt
       raise
+
     rescue Exception => e
-      puts "Parser bug: #{e.class}: #{e.to_s}"
+      puts "Parser bug: #{file} #{e.class}: #{e.to_s}"
       @result[file] = { parser.to_s => "#{e.class}: #{e.to_s}" }
+
+    else
+      puts "Ok." if show_ok
     end
   end
 
@@ -52,9 +67,9 @@ class ParserGauntlet < Gauntlet
     Dir["**/*.rb"].each do |file|
       try(Parser::Ruby20, RUBY20, file) do
         puts "Trying 1.9:"
-        try(Parser::Ruby19, RUBY19, file) do
+        try(Parser::Ruby19, RUBY19, file, show_ok: true) do
           puts "Trying 1.8:"
-          try(Parser::Ruby18, RUBY18, file) do
+          try(Parser::Ruby18, RUBY18, file, show_ok: true) do
             puts "Invalid syntax."
           end
         end

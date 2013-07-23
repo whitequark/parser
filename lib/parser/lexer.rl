@@ -157,8 +157,14 @@ class Parser::Lexer
       #
       # Patches accepted.
       #
-      @source     = @source_buffer.source + "\0\0\0"
-      @source_pts = @source.unpack('U*')
+      @source = @source_buffer.source + "\0\0\0"
+
+      if @source.respond_to?(:encoding) &&
+            @source.encoding == Encoding::UTF_8
+        @source_pts = @source.unpack('U*')
+      else
+        @source_pts = @source.unpack('C*')
+      end
 
       if @source_pts.size > 1_000_000 && @source.respond_to?(:encode)
         # A heuristic: if the buffer is larger than 1M, then
@@ -257,10 +263,18 @@ class Parser::Lexer
   end
 
   if "".respond_to?(:encode)
+    def encode_escape(ord)
+      ord.chr.force_encoding(@source.encoding)
+    end
+
     def tok(s = @ts, e = @te)
       @source[s...e].encode(Encoding::UTF_8)
     end
   else
+    def encode_escape(ord)
+      ord.chr
+    end
+
     def tok(s = @ts, e = @te)
       @source[s...e]
     end
@@ -550,7 +564,7 @@ class Parser::Lexer
         break
       end
 
-      @escape += codepoint.chr(Encoding::UTF_8)
+      @escape     += codepoint.chr(Encoding::UTF_8)
       codepoint_s += codepoint_str.length + 1
     end
   }
@@ -570,11 +584,11 @@ class Parser::Lexer
   }
 
   action slash_c_char {
-    @escape = (@escape[0].ord & 0x9f).chr
+    @escape = encode_escape(@escape[0].ord & 0x9f)
   }
 
   action slash_m_char {
-    @escape = (@escape[0].ord | 0x80).chr
+    @escape = encode_escape(@escape[0].ord | 0x80)
   }
 
   maybe_escaped_char = (
@@ -591,11 +605,11 @@ class Parser::Lexer
   escape = (
       # \377
       [0-7]{1,3}
-      % { @escape = tok(@escape_s, p).to_i(8).chr }
+      % { @escape = encode_escape(tok(@escape_s, p).to_i(8)) }
 
       # \xff
     | ( 'x' xdigit{1,2}
-        % { @escape = tok(@escape_s + 1, p).to_i(16).chr }
+        % { @escape = encode_escape(tok(@escape_s + 1, p).to_i(16)) }
       # \u263a
       | 'u' xdigit{4}
         % { @escape = tok(@escape_s + 1, p).to_i(16).chr(Encoding::UTF_8) }
@@ -718,10 +732,12 @@ class Parser::Lexer
   };
 
   action extend_string {
-    if !literal.heredoc? && literal.nest_and_try_closing(tok, @ts, @te)
+    string = @source[@ts...@te]
+
+    if !literal.heredoc? && literal.nest_and_try_closing(string, @ts, @te)
       fnext *pop_literal; fbreak;
     else
-      literal.extend_string(tok, @ts, @te)
+      literal.extend_string(string, @ts, @te)
     end
   }
 

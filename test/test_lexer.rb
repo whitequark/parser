@@ -17,6 +17,18 @@ class TestLexer < Minitest::Test
   end
 
   #
+  # Tools
+  #
+
+  def utf(str)
+    if str.respond_to?(:force_encoding)
+      str.force_encoding(Encoding::UTF_8)
+    else
+      str
+    end
+  end
+
+  #
   # Additional matchers
   #
 
@@ -2666,6 +2678,21 @@ class TestLexer < Minitest::Test
                    :tSTRING, 'bar')
   end
 
+  def test_bug_expr_value_rescue_colon2
+    @lex.state = :expr_value
+    util_lex_token("rescue::Exception",
+                   :kRESCUE,    'rescue',
+                   :tCOLON3,    '::',
+                   :tCONSTANT,  'Exception')
+  end
+
+  def test_bug_line_begin_label
+    setup_lexer(19)
+    util_lex_token("foo:bar",
+                   :tIDENTIFIER, 'foo',
+                   :tSYMBOL,     'bar')
+  end
+
   def test_bug_const_e
     util_lex_token('E10',
                    :tCONSTANT, 'E10')
@@ -2683,19 +2710,30 @@ class TestLexer < Minitest::Test
                    :tNL,     nil)
   end
 
-  def test_bug_expr_value_rescue_colon2
-    @lex.state = :expr_value
-    util_lex_token("rescue::Exception",
-                   :kRESCUE,    'rescue',
-                   :tCOLON3,    '::',
-                   :tCONSTANT,  'Exception')
+  def test_bug_string_utf_escape_composition
+    util_lex_token(%q{"\xE2\x80\x99"},
+                   :tSTRING, "\xE2\x80\x99")
+
+    if defined?(Encoding)
+      util_lex_token(%q{"\xE2\x80\x99"}.force_encoding(Encoding::UTF_8),
+                     :tSTRING, '’'.force_encoding(Encoding::UTF_8))
+      util_lex_token(%q{"\342\200\231"}.force_encoding(Encoding::UTF_8),
+                     :tSTRING, '’'.force_encoding(Encoding::UTF_8))
+      util_lex_token(%q{"\M-b\C-\M-@\C-\M-Y"}.force_encoding(Encoding::UTF_8),
+                     :tSTRING, '’'.force_encoding(Encoding::UTF_8))
+    end
   end
 
-  def test_bug_line_begin_label
-    setup_lexer(19)
-    util_lex_token("foo:bar",
-                   :tIDENTIFIER, 'foo',
-                   :tSYMBOL,     'bar')
+  def test_bug_string_non_utf
+    util_lex_token(%Q{"caf\xE9"},
+                   :tSTRING, "caf\xE9")
+    util_lex_token(%Q{"caf\xC3\xA9"},
+                   :tSTRING, "caf\xC3\xA9")
+
+    if defined?(Encoding)
+      util_lex_token(%q{"café"}.force_encoding(Encoding::UTF_8),
+                     :tSTRING, "café".force_encoding(Encoding::UTF_8))
+    end
   end
 
   def test_bug_ragel_stack

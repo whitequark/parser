@@ -10,7 +10,7 @@ module Parser
         return if string.empty?
 
         # extract the first two lines in an efficient way
-        string =~ /(.*)\n?(.*\n)?/
+        string =~ /\A(.*)\n?(.*\n)?/
         first_line, second_line = $1, $2
 
         [first_line, second_line].each do |line|
@@ -25,7 +25,7 @@ module Parser
           encoding_line = first_line
         end
 
-        if encoding_line =~ /^#.*coding\s*[:=]\s*([A-Za-z0-9_-]+)/
+        if encoding_line =~ /\A#.*coding\s*[:=]\s*([A-Za-z0-9_-]+)/
           Encoding.find($1)
         else
           nil
@@ -37,15 +37,16 @@ module Parser
       # string.
       #
       def self.reencode_string(string)
-        encoding = recognize_encoding(string)
+        original_encoding = string.encoding
+        detected_encoding = recognize_encoding(string.force_encoding(Encoding::BINARY))
 
-        if encoding.nil?
+        if detected_encoding.nil?
+          string.force_encoding(original_encoding)
+        elsif detected_encoding == Encoding::BINARY
           string
-        elsif encoding == Encoding::BINARY
-          string.force_encoding(Encoding::BINARY)
         else
           string.
-            force_encoding(encoding).
+            force_encoding(detected_encoding).
             encode(Encoding::UTF_8)
         end
       end

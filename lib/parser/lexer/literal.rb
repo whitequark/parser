@@ -1,3 +1,5 @@
+# encoding:binary
+
 module Parser
 
   class Lexer::Literal
