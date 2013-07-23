@@ -1922,15 +1922,15 @@ class Parser::Lexer
   #
 
   line_comment := |*
-      '=end' c_line* c_nl?
+      '=end' c_line* c_eol?
       => {
         emit_comment(@eq_begin_s, @te)
         fgoto line_begin;
       };
 
-      c_any;
+      c_line* c_nl;
 
-      c_eof
+      c_line* c_eof
       => {
         diagnostic :fatal, Parser::ERRORS[:embedded_document],
                    range(@eq_begin_s, @eq_begin_s + '=begin'.length)

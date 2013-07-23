@@ -2747,6 +2747,10 @@ class TestLexer < Minitest::Test
                    :tSEMI,       ';')
   end
 
+  def test_bug_eql_end
+    util_lex_token(%Q{=begin\n#=end\n=end})
+  end
+
   def test_bug_ragel_stack
     util_lex_token("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",
