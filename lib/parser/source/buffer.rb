@@ -6,6 +6,19 @@ module Parser
     class Buffer
       attr_reader :name, :first_line
 
+      ENCODING_RE =
+        /\#.*coding\s*[:=]\s*
+          (
+            # Special-case: there's a UTF8-MAC encoding.
+            (?<encoding> utf8-mac)
+          |
+            # Chew the suffix; it's there for emacs compat.
+            (?<encoding> [A-Za-z0-9_-]+?)(-unix|-dos|-mac)
+          |
+            (?<encoding> [A-Za-z0-9_-]+)
+          )
+        /x
+
       def self.recognize_encoding(string)
         return if string.empty?
 
@@ -21,8 +34,8 @@ module Parser
           encoding_line = first_line
         end
 
-        if encoding_line =~ /\A#.*coding\s*[:=]\s*([A-Za-z0-9_-]+)/
-          Encoding.find($1)
+        if (result = ENCODING_RE.match(encoding_line))
+          Encoding.find(result[:encoding])
         else
           nil
         end

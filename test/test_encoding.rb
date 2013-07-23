@@ -49,6 +49,20 @@ class TestEncoding < Minitest::Test
       assert_equal nil, recognize('# coding koi8-r')
     end
 
+    def test_utf8_mac
+      assert_equal Encoding::UTF8_MAC, recognize('# coding: utf8-mac')
+    end
+
+    def test_suffix
+      assert_equal Encoding::UTF_8, recognize('# coding: utf-8-dos')
+      assert_equal Encoding::UTF_8, recognize('# coding: utf-8-unix')
+      assert_equal Encoding::UTF_8, recognize('# coding: utf-8-mac')
+
+      assert_raises(ArgumentError) do
+        assert_equal nil,           recognize('# coding: utf-8-dicks')
+      end
+    end
+
     def test_parse_18_invalid_enc
       ast = Parser::Ruby18.parse("# encoding:feynman-diagram\n1")
       assert_equal ast, s(:int, 1)
