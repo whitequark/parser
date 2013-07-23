@@ -34,7 +34,8 @@ class ParserGauntlet < Gauntlet
 
       try_ruby.call(e)
 
-    rescue ArgumentError => e
+    rescue ArgumentError,
+           Encoding::UndefinedConversionError => e
       puts "#{file}: #{e.class}: #{e.to_s}"
 
       try_ruby.call(e)
@@ -65,6 +66,8 @@ class ParserGauntlet < Gauntlet
     end
 
     Dir["**/*.rb"].each do |file|
+      next if File.directory? file
+
       try(Parser::Ruby20, RUBY20, file) do
         puts "Trying 1.9:"
         try(Parser::Ruby19, RUBY19, file, show_ok: true) do

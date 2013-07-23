@@ -112,6 +112,7 @@ class Parser::Lexer
 
     @source        = nil # source string
     @source_pts    = nil # @source as a codepoint array
+    @encoding      = nil # target encoding for output strings
 
     @p             = 0   # stream position (saved manually in #advance)
     @ts            = nil # token start
@@ -159,11 +160,14 @@ class Parser::Lexer
       #
       @source = @source_buffer.source + "\0\0\0"
 
-      if @source.respond_to?(:encoding) &&
-            @source.encoding == Encoding::UTF_8
+      if defined?(Encoding) && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
       else
         @source_pts = @source.unpack('C*')
+      end
+
+      if defined?(Encoding)
+        @encoding = @source.encoding
       end
 
       if @source_pts.size > 1_000_000 && @source.respond_to?(:encode)
@@ -178,7 +182,7 @@ class Parser::Lexer
         # symbols, then storing the source in UTF-8 would be faster.
         #
         # Patches accepted.
-        @source   = @source.encode(Encoding::UTF_32LE)
+        @source = @source.encode(Encoding::UTF_32LE)
       end
 
       if @source_pts[0] == 0xfeff
@@ -264,11 +268,11 @@ class Parser::Lexer
 
   if "".respond_to?(:encode)
     def encode_escape(ord)
-      ord.chr.force_encoding(@source.encoding)
+      ord.chr.force_encoding(@encoding)
     end
 
     def tok(s = @ts, e = @te)
-      @source[s...e].encode(Encoding::UTF_8)
+      @source[s...e].encode(@encoding)
     end
   else
     def encode_escape(ord)
