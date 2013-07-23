@@ -256,8 +256,14 @@ class Parser::Lexer
     @stack[@top]
   end
 
-  def tok(s = @ts, e = @te)
-    @source[s...e].encode(Encoding::UTF_8)
+  if "".respond_to?(:encode)
+    def tok(s = @ts, e = @te)
+      @source[s...e].encode(Encoding::UTF_8)
+    end
+  else
+    def tok(s = @ts, e = @te)
+      @source[s...e]
+    end
   end
 
   def range(s = @ts, e = @te)
