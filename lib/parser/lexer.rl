@@ -1376,6 +1376,9 @@ class Parser::Lexer
       => { emit_table(KEYWORDS)
            fnext expr_beg; fbreak; };
 
+      bareword
+      => { p = @ts - 1; fgoto expr_beg; };
+
       w_space_comment;
 
       w_newline

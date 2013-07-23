@@ -2679,6 +2679,14 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 'print')
   end
 
+  def test_bug_expr_mid_bareword
+    util_lex_token("begin; rescue rescue1",
+                   :kBEGIN,       'begin',
+                   :tSEMI,        ';',
+                   :kRESCUE,      'rescue',
+                   :tIDENTIFIER,  'rescue1')
+  end
+
   def test_bug_expr_value_document
     util_lex_token("1;\n=begin\n=end",
                    :tINTEGER, 1,
