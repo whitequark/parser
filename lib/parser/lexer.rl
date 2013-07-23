@@ -1764,7 +1764,8 @@ class Parser::Lexer
       | [1-9] digit*
                   %{ @num_base = 10; @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?
-      | '0'       %{ @num_base = 8;  @num_digits_s = @ts }
+      | '0' digit*
+                  %{ @num_base = 8;  @num_digits_s = @ts }
                ( '_' digit+ )* digit* '_'?
       )
       => {

@@ -1309,6 +1309,8 @@ class TestLexer < Minitest::Test
     util_lex_token "0o",   :tINTEGER, 0
     util_lex_token "0O",   :tINTEGER, 0
 
+    util_lex_token "0777_333", :tINTEGER, 261851
+
     util_lex_token "0",    :tINTEGER, 0
 
     util_bad_token "0x"
