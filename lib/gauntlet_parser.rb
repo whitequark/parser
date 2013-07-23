@@ -31,7 +31,7 @@ class ParserGauntlet < Gauntlet
     rescue Interrupt
       raise
     rescue Exception => e
-      puts "Parser bug: #{e.to_s}"
+      puts "Parser bug: #{e.class}: #{e.to_s}"
       @result[file] = { parser.to_s => "#{e.class}: #{e.to_s}" }
     end
   end
@@ -40,6 +40,14 @@ class ParserGauntlet < Gauntlet
     puts "GEM: #{name}"
 
     @result = {}
+
+    if ENV.include?('FAST')
+      total_size = Dir["**/*.rb"].map(&File.method(:size)).reduce(:+)
+      if total_size > 300_000
+        puts "Skip."
+        return
+      end
+    end
 
     Dir["**/*.rb"].each do |file|
       try(Parser::Ruby20, RUBY20, file) do
@@ -59,6 +67,24 @@ class ParserGauntlet < Gauntlet
   def run(name)
     data[name] = parse(name)
     self.dirty = true
+  end
+
+  def should_skip?(name)
+    data[name] == {}
+  end
+
+  def load_yaml(*)
+    data = super
+    @was_errors = data.count { |_name, errs| errs != {} }
+
+    data
+  end
+
+  def shutdown
+    super
+
+    errors = data.count { |_name, errs| errs != {} }
+    puts "!!! was: #{@was_errors} now: #{errors}"
   end
 end
 
