@@ -1319,8 +1319,8 @@ class Parser::Lexer
 
       # a ? b
       # Ternary operator.
-      w_space+ '?' c_space_nl
-      => { fhold; fhold; fgoto expr_end; };
+      w_space+ %{ tm = p } '?' c_space_nl
+      => { p = tm - 1; fgoto expr_end; };
 
       # x + 1: Binary operator or operator-assignment.
       w_space* operator_arithmetic

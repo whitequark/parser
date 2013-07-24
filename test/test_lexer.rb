@@ -2634,6 +2634,12 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 'foo')
   end
 
+  def test_bug_expr_arg_eh_crlf
+    @lex.state = :expr_arg
+    util_lex_token(" ?\r\n",
+                   :tEH,     '?')
+  end
+
   def test_bug_heredoc_backspace_nl
     util_lex_token(" <<'XXX'\nf \\\nXXX\n",
                    :tSTRING_BEG,     "'",
