@@ -1595,7 +1595,8 @@ class Parser::Lexer
         fhold;
 
         if version?(18)
-          emit(:tIDENTIFIER, tok(@ts, @te - 2), @ts, @te - 2)
+          emit((tok[0] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
+               tok(@ts, @te - 2), @ts, @te - 2)
           fhold; # continue as a symbol
         else
           emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
