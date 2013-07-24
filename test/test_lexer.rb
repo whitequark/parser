@@ -40,7 +40,12 @@ class TestLexer < Minitest::Test
 
   def util_escape(expected, input)
     source_buffer = Parser::Source::Buffer.new('(util_escape)')
-    source_buffer.source = "\"\\#{input}\""
+
+    if defined?(Encoding)
+      source_buffer.source = "\"\\#{input}\"".encode(input.encoding)
+    else
+      source_buffer.source = "\"\\#{input}\""
+    end
 
     @lex.reset
     @lex.source_buffer = source_buffer
@@ -48,7 +53,7 @@ class TestLexer < Minitest::Test
     lex_token, (lex_value, *) = @lex.advance
 
     if lex_value.respond_to?(:force_encoding)
-      lex_value.force_encoding('ASCII-8BIT')
+      lex_value.force_encoding(Encoding::BINARY)
     end
 
     assert_equal [:tSTRING, expected],
@@ -143,11 +148,11 @@ class TestLexer < Minitest::Test
   def test_read_escape_unicode__19
     if RUBY_VERSION >= '1.9'
       util_escape "\x09", 'u{9}'
-      util_escape "\xc2\x91", 'u{91}'
+      util_escape "\x31", 'u{31}'
       util_escape "\x09\x01", 'u{9 1}'
 
-      util_escape "\xc4\xa3", 'u0123'
-      util_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", 'u{123 f0 B123}'
+      util_escape "\xc4\xa3", utf('u0123')
+      util_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", utf('u{123 f0 B123}')
     end
   end
 

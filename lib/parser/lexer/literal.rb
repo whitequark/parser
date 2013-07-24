@@ -1,4 +1,4 @@
-# encoding:binary
+# encoding: utf-8
 
 module Parser
 
@@ -38,6 +38,11 @@ module Parser
       @lexer       = lexer
       @nesting     = 1
 
+      # DELIMITERS and TYPES are hashes with keys encoded in binary.
+      # Coerce incoming data to the same encoding.
+      str_type  = coerce_encoding(str_type)
+      delimiter = coerce_encoding(delimiter)
+
       unless TYPES.include?(str_type)
         message = ERRORS[:unexpected_percent_str] % { :type => str_type }
         lexer.send(:diagnostic, :error, message, @lexer.send(:range, str_s, str_s + 2))
@@ -47,11 +52,6 @@ module Parser
       @str_type    = str_type
       # Start of the string type specifier.
       @str_s       = str_s
-
-      # Data buffer.
-      @buffer      = ''
-      # Start of the current chunk in data buffer.
-      @buffer_s    = nil
 
       @start_tok, @interpolate = TYPES[str_type]
       @start_delim = DELIMITERS.include?(delimiter) ? delimiter : nil
@@ -74,6 +74,8 @@ module Parser
       unless @heredoc_e || @str_type.end_with?(delimiter)
         @str_type << delimiter
       end
+
+      clear_buffer
 
       emit_start_tok unless @monolithic
     end
@@ -100,6 +102,8 @@ module Parser
     end
 
     def munge_escape?(character)
+      character = coerce_encoding(character)
+
       if words? && character =~ /[ \t\v\r\f\n]/
         true
       else
@@ -107,15 +111,9 @@ module Parser
       end
     end
 
-    def delimiter?(delimiter)
-      if @indent
-        @end_delim == delimiter.lstrip
-      else
-        @end_delim == delimiter
-      end
-    end
-
     def nest_and_try_closing(delimiter, ts, te)
+      delimiter = coerce_encoding(delimiter)
+
       if @start_delim && @start_delim == delimiter
         @nesting += 1
       elsif delimiter?(delimiter)
@@ -159,7 +157,11 @@ module Parser
 
       @buffer_e = te
 
-      @buffer << string
+      if defined?(Encoding)
+        @buffer << string.encode(@lexer.encoding)
+      else
+        @buffer << string
+      end
     end
 
     def flush_string
@@ -171,9 +173,7 @@ module Parser
       unless @buffer.empty?
         emit(:tSTRING_CONTENT, @buffer, @buffer_s, @buffer_e)
 
-        @buffer   = ''
-        @buffer_s = nil
-        @buffer_e = nil
+        clear_buffer
         extend_content
       end
     end
@@ -193,6 +193,35 @@ module Parser
     end
 
     protected
+
+    def delimiter?(delimiter)
+      if @indent
+        @end_delim == delimiter.lstrip
+      else
+        @end_delim == delimiter
+      end
+    end
+
+    def coerce_encoding(string)
+      if defined?(Encoding)
+        string.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
+      else
+        string
+      end
+    end
+
+    def clear_buffer
+      @buffer = ''
+
+      # Prime the buffer with lexer encoding; otherwise,
+      # concatenation will produce varying results.
+      if defined?(Encoding)
+        @buffer.force_encoding(@lexer.encoding)
+      end
+
+      @buffer_s = nil
+      @buffer_e = nil
+    end
 
     def emit_start_tok
       str_e = @heredoc_e || @str_s + @str_type.length

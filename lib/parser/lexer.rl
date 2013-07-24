@@ -82,6 +82,7 @@ class Parser::Lexer
   # %
 
   attr_reader   :source_buffer
+  attr_reader   :encoding
 
   attr_accessor :diagnostics
   attr_accessor :static_env
