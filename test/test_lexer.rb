@@ -2777,6 +2777,18 @@ class TestLexer < Minitest::Test
                    :tNL,     nil)
   end
 
+  def test_bug_interleaved_heredoc_dstring
+    util_lex_token(%Q{<<w; "\#{\nfoo\nw\n}"},
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "foo\n",
+                   :tSTRING_END,     'w',
+                   :tSEMI,           ';',
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_DBEG,    '#{',
+                   :tRCURLY,         '}',
+                   :tSTRING_END,     '"')
+  end
+
   def test_bug_string_utf_escape_composition
     util_lex_token(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99")

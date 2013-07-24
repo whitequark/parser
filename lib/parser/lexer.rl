@@ -907,8 +907,10 @@ class Parser::Lexer
 
     emit(:tSTRING_DBEG, '#{')
 
-    literal.saved_herebody_s = @herebody_s
-    @herebody_s = nil
+    if literal.heredoc?
+      literal.saved_herebody_s = @herebody_s
+      @herebody_s = nil
+    end
 
     literal.start_interp_brace
     fcall expr_value;
