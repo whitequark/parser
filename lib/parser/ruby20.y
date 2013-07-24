@@ -481,19 +481,11 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      if in_def?
-                        diagnostic(:error, :dynamic_const, val[2])
-                      end
-
                       result = @builder.assignable(
                                   @builder.const_fetch(val[0], val[1], val[2]))
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      if in_def?
-                        diagnostic(:error, :dynamic_const, val[1])
-                      end
-
                       result = @builder.assignable(
                                   @builder.const_global(val[0], val[1]))
                     }
@@ -528,19 +520,11 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT
                     {
-                      if in_def?
-                        diagnostic(:error, :dynamic_const, val[2])
-                      end
-
                       result = @builder.assignable(
                                   @builder.const_fetch(val[0], val[1], val[2]))
                     }
                 | tCOLON3 tCONSTANT
                     {
-                      if in_def?
-                        diagnostic(:error, :dynamic_const, val[1])
-                      end
-
                       result = @builder.assignable(
                                   @builder.const_global(val[0], val[1]))
                     }

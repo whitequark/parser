@@ -794,12 +794,12 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def f; Foo::Bar = 1; end},
-      %q{            ~~~ location})
+      %q{       ~~~~~~~~ location})
 
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def f; ::Bar = 1; end},
-      %q{         ~~~ location})
+      %q{       ~~~~~ location})
   end
 
   # Multiple assignment
@@ -1044,12 +1044,12 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def f; self::A, foo = foo; end},
-      %q{             ~ location})
+      %q{       ~~~~~~~ location})
 
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def f; ::A, foo = foo; end},
-      %q{         ~ location})
+      %q{       ~~~ location})
   end
 
   # Variable binary operator-assignment
