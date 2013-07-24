@@ -110,7 +110,7 @@ module Parser
 
       def source_line(line)
         unless @lines
-          @lines = @source.lines.map(&:chomp)
+          @lines = @source.lines.each { |line| line.gsub!(/\n$/, '') }
         end
 
         @lines[line - @first_line].dup
