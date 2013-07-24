@@ -1073,12 +1073,11 @@ class Parser::Lexer
     @paren_nest -= 1
   };
 
-  # Ruby >=1.9.2 is context-sensitive wrt/ local identifiers.
+  # Ruby is context-sensitive wrt/ local identifiers.
   action local_ident {
     emit(:tIDENTIFIER)
 
-    if !version?(18) &&
-          !@static_env.nil? && @static_env.declared?(tok)
+    if !@static_env.nil? && @static_env.declared?(tok)
       fnext expr_end; fbreak;
     else
       fnext expr_arg; fbreak;
