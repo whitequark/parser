@@ -686,7 +686,7 @@ class Parser::Lexer
 
     | 'C' c_any %invalid_complex_escape
     | 'M' c_any %invalid_complex_escape
-    | ( 'M-\\C' | 'C-\\M' | 'cM' ) c_any %invalid_complex_escape
+    | ( 'M-\\C' | 'C-\\M' ) c_any %invalid_complex_escape
 
     | ( c_any - [0-7xuCMc] ) %unescape_char
 

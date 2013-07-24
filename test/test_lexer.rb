@@ -123,6 +123,7 @@ class TestLexer < Minitest::Test
 
     util_escape "\177", "C-?"
     util_escape "\177", "c?"
+    util_escape "\r",   "cM"
   end
 
   def test_read_escape_m
