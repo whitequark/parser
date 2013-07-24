@@ -885,10 +885,15 @@ module Parser
         when :erange then :eflipflop
         end
 
-        cond.updated(type, [
-          check_condition(lhs),
-          check_condition(rhs)
-        ])
+        if [:and, :or].include?(cond.type) &&
+               @parser.version == 18
+          cond
+        else
+          cond.updated(type, [
+            check_condition(lhs),
+            check_condition(rhs)
+          ])
+        end
 
       when :regexp
         n(:match_current_line, [ cond ], nil)

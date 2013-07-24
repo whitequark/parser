@@ -3703,12 +3703,28 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{if foo && (a, b = bar); end},
-      %q{           ~~~~~~~~~~ location})
+      %q{           ~~~~~~~~~~ location},
+      ALL_VERSIONS - %w(1.8))
 
     assert_diagnoses(
       [:error, :masgn_as_condition],
       %q{if foo || (a, b = bar); end},
-      %q{           ~~~~~~~~~~ location})
+      %q{           ~~~~~~~~~~ location},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:if,
+        s(:and,
+          s(:begin,
+            s(:masgn,
+              s(:mlhs,
+                s(:lvasgn, :a), s(:lvasgn, :b)),
+              s(:lvar, :foo))),
+          s(:lvar, :bar)),
+        nil, nil),
+      %q{if (a, b = foo) && bar; end},
+      %q{},
+      %w(1.8))
   end
 
   def test_cond_iflipflop
