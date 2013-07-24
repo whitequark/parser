@@ -1114,6 +1114,24 @@ class TestParser < Minitest::Test
       %q{B::A += 1},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses(
+      s(:def, :x, s(:args),
+        s(:or_asgn,
+          s(:casgn, s(:self), :A),
+          s(:int, 1))),
+      %q{def x; self::A ||= 1; end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses(
+      s(:def, :x, s(:args),
+        s(:or_asgn,
+          s(:casgn, s(:cbase), :A),
+          s(:int, 1))),
+      %q{def x; ::A ||= 1; end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   def test_const_op_asgn_invalid
@@ -1132,12 +1150,14 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def foo; Foo::Bar += 1; end},
-      %q{              ~~~ location})
+      %q{              ~~~ location},
+      %w(1.8 1.9))
 
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def foo; ::Bar += 1; end},
-      %q{           ~~~ location})
+      %q{           ~~~ location},
+      %w(1.8 1.9))
   end
 
   # Method binary operator-assignment

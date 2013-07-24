@@ -359,6 +359,10 @@ module Parser
       end
     end
 
+    def const_op_assignable(node)
+      node.updated(:casgn)
+    end
+
     def assign(lhs, eql_t, rhs)
       (lhs << rhs).updated(nil, nil,
         :location => lhs.loc.

@@ -74,9 +74,11 @@ module ParseHelper
       begin
         parsed_ast = parser.parse(source_file)
       rescue => exc
-        new_exc = exc.class.new("(#{version}) #{exc.message}")
-        new_exc.set_backtrace(exc.backtrace)
-        raise new_exc
+        backtrace = exc.backtrace
+        Exception.instance_method(:initialize).bind(exc).
+          call("(#{version}) #{exc.message}")
+        exc.set_backtrace(backtrace)
+        raise
       end
 
       assert_equal ast, parsed_ast,
