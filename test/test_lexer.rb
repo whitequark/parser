@@ -2785,6 +2785,19 @@ class TestLexer < Minitest::Test
                    :tSTRING, 'a')
   end
 
+  def test_bug_nonlabel_context__18
+    env = Parser::StaticEnvironment.new
+    env.declare "a"
+
+    @lex.static_env = env
+    util_lex_token("1+a:a",
+                   :tINTEGER,    1,
+                   :tPLUS,       '+',
+                   :tIDENTIFIER, 'a',
+                   :tCOLON,      ':',
+                   :tIDENTIFIER, 'a')
+  end
+
   def test_bug_string_utf_escape_composition
     util_lex_token(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99")

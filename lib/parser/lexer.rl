@@ -1596,9 +1596,17 @@ class Parser::Lexer
         fhold;
 
         if version?(18)
+          ident = tok(@ts, @te - 2)
+
           emit((tok[0] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
-               tok(@ts, @te - 2), @ts, @te - 2)
+               ident, @ts, @te - 2)
           fhold; # continue as a symbol
+
+          if !@static_env.nil? && @static_env.declared?(ident)
+            fnext expr_end;
+          else
+            fnext expr_arg;
+          end
         else
           emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
         end
