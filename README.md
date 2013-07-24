@@ -197,16 +197,44 @@ $ ruby-parse -e '(foo) while cond'
 
 ## Known issues
 
+Adding support for the following Ruby MRI features in Parser would needlessly complicate it, and as they all are very specific and rarely occuring corner cases, this is not done.
+
+Parser has been extensively tested; in particular, it parses almost entire [Rubygems][rg] corpus. For every issue, a breakdown of affected gems is offered.
+
+ [rg]: http://rubygems.org
+
 ### Void value expressions
 
-So-called "void value expressions" are not handled by Parser. For a description
+Ruby MRI prohibits so-called "void value expressions". For a description
 of what a void value expression is, see [this
 gist](https://gist.github.com/JoshCheek/5625007) and [this Parser
 issue](https://github.com/whitequark/parser/issues/72).
 
-It is not clear which rules this piece of static analysis follows, or which
-problem does it solve. It is not implemented because there is no clear
-specification allowing us to verify the behavior.
+It is unknown whether any gems are affected by this issue.
+
+### Invalid characters inside comments
+
+Ruby MRI permits arbitrary non-7-bit characters to appear in comments regardless of source encoding.
+
+As of 2013-07-25, there are about 200 affected gems.
+
+### End-of-file characters
+
+Ruby MRI permits end-of-file characters (`\0`, `\x04` and `\x1a`) to occur inside literals, but interprets them as end-of-file otherwise.
+
+As of 2013-07-25, affected gems are: doctest, redparse, verifi, rubylexer (tests), rpdf2txt (tests), gs_phone, aruba, rutema, dmap (tests), page_glimpse (tests), htmltools (tests), cyoi (tests), librarian-puppet, decc_2050_model, dlc, global_2050_model.
+
+### \u escape in 1.8 mode
+
+Ruby MRI 1.8 permits to specify a bare `\u` escape sequence in a string; it treats it like `u`. Ruby MRI 1.9 and later treat `\u` as a prefix for Unicode escape sequence and do not allow it to appear bare. Parser follows 1.9+ behavior.
+
+As of 2013-07-25, affected gems are: activerdf_net7, fastreader, gkellog-reddy, activerdf.
+
+### Invalid Unicode escape sequences
+
+Ruby MRI 1.9+ permits to specify invalid UTF-8 sequences in Unicode escape sequences, such as `\u{d800}`.
+
+As of 2013-07-25, affected gems are: aws_cloud_search.
 
 ## Contributors
 
