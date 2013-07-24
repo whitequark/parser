@@ -1269,7 +1269,7 @@ class Parser::Lexer
 
       # a ?b
       # Character literal.
-      w_space+ '?'
+      w_space* '?'
       => { fhold; fgoto expr_beg; };
 
                # a %{1}, a %[1] (but not "a %=1=" or "a % foo")

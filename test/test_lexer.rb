@@ -2789,6 +2789,13 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     '"')
   end
 
+  def test_bug_fid_char
+    setup_lexer(19)
+    util_lex_token(%Q{eof??a},
+                   :tFID,    'eof?',
+                   :tSTRING, 'a')
+  end
+
   def test_bug_string_utf_escape_composition
     util_lex_token(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99")
