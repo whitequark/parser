@@ -1271,9 +1271,8 @@ class Parser::Lexer
       => { fhold; fgoto expr_beg; };
 
                # a %{1}, a %[1] (but not "a %=1=" or "a % foo")
-      w_space+ ( '%' [^= ]
                # a /foo/ (but not "a / foo" or "a /=foo")
-               | '/' ( c_any - c_space_nl - '=' )
+      w_space+ ( [%/] ( c_any - c_space_nl - '=' ) # /
                # a <<HEREDOC
                | '<<'
                )

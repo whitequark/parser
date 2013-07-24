@@ -2529,6 +2529,10 @@ class TestLexer < Minitest::Test
                    :tOP_ASGN,    "%",
                    :tINTEGER,    1,
                    :tEQL,        "=")
+
+    @lex.state = :expr_arg
+    util_lex_token(" %\n",
+                   :tPERCENT,    '%')
   end
 
   def test_bug_expr_arg_lt_lt
