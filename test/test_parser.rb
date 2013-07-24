@@ -4516,4 +4516,13 @@ class TestParser < Minitest::Test
       %q{                         ~~~~ else (rescue)
         |       ~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
   end
+
+  def test_bug_heredoc_do
+    assert_parses(
+      s(:block,
+        s(:send, nil, :f,
+          s(:dstr)),
+        s(:args), nil),
+      %Q{f <<-TABLE do\nTABLE\nend})
+  end
 end

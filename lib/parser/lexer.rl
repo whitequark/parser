@@ -817,7 +817,7 @@ class Parser::Lexer
 
         # Continue regular lexing after the heredoc reference (<<END).
         p = literal.heredoc_e - 1
-        fgoto *pop_literal;
+        fnext *pop_literal; fbreak;
       else
         # Ditto.
         @herebody_s = @te
