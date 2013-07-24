@@ -1231,7 +1231,11 @@ module Parser
       end
 
       if else_t
-        end_l = else_e.loc.expression
+        if else_e.nil?
+          end_l = loc(else_t)
+        else
+          end_l = else_e.loc.expression
+        end
       elsif !body_es.last.nil?
         end_l = body_es.last.loc.expression
       else

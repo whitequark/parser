@@ -4504,4 +4504,16 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS - %w(1.8))
   end
+
+  def test_bug_rescue_empty_else
+    assert_parses(
+      s(:kwbegin,
+        s(:rescue, nil,
+          s(:resbody,
+            s(:array,
+              s(:const, nil, :LoadError)), nil, nil), nil)),
+      %q{begin; rescue LoadError; else; end},
+      %q{                         ~~~~ else (rescue)
+        |       ~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
+  end
 end
