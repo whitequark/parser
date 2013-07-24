@@ -911,7 +911,7 @@ class Parser::Lexer
     @herebody_s = nil
 
     literal.start_interp_brace
-    fcall expr_beg;
+    fcall expr_value;
   }
 
   # Actual string parsers are simply combined from the primitives defined

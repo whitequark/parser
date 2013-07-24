@@ -2750,6 +2750,16 @@ class TestLexer < Minitest::Test
                    :tSYMBOL,     'bar')
   end
 
+  def test_bug_interp_expr_value
+    util_lex_token('"#{f:a}"',
+                   :tSTRING_BEG,  '"',
+                   :tSTRING_DBEG, '#{',
+                   :tIDENTIFIER,  'f',
+                   :tSYMBOL,      'a',
+                   :tRCURLY,      '}',
+                   :tSTRING_END,  '"')
+  end
+
   def test_bug_const_e
     util_lex_token('E10',
                    :tCONSTANT, 'E10')
