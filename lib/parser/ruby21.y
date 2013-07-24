@@ -1487,9 +1487,14 @@ opt_block_args_tail:
                     }
                 | f_bad_arg
 
-          lambda: f_larglist lambda_body
+          lambda:   {
+                      @static_env.extend_dynamic
+                    }
+                  f_larglist lambda_body
                     {
-                      result = [ val[0], val[1] ]
+                      result = [ val[1], val[2] ]
+
+                      @static_env.unextend
                     }
 
      f_larglist: tLPAREN2 f_args opt_bv_decl tRPAREN

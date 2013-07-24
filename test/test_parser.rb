@@ -4525,4 +4525,17 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %Q{f <<-TABLE do\nTABLE\nend})
   end
+
+  def test_bug_lambda_leakage
+    assert_parses(
+      s(:begin,
+        s(:block,
+          s(:send, nil, :lambda),
+          s(:args,
+            s(:arg, :scope)), nil),
+        s(:send, nil, :scope)),
+      %q{->(scope) {}; scope},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
 end
