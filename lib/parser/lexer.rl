@@ -458,7 +458,7 @@ class Parser::Lexer
     # This allows to feed the lexer more data if needed; this is only used
     # in tests.
     #
-    # Note that this action is not embedded into e_eof like e_nl and e_bs
+    # Note that this action is not embedded into e_eof like e_heredoc_nl and e_bs
     # below. This is due to the fact that scanner state at EOF is observed
     # by tests, and encapsulating it in a rule would break the introspection.
     fhold; fbreak;
@@ -822,6 +822,17 @@ class Parser::Lexer
         # Ditto.
         @herebody_s = @te
       end
+    elsif @herebody_s
+      # This is a regular literal intertwined with a heredoc. Like:
+      #
+      #     p <<-foo+"1
+      #     bar
+      #     foo
+      #     2"
+      #
+      # which, incidentally, evaluates to "bar\n12".
+      p = @herebody_s - 1
+      @herebody_s = nil
     end
 
     if is_eof
@@ -829,11 +840,15 @@ class Parser::Lexer
                  range(literal.str_s, literal.str_s + 1)
     end
 
-    # A literal newline is appended if the heredoc was _not_ closed
-    # this time. See also Literal#nest_and_try_closing for rationale of
-    # calling #flush_string here.
-    literal.extend_string tok, @ts, @te
-    literal.flush_string
+    if literal.words?
+      literal.extend_space @ts, @te
+    else
+      # A literal newline is appended if the heredoc was _not_ closed
+      # this time (see fbreak above). See also Literal#nest_and_try_closing
+      # for rationale of calling #flush_string here.
+      literal.extend_string tok, @ts, @te
+      literal.flush_string
+    end
   }
 
   action extend_string_space {
@@ -923,7 +938,7 @@ class Parser::Lexer
       interp_code => extend_interp_code;
       interp_var  => extend_interp_var;
       e_bs escape => extend_string_escaped;
-      c_space_nl+ => extend_string_space;
+      c_space+    => extend_string_space;
       c_eol       => extend_string_eol;
       c_any       => extend_string;
   *|;
@@ -938,7 +953,7 @@ class Parser::Lexer
 
   plain_words := |*
       e_bs c_any  => extend_string_escaped;
-      c_space_nl+ => extend_string_space;
+      c_space+    => extend_string_space;
       c_eol       => extend_string_eol;
       c_any       => extend_string;
   *|;

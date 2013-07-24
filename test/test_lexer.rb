@@ -2766,7 +2766,28 @@ class TestLexer < Minitest::Test
                    :tNL,     nil)
   end
 
-  def test_bug_interleaved_heredoc_dstring
+  def test_bug_interleaved_heredoc
+    util_lex_token(%Q{<<w; "\nfoo\nw\n"},
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "foo\n",
+                   :tSTRING_END,     'w',
+                   :tSEMI,           ';',
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "\n",
+                   :tSTRING_END,     '"')
+
+    @lex.state = :expr_beg
+    util_lex_token(%Q{<<w; %w[\nfoo\nw\n1]},
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "foo\n",
+                   :tSTRING_END,     'w',
+                   :tSEMI,           ';',
+                   :tQWORDS_BEG,     '%w[',
+                   :tSTRING_CONTENT, "1",
+                   :tSPACE,          nil,
+                   :tSTRING_END,     ']')
+
+                   @lex.state = :expr_beg
     util_lex_token(%Q{<<w; "\#{\nfoo\nw\n}"},
                    :tSTRING_BEG,     '"',
                    :tSTRING_CONTENT, "foo\n",
