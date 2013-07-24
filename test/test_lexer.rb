@@ -142,8 +142,11 @@ class TestLexer < Minitest::Test
 
   def test_read_escape_unicode__19
     if RUBY_VERSION >= '1.9'
-      util_escape "\xc4\xa3", 'u0123'
+      util_escape "\x09", 'u{9}'
+      util_escape "\xc2\x91", 'u{91}'
+      util_escape "\x09\x01", 'u{9 1}'
 
+      util_escape "\xc4\xa3", 'u0123'
       util_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", 'u{123 f0 B123}'
     end
   end
