@@ -2431,7 +2431,7 @@ class TestLexer < Minitest::Test
     util_lex_token("Option",
                    :tCONSTANT, 'Option')
 
-    assert_equal :expr_arg, @lex.state
+    assert_equal :expr_cmdarg, @lex.state
   end
 
   def test_bug_expr_beg_div

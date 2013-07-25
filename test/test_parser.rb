@@ -3218,15 +3218,35 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:block,
-        s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
+        s(:send, s(:lvar, :foo), :fun, s(:int, 1)),
         s(:args), nil),
-      %q{foo.fun (1) {}})
+      %q{foo.fun (1) {}},
+      %q{},
+      %w(1.8))
 
     assert_parses(
       s(:block,
         s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
         s(:args), nil),
-      %q{foo::fun (1) {}})
+      %q{foo.fun (1) {}},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:block,
+        s(:send, s(:lvar, :foo), :fun, s(:int, 1)),
+        s(:args), nil),
+      %q{foo::fun (1) {}},
+      %q{},
+      %w(1.8))
+
+    assert_parses(
+      s(:block,
+        s(:send, s(:lvar, :foo), :fun, s(:begin, s(:int, 1))),
+        s(:args), nil),
+      %q{foo::fun (1) {}},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_space_args_arg_call
@@ -4365,6 +4385,46 @@ class TestParser < Minitest::Test
       %q{p begin 1.times do 1 end end},
       %{},
       ALL_VERSIONS - %w(1.8 1.9))
+  end
+
+  def test_bug_cmdarg
+    assert_parses(
+      s(:send, nil, :meth,
+        s(:begin,
+          s(:block,
+            s(:send, nil, :lambda),
+            s(:args), nil))),
+      %q{meth (lambda do end)},
+      %q{},
+      %w(1.8))
+
+    assert_parses(
+      s(:send, nil, :assert,
+        s(:send, nil, :dogs)),
+      %q{assert dogs})
+
+    assert_parses(
+      s(:send, nil, :assert,
+        s(:hash,
+          s(:pair, s(:sym, :do), s(:true)))),
+      %q{assert do: true},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:send, nil, :f,
+        s(:hash,
+          s(:pair,
+            s(:sym, :x),
+            s(:block,
+              s(:send, nil, :lambda),
+              s(:args),
+              s(:block,
+                s(:send, nil, :meth),
+                s(:args), nil))))),
+      %q{f x: -> do meth do end end},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_file_line_non_literals

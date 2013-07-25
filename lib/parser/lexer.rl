@@ -146,6 +146,11 @@ class Parser::Lexer
     # encountered after a matching closing parenthesis.
     @paren_nest    = 0
     @lambda_stack  = []
+
+    # If the lexer is in `command state' (aka expr_value)
+    # at the entry to #advance, it will transition to expr_cmdarg
+    # instead of expr_arg at certain points.
+    @command_state = false
   end
 
   def source_buffer=(source_buffer)
@@ -204,6 +209,7 @@ class Parser::Lexer
     :expr_beg    => lex_en_expr_beg,
     :expr_mid    => lex_en_expr_mid,
     :expr_arg    => lex_en_expr_arg,
+    :expr_cmdarg => lex_en_expr_cmdarg,
     :expr_end    => lex_en_expr_end,
     :expr_endarg => lex_en_expr_endarg,
     :expr_endfn  => lex_en_expr_endfn,
@@ -237,6 +243,9 @@ class Parser::Lexer
     _lex_from_state_actions = self.class.send :_lex_from_state_actions
 
     p, pe, eof = @p, @source.length + 1, nil
+
+    @command_state = (@cs == self.class.lex_en_expr_value ||
+                      @cs == self.class.lex_en_line_begin)
 
     %% write exec;
     # %
@@ -312,6 +321,14 @@ class Parser::Lexer
       emit(:kDO_BLOCK)
     else
       emit(:kDO)
+    end
+  end
+
+  def arg_or_cmdarg
+    if @command_state
+      self.class.lex_en_expr_cmdarg
+    else
+      self.class.lex_en_expr_arg
     end
   end
 
@@ -1103,7 +1120,7 @@ class Parser::Lexer
     if !@static_env.nil? && @static_env.declared?(tok)
       fnext expr_end; fbreak;
     else
-      fnext expr_arg; fbreak;
+      fnext *arg_or_cmdarg; fbreak;
     end
   }
 
@@ -1221,15 +1238,15 @@ class Parser::Lexer
   expr_dot := |*
       constant
       => { emit(:tCONSTANT)
-           fnext expr_arg; fbreak; };
+           fnext *arg_or_cmdarg; fbreak; };
 
       call_or_var
       => { emit(:tIDENTIFIER)
-           fnext expr_arg; fbreak; };
+           fnext *arg_or_cmdarg; fbreak; };
 
       bareword ambiguous_fid_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
-           fnext expr_arg; p = tm - 1; fbreak; };
+           fnext *arg_or_cmdarg; p = tm - 1; fbreak; };
 
       # See the comment in `expr_fname`.
       operator_fname      |
@@ -1257,8 +1274,15 @@ class Parser::Lexer
       # cmd (1 + 2)
       # See below the rationale about expr_endarg.
       w_space+ e_lparen
-      => { emit(:tLPAREN_ARG, '(', @te - 1, @te)
-           fnext expr_beg; fbreak; };
+      => {
+        if version?(18)
+          emit(:tLPAREN2, '(', @te - 1, @te)
+          fnext expr_value; fbreak;
+        else
+          emit(:tLPAREN_ARG, '(', @te - 1, @te)
+          fnext expr_beg; fbreak;
+        end
+      };
 
       # meth(1 + 2)
       # Regular method call.
@@ -1368,6 +1392,43 @@ class Parser::Lexer
 
       c_any
       => { fhold; fgoto expr_beg; };
+
+      c_eof => do_eof;
+  *|;
+
+  # The previous token was an identifier which was seen while in the
+  # command mode (that is, the state at the beginning of #advance was
+  # expr_value). This state is very similar to expr_arg, but disambiguates
+  # two very rare and specific condition:
+  #   * In 1.8 mode, "foo (lambda do end)".
+  #   * In 1.9+ mode, "f x: -> do foo do end end".
+  expr_cmdarg := |*
+      w_space+ e_lparen
+      => {
+        emit(:tLPAREN_ARG, '(', @te - 1, @te)
+        if version?(18)
+          fnext expr_value; fbreak;
+        else
+          fnext expr_beg; fbreak;
+        end
+      };
+
+      w_space* 'do'
+      => {
+        if @cond.active?
+          emit(:kDO_COND, 'do', @te - 2, @te)
+        else
+          emit(:kDO, 'do', @te - 2, @te)
+        end
+        fnext expr_value; fbreak;
+      };
+
+      c_any             |
+      # Disambiguate with the `do' rule above.
+      w_space* bareword |
+      w_space* label
+      => { p = @ts - 1
+           fgoto expr_arg; };
 
       c_eof => do_eof;
   *|;
@@ -1628,7 +1689,7 @@ class Parser::Lexer
           if !@static_env.nil? && @static_env.declared?(ident)
             fnext expr_end;
           else
-            fnext expr_arg;
+            fnext *arg_or_cmdarg;
           end
         else
           emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
@@ -1650,7 +1711,8 @@ class Parser::Lexer
 
       # a = 42;     a [42]: Indexing.
       # def a; end; a [42]: Array argument.
-      call_or_var => local_ident;
+      call_or_var
+      => local_ident;
 
       #
       # WHITESPACE
@@ -1772,6 +1834,12 @@ class Parser::Lexer
       => {
         if version?(18)
           emit(:tIDENTIFIER)
+
+          if !@static_env.nil? && @static_env.declared?(tok)
+            fnext expr_end;
+          else
+            fnext *arg_or_cmdarg;
+          end
         else
           emit_table(KEYWORDS)
         end
@@ -1859,7 +1927,7 @@ class Parser::Lexer
 
       constant
       => { emit(:tCONSTANT)
-           fnext expr_arg; fbreak; };
+           fnext *arg_or_cmdarg; fbreak; };
 
       constant ambiguous_const_suffix
       => { emit(:tCONSTANT, tok(@ts, tm), @ts, tm)
@@ -1876,7 +1944,8 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
 
-      call_or_var => local_ident;
+      call_or_var
+      => local_ident;
 
       bareword ambiguous_fid_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
