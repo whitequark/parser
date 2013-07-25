@@ -810,8 +810,9 @@ class Parser::Lexer
     if literal.heredoc?
       # Try ending the heredoc with the complete most recently
       # scanned line. @herebody_s always refers to the start of such line.
-      if literal.nest_and_try_closing(tok(@herebody_s, @ts),
-                                      @herebody_s, @ts)
+      line = tok(@herebody_s, @ts).gsub(/\r+$/, '')
+
+      if literal.nest_and_try_closing(line, @herebody_s, @ts)
         # Adjust @herebody_s to point to the next line.
         @herebody_s = @te
 
