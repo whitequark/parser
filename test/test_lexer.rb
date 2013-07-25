@@ -32,14 +32,14 @@ class TestLexer < Minitest::Test
   # Additional matchers
   #
 
-  def util_bad_token(s, *args)
+  def refute_scanned(s, *args)
     assert_raises Parser::SyntaxError do
-      util_lex_token(s, *args)
+      assert_scanned(s, *args)
     end
   end
 
-  def util_escape(expected, input)
-    source_buffer = Parser::Source::Buffer.new('(util_escape)')
+  def assert_escape(expected, input)
+    source_buffer = Parser::Source::Buffer.new('(assert_escape)')
 
     if defined?(Encoding)
       source_buffer.source = "\"\\#{input}\"".encode(input.encoding)
@@ -61,21 +61,21 @@ class TestLexer < Minitest::Test
                  source_buffer.source
   end
 
-  def util_escape_bad(input)
+  def refute_escape(input)
     assert_raises Parser::SyntaxError do
       @lex.state = :expr_beg
-      util_lex_token "%Q[\\#{input}]"
+      assert_scanned "%Q[\\#{input}]"
     end
   end
 
-  def util_lex_fname(name, type)
-    util_lex_token("def #{name} ", :kDEF, 'def', type, name)
+  def assert_lex_fname(name, type)
+    assert_scanned("def #{name} ", :kDEF, 'def', type, name)
 
     assert_equal :expr_endfn, @lex.state
   end
 
-  def util_lex_token(input, *args)
-    source_buffer = Parser::Source::Buffer.new('(util_lex_token)')
+  def assert_scanned(input, *args)
+    source_buffer = Parser::Source::Buffer.new('(assert_scanned)')
     source_buffer.source = input
 
     @lex.reset(false)
@@ -98,107 +98,107 @@ class TestLexer < Minitest::Test
   #
 
   def test_read_escape
-    util_escape "\\",   "\\"
-    util_escape "\n",   "n"
-    util_escape "\t",   "t"
-    util_escape "\r",   "r"
-    util_escape "\f",   "f"
-    util_escape "\13",  "v"
-    util_escape "\0",   "0"
-    util_escape "\07",  "a"
-    util_escape "\007", "a"
-    util_escape "\033", "e"
-    util_escape "\377", "377"
-    util_escape "\377", "xff"
-    util_escape "\010", "b"
-    util_escape " ",    "s"
-    util_escape "q",    "q" # plain vanilla escape
+    assert_escape "\\",   "\\"
+    assert_escape "\n",   "n"
+    assert_escape "\t",   "t"
+    assert_escape "\r",   "r"
+    assert_escape "\f",   "f"
+    assert_escape "\13",  "v"
+    assert_escape "\0",   "0"
+    assert_escape "\07",  "a"
+    assert_escape "\007", "a"
+    assert_escape "\033", "e"
+    assert_escape "\377", "377"
+    assert_escape "\377", "xff"
+    assert_escape "\010", "b"
+    assert_escape " ",    "s"
+    assert_escape "q",    "q" # plain vanilla escape
   end
 
   def test_read_escape_c
-    util_escape "\030", "C-x"
-    util_escape "\030", "cx"
-    util_escape "\230", 'C-\M-x'
-    util_escape "\230", 'c\M-x'
+    assert_escape "\030", "C-x"
+    assert_escape "\030", "cx"
+    assert_escape "\230", 'C-\M-x'
+    assert_escape "\230", 'c\M-x'
 
-    util_escape "\177", "C-?"
-    util_escape "\177", "c?"
-    util_escape "\r",   "cM"
+    assert_escape "\177", "C-?"
+    assert_escape "\177", "c?"
+    assert_escape "\r",   "cM"
   end
 
   def test_read_escape_m
-    util_escape "\370", "M-x"
-    util_escape "\230", 'M-\C-x'
-    util_escape "\230", 'M-\cx'
+    assert_escape "\370", "M-x"
+    assert_escape "\230", 'M-\C-x'
+    assert_escape "\230", 'M-\cx'
   end
 
   def test_read_escape_errors
-    util_escape_bad ""
+    refute_escape ""
 
-    util_escape_bad "M"
-    util_escape_bad "M-"
-    util_escape_bad "Mx"
+    refute_escape "M"
+    refute_escape "M-"
+    refute_escape "Mx"
 
-    util_escape_bad "Cx"
-    util_escape_bad "C"
-    util_escape_bad "C-"
+    refute_escape "Cx"
+    refute_escape "C"
+    refute_escape "C-"
 
-    util_escape_bad "c"
+    refute_escape "c"
   end
 
   def test_read_escape_unicode__19
     if RUBY_VERSION >= '1.9'
-      util_escape "\x09", 'u{9}'
-      util_escape "\x31", 'u{31}'
-      util_escape "\x09\x01", 'u{9 1}'
+      assert_escape "\x09", 'u{9}'
+      assert_escape "\x31", 'u{31}'
+      assert_escape "\x09\x01", 'u{9 1}'
 
-      util_escape "\xc4\xa3", utf('u0123')
-      util_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", utf('u{123 f0 B123}')
+      assert_escape "\xc4\xa3", utf('u0123')
+      assert_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", utf('u{123 f0 B123}')
     end
   end
 
   def test_read_escape_unicode_bad__19
     if RUBY_VERSION >= '1.9'
-      util_escape_bad 'u123'
-      util_escape_bad 'u{}'
-      util_escape_bad 'u{123 f0h}'
-      util_escape_bad 'u{123 f0'
+      refute_escape 'u123'
+      refute_escape 'u{}'
+      refute_escape 'u{123 f0h}'
+      refute_escape 'u{123 f0'
     end
   end
 
   def test_ambiguous_uminus
-    util_lex_token("m -3",
+    assert_scanned("m -3",
                    :tIDENTIFIER, "m",
                    :tUMINUS_NUM, "-",
                    :tINTEGER, 3)
   end
 
   def test_ambiguous_uplus
-    util_lex_token("m +3",
+    assert_scanned("m +3",
                    :tIDENTIFIER, "m",
                    :tINTEGER, 3)
   end
 
   def test_and
-    util_lex_token "&", :tAMPER, "&"
+    assert_scanned "&", :tAMPER, "&"
   end
 
   def test_and2
     @lex.state = :expr_end
 
-    util_lex_token "&&", :tANDOP, "&&"
+    assert_scanned "&&", :tANDOP, "&&"
   end
 
   def test_and2_equals
     @lex.state = :expr_end
 
-    util_lex_token "&&=", :tOP_ASGN, "&&"
+    assert_scanned "&&=", :tOP_ASGN, "&&"
   end
 
   def test_and_arg
     @lex.state = :expr_arg
 
-    util_lex_token(" &y",
+    assert_scanned(" &y",
                    :tAMPER, "&",
                    :tIDENTIFIER, "y")
   end
@@ -206,35 +206,35 @@ class TestLexer < Minitest::Test
   def test_and_equals
     @lex.state = :expr_end
 
-    util_lex_token "&=", :tOP_ASGN, "&"
+    assert_scanned "&=", :tOP_ASGN, "&"
   end
 
   def test_and_expr
     @lex.state = :expr_arg
 
-    util_lex_token("x & y",
+    assert_scanned("x & y",
                    :tIDENTIFIER, "x",
                    :tAMPER2, "&",
                    :tIDENTIFIER, "y")
   end
 
   def test_and_meth
-    util_lex_fname "&", :tAMPER2
+    assert_lex_fname "&", :tAMPER2
   end
 
   def test_assoc
-    util_lex_token "=>", :tASSOC, "=>"
+    assert_scanned "=>", :tASSOC, "=>"
   end
 
   def test_label__18
-    util_lex_token("{a:b",
+    assert_scanned("{a:b",
                    :tLBRACE,     "{",
                    :tIDENTIFIER, "a",
                    :tSYMBOL,     "b")
   end
 
   def test_label_in_params__18
-    util_lex_token("foo(a:b",
+    assert_scanned("foo(a:b",
                    :tIDENTIFIER, "foo",
                    :tLPAREN2,    "(",
                    :tIDENTIFIER, "a",
@@ -244,7 +244,7 @@ class TestLexer < Minitest::Test
   def test_label__19
     setup_lexer 19
 
-    util_lex_token("{a:b",
+    assert_scanned("{a:b",
                    :tLBRACE,     "{",
                    :tLABEL,      "a",
                    :tIDENTIFIER, "b")
@@ -253,7 +253,7 @@ class TestLexer < Minitest::Test
   def test_label_in_params__19
     setup_lexer 19
 
-    util_lex_token("foo(a:b",
+    assert_scanned("foo(a:b",
                    :tIDENTIFIER, "foo",
                    :tLPAREN2,    "(",
                    :tLABEL,      "a",
@@ -263,7 +263,7 @@ class TestLexer < Minitest::Test
   def test_label_fid__19
     setup_lexer 19
 
-    util_lex_token("{a?:true",
+    assert_scanned("{a?:true",
                    :tLBRACE,     '{',
                    :tLABEL,      'a?',
                    :kTRUE,       'true')
@@ -277,7 +277,7 @@ class TestLexer < Minitest::Test
       token = "k#{keyword.upcase}".to_sym
 
       @lex.reset
-      util_lex_token("#{keyword} a:b",
+      assert_scanned("#{keyword} a:b",
                      token,         keyword,
                      :tIDENTIFIER,  "a",
                      :tSYMBOL,      "b")
@@ -291,7 +291,7 @@ class TestLexer < Minitest::Test
       token = "k#{keyword.upcase}_MOD".to_sym
 
       @lex.state = :expr_end
-      util_lex_token("#{keyword} a:b",
+      assert_scanned("#{keyword} a:b",
                      token,         keyword,
                      :tLABEL,       "a",
                      :tIDENTIFIER,  "b")
@@ -299,7 +299,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_back_ref
-    util_lex_token("[$&, $`, $', $+]",
+    assert_scanned("[$&, $`, $', $+]",
                    :tLBRACK,   "[",
                    :tBACK_REF, "$&", :tCOMMA, ",",
                    :tBACK_REF, "$`", :tCOMMA, ",",
@@ -309,19 +309,19 @@ class TestLexer < Minitest::Test
   end
 
   def test_backslash
-    util_lex_token("1 \\\n+ 2",
+    assert_scanned("1 \\\n+ 2",
                    :tINTEGER, 1,
                    :tPLUS, "+",
                    :tINTEGER, 2)
   end
 
   def test_backslash_bad
-    util_bad_token("1 \\ + 2",
+    refute_scanned("1 \\ + 2",
                    :tINTEGER, 1)
   end
 
   def test_backtick
-    util_lex_token("`ls`",
+    assert_scanned("`ls`",
                    :tXSTRING_BEG, "`",
                    :tSTRING_CONTENT, "ls",
                    :tSTRING_END, "`")
@@ -329,14 +329,14 @@ class TestLexer < Minitest::Test
 
   def test_backtick_cmdarg
     @lex.state = :expr_dot
-    util_lex_token("\n`", :tBACK_REF2, "`") # \n ensures expr_cmd
+    assert_scanned("\n`", :tBACK_REF2, "`") # \n ensures expr_cmd
 
     assert_equal :expr_arg, @lex.state
   end
 
   def test_backtick_dot
     @lex.state = :expr_dot
-    util_lex_token("a.`(3)",
+    assert_scanned("a.`(3)",
                    :tIDENTIFIER, "a",
                    :tDOT, ".",
                    :tBACK_REF2, "`",
@@ -347,70 +347,70 @@ class TestLexer < Minitest::Test
 
   def test_backtick_method
     @lex.state = :expr_fname
-    util_lex_token("`", :tBACK_REF2, "`")
+    assert_scanned("`", :tBACK_REF2, "`")
     assert_equal :expr_endfn, @lex.state
   end
 
   def test_bad_char
-    util_bad_token(" \010 ")
+    refute_scanned(" \010 ")
   end
 
   def test_bang
-    util_lex_token "!", :tBANG, "!"
+    assert_scanned "!", :tBANG, "!"
   end
 
   def test_bang_equals
-    util_lex_token "!=", :tNEQ, "!="
+    assert_scanned "!=", :tNEQ, "!="
   end
 
   def test_bang_tilde
-    util_lex_token "!~", :tNMATCH, "!~"
+    assert_scanned "!~", :tNMATCH, "!~"
   end
 
   def test_def_ubang
     setup_lexer(20)
 
     @lex.state = :expr_fname
-    util_lex_token '!@', :tBANG, '!@'
+    assert_scanned '!@', :tBANG, '!@'
   end
 
   def test_carat
-    util_lex_token "^", :tCARET, "^"
+    assert_scanned "^", :tCARET, "^"
   end
 
   def test_carat_equals
-    util_lex_token "^=", :tOP_ASGN, "^"
+    assert_scanned "^=", :tOP_ASGN, "^"
   end
 
   def test_colon2
-    util_lex_token("A::B",
+    assert_scanned("A::B",
                    :tCONSTANT, "A",
                    :tCOLON2,   "::",
                    :tCONSTANT, "B")
 
     @lex.state = :expr_arg
-    util_lex_token("::Array",
+    assert_scanned("::Array",
                    :tCOLON2, "::",
                    :tCONSTANT, "Array")
   end
 
   def test_colon3
-    util_lex_token("::Array",
+    assert_scanned("::Array",
                    :tCOLON3, "::",
                    :tCONSTANT, "Array")
 
     @lex.state = :expr_arg
-    util_lex_token(" ::Array",
+    assert_scanned(" ::Array",
                    :tCOLON3, "::",
                    :tCONSTANT, "Array")
   end
 
   def test_comma
-    util_lex_token ",", :tCOMMA, ","
+    assert_scanned ",", :tCOMMA, ","
   end
 
   def test_comment
-    util_lex_token("1 # one\n# two\n2",
+    assert_scanned("1 # one\n# two\n2",
                    :tINTEGER, 1,
                    :tNL, nil,
                    :tINTEGER, 2)
@@ -421,24 +421,24 @@ class TestLexer < Minitest::Test
   end
 
   def test_comment_expr_beg
-    util_lex_token("{#1\n}",
+    assert_scanned("{#1\n}",
                    :tLBRACE, "{",
                    :tRCURLY, "}")
   end
 
   def test_comment_begin
-    util_lex_token("=begin\nblah\nblah\n=end\n42",
+    assert_scanned("=begin\nblah\nblah\n=end\n42",
                    :tINTEGER, 42)
     assert_equal 1, @lex.comments.length
     assert_equal "=begin\nblah\nblah\n=end\n", @lex.comments[0].text
   end
 
   def test_comment_begin_bad
-    util_bad_token("=begin\nblah\nblah\n")
+    refute_scanned("=begin\nblah\nblah\n")
   end
 
   def test_comment_begin_not_comment
-    util_lex_token("beginfoo = 5\np x \\\n=beginfoo",
+    assert_scanned("beginfoo = 5\np x \\\n=beginfoo",
                    :tIDENTIFIER, "beginfoo",
                    :tEQL,          "=",
                    :tINTEGER,    5,
@@ -450,58 +450,58 @@ class TestLexer < Minitest::Test
   end
 
   def test_comment_begin_space
-    util_lex_token("=begin blah\nblah\n=end\n")
+    assert_scanned("=begin blah\nblah\n=end\n")
 
     assert_equal 1, @lex.comments.length
     assert_equal "=begin blah\nblah\n=end\n", @lex.comments[0].text
   end
 
   def test_comment_end_space_and_text
-    util_lex_token("=begin blah\nblah\n=end blab\n")
+    assert_scanned("=begin blah\nblah\n=end blab\n")
 
     assert_equal 1, @lex.comments.length
     assert_equal "=begin blah\nblah\n=end blab\n", @lex.comments[0].text
   end
 
   def test_comment_eos
-    util_lex_token("# comment")
+    assert_scanned("# comment")
   end
 
   def test_constant
-    util_lex_token("ArgumentError",
+    assert_scanned("ArgumentError",
                    :tCONSTANT, "ArgumentError")
   end
 
   def test_constant_semi
-    util_lex_token("ArgumentError;",
+    assert_scanned("ArgumentError;",
                    :tCONSTANT, "ArgumentError",
                    :tSEMI, ";")
   end
 
   def test_cvar
-    util_lex_token "@@blah", :tCVAR, "@@blah"
+    assert_scanned "@@blah", :tCVAR, "@@blah"
   end
 
   def test_cvar_bad
-    util_bad_token "@@1"
+    refute_scanned "@@1"
   end
 
   def test_div
-    util_lex_token("a / 2",
+    assert_scanned("a / 2",
                    :tIDENTIFIER, "a",
                    :tDIVIDE, "/",
                    :tINTEGER, 2)
   end
 
   def test_div_equals
-    util_lex_token("a /= 2",
+    assert_scanned("a /= 2",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "/",
                    :tINTEGER, 2)
   end
 
   def test_do
-    util_lex_token("x do 42 end",
+    assert_scanned("x do 42 end",
                    :tIDENTIFIER, "x",
                    :kDO, "do",
                    :tINTEGER, 42,
@@ -511,7 +511,7 @@ class TestLexer < Minitest::Test
   def test_do_cond
     @lex.cond.push(true)
 
-    util_lex_token("x do 42 end",
+    assert_scanned("x do 42 end",
                    :tIDENTIFIER, "x",
                    :kDO_COND, "do",
                    :tINTEGER, 42,
@@ -521,7 +521,7 @@ class TestLexer < Minitest::Test
   def test_do_block
     @lex.state = :expr_endarg
 
-    util_lex_token("do 42 end",
+    assert_scanned("do 42 end",
                    :kDO_BLOCK, "do",
                    :tINTEGER, 42,
                    :kEND, "end")
@@ -530,7 +530,7 @@ class TestLexer < Minitest::Test
   def test_do_cond
     @lex.cond.push true
 
-    util_lex_token("x do 42 end",
+    assert_scanned("x do 42 end",
                    :tIDENTIFIER, "x",
                    :kDO_COND, "do",
                    :tINTEGER, 42,
@@ -538,150 +538,150 @@ class TestLexer < Minitest::Test
   end
 
   def test_dot
-    util_lex_token ".", :tDOT, "."
+    assert_scanned ".", :tDOT, "."
   end
 
   def test_dot2
-    util_lex_token "..", :tDOT2, ".."
+    assert_scanned "..", :tDOT2, ".."
   end
 
   def test_dot3
-    util_lex_token "...", :tDOT3, "..."
+    assert_scanned "...", :tDOT3, "..."
   end
 
   def test_equals
-    util_lex_token "=", :tEQL, "="
+    assert_scanned "=", :tEQL, "="
   end
 
   def test_equals2
-    util_lex_token "==", :tEQ, "=="
+    assert_scanned "==", :tEQ, "=="
   end
 
   def test_equals3
-    util_lex_token "===", :tEQQ, "==="
+    assert_scanned "===", :tEQQ, "==="
   end
 
   def test_equals_tilde
-    util_lex_token "=~", :tMATCH, "=~"
+    assert_scanned "=~", :tMATCH, "=~"
   end
 
   def test_float
-    util_lex_token "1.0", :tFLOAT, 1.0
+    assert_scanned "1.0", :tFLOAT, 1.0
   end
 
   def test_float_bad_no_underscores
-    util_bad_token "1__0.0"
+    refute_scanned "1__0.0"
   end
 
   def test_float_bad_no_zero_leading
-    util_bad_token ".0"
+    refute_scanned ".0"
   end
 
   def test_float_bad_trailing_underscore
-    util_bad_token "123_.0"
+    refute_scanned "123_.0"
   end
 
   def test_float_call
-    util_lex_token("1.0.to_s",
+    assert_scanned("1.0.to_s",
                    :tFLOAT, 1.0,
                    :tDOT, ".",
                    :tIDENTIFIER, "to_s")
   end
 
   def test_float_dot_E
-    util_lex_token "1.0E10", :tFLOAT, 1.0e10
+    assert_scanned "1.0E10", :tFLOAT, 1.0e10
   end
 
   def test_float_dot_E_neg
-    util_lex_token("-1.0E10",
+    assert_scanned("-1.0E10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1.0e10)
   end
 
   def test_float_dot_e
-    util_lex_token "1.0e10", :tFLOAT, 1.0e10
+    assert_scanned "1.0e10", :tFLOAT, 1.0e10
   end
 
   def test_float_dot_e_neg
-    util_lex_token("-1.0e10",
+    assert_scanned("-1.0e10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1.0e10)
   end
 
   def test_float_e
-    util_lex_token "1e10", :tFLOAT, 1e10
+    assert_scanned "1e10", :tFLOAT, 1e10
   end
 
   def test_float_e_bad_trailing_underscore
-    util_bad_token "123_e10"
+    refute_scanned "123_e10"
   end
 
   def test_float_e_minus
-    util_lex_token "1e-10", :tFLOAT, 1e-10
+    assert_scanned "1e-10", :tFLOAT, 1e-10
   end
 
   def test_float_e_neg
-    util_lex_token("-1e10",
+    assert_scanned("-1e10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1e10)
   end
 
   def test_float_e_neg_minus
-    util_lex_token("-1e-10",
+    assert_scanned("-1e-10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1e-10)
   end
 
   def test_float_e_neg_plus
-    util_lex_token("-1e+10",
+    assert_scanned("-1e+10",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1e10)
   end
 
   def test_float_e_plus
-    util_lex_token "1e+10", :tFLOAT, 1e10
+    assert_scanned "1e+10", :tFLOAT, 1e10
   end
 
   def test_float_e_zero
-    util_lex_token "0e0", :tFLOAT, 0e0
+    assert_scanned "0e0", :tFLOAT, 0e0
   end
 
   def test_float_neg
-    util_lex_token("-1.0",
+    assert_scanned("-1.0",
                    :tUMINUS_NUM, "-",
                    :tFLOAT, 1.0)
   end
 
   def test_ge
-    util_lex_token("a >= 2",
+    assert_scanned("a >= 2",
                    :tIDENTIFIER, "a",
                    :tGEQ, ">=",
                    :tINTEGER, 2)
   end
 
   def test_global
-    util_lex_token("$blah", :tGVAR, "$blah")
+    assert_scanned("$blah", :tGVAR, "$blah")
   end
 
   def test_global_backref
-    util_lex_token("$`", :tBACK_REF, "$`")
+    assert_scanned("$`", :tBACK_REF, "$`")
   end
 
   # This was removed in 2.1.
   # def test_global_dash_nothing
-  #   util_lex_token("$- ", :tGVAR, "$-")
+  #   assert_scanned("$- ", :tGVAR, "$-")
   # end
 
   def test_global_dash_something
-    util_lex_token("$-x", :tGVAR, "$-x")
+    assert_scanned("$-x", :tGVAR, "$-x")
   end
 
   def test_global_number
-    util_lex_token("$10", :tNTH_REF, 10)
+    assert_scanned("$10", :tNTH_REF, 10)
   end
 
   def test_global_other
-    util_lex_token("[$~, $*, $$, $?, $!, $@, $/, $\\, $;, $,, $., $=, $:, $<, $>, $\"]",
+    assert_scanned("[$~, $*, $$, $?, $!, $@, $/, $\\, $;, $,, $., $=, $:, $<, $>, $\"]",
                    :tLBRACK, "[",
                    :tGVAR,   "$~",  :tCOMMA, ",",
                    :tGVAR,   "$*",  :tCOMMA, ",",
@@ -703,28 +703,28 @@ class TestLexer < Minitest::Test
   end
 
   def test_global_underscore
-    util_lex_token("$_",
+    assert_scanned("$_",
                    :tGVAR,     "$_")
   end
 
   def test_global_wierd
-    util_lex_token("$__blah",
+    assert_scanned("$__blah",
                    :tGVAR,     "$__blah")
   end
 
   def test_global_zero
-    util_lex_token("$0", :tGVAR, "$0")
+    assert_scanned("$0", :tGVAR, "$0")
   end
 
   def test_gt
-    util_lex_token("a > 2",
+    assert_scanned("a > 2",
                    :tIDENTIFIER, "a",
                    :tGT, ">",
                    :tINTEGER, 2)
   end
 
   def test_heredoc_backtick
-    util_lex_token("a = <<`EOF`\n  blah blah\nEOF\n",
+    assert_scanned("a = <<`EOF`\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tXSTRING_BEG,    "`",
@@ -734,7 +734,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_double
-    util_lex_token("a = <<\"EOF\"\n  blah blah\nEOF\n",
+    assert_scanned("a = <<\"EOF\"\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -744,7 +744,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_double_dash
-    util_lex_token("a = <<-\"EOF\"\n  blah blah\n  EOF\n",
+    assert_scanned("a = <<-\"EOF\"\n  blah blah\n  EOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -754,21 +754,21 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_double_eos
-    util_bad_token("a = <<\"EOF\"\nblah",
+    refute_scanned("a = <<\"EOF\"\nblah",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"")
   end
 
   def test_heredoc_double_eos_nl
-    util_bad_token("a = <<\"EOF\"\nblah\n",
+    refute_scanned("a = <<\"EOF\"\nblah\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"")
   end
 
   def test_heredoc_double_interp
-    util_lex_token("a = <<\"EOF\"\n#x a \#@a b \#$b c \#{3} \nEOF\n",
+    assert_scanned("a = <<\"EOF\"\n#x a \#@a b \#$b c \#{3} \nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -788,7 +788,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_empty
-    util_lex_token("<<\"\"\n\#{x}\nblah2\n\n",
+    assert_scanned("<<\"\"\n\#{x}\nblah2\n\n",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_DBEG,    "\#{",
                    :tIDENTIFIER,     "x",
@@ -800,7 +800,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_none
-    util_lex_token("a = <<EOF\nblah\nblah\nEOF",
+    assert_scanned("a = <<EOF\nblah\nblah\nEOF",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -811,7 +811,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_none_dash
-    util_lex_token("a = <<-EOF\nblah\nblah\n  EOF",
+    assert_scanned("a = <<-EOF\nblah\nblah\n  EOF",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -822,7 +822,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_single
-    util_lex_token("a = <<'EOF'\n  blah blah\nEOF\n",
+    assert_scanned("a = <<'EOF'\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "'",
@@ -832,14 +832,14 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_single_bad_eos_body
-    util_bad_token("a = <<'EOF'\nblah",
+    refute_scanned("a = <<'EOF'\nblah",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "'")
   end
 
   def test_heredoc_single_dash
-    util_lex_token("a = <<-'EOF'\n  blah blah\n  EOF\n",
+    assert_scanned("a = <<-'EOF'\n  blah blah\n  EOF\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "'",
@@ -849,7 +849,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_one_character
-    util_lex_token("a = <<E\nABCDEF\nE\n",
+    assert_scanned("a = <<E\nABCDEF\nE\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -859,7 +859,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_heredoc_cr
-    util_lex_token("a = <<E\r\r\nABCDEF\r\r\nE\r\r\r\n",
+    assert_scanned("a = <<E\r\r\nABCDEF\r\r\nE\r\r\r\n",
                    :tIDENTIFIER,     "a",
                    :tEQL,              "=",
                    :tSTRING_BEG,     "\"",
@@ -869,65 +869,65 @@ class TestLexer < Minitest::Test
   end
 
   def test_identifier
-    util_lex_token("identifier", :tIDENTIFIER, "identifier")
+    assert_scanned("identifier", :tIDENTIFIER, "identifier")
   end
 
   def test_identifier_bang
-    util_lex_token("identifier!",
+    assert_scanned("identifier!",
                    :tFID, "identifier!")
 
-    util_lex_token("identifier!=",
+    assert_scanned("identifier!=",
                    :tFID, "identifier",
                    :tNEQ, "!=")
   end
 
   def test_identifier_cmp
-    util_lex_fname "<=>", :tCMP
+    assert_lex_fname "<=>", :tCMP
   end
 
   def test_identifier_def
-    util_lex_fname "identifier", :tIDENTIFIER
+    assert_lex_fname "identifier", :tIDENTIFIER
   end
 
   def test_identifier_eh
-    util_lex_token("identifier?", :tFID, "identifier?")
+    assert_scanned("identifier?", :tFID, "identifier?")
   end
 
   def test_identifier_equals_arrow
-    util_lex_token(":blah==>",
+    assert_scanned(":blah==>",
                    :tSYMBOL, "blah=",
                    :tASSOC, "=>")
   end
 
   def test_identifier_equals3
-    util_lex_token(":a===b",
+    assert_scanned(":a===b",
                    :tSYMBOL, "a",
                    :tEQQ, "===",
                    :tIDENTIFIER, "b")
   end
 
   def test_identifier_equals_equals_arrow
-    util_lex_token(":a==>b",
+    assert_scanned(":a==>b",
                    :tSYMBOL, "a=",
                    :tASSOC, "=>",
                    :tIDENTIFIER, "b")
   end
 
   def test_identifier_equals_caret
-    util_lex_fname "^", :tCARET
+    assert_lex_fname "^", :tCARET
   end
 
   def test_identifier_equals_def
-    util_lex_fname "identifier=", :tIDENTIFIER
+    assert_lex_fname "identifier=", :tIDENTIFIER
   end
 
   def test_identifier_equals_def2
-    util_lex_fname "==", :tEQ
+    assert_lex_fname "==", :tEQ
   end
 
   def test_identifier_equals_expr
     @lex.state = :expr_dot
-    util_lex_token("y = arg",
+    assert_scanned("y = arg",
                    :tIDENTIFIER, "y",
                    :tEQL, "=",
                    :tIDENTIFIER, "arg")
@@ -936,209 +936,209 @@ class TestLexer < Minitest::Test
   end
 
   def test_identifier_equals_or
-    util_lex_fname "|", :tPIPE
+    assert_lex_fname "|", :tPIPE
   end
 
   def test_identifier_equals_slash
-    util_lex_fname "/", :tDIVIDE
+    assert_lex_fname "/", :tDIVIDE
   end
 
   def test_identifier_equals_tilde
     @lex.state = :expr_fname
-    util_lex_token("identifier=~",
+    assert_scanned("identifier=~",
                    :tIDENTIFIER, "identifier=",
                    :tTILDE,      "~")
   end
 
   def test_identifier_gt
-    util_lex_fname ">", :tGT
+    assert_lex_fname ">", :tGT
   end
 
   def test_identifier_le
-    util_lex_fname "<=", :tLEQ
+    assert_lex_fname "<=", :tLEQ
   end
 
   def test_identifier_lt
-    util_lex_fname "<", :tLT
+    assert_lex_fname "<", :tLT
   end
 
   def test_identifier_tilde
-    util_lex_fname "~", :tTILDE
+    assert_lex_fname "~", :tTILDE
   end
 
   def test_identifier_defined?
-    util_lex_fname "defined?", :kDEFINED
+    assert_lex_fname "defined?", :kDEFINED
   end
 
   def test_index
-    util_lex_fname "[]", :tAREF
+    assert_lex_fname "[]", :tAREF
   end
 
   def test_index_equals
-    util_lex_fname "[]=", :tASET
+    assert_lex_fname "[]=", :tASET
   end
 
   def test_integer
-    util_lex_token "42", :tINTEGER, 42
+    assert_scanned "42", :tINTEGER, 42
   end
 
   def test_integer_bin
-    util_lex_token "0b101010", :tINTEGER, 42
+    assert_scanned "0b101010", :tINTEGER, 42
   end
 
   def test_integer_bin_bad_none
-    util_bad_token "0b "
+    refute_scanned "0b "
   end
 
   def test_integer_bin_bad_underscores
-    util_bad_token "0b10__01"
+    refute_scanned "0b10__01"
   end
 
   def test_integer_dec
-    util_lex_token "42", :tINTEGER, 42
+    assert_scanned "42", :tINTEGER, 42
   end
 
   def test_integer_dec_bad_underscores
-    util_bad_token "42__24"
+    refute_scanned "42__24"
   end
 
   def test_integer_dec_d
-    util_lex_token "0d42", :tINTEGER, 42
+    assert_scanned "0d42", :tINTEGER, 42
   end
 
   def test_integer_dec_d_bad_none
-    util_bad_token "0d"
+    refute_scanned "0d"
   end
 
   def test_integer_dec_d_bad_underscores
-    util_bad_token "0d42__24"
+    refute_scanned "0d42__24"
   end
 
   def test_question_eh_a__18
     setup_lexer 18
 
-    util_lex_token "?a", :tINTEGER, 97
+    assert_scanned "?a", :tINTEGER, 97
   end
 
   def test_question_eh_a__19
     setup_lexer 19
 
-    util_lex_token '?a', :tSTRING, "a"
+    assert_scanned '?a', :tSTRING, "a"
   end
 
   def test_question_eh_escape_M_escape_C__18
     setup_lexer 18
 
-    util_lex_token '?\M-\C-a', :tINTEGER, 129
+    assert_scanned '?\M-\C-a', :tINTEGER, 129
   end
 
   def test_question_eh_escape_M_escape_C__19
     setup_lexer 19
 
-    util_lex_token '?\M-\C-a', :tSTRING, "\M-\C-a"
+    assert_scanned '?\M-\C-a', :tSTRING, "\M-\C-a"
   end
 
   def test_integer_hex
-    util_lex_token "0x2a", :tINTEGER, 42
+    assert_scanned "0x2a", :tINTEGER, 42
   end
 
   def test_integer_hex_bad_none
-    util_bad_token "0x "
+    refute_scanned "0x "
   end
 
   def test_integer_hex_bad_underscores
-    util_bad_token "0xab__cd"
+    refute_scanned "0xab__cd"
   end
 
   def test_integer_oct
-    util_lex_token "052", :tINTEGER, 42
+    assert_scanned "052", :tINTEGER, 42
   end
 
   def test_integer_oct_bad_range
-    util_bad_token "08"
+    refute_scanned "08"
   end
 
   def test_integer_oct_bad_underscores
-    util_bad_token "01__23"
+    refute_scanned "01__23"
   end
 
   def test_integer_oct_O
-    util_lex_token "0O52", :tINTEGER, 42
+    assert_scanned "0O52", :tINTEGER, 42
   end
 
   def test_integer_oct_O_bad_range
-    util_bad_token "0O1238"
+    refute_scanned "0O1238"
   end
 
   def test_integer_oct_O_bad_underscores
-    util_bad_token "0O1__23"
+    refute_scanned "0O1__23"
   end
 
   def test_integer_oct_O_not_bad_none
-    util_lex_token "0O ", :tINTEGER, 0
+    assert_scanned "0O ", :tINTEGER, 0
   end
 
   def test_integer_oct_o
-    util_lex_token "0o52", :tINTEGER, 42
+    assert_scanned "0o52", :tINTEGER, 42
   end
 
   def test_integer_oct_o_bad_range
-    util_bad_token "0o1283"
+    refute_scanned "0o1283"
   end
 
   def test_integer_oct_o_bad_underscores
-    util_bad_token "0o1__23"
+    refute_scanned "0o1__23"
   end
 
   def test_integer_oct_o_not_bad_none
-    util_lex_token "0o ", :tINTEGER, 0
+    assert_scanned "0o ", :tINTEGER, 0
   end
 
   def test_integer_trailing
-    util_lex_token("1.to_s",
+    assert_scanned("1.to_s",
                    :tINTEGER, 1,
                    :tDOT, '.',
                    :tIDENTIFIER, 'to_s')
   end
 
   def test_integer_underscore
-    util_lex_token "4_2", :tINTEGER, 42
+    assert_scanned "4_2", :tINTEGER, 42
   end
 
   def test_integer_underscore_bad
-    util_bad_token "4__2"
+    refute_scanned "4__2"
   end
 
   def test_integer_zero
-    util_lex_token "0", :tINTEGER, 0
+    assert_scanned "0", :tINTEGER, 0
   end
 
   def test_ivar
-    util_lex_token "@blah", :tIVAR, "@blah"
+    assert_scanned "@blah", :tIVAR, "@blah"
   end
 
   def test_ivar_bad
-    util_bad_token "@1"
+    refute_scanned "@1"
   end
 
   def test_ivar_bad_0_length
-    util_bad_token "1+@\n", :tINTEGER, 1, :tPLUS, "+"
+    refute_scanned "1+@\n", :tINTEGER, 1, :tPLUS, "+"
   end
 
   def test_keyword_expr
     @lex.state = :expr_endarg
 
-    util_lex_token("if", :kIF_MOD, "if")
+    assert_scanned("if", :kIF_MOD, "if")
 
     assert_equal :expr_beg, @lex.state
   end
 
   def test_lt
-    util_lex_token "<", :tLT, "<"
+    assert_scanned "<", :tLT, "<"
   end
 
   def test_lt2
-    util_lex_token("a <\< b",
+    assert_scanned("a <\< b",
                    :tIDENTIFIER, "a",
                    :tLSHFT, "<\<",
                    :tIDENTIFIER, "b")
@@ -1146,18 +1146,18 @@ class TestLexer < Minitest::Test
   end
 
   def test_lt2_equals
-    util_lex_token("a <\<= b",
+    assert_scanned("a <\<= b",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "<\<",
                    :tIDENTIFIER, "b")
   end
 
   def test_lt_equals
-    util_lex_token "<=", :tLEQ, "<="
+    assert_scanned "<=", :tLEQ, "<="
   end
 
   def test_minus
-    util_lex_token("1 - 2",
+    assert_scanned("1 - 2",
                    :tINTEGER, 1,
                    :tMINUS, "-",
                    :tINTEGER, 2)
@@ -1166,27 +1166,27 @@ class TestLexer < Minitest::Test
   def test_minus_equals
     @lex.state = :expr_end
 
-    util_lex_token "-=", :tOP_ASGN, "-"
+    assert_scanned "-=", :tOP_ASGN, "-"
   end
 
   def test_minus_method
     @lex.state = :expr_fname
-    util_lex_token "-", :tMINUS, "-"
+    assert_scanned "-", :tMINUS, "-"
   end
 
   def test_minus_unary_method
     @lex.state = :expr_fname
-    util_lex_token "-@", :tUMINUS, "-@"
+    assert_scanned "-@", :tUMINUS, "-@"
   end
 
   def test_minus_unary_number
-    util_lex_token("-42",
+    assert_scanned("-42",
                    :tUMINUS_NUM, "-",
                    :tINTEGER, 42)
   end
 
   def test_nth_ref
-    util_lex_token('[$1, $2, $3]',
+    assert_scanned('[$1, $2, $3]',
                    :tLBRACK,  "[",
                    :tNTH_REF, 1, :tCOMMA, ",",
                    :tNTH_REF, 2, :tCOMMA, ",",
@@ -1195,26 +1195,26 @@ class TestLexer < Minitest::Test
   end
 
   def test_open_bracket
-    util_lex_token("(", :tLPAREN, "(")
+    assert_scanned("(", :tLPAREN, "(")
   end
 
   def test_open_bracket_cmdarg
-    util_lex_token("m (", :tIDENTIFIER, "m",
+    assert_scanned("m (", :tIDENTIFIER, "m",
                           :tLPAREN_ARG, "(")
   end
 
   def test_open_bracket_exprarg
-    util_lex_token("m(", :tIDENTIFIER, "m",
+    assert_scanned("m(", :tIDENTIFIER, "m",
                           :tLPAREN2, "(")
   end
 
   def test_open_curly_bracket
-    util_lex_token("{",
+    assert_scanned("{",
                    :tLBRACE, "{")
   end
 
   def test_open_curly_bracket_arg
-    util_lex_token("m { 3 }",
+    assert_scanned("m { 3 }",
                    :tIDENTIFIER, "m",
                    :tLCURLY, "{",
                    :tINTEGER, 3,
@@ -1224,14 +1224,14 @@ class TestLexer < Minitest::Test
   def test_open_curly_bracket_block
     @lex.state = :expr_endarg # seen m(3)
 
-    util_lex_token("{ 4 }",
+    assert_scanned("{ 4 }",
                    :tLBRACE_ARG, "{",
                    :tINTEGER, 4,
                    :tRCURLY, "}")
   end
 
   def test_open_square_bracket_arg
-    util_lex_token("m [ 3 ]",
+    assert_scanned("m [ 3 ]",
                    :tIDENTIFIER, "m",
                    :tLBRACK, "[",
                    :tINTEGER, 3,
@@ -1239,7 +1239,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_open_square_bracket_ary
-    util_lex_token("[1, 2, 3]",
+    assert_scanned("[1, 2, 3]",
                    :tLBRACK, "[",
                    :tINTEGER, 1,
                    :tCOMMA, ",",
@@ -1250,7 +1250,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_open_square_bracket_meth
-    util_lex_token("m[3]",
+    assert_scanned("m[3]",
                    :tIDENTIFIER, "m",
                    :tLBRACK2, "[",
                    :tINTEGER, 3,
@@ -1258,37 +1258,37 @@ class TestLexer < Minitest::Test
   end
 
   def test_or
-    util_lex_token "|", :tPIPE, "|"
+    assert_scanned "|", :tPIPE, "|"
   end
 
   def test_or2
-    util_lex_token "||", :tOROP, "||"
+    assert_scanned "||", :tOROP, "||"
   end
 
   def test_or2_equals
-    util_lex_token "||=", :tOP_ASGN, "||"
+    assert_scanned "||=", :tOP_ASGN, "||"
   end
 
   def test_or_equals
-    util_lex_token "|=", :tOP_ASGN, "|"
+    assert_scanned "|=", :tOP_ASGN, "|"
   end
 
   def test_percent
-    util_lex_token("a % 2",
+    assert_scanned("a % 2",
                    :tIDENTIFIER, "a",
                    :tPERCENT, "%",
                    :tINTEGER, 2)
   end
 
   def test_percent_equals
-    util_lex_token("a %= 2",
+    assert_scanned("a %= 2",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "%",
                    :tINTEGER, 2)
   end
 
   def test_plus
-    util_lex_token("1 + 1",
+    assert_scanned("1 + 1",
                    :tINTEGER, 1,
                    :tPLUS, "+",
                    :tINTEGER, 1)
@@ -1297,137 +1297,137 @@ class TestLexer < Minitest::Test
   def test_plus_equals
     @lex.state = :expr_end
 
-    util_lex_token "+=", :tOP_ASGN, "+"
+    assert_scanned "+=", :tOP_ASGN, "+"
   end
 
   def test_plus_method
     @lex.state = :expr_fname
-    util_lex_token "+", :tPLUS, "+"
+    assert_scanned "+", :tPLUS, "+"
   end
 
   def test_plus_unary_method
     @lex.state = :expr_fname
-    util_lex_token "+@", :tUPLUS, "+@"
+    assert_scanned "+@", :tUPLUS, "+@"
   end
 
   def test_numbers
-    util_lex_token "0b10", :tINTEGER, 2
-    util_lex_token "0B10", :tINTEGER, 2
+    assert_scanned "0b10", :tINTEGER, 2
+    assert_scanned "0B10", :tINTEGER, 2
 
-    util_lex_token "0d10", :tINTEGER, 10
-    util_lex_token "0D10", :tINTEGER, 10
+    assert_scanned "0d10", :tINTEGER, 10
+    assert_scanned "0D10", :tINTEGER, 10
 
-    util_lex_token "0x10", :tINTEGER, 16
-    util_lex_token "0X10", :tINTEGER, 16
+    assert_scanned "0x10", :tINTEGER, 16
+    assert_scanned "0X10", :tINTEGER, 16
 
-    util_lex_token "0o10", :tINTEGER, 8
-    util_lex_token "0O10", :tINTEGER, 8
-    util_lex_token "0o",   :tINTEGER, 0
-    util_lex_token "0O",   :tINTEGER, 0
+    assert_scanned "0o10", :tINTEGER, 8
+    assert_scanned "0O10", :tINTEGER, 8
+    assert_scanned "0o",   :tINTEGER, 0
+    assert_scanned "0O",   :tINTEGER, 0
 
-    util_lex_token "0o",   :tINTEGER, 0
-    util_lex_token "0O",   :tINTEGER, 0
+    assert_scanned "0o",   :tINTEGER, 0
+    assert_scanned "0O",   :tINTEGER, 0
 
-    util_lex_token "0777_333", :tINTEGER, 261851
+    assert_scanned "0777_333", :tINTEGER, 261851
 
-    util_lex_token "0",    :tINTEGER, 0
+    assert_scanned "0",    :tINTEGER, 0
 
-    util_bad_token "0x"
-    util_bad_token "0X"
-    util_bad_token "0b"
-    util_bad_token "0B"
-    util_bad_token "0d"
-    util_bad_token "0D"
+    refute_scanned "0x"
+    refute_scanned "0X"
+    refute_scanned "0b"
+    refute_scanned "0B"
+    refute_scanned "0d"
+    refute_scanned "0D"
 
-    util_bad_token "08"
-    util_bad_token "09"
-    util_bad_token "0o8"
-    util_bad_token "0o9"
-    util_bad_token "0O8"
-    util_bad_token "0O9"
+    refute_scanned "08"
+    refute_scanned "09"
+    refute_scanned "0o8"
+    refute_scanned "0o9"
+    refute_scanned "0O8"
+    refute_scanned "0O9"
 
-    util_bad_token "1_e1"
-    util_bad_token "1_.1"
-    util_bad_token "1__1"
+    refute_scanned "1_e1"
+    refute_scanned "1_.1"
+    refute_scanned "1__1"
 
-    util_bad_token "1end"
-    util_bad_token "1.1end"
+    refute_scanned "1end"
+    refute_scanned "1.1end"
   end
 
   def test_plus_unary_number
-    util_lex_token("+42",
+    assert_scanned("+42",
                    :tINTEGER, 42)
   end
 
   def test_question__18
     setup_lexer 18
 
-    util_lex_token "?*", :tINTEGER, 42
+    assert_scanned "?*", :tINTEGER, 42
   end
 
   def test_question__19
     setup_lexer 19
 
-    util_lex_token "?*", :tSTRING, "*"
+    assert_scanned "?*", :tSTRING, "*"
   end
 
   def test_question_bad_eos
-    util_bad_token "?"
+    refute_scanned "?"
   end
 
   def test_question_bad_ws
-    util_lex_token "? ",  :tEH, "?"
-    util_lex_token "?\n", :tEH, "?"
-    util_lex_token "?\t", :tEH, "?"
-    util_lex_token "?\v", :tEH, "?"
-    util_lex_token "?\r", :tEH, "?"
-    util_lex_token "?\f", :tEH, "?"
+    assert_scanned "? ",  :tEH, "?"
+    assert_scanned "?\n", :tEH, "?"
+    assert_scanned "?\t", :tEH, "?"
+    assert_scanned "?\v", :tEH, "?"
+    assert_scanned "?\r", :tEH, "?"
+    assert_scanned "?\f", :tEH, "?"
   end
 
   def test_question_ws_backslashed__18
     setup_lexer 18
 
     @lex.state = :expr_beg
-    util_lex_token "?\\ ", :tINTEGER, 32
+    assert_scanned "?\\ ", :tINTEGER, 32
     @lex.state = :expr_beg
-    util_lex_token "?\\n", :tINTEGER, 10
+    assert_scanned "?\\n", :tINTEGER, 10
     @lex.state = :expr_beg
-    util_lex_token "?\\t", :tINTEGER, 9
+    assert_scanned "?\\t", :tINTEGER, 9
     @lex.state = :expr_beg
-    util_lex_token "?\\v", :tINTEGER, 11
+    assert_scanned "?\\v", :tINTEGER, 11
     @lex.state = :expr_beg
-    util_lex_token "?\\r", :tINTEGER, 13
+    assert_scanned "?\\r", :tINTEGER, 13
     @lex.state = :expr_beg
-    util_lex_token "?\\f", :tINTEGER, 12
+    assert_scanned "?\\f", :tINTEGER, 12
   end
 
   def test_question_ws_backslashed__19
     setup_lexer 19
 
     @lex.state = :expr_beg
-    util_lex_token "?\\ ", :tSTRING, " "
+    assert_scanned "?\\ ", :tSTRING, " "
     @lex.state = :expr_beg
-    util_lex_token "?\\n", :tSTRING, "\n"
+    assert_scanned "?\\n", :tSTRING, "\n"
     @lex.state = :expr_beg
-    util_lex_token "?\\t", :tSTRING, "\t"
+    assert_scanned "?\\t", :tSTRING, "\t"
     @lex.state = :expr_beg
-    util_lex_token "?\\v", :tSTRING, "\v"
+    assert_scanned "?\\v", :tSTRING, "\v"
     @lex.state = :expr_beg
-    util_lex_token "?\\r", :tSTRING, "\r"
+    assert_scanned "?\\r", :tSTRING, "\r"
     @lex.state = :expr_beg
-    util_lex_token "?\\f", :tSTRING, "\f"
+    assert_scanned "?\\f", :tSTRING, "\f"
   end
 
   def test_rbracket
-    util_lex_token "]", :tRBRACK, "]"
+    assert_scanned "]", :tRBRACK, "]"
   end
 
   def test_rcurly
-    util_lex_token "}", :tRCURLY, "}"
+    assert_scanned "}", :tRCURLY, "}"
   end
 
   def test_regexp
-    util_lex_token("/regexp/",
+    assert_scanned("/regexp/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regexp",
                    :tSTRING_END,     "/",
@@ -1435,7 +1435,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_ambiguous
-    util_lex_token("method /regexp/",
+    assert_scanned("method /regexp/",
                    :tIDENTIFIER,     "method",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regexp",
@@ -1444,14 +1444,14 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_bad
-    util_bad_token("/.*/xyz",
+    refute_scanned("/.*/xyz",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, ".*",
                    :tSTRING_END,     "/")
   end
 
   def test_regexp_escape_C
-    util_lex_token('/regex\\C-x/',
+    assert_scanned('/regex\\C-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\C-x",
                    :tSTRING_END,     "/",
@@ -1459,7 +1459,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_C_M
-    util_lex_token('/regex\\C-\\M-x/',
+    assert_scanned('/regex\\C-\\M-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\C-\\M-x",
                    :tSTRING_END,     "/",
@@ -1467,7 +1467,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_C_M_craaaazy
-    util_lex_token("/regex\\C-\\\n\\M-x/",
+    assert_scanned("/regex\\C-\\\n\\M-x/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\C-\\M-x",
                    :tSTRING_END,     "/",
@@ -1475,27 +1475,27 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_C_bad_dash
-    util_bad_token '/regex\\Cx/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\Cx/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_C_bad_dash_eos
-    util_bad_token '/regex\\C-/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\C-/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_C_bad_dash_eos2
-    util_bad_token '/regex\\C-', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\C-', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_C_bad_eos
-    util_bad_token '/regex\\C/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\C/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_C_bad_eos2
-    util_bad_token '/regex\\c', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\c', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_M
-    util_lex_token('/regex\\M-x/',
+    assert_scanned('/regex\\M-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\M-x",
                    :tSTRING_END,     "/",
@@ -1503,7 +1503,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_M_C
-    util_lex_token('/regex\\M-\\C-x/',
+    assert_scanned('/regex\\M-\\C-x/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\M-\\C-x",
                    :tSTRING_END,     "/",
@@ -1511,23 +1511,23 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_M_bad_dash
-    util_bad_token '/regex\\Mx/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\Mx/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_M_bad_dash_eos
-    util_bad_token '/regex\\M-/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\M-/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_M_bad_dash_eos2
-    util_bad_token '/regex\\M-', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\M-', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_M_bad_eos
-    util_bad_token '/regex\\M/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\M/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_backslash_slash
-    util_lex_token('/\\//',
+    assert_scanned('/\\//',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, '\\/',
                    :tSTRING_END,     "/",
@@ -1535,7 +1535,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_backslash_terminator
-    util_lex_token('%r%blah\\%blah%',
+    assert_scanned('%r%blah\\%blah%',
                    :tREGEXP_BEG,     "%r%",
                    :tSTRING_CONTENT, "blah\\%blah",
                    :tSTRING_END,     "%",
@@ -1543,7 +1543,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_backslash_terminator_meta1
-    util_lex_token('%r{blah\\}blah}',
+    assert_scanned('%r{blah\\}blah}',
                    :tREGEXP_BEG,     "%r{",
                    :tSTRING_CONTENT, "blah\\}blah",
                    :tSTRING_END,     "}",
@@ -1551,7 +1551,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_backslash_terminator_meta2
-    util_lex_token('%r/blah\\/blah/',
+    assert_scanned('%r/blah\\/blah/',
                    :tREGEXP_BEG,     "%r/",
                    :tSTRING_CONTENT, "blah\\/blah",
                    :tSTRING_END,     "/",
@@ -1559,7 +1559,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_backslash_terminator_meta3
-    util_lex_token('%r/blah\\%blah/',
+    assert_scanned('%r/blah\\%blah/',
                    :tREGEXP_BEG,     "%r/",
                    :tSTRING_CONTENT, "blah\\%blah",
                    :tSTRING_END,     "/",
@@ -1567,11 +1567,11 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_bad_eos
-    util_bad_token '/regex\\', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_bs
-    util_lex_token('/regex\\\\regex/',
+    assert_scanned('/regex\\\\regex/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\\\regex",
                    :tSTRING_END,     "/",
@@ -1579,7 +1579,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_c
-    util_lex_token('/regex\\cxxx/',
+    assert_scanned('/regex\\cxxx/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\cxxx",
                    :tSTRING_END,     "/",
@@ -1587,7 +1587,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_c_backslash
-    util_lex_token('/regex\\c\\n/',
+    assert_scanned('/regex\\c\\n/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\c\\n",
                    :tSTRING_END,     "/",
@@ -1595,7 +1595,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_chars
-    util_lex_token('/re\\tge\\nxp/',
+    assert_scanned('/re\\tge\\nxp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "re\\tge\\nxp",
                    :tSTRING_END,     "/",
@@ -1604,7 +1604,7 @@ class TestLexer < Minitest::Test
 
   def test_regexp_escape_double_backslash
     regexp = '/[\\/\\\\]$/'
-    util_lex_token(regexp,
+    assert_scanned(regexp,
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, regexp[1..-2],
                    :tSTRING_END,     "/",
@@ -1612,7 +1612,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_hex
-    util_lex_token('/regex\\x61xp/',
+    assert_scanned('/regex\\x61xp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\x61xp",
                    :tSTRING_END,     "/",
@@ -1620,11 +1620,11 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_hex_bad
-    util_bad_token '/regex\\xzxp/', :tREGEXP_BEG, "/"
+    refute_scanned '/regex\\xzxp/', :tREGEXP_BEG, "/"
   end
 
   def test_regexp_escape_hex_one
-    util_lex_token('/^[\\xd\\xa]{2}/on',
+    assert_scanned('/^[\\xd\\xa]{2}/on',
                    :tREGEXP_BEG,     '/',
                    :tSTRING_CONTENT, '^[\\xd\\xa]{2}',
                    :tSTRING_END,     "/",
@@ -1632,7 +1632,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_oct1
-    util_lex_token('/regex\\0xp/',
+    assert_scanned('/regex\\0xp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\0xp",
                    :tSTRING_END,     "/",
@@ -1640,7 +1640,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_oct2
-    util_lex_token('/regex\\07xp/',
+    assert_scanned('/regex\\07xp/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\07xp",
                    :tSTRING_END,     "/",
@@ -1648,7 +1648,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_oct3
-    util_lex_token('/regex\\10142/',
+    assert_scanned('/regex\\10142/',
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regex\\10142",
                    :tSTRING_END,     "/",
@@ -1656,7 +1656,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_return
-    util_lex_token("/regex\\\nregex/",
+    assert_scanned("/regex\\\nregex/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regexregex",
                    :tSTRING_END,     "/",
@@ -1664,7 +1664,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_nm
-    util_lex_token("/.*/nm",
+    assert_scanned("/.*/nm",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, ".*",
                    :tSTRING_END,     "/",
@@ -1672,25 +1672,25 @@ class TestLexer < Minitest::Test
   end
 
   def test_rparen
-    util_lex_token ")", :tRPAREN, ")"
+    assert_scanned ")", :tRPAREN, ")"
   end
 
   def test_rshft
-    util_lex_token("a >> 2",
+    assert_scanned("a >> 2",
                    :tIDENTIFIER, "a",
                    :tRSHFT, ">>",
                    :tINTEGER, 2)
   end
 
   def test_rshft_equals
-    util_lex_token("a >>= 2",
+    assert_scanned("a >>= 2",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, ">>",
                    :tINTEGER, 2)
   end
 
   def test_star
-    util_lex_token("a * ",
+    assert_scanned("a * ",
                    :tIDENTIFIER, "a",
                    :tSTAR2, "*")
 
@@ -1698,7 +1698,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_star2
-    util_lex_token("a ** ",
+    assert_scanned("a ** ",
                    :tIDENTIFIER, "a",
                    :tPOW, "**")
 
@@ -1706,7 +1706,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_star2_equals
-    util_lex_token("a **= ",
+    assert_scanned("a **= ",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "**")
 
@@ -1714,7 +1714,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_star2_beg
-    util_lex_token("** ",
+    assert_scanned("** ",
                    :tDSTAR, "**")
 
     assert_equal :expr_beg, @lex.state
@@ -1723,7 +1723,7 @@ class TestLexer < Minitest::Test
   def test_star_arg
     @lex.state = :expr_arg
 
-    util_lex_token(" *a",
+    assert_scanned(" *a",
                    :tSTAR, "*",
                    :tIDENTIFIER, "a")
 
@@ -1733,7 +1733,7 @@ class TestLexer < Minitest::Test
   def test_star_arg_beg
     @lex.state = :expr_beg
 
-    util_lex_token("*a",
+    assert_scanned("*a",
                    :tSTAR, "*",
                    :tIDENTIFIER, "a")
 
@@ -1743,7 +1743,7 @@ class TestLexer < Minitest::Test
   def test_star_arg_beg_fname
     @lex.state = :expr_fname
 
-    util_lex_token("*a",
+    assert_scanned("*a",
                    :tSTAR2, "*",
                    :tIDENTIFIER, "a")
 
@@ -1751,7 +1751,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_star_equals
-    util_lex_token("a *= ",
+    assert_scanned("a *= ",
                    :tIDENTIFIER, "a",
                    :tOP_ASGN, "*")
 
@@ -1759,102 +1759,102 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_bad_eos
-    util_bad_token('%',
+    refute_scanned('%',
                    :tSTRING_BEG,     '%')
   end
 
   def test_string_bad_eos_quote
-    util_bad_token('%{nest',
+    refute_scanned('%{nest',
                    :tSTRING_BEG,     '%}')
   end
 
   def test_string_double
-    util_lex_token('"string"',
+    assert_scanned('"string"',
                    :tSTRING, "string")
   end
 
   def test_string_double_escape_C
-    util_lex_token('"\\C-a"',
+    assert_scanned('"\\C-a"',
                    :tSTRING, "\001")
   end
 
   def test_string_double_escape_C_backslash
-    util_lex_token('"\\C-\\\\"',
+    assert_scanned('"\\C-\\\\"',
                    :tSTRING, "\034")
   end
 
   def test_string_double_escape_C_escape
-    util_lex_token('"\\C-\\M-a"',
+    assert_scanned('"\\C-\\M-a"',
                    :tSTRING, "\201")
   end
 
   def test_string_double_escape_C_question
-    util_lex_token('"\\C-?"',
+    assert_scanned('"\\C-?"',
                    :tSTRING, "\177")
   end
 
   def test_string_double_escape_M
-    util_lex_token('"\\M-a"',
+    assert_scanned('"\\M-a"',
                    :tSTRING, "\341")
   end
 
   def test_string_double_escape_M_backslash
-    util_lex_token('"\\M-\\\\"',
+    assert_scanned('"\\M-\\\\"',
                    :tSTRING, "\334")
   end
 
   def test_string_double_escape_M_escape
-    util_lex_token('"\\M-\\C-a"',
+    assert_scanned('"\\M-\\C-a"',
                    :tSTRING, "\201")
   end
 
   def test_string_double_escape_bs1
-    util_lex_token('"a\\a\\a"',
+    assert_scanned('"a\\a\\a"',
                    :tSTRING, "a\a\a")
   end
 
   def test_string_double_escape_bs2
-    util_lex_token('"a\\\\a"',
+    assert_scanned('"a\\\\a"',
                    :tSTRING, "a\\a")
   end
 
   def test_string_double_escape_c
-    util_lex_token('"\\ca"',
+    assert_scanned('"\\ca"',
                    :tSTRING, "\001")
   end
 
   def test_string_double_escape_c_escape
-    util_lex_token('"\\c\\M-a"',
+    assert_scanned('"\\c\\M-a"',
                    :tSTRING, "\201")
   end
 
   def test_string_double_escape_c_question
-    util_lex_token('"\\c?"',
+    assert_scanned('"\\c?"',
                    :tSTRING, "\177")
   end
 
   def test_string_double_escape_chars
-    util_lex_token('"s\\tri\\ng"',
+    assert_scanned('"s\\tri\\ng"',
                    :tSTRING, "s\tri\ng")
   end
 
   def test_string_double_escape_hex
-    util_lex_token('"n = \\x61\\x62\\x63"',
+    assert_scanned('"n = \\x61\\x62\\x63"',
                    :tSTRING, "n = abc")
   end
 
   def test_string_double_escape_octal
-    util_lex_token('"n = \\101\\102\\103"',
+    assert_scanned('"n = \\101\\102\\103"',
                    :tSTRING, "n = ABC")
   end
 
   def test_string_double_escape_octal_wrap
-    util_lex_token('"\\753"',
+    assert_scanned('"\\753"',
                    :tSTRING, "\xEB")
   end
 
   def test_string_double_interp
-    util_lex_token("\"blah #x a \#@a b \#$b c \#{3} # \"",
+    assert_scanned("\"blah #x a \#@a b \#$b c \#{3} # \"",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_CONTENT, "blah #x a ",
                    :tSTRING_DVAR,    nil,
@@ -1871,7 +1871,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_double_interp_label
-    util_lex_token('"#{foo:bar}"',
+    assert_scanned('"#{foo:bar}"',
                    :tSTRING_BEG,   '"',
                    :tSTRING_DBEG,  '#{',
                    :tIDENTIFIER,   'foo',
@@ -1881,34 +1881,34 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_double_nested_curlies
-    util_lex_token('%{nest{one{two}one}nest}',
+    assert_scanned('%{nest{one{two}one}nest}',
                    :tSTRING_BEG,     '%{',
                    :tSTRING_CONTENT, "nest{one{two}one}nest",
                    :tSTRING_END,     '}')
   end
 
   def test_string_double_no_interp
-    util_lex_token("\"# blah\"",                                # pound first
+    assert_scanned("\"# blah\"",                                # pound first
                    :tSTRING, "# blah")
 
-    util_lex_token("\"blah # blah\"",                           # pound not first
+    assert_scanned("\"blah # blah\"",                           # pound not first
                    :tSTRING, "blah # blah")
   end
 
   def test_string_escape_x_single
-    util_lex_token('"\\x0"',
+    assert_scanned('"\\x0"',
                    :tSTRING, "\000")
   end
 
   def test_string_pct_Q
-    util_lex_token("%Q[s1 s2]",
+    assert_scanned("%Q[s1 s2]",
                    :tSTRING_BEG,     '%Q[',
                    :tSTRING_CONTENT, "s1 s2",
                    :tSTRING_END,     ']')
   end
 
   def test_string_pct_W
-    util_lex_token("%W[s1 s2\ns3]",
+    assert_scanned("%W[s1 s2\ns3]",
                    :tWORDS_BEG,      "%W[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
@@ -1920,7 +1920,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_W_bs_nl
-    util_lex_token("%W[s1 \\\ns2]",
+    assert_scanned("%W[s1 \\\ns2]",
                    :tWORDS_BEG,      "%W[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
@@ -1930,7 +1930,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_W_interp
-    util_lex_token('%W[#{1}#{2} #@a]',
+    assert_scanned('%W[#{1}#{2} #@a]',
                    :tWORDS_BEG,    '%W[',
                    :tSTRING_DBEG,  '#{',
                    :tINTEGER,      1,
@@ -1946,7 +1946,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_I
-    util_lex_token("%I(s1 s2)",
+    assert_scanned("%I(s1 s2)",
                    :tSYMBOLS_BEG,    "%I(",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,          nil,
@@ -1956,21 +1956,21 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_angle
-    util_lex_token("%<blah>",
+    assert_scanned("%<blah>",
                    :tSTRING_BEG,     '%<',
                    :tSTRING_CONTENT, "blah",
                    :tSTRING_END,     '>')
   end
 
   def test_string_pct_pct
-    util_lex_token("%%blah%",
+    assert_scanned("%%blah%",
                    :tSTRING_BEG,     '%',
                    :tSTRING_CONTENT, "blah",
                    :tSTRING_END,     '%')
   end
 
   def test_string_pct_w
-    util_lex_token("%w[s1 s2 ]",
+    assert_scanned("%w[s1 s2 ]",
                    :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,          nil,
@@ -1980,14 +1980,14 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_w_incomplete
-    util_bad_token("%w[s1 ",
+    refute_scanned("%w[s1 ",
                    :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,          nil)
   end
 
   def test_string_pct_w_bs_nl
-    util_lex_token("%w[s1 \\\ns2]",
+    assert_scanned("%w[s1 \\\ns2]",
                    :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,              nil,
@@ -1997,7 +1997,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_w_bs_sp
-    util_lex_token("%w[s\\ 1 s\\ 2]",
+    assert_scanned("%w[s\\ 1 s\\ 2]",
                    :tQWORDS_BEG,     "%w[",
                    :tSTRING_CONTENT, "s 1",
                    :tSPACE,              nil,
@@ -2007,7 +2007,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_w_tab
-    util_lex_token("%w[abc\tdef]",
+    assert_scanned("%w[abc\tdef]",
                    :tQWORDS_BEG,      "%w[",
                    :tSTRING_CONTENT, "abc",
                    :tSPACE,              nil,
@@ -2017,7 +2017,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_pct_i
-    util_lex_token("%i(s1 s2)",
+    assert_scanned("%i(s1 s2)",
                    :tQSYMBOLS_BEG,   "%i(",
                    :tSTRING_CONTENT, "s1",
                    :tSPACE,          nil,
@@ -2027,17 +2027,17 @@ class TestLexer < Minitest::Test
   end
 
   def test_string_single
-    util_lex_token("'string'",
+    assert_scanned("'string'",
                    :tSTRING, "string")
   end
 
   def test_string_single_escape_chars
-    util_lex_token("'s\\tri\\ng'",
+    assert_scanned("'s\\tri\\ng'",
                    :tSTRING, "s\\tri\\ng")
   end
 
   def test_string_single_nl
-    util_lex_token("'blah\\\nblah'",
+    assert_scanned("'blah\\\nblah'",
                    :tSTRING_BEG,     "'",
                    :tSTRING_CONTENT, "blah\\\n",
                    :tSTRING_CONTENT, "blah",
@@ -2045,72 +2045,72 @@ class TestLexer < Minitest::Test
   end
 
   def test_symbol
-    util_lex_token(":symbol",
+    assert_scanned(":symbol",
                    :tSYMBOL, "symbol")
   end
 
   def test_symbol_bad_zero
-    util_bad_token(":\"blah\0\"",
+    refute_scanned(":\"blah\0\"",
                    :tSYMBEG, ":")
   end
 
   def test_symbol_double
-    util_lex_token(":\"symbol\"",
+    assert_scanned(":\"symbol\"",
                    :tSYMBEG,         ":\"",
                    :tSTRING_CONTENT, "symbol",
                    :tSTRING_END,     "\"")
   end
 
   def test_symbol_single
-    util_lex_token(":'symbol'",
+    assert_scanned(":'symbol'",
                    :tSYMBEG,         ":'",
                    :tSTRING_CONTENT, "symbol",
                    :tSTRING_END,     "'")
   end
 
   def test_ternary
-    util_lex_token("a ? b : c",
+    assert_scanned("a ? b : c",
                    :tIDENTIFIER, "a",
                    :tEH,         "?",
                    :tIDENTIFIER, "b",
                    :tCOLON,      ":",
                    :tIDENTIFIER, "c")
 
-    util_lex_token("a ?b : c",
+    assert_scanned("a ?b : c",
                    :tIDENTIFIER, "a",
                    :tINTEGER,    98,
                    :tCOLON,      ":",
                    :tIDENTIFIER, "c")
 
-    util_lex_token("a ?bb : c", # GAH! MATZ!!!
+    assert_scanned("a ?bb : c", # GAH! MATZ!!!
                    :tIDENTIFIER, "a",
                    :tEH,         "?",
                    :tIDENTIFIER, "bb",
                    :tCOLON,      ":",
                    :tIDENTIFIER, "c")
 
-    util_lex_token("42 ?", # 42 forces expr_end
+    assert_scanned("42 ?", # 42 forces expr_end
                    :tINTEGER,    42,
                    :tEH,         "?")
   end
 
   def test_tilde
-    util_lex_token "~", :tTILDE, "~"
+    assert_scanned "~", :tTILDE, "~"
   end
 
   def test_tilde_unary
     @lex.state = :expr_fname
-    util_lex_token "~@", :tTILDE, "~@"
+    assert_scanned "~@", :tTILDE, "~@"
   end
 
   def test_uminus
-    util_lex_token("-blah",
+    assert_scanned("-blah",
                    :tUMINUS, "-",
                    :tIDENTIFIER, "blah")
   end
 
   def test_underscore
-    util_lex_token("_var", :tIDENTIFIER, "_var")
+    assert_scanned("_var", :tIDENTIFIER, "_var")
   end
 
   def test_underscore_end
@@ -2124,13 +2124,13 @@ class TestLexer < Minitest::Test
   end
 
   def test_uplus
-    util_lex_token("+blah",
+    assert_scanned("+blah",
                    :tUPLUS, "+",
                    :tIDENTIFIER, "blah")
   end
 
   def test_if_unless_mod
-    util_lex_token("return if true unless false",
+    assert_scanned("return if true unless false",
                    :kRETURN,      "return",
                    :kIF_MOD,      "if",
                    :kTRUE,        "true",
@@ -2139,7 +2139,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_if_stmt
-    util_lex_token("if true\n return end",
+    assert_scanned("if true\n return end",
                    :kIF,          "if",
                    :kTRUE,        "true",
                    :tNL,          nil,
@@ -2149,7 +2149,7 @@ class TestLexer < Minitest::Test
 
   def test_sclass_label
     setup_lexer 20
-    util_lex_token("class << a:b",
+    assert_scanned("class << a:b",
                    :kCLASS,      'class',
                    :tLSHFT,      '<<',
                    :tIDENTIFIER, 'a',
@@ -2161,7 +2161,7 @@ class TestLexer < Minitest::Test
     env.declare "a"
 
     @lex.static_env = env
-    util_lex_token("a [42]",
+    assert_scanned("a [42]",
                    :tIDENTIFIER, "a",
                    :tLBRACK2,    "[",
                    :tINTEGER,    42,
@@ -2174,23 +2174,23 @@ class TestLexer < Minitest::Test
 
   def test_whitespace_fname
     @lex.state = :expr_fname
-    util_lex_token('class',
+    assert_scanned('class',
                    :kCLASS, 'class')
 
     @lex.state = :expr_fname
-    util_lex_token(' class',
+    assert_scanned(' class',
                    :kCLASS, 'class')
 
     @lex.state = :expr_fname
-    util_lex_token("\nclass",
+    assert_scanned("\nclass",
                    :kCLASS, 'class')
 
     @lex.state = :expr_fname
-    util_lex_token("\\\nclass",
+    assert_scanned("\\\nclass",
                    :kCLASS, 'class')
 
     @lex.state = :expr_fname
-    util_lex_token("#foo\nclass",
+    assert_scanned("#foo\nclass",
                    :kCLASS, 'class')
   end
 
@@ -2198,37 +2198,37 @@ class TestLexer < Minitest::Test
     setup_lexer(21)
 
     @lex.state = :expr_endfn
-    util_lex_token('foo:',
+    assert_scanned('foo:',
                    :tLABEL, 'foo')
 
     @lex.state = :expr_endfn
-    util_lex_token(' foo:',
+    assert_scanned(' foo:',
                    :tLABEL, 'foo')
 
     @lex.state = :expr_endfn
-    util_lex_token("\nfoo:",
+    assert_scanned("\nfoo:",
                    :tNL,         nil,
                    :tIDENTIFIER, 'foo',
                    :tCOLON,      ':')
 
     @lex.state = :expr_endfn
-    util_lex_token("\nfoo: ",
+    assert_scanned("\nfoo: ",
                    :tNL,         nil,
                    :tIDENTIFIER, 'foo',
                    :tCOLON,      ':')
 
     @lex.state = :expr_endfn
-    util_lex_token("\\\nfoo:",
+    assert_scanned("\\\nfoo:",
                    :tLABEL, 'foo')
 
     @lex.state = :expr_endfn
-    util_lex_token("#foo\nfoo:",
+    assert_scanned("#foo\nfoo:",
                    :tNL,         nil,
                    :tIDENTIFIER, 'foo',
                    :tCOLON,      ':')
 
     @lex.state = :expr_endfn
-    util_lex_token("#foo\nfoo: ",
+    assert_scanned("#foo\nfoo: ",
                    :tNL,         nil,
                    :tIDENTIFIER, 'foo',
                    :tCOLON,      ':')
@@ -2236,121 +2236,121 @@ class TestLexer < Minitest::Test
 
   def test_whitespace_dot
     @lex.state = :expr_dot
-    util_lex_token('class',
+    assert_scanned('class',
                    :tIDENTIFIER, 'class')
 
     @lex.state = :expr_dot
-    util_lex_token(' class',
+    assert_scanned(' class',
                    :tIDENTIFIER, 'class')
 
     @lex.state = :expr_dot
-    util_lex_token("\nclass",
+    assert_scanned("\nclass",
                    :tIDENTIFIER, 'class')
 
     @lex.state = :expr_dot
-    util_lex_token("\\\nclass",
+    assert_scanned("\\\nclass",
                    :tIDENTIFIER, 'class')
 
     @lex.state = :expr_dot
-    util_lex_token("#foo\nclass",
+    assert_scanned("#foo\nclass",
                    :tIDENTIFIER, 'class')
   end
 
   def test_whitespace_arg
     @lex.state = :expr_arg
-    util_lex_token('+',
+    assert_scanned('+',
                    :tPLUS,  '+')
 
     @lex.state = :expr_arg
-    util_lex_token(' +',
+    assert_scanned(' +',
                    :tUPLUS, '+')
 
     @lex.state = :expr_arg
-    util_lex_token("\n+",
+    assert_scanned("\n+",
                    :tNL,    nil,
                    :tUPLUS, '+')
 
     @lex.state = :expr_arg
-    util_lex_token("\\\n+",
+    assert_scanned("\\\n+",
                    :tUPLUS, '+')
 
     @lex.state = :expr_arg
-    util_lex_token("\\\n +",
+    assert_scanned("\\\n +",
                    :tUPLUS, '+')
 
     @lex.state = :expr_arg
-    util_lex_token("#foo\n+",
+    assert_scanned("#foo\n+",
                    :tNL,    nil,
                    :tUPLUS, '+')
   end
 
   def test_whitespace_endarg
     @lex.state = :expr_endarg
-    util_lex_token('{',
+    assert_scanned('{',
                    :tLBRACE_ARG, '{')
 
     @lex.state = :expr_endarg
-    util_lex_token(' {',
+    assert_scanned(' {',
                    :tLBRACE_ARG, '{')
 
     @lex.state = :expr_endarg
-    util_lex_token("\n{",
+    assert_scanned("\n{",
                    :tNL,         nil,
                    :tLBRACE,     '{')
 
     @lex.state = :expr_endarg
-    util_lex_token("\\\n{",
+    assert_scanned("\\\n{",
                    :tLBRACE_ARG, '{')
 
     @lex.state = :expr_endarg
-    util_lex_token("#foo\n{",
+    assert_scanned("#foo\n{",
                    :tNL,         nil,
                    :tLBRACE,     '{')
   end
 
   def test_whitespace_mid
     @lex.state = :expr_mid
-    util_lex_token('+',
+    assert_scanned('+',
                    :tUPLUS, '+')
 
     @lex.state = :expr_mid
-    util_lex_token(' +',
+    assert_scanned(' +',
                    :tUPLUS, '+')
 
     @lex.state = :expr_mid
-    util_lex_token("\n+",
+    assert_scanned("\n+",
                    :tNL,    nil,
                    :tUPLUS, '+')
 
     @lex.state = :expr_mid
-    util_lex_token("\\\n+",
+    assert_scanned("\\\n+",
                    :tUPLUS, '+')
 
     @lex.state = :expr_mid
-    util_lex_token("#foo\n+",
+    assert_scanned("#foo\n+",
                    :tNL,    nil,
                    :tUPLUS, '+')
   end
 
   def test_whitespace_beg
     @lex.state = :expr_beg
-    util_lex_token('+',
+    assert_scanned('+',
                    :tUPLUS, '+')
 
     @lex.state = :expr_beg
-    util_lex_token(' +',
+    assert_scanned(' +',
                    :tUPLUS, '+')
 
     @lex.state = :expr_beg
-    util_lex_token("\n+",
+    assert_scanned("\n+",
                    :tUPLUS, '+')
 
     @lex.state = :expr_beg
-    util_lex_token("\\\n+",
+    assert_scanned("\\\n+",
                    :tUPLUS, '+')
 
     @lex.state = :expr_beg
-    util_lex_token("#foo\n+",
+    assert_scanned("#foo\n+",
                    :tUPLUS, '+')
   end
 
@@ -2358,55 +2358,55 @@ class TestLexer < Minitest::Test
     setup_lexer(20)
 
     @lex.state = :expr_value
-    util_lex_token('a:b',
+    assert_scanned('a:b',
                    :tIDENTIFIER, 'a',
                    :tSYMBOL,     'b')
 
     @lex.state = :expr_value
-    util_lex_token(' a:b',
+    assert_scanned(' a:b',
                    :tIDENTIFIER, 'a',
                    :tSYMBOL,     'b')
 
     @lex.state = :expr_value
-    util_lex_token("\na:b",
+    assert_scanned("\na:b",
                    :tIDENTIFIER, 'a',
                    :tSYMBOL,     'b')
 
     @lex.state = :expr_value
-    util_lex_token("\\\na:b",
+    assert_scanned("\\\na:b",
                    :tIDENTIFIER, 'a',
                    :tSYMBOL,     'b')
 
     @lex.state = :expr_value
-    util_lex_token("#foo\na:b",
+    assert_scanned("#foo\na:b",
                    :tIDENTIFIER, 'a',
                    :tSYMBOL,     'b')
   end
 
   def test_whitespace_end
     @lex.state = :expr_end
-    util_lex_token('+ 1',
+    assert_scanned('+ 1',
                    :tPLUS,    '+',
                    :tINTEGER, 1)
 
     @lex.state = :expr_end
-    util_lex_token(' + 1',
+    assert_scanned(' + 1',
                    :tPLUS,    '+',
                    :tINTEGER, 1)
 
     @lex.state = :expr_end
-    util_lex_token("\n+ 1",
+    assert_scanned("\n+ 1",
                    :tNL,      nil,
                    :tUPLUS,   '+',
                    :tINTEGER, 1)
 
     @lex.state = :expr_end
-    util_lex_token("\\\n+ 1",
+    assert_scanned("\\\n+ 1",
                    :tPLUS,    '+',
                    :tINTEGER, 1)
 
     @lex.state = :expr_end
-    util_lex_token("#foo\n+ 1",
+    assert_scanned("#foo\n+ 1",
                    :tNL,      nil,
                    :tUPLUS,   '+',
                    :tINTEGER, 1)
@@ -2421,14 +2421,14 @@ class TestLexer < Minitest::Test
   #
 
   def test_bug_sclass_joined
-    util_lex_token("class<<self",
+    assert_scanned("class<<self",
                    :kCLASS, "class",
                    :tLSHFT, "<<",
                    :kSELF,  "self")
   end
 
   def test_bug_const_expr_end
-    util_lex_token("Option",
+    assert_scanned("Option",
                    :tCONSTANT, 'Option')
 
     assert_equal :expr_cmdarg, @lex.state
@@ -2436,14 +2436,14 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_beg_div
     @lex.state = :expr_beg
-    util_lex_token("/=/",
+    assert_scanned("/=/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "=",
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
 
     @lex.state = :expr_beg
-    util_lex_token("/ = /",
+    assert_scanned("/ = /",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, " = ",
                    :tSTRING_END,     "/",
@@ -2452,13 +2452,13 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_beg_percent
     @lex.state = :expr_beg
-    util_lex_token("%=foo=",
+    assert_scanned("%=foo=",
                    :tSTRING_BEG,     "%=",
                    :tSTRING_CONTENT, 'foo',
                    :tSTRING_END,     "=")
 
     @lex.state = :expr_beg
-    util_lex_token("% = ",
+    assert_scanned("% = ",
                    :tSTRING_BEG,     "% ",
                    :tSTRING_CONTENT, '=',
                    :tSTRING_END,     ' ')
@@ -2466,20 +2466,20 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_beg_document
     @lex.state = :expr_beg
-    util_lex_token(" \n=begin\n=end\nend",
+    assert_scanned(" \n=begin\n=end\nend",
                    :kEND,            "end")
 
   end
 
   def test_bug_expr_beg_number
     @lex.state = :expr_beg
-    util_lex_token("86400_000_000",
+    assert_scanned("86400_000_000",
                    :tINTEGER,        86400_000_000)
   end
 
   def test_bug_expr_beg_backspace_nl
     @lex.state = :expr_beg
-    util_lex_token("\n/foo/",
+    assert_scanned("\n/foo/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "foo",
                    :tSTRING_END,     "/",
@@ -2487,7 +2487,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_expr_beg_heredoc
-    util_lex_token("<<EOL % [\nfoo\nEOL\n]",
+    assert_scanned("<<EOL % [\nfoo\nEOL\n]",
                    :tSTRING_BEG,      '"',
                    :tSTRING_CONTENT,  "foo\n",
                    :tSTRING_END,      'EOL',
@@ -2497,54 +2497,54 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_expr_beg_fid
-    util_lex_token("Rainbows!",
+    assert_scanned("Rainbows!",
                    :tFID, 'Rainbows!')
   end
 
   def test_bug_expr_beg_rescue_assoc
-    util_lex_token("rescue=>",
+    assert_scanned("rescue=>",
                    :kRESCUE, 'rescue',
                    :tASSOC,  '=>')
   end
 
   def test_bug_expr_arg_percent
     @lex.state = :expr_arg
-    util_lex_token("%[",
+    assert_scanned("%[",
                    :tPERCENT, "%",
                    :tLBRACK,  "[")
 
     @lex.state = :expr_arg
-    util_lex_token("%=1",
+    assert_scanned("%=1",
                    :tOP_ASGN,    "%",
                    :tINTEGER,    1)
 
     @lex.state = :expr_arg
-    util_lex_token(" %[1]",
+    assert_scanned(" %[1]",
                    :tSTRING_BEG,     "%[",
                    :tSTRING_CONTENT, '1',
                    :tSTRING_END,     ']')
 
     @lex.state = :expr_arg
-    util_lex_token(" %=1=",
+    assert_scanned(" %=1=",
                    :tOP_ASGN,    "%",
                    :tINTEGER,    1,
                    :tEQL,        "=")
 
     @lex.state = :expr_arg
-    util_lex_token(" %\n",
+    assert_scanned(" %\n",
                    :tPERCENT,    '%')
   end
 
   def test_bug_expr_arg_lt_lt
     @lex.state = :expr_arg
-    util_lex_token("<<EOS\nEOS",
+    assert_scanned("<<EOS\nEOS",
                    :tLSHFT,      "<<",
                    :tCONSTANT,   "EOS",
                    :tNL,         nil,
                    :tCONSTANT,   "EOS")
 
     @lex.state = :expr_arg
-    util_lex_token(" <<EOS\nEOS",
+    assert_scanned(" <<EOS\nEOS",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_END,     "EOS",
                    :tNL,             nil)
@@ -2552,24 +2552,24 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_arg_slash
     @lex.state = :expr_arg
-    util_lex_token("/1",
+    assert_scanned("/1",
                    :tDIVIDE,    "/",
                    :tINTEGER,   1)
 
     @lex.state = :expr_arg
-    util_lex_token("/ 1",
+    assert_scanned("/ 1",
                    :tDIVIDE,    "/",
                    :tINTEGER,   1)
 
     @lex.state = :expr_arg
-    util_lex_token(" /1/",
+    assert_scanned(" /1/",
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "1",
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
 
     @lex.state = :expr_arg
-    util_lex_token(" / 1",
+    assert_scanned(" / 1",
                    :tDIVIDE,    "/",
                    :tINTEGER,   1)
   end
@@ -2578,17 +2578,17 @@ class TestLexer < Minitest::Test
     setup_lexer 19
 
     @lex.state = :expr_arg
-    util_lex_token(" unless:",
+    assert_scanned(" unless:",
                    :tLABEL,     'unless')
 
     @lex.state = :expr_arg
-    util_lex_token(" unless: ",
+    assert_scanned(" unless: ",
                    :tLABEL,     'unless')
   end
 
   def test_bug_heredoc_continuation
     @lex.state = :expr_arg
-    util_lex_token(" <<EOS\nEOS\nend",
+    assert_scanned(" <<EOS\nEOS\nend",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_END,     "EOS",
                    :tNL,             nil,
@@ -2596,7 +2596,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_heredoc_cr_lf
-    util_lex_token("<<FIN\r\nfoo\r\nFIN\r\n",
+    assert_scanned("<<FIN\r\nfoo\r\nFIN\r\n",
                    :tSTRING_BEG,     "\"",
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     "FIN",
@@ -2604,7 +2604,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_eh_symbol_no_newline
-    util_lex_token("?\"\nfoo",
+    assert_scanned("?\"\nfoo",
                    :tINTEGER,     34,
                    :tNL,          nil,
                    :tIDENTIFIER,  "foo")
@@ -2612,36 +2612,36 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_arg_newline
     @lex.state = :expr_arg
-    util_lex_token("\nfoo",
+    assert_scanned("\nfoo",
                    :tNL,          nil,
                    :tIDENTIFIER,  "foo")
 
     @lex.state = :expr_arg
-    util_lex_token(" \nfoo",
+    assert_scanned(" \nfoo",
                    :tNL,          nil,
                    :tIDENTIFIER,  "foo")
 
     @lex.state = :expr_arg
-    util_lex_token("#foo\nfoo",
+    assert_scanned("#foo\nfoo",
                    :tNL,          nil,
                    :tIDENTIFIER,  "foo")
   end
 
   def test_bug_expr_arg_comment_newline
     @lex.state = :expr_arg
-    util_lex_token(" #\nfoo",
+    assert_scanned(" #\nfoo",
                    :tNL,         nil,
                    :tIDENTIFIER, 'foo')
   end
 
   def test_bug_expr_arg_eh_crlf
     @lex.state = :expr_arg
-    util_lex_token(" ?\r\n",
+    assert_scanned(" ?\r\n",
                    :tEH,     '?')
   end
 
   def test_bug_heredoc_backspace_nl
-    util_lex_token(" <<'XXX'\nf \\\nXXX\n",
+    assert_scanned(" <<'XXX'\nf \\\nXXX\n",
                    :tSTRING_BEG,     "'",
                    :tSTRING_CONTENT, "f \\\n",
                    :tSTRING_END,     "XXX",
@@ -2649,7 +2649,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_heredoc_lshft
-    util_lex_token("<<RULES << CLEANINGS\nRULES",
+    assert_scanned("<<RULES << CLEANINGS\nRULES",
                    :tSTRING_BEG, '"',
                    :tSTRING_END, 'RULES',
                    :tLSHFT,      '<<',
@@ -2657,7 +2657,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_sclass_comment_lshft_label
-    util_lex_token("class # foo\n<< a:b;end",
+    assert_scanned("class # foo\n<< a:b;end",
                    :kCLASS,      'class',
                    :tLSHFT,      '<<',
                    :tIDENTIFIER, 'a',
@@ -2667,21 +2667,21 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_expr_dot_comment
-    util_lex_token("foo. #bar\nbaz",
+    assert_scanned("foo. #bar\nbaz",
                    :tIDENTIFIER, 'foo',
                    :tDOT,        '.',
                    :tIDENTIFIER, 'baz')
   end
 
   def test_bug_expr_dot_fid
-    util_lex_token("foo.S?",
+    assert_scanned("foo.S?",
                    :tIDENTIFIER, 'foo',
                    :tDOT,        '.',
                    :tFID,        'S?')
   end
 
   def test_bug_expr_dot_id_eq
-    util_lex_token("foo.x= 1",
+    assert_scanned("foo.x= 1",
                    :tIDENTIFIER, 'foo',
                    :tDOT,        '.',
                    :tIDENTIFIER, 'x',
@@ -2690,7 +2690,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_expr_dot_fid_mod
-    util_lex_token("foo.x!if 1",
+    assert_scanned("foo.x!if 1",
                    :tIDENTIFIER, 'foo',
                    :tDOT,        '.',
                    :tFID,        'x!',
@@ -2699,14 +2699,14 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_expr_mid_comment
-    util_lex_token("rescue #bar\nprint",
+    assert_scanned("rescue #bar\nprint",
                    :kRESCUE,     'rescue',
                    :tNL,         nil,
                    :tIDENTIFIER, 'print')
   end
 
   def test_bug_expr_mid_bareword
-    util_lex_token("begin; rescue rescue1",
+    assert_scanned("begin; rescue rescue1",
                    :kBEGIN,       'begin',
                    :tSEMI,        ';',
                    :kRESCUE,      'rescue',
@@ -2714,13 +2714,13 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_expr_value_document
-    util_lex_token("1;\n=begin\n=end",
+    assert_scanned("1;\n=begin\n=end",
                    :tINTEGER, 1,
                    :tSEMI,    ';')
   end
 
   def test_bug_expr_end_colon
-    util_lex_token("'foo':'bar'",
+    assert_scanned("'foo':'bar'",
                    :tSTRING, 'foo',
                    :tCOLON,  ':',
                    :tSTRING, 'bar')
@@ -2728,14 +2728,14 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_value_rescue_colon2
     @lex.state = :expr_value
-    util_lex_token("rescue::Exception",
+    assert_scanned("rescue::Exception",
                    :kRESCUE,    'rescue',
                    :tCOLON3,    '::',
                    :tCONSTANT,  'Exception')
   end
 
   def test_bug_expr_endarg_braces
-    util_lex_token("let [] {",
+    assert_scanned("let [] {",
                    :tIDENTIFIER, 'let',
                    :tLBRACK,     '[',
                    :tRBRACK,     ']',
@@ -2744,13 +2744,13 @@ class TestLexer < Minitest::Test
 
   def test_bug_line_begin_label
     setup_lexer(19)
-    util_lex_token("foo:bar",
+    assert_scanned("foo:bar",
                    :tIDENTIFIER, 'foo',
                    :tSYMBOL,     'bar')
   end
 
   def test_bug_interp_expr_value
-    util_lex_token('"#{f:a}"',
+    assert_scanned('"#{f:a}"',
                    :tSTRING_BEG,  '"',
                    :tSTRING_DBEG, '#{',
                    :tIDENTIFIER,  'f',
@@ -2760,24 +2760,24 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_const_e
-    util_lex_token('E10',
+    assert_scanned('E10',
                    :tCONSTANT, 'E10')
-    util_lex_token('E4U',
+    assert_scanned('E4U',
                    :tCONSTANT, 'E4U')
   end
 
   def test_bug_symbol_newline
-    util_lex_token(":foo\n",
+    assert_scanned(":foo\n",
                    :tSYMBOL, 'foo',
                    :tNL,     nil)
 
-    util_lex_token(":foo=\n",
+    assert_scanned(":foo=\n",
                    :tSYMBOL, 'foo=',
                    :tNL,     nil)
   end
 
   def test_bug_interleaved_heredoc
-    util_lex_token(%Q{<<w; "\nfoo\nw\n"},
+    assert_scanned(%Q{<<w; "\nfoo\nw\n"},
                    :tSTRING_BEG,     '"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'w',
@@ -2787,7 +2787,7 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     '"')
 
     @lex.state = :expr_beg
-    util_lex_token(%Q{<<w; %w[\nfoo\nw\n1]},
+    assert_scanned(%Q{<<w; %w[\nfoo\nw\n1]},
                    :tSTRING_BEG,     '"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'w',
@@ -2798,7 +2798,7 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     ']')
 
                    @lex.state = :expr_beg
-    util_lex_token(%Q{<<w; "\#{\nfoo\nw\n}"},
+    assert_scanned(%Q{<<w; "\#{\nfoo\nw\n}"},
                    :tSTRING_BEG,     '"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'w',
@@ -2811,7 +2811,7 @@ class TestLexer < Minitest::Test
 
   def test_bug_fid_char
     setup_lexer(19)
-    util_lex_token(%Q{eof??a},
+    assert_scanned(%Q{eof??a},
                    :tFID,    'eof?',
                    :tSTRING, 'a')
   end
@@ -2821,7 +2821,7 @@ class TestLexer < Minitest::Test
     env.declare "a"
 
     @lex.static_env = env
-    util_lex_token("1+a:a",
+    assert_scanned("1+a:a",
                    :tINTEGER,    1,
                    :tPLUS,       '+',
                    :tIDENTIFIER, 'a',
@@ -2830,60 +2830,60 @@ class TestLexer < Minitest::Test
   end
 
   def test_bug_string_percent_newline
-    util_lex_token(%Q{%\nfoo\n},
+    assert_scanned(%Q{%\nfoo\n},
                    :tSTRING_BEG,     "%\n",
                    :tSTRING_CONTENT, 'foo',
                    :tSTRING_END,     "\n")
   end
 
   def test_bug_string_utf_escape_composition
-    util_lex_token(%q{"\xE2\x80\x99"},
+    assert_scanned(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99")
 
     if defined?(Encoding)
-      util_lex_token(%q{"\xE2\x80\x99"}.force_encoding(Encoding::UTF_8),
+      assert_scanned(%q{"\xE2\x80\x99"}.force_encoding(Encoding::UTF_8),
                      :tSTRING, '’'.force_encoding(Encoding::UTF_8))
-      util_lex_token(%q{"\342\200\231"}.force_encoding(Encoding::UTF_8),
+      assert_scanned(%q{"\342\200\231"}.force_encoding(Encoding::UTF_8),
                      :tSTRING, '’'.force_encoding(Encoding::UTF_8))
-      util_lex_token(%q{"\M-b\C-\M-@\C-\M-Y"}.force_encoding(Encoding::UTF_8),
+      assert_scanned(%q{"\M-b\C-\M-@\C-\M-Y"}.force_encoding(Encoding::UTF_8),
                      :tSTRING, '’'.force_encoding(Encoding::UTF_8))
     end
   end
 
   def test_bug_string_non_utf
-    util_lex_token(%Q{"caf\xE9"},
+    assert_scanned(%Q{"caf\xE9"},
                    :tSTRING, "caf\xE9")
-    util_lex_token(%Q{"caf\xC3\xA9"},
+    assert_scanned(%Q{"caf\xC3\xA9"},
                    :tSTRING, "caf\xC3\xA9")
 
     if defined?(Encoding)
-      util_lex_token(%q{"café"}.force_encoding(Encoding::UTF_8),
+      assert_scanned(%q{"café"}.force_encoding(Encoding::UTF_8),
                      :tSTRING, "café".force_encoding(Encoding::UTF_8))
     end
   end
 
   def test_bug_semi__END__
-    util_lex_token(%Q{foo;\n__END__},
+    assert_scanned(%Q{foo;\n__END__},
                    :tIDENTIFIER, 'foo',
                    :tSEMI,       ';')
   end
 
   def test_bug_eql_end
-    util_lex_token(%Q{=begin\n#=end\n=end})
+    assert_scanned(%Q{=begin\n#=end\n=end})
   end
 
   def test_bug_num_adj_kw
-    util_lex_token(%q{1if},
+    assert_scanned(%q{1if},
                    :tINTEGER, 1,
                    :kIF_MOD,  'if')
 
-    util_lex_token(%q{1.0if},
+    assert_scanned(%q{1.0if},
                    :tFLOAT,   1.0,
                    :kIF_MOD,  'if')
   end
 
   def test_bug_ragel_stack
-    util_lex_token("\"\#{$2 ? $2 : 1}\"",
+    assert_scanned("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",
                    :tSTRING_DBEG,     "\#{",
                    :tNTH_REF,         2,
