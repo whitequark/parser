@@ -34,7 +34,7 @@ class ParserGauntlet < Gauntlet
 
       try_ruby.call(e)
 
-    rescue ArgumentError,
+    rescue ArgumentError, RegexpError,
            Encoding::UndefinedConversionError => e
       puts "#{file}: #{e.class}: #{e.to_s}"
 
@@ -101,8 +101,10 @@ class ParserGauntlet < Gauntlet
   def shutdown
     super
 
-    errors = data.count { |_name, errs| errs != {} }
-    puts "!!! was: #{@was_errors} now: #{errors}"
+    errors  = data.count { |_name, errs| errs != {} }
+    total   = data.count
+    percent = "%.5f" % [100 - errors.to_f / total * 100]
+    puts "!!! was: #{@was_errors} now: #{errors} total: #{total} frac: #{percent}%"
   end
 end
 
