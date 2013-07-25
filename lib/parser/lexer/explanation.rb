@@ -35,7 +35,7 @@ module Parser
     def decorate(range, token, info)
       from, to = range.begin.column, range.end.column
 
-      line = range.source_line
+      line = range.source_line + '   '
       line[from...to] = "\e[4m#{line[from...to]}\e[0m"
 
       tail_len   = to - from - 1

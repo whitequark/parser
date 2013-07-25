@@ -216,19 +216,13 @@ It is unknown whether any gems are affected by this issue.
 
 Ruby MRI permits arbitrary non-7-bit characters to appear in comments regardless of source encoding.
 
-As of 2013-07-25, there are about 200 affected gems.
-
-### End-of-file characters
-
-Ruby MRI permits end-of-file characters (`\0`, `\x04` and `\x1a`) to occur inside literals, but interprets them as end-of-file otherwise.
-
-As of 2013-07-25, affected gems are: doctest, redparse, verifi, rubylexer (tests), rpdf2txt (tests), gs_phone, aruba, rutema, dmap (tests), page_glimpse (tests), htmltools (tests), cyoi (tests), librarian-puppet, decc_2050_model, dlc, global_2050_model.
+As of 2013-07-25, there are about 180 affected gems.
 
 ### \u escape in 1.8 mode
 
 Ruby MRI 1.8 permits to specify a bare `\u` escape sequence in a string; it treats it like `u`. Ruby MRI 1.9 and later treat `\u` as a prefix for Unicode escape sequence and do not allow it to appear bare. Parser follows 1.9+ behavior.
 
-As of 2013-07-25, affected gems are: activerdf_net7, fastreader, gkellog-reddy, activerdf.
+As of 2013-07-25, affected gems are: activerdf, activerdf_net7, fastreader, gkellog-reddy.
 
 ### Invalid Unicode escape sequences
 

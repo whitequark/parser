@@ -111,6 +111,11 @@ module Parser
       def source_line(line)
         unless @lines
           @lines = @source.lines.each { |line| line.gsub!(/\n$/, '') }
+
+          # Lexer has an "infinite stream of EOF symbols" after the
+          # actual EOF, so in some cases (e.g. EOF token of ruby-parse -E)
+          # tokens will refer to one line past EOF.
+          @lines << ""
         end
 
         @lines[line - @first_line].dup

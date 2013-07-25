@@ -157,14 +157,7 @@ class Parser::Lexer
     @source_buffer = source_buffer
 
     if @source_buffer
-      # Heredoc processing coupled with weird newline quirks
-      # require three '\0' (EOF) chars to be appended; after
-      # `p = @heredoc_s`, if `p` points at EOF, the FSM could
-      # not bail out early enough and will crash.
-      #
-      # Patches accepted.
-      #
-      @source = @source_buffer.source + "\0\0\0"
+      @source = @source_buffer.source + "\0"
 
       if defined?(Encoding) && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
@@ -213,6 +206,11 @@ class Parser::Lexer
     :expr_end    => lex_en_expr_end,
     :expr_endarg => lex_en_expr_endarg,
     :expr_endfn  => lex_en_expr_endfn,
+
+    :interp_string => lex_en_interp_string,
+    :interp_words  => lex_en_interp_words,
+    :plain_string  => lex_en_plain_string,
+    :plain_words   => lex_en_plain_string,
   }
 
   def state
@@ -241,8 +239,9 @@ class Parser::Lexer
     _lex_trans_actions      = self.class.send :_lex_trans_actions
     _lex_to_state_actions   = self.class.send :_lex_to_state_actions
     _lex_from_state_actions = self.class.send :_lex_from_state_actions
+    _lex_eof_trans          = self.class.send :_lex_eof_trans
 
-    p, pe, eof = @p, @source.length + 1, nil
+    p, pe, eof = @p, @source.length + 1, @source.length + 1
 
     @command_state = (@cs == self.class.lex_en_expr_value ||
                       @cs == self.class.lex_en_line_begin)
@@ -438,7 +437,7 @@ class Parser::Lexer
   # %
 
   access @;
-  getkey @source_pts[p];
+  getkey (@source_pts[p] || 0);
 
   # === CHARACTER CLASSES ===
   #
@@ -459,10 +458,13 @@ class Parser::Lexer
   c_nl       = '\n' $ do_nl;
   c_space    = [ \t\r\f\v];
   c_space_nl = c_space | c_nl;
-  c_eof      = 0x04 | 0x1a | 0; # ^D, ^Z, EOF
+
+  c_eof      = 0x04 | 0x1a | 0 | zlen; # ^D, ^Z, \0, EOF
   c_eol      = c_nl | c_eof;
-  c_any      = any - c_eof - zlen;
-  c_line     = c_any - c_nl;
+  c_any      = any - c_eof;
+
+  c_nl_zlen  = c_nl | zlen;
+  c_line     = any - c_nl_zlen;
 
   c_unicode  = c_any - 0x00..0x7f;
   c_upper    = [A-Z];
@@ -822,13 +824,16 @@ class Parser::Lexer
   # As heredoc closing line can immediately precede EOF, this action
   # has to handle such case specially.
   action extend_string_eol {
-    is_eof = eof_char? @source[p]
+    if @te == pe
+      diagnostic :fatal, Parser::ERRORS[:string_eof],
+                 range(literal.str_s, literal.str_s + 1)
+    end
 
     if literal.heredoc?
-      # Try ending the heredoc with the complete most recently
-      # scanned line. @herebody_s always refers to the start of such line.
       line = tok(@herebody_s, @ts).gsub(/\r+$/, '')
 
+      # Try ending the heredoc with the complete most recently
+      # scanned line. @herebody_s always refers to the start of such line.
       if literal.nest_and_try_closing(line, @herebody_s, @ts)
         # Adjust @herebody_s to point to the next line.
         @herebody_s = @te
@@ -860,12 +865,7 @@ class Parser::Lexer
       end
     end
 
-    if is_eof
-      diagnostic :fatal, Parser::ERRORS[:string_eof],
-                 range(literal.str_s, literal.str_s + 1)
-    end
-
-    if literal.words?
+    if literal.words? && !eof_char?(tok)
       literal.extend_space @ts, @te
     else
       # A literal newline is appended if the heredoc was _not_ closed
@@ -1029,7 +1029,10 @@ class Parser::Lexer
     ;
 
   w_comment =
-      '#' %{ @sharp_s = p - 1 } c_line* %{ emit_comment(@sharp_s, p) }
+      '#'     %{ @sharp_s = p - 1 }
+      # The (p == pe) condition compensates for added "\0" and
+      # the way Ragel handles EOF.
+      c_line* %{ emit_comment(@sharp_s, p == pe ? p - 2 : p) }
     ;
 
   w_space_comment =
@@ -1527,7 +1530,7 @@ class Parser::Lexer
       };
 
       # %<string>
-      '%' ( c_any - [A-Za-z] )
+      '%' ( any - [A-Za-z] )
       => {
         type, delimiter = tok[0].chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
@@ -1720,7 +1723,7 @@ class Parser::Lexer
 
       w_any;
 
-      e_heredoc_nl '=begin' ( c_space | c_eol )
+      e_heredoc_nl '=begin' ( c_space | c_nl_zlen )
       => { p = @ts - 1
            fgoto line_begin; };
 
@@ -2039,7 +2042,7 @@ class Parser::Lexer
   #
 
   line_comment := |*
-      '=end' c_line* c_eol?
+      '=end' c_line* c_nl_zlen
       => {
         emit_comment(@eq_begin_s, @te)
         fgoto line_begin;
@@ -2047,7 +2050,7 @@ class Parser::Lexer
 
       c_line* c_nl;
 
-      c_line* c_eof
+      c_line* zlen
       => {
         diagnostic :fatal, Parser::ERRORS[:embedded_document],
                    range(@eq_begin_s, @eq_begin_s + '=begin'.length)
@@ -2057,11 +2060,11 @@ class Parser::Lexer
   line_begin := |*
       w_any;
 
-      '=begin' ( c_space | c_eol )
+      '=begin' ( c_space | c_nl_zlen )
       => { @eq_begin_s = @ts
            fgoto line_comment; };
 
-      '__END__' c_eol
+      '__END__' c_nl_zlen
       => { p = pe - 1 };
 
       c_any

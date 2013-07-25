@@ -2049,11 +2049,6 @@ class TestLexer < Minitest::Test
                    :tSYMBOL, "symbol")
   end
 
-  def test_symbol_bad_zero
-    refute_scanned(":\"blah\0\"",
-                   :tSYMBEG, ":")
-  end
-
   def test_symbol_double
     assert_scanned(":\"symbol\"",
                    :tSYMBEG,         ":\"",
@@ -2836,6 +2831,13 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     "\n")
   end
 
+  def test_bug_string_percent_zero
+    assert_scanned(%Q{%\0foo\0},
+                   :tSTRING_BEG,     "%\0",
+                   :tSTRING_CONTENT, 'foo',
+                   :tSTRING_END,     "\0")
+  end
+
   def test_bug_string_utf_escape_composition
     assert_scanned(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99")
@@ -2870,6 +2872,54 @@ class TestLexer < Minitest::Test
 
   def test_bug_eql_end
     assert_scanned(%Q{=begin\n#=end\n=end})
+  end
+
+  def test_bug_hidden_eof
+    @lex.state = :expr_beg
+    assert_scanned(%Q{"foo\0\x1a\x04bar"},
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "foo\0",
+                   :tSTRING_CONTENT, "\x1a",
+                   :tSTRING_CONTENT, "\x04",
+                   :tSTRING_CONTENT, "bar",
+                   :tSTRING_END,     '"')
+
+    @lex.state = :expr_beg
+    assert_scanned(%Q{'foo\0\x1a\x04bar'},
+                   :tSTRING_BEG,     "'",
+                   :tSTRING_CONTENT, "foo\0",
+                   :tSTRING_CONTENT, "\x1a",
+                   :tSTRING_CONTENT, "\x04",
+                   :tSTRING_CONTENT, "bar",
+                   :tSTRING_END,     "'")
+
+    @lex.state = :expr_beg
+    assert_scanned(%Q{%w[foo\0\x1a\x04bar]},
+                   :tQWORDS_BEG,     '%w[',
+                   :tSTRING_CONTENT, "foo\0",
+                   :tSTRING_CONTENT, "\x1a",
+                   :tSTRING_CONTENT, "\x04",
+                   :tSTRING_CONTENT, "bar",
+                   :tSPACE,          nil,
+                   :tSTRING_END,     ']')
+
+    @lex.state = :expr_beg
+    assert_scanned(%Q{%W[foo\0\x1a\x04bar]},
+                   :tWORDS_BEG,      '%W[',
+                   :tSTRING_CONTENT, "foo\0",
+                   :tSTRING_CONTENT, "\x1a",
+                   :tSTRING_CONTENT, "\x04",
+                   :tSTRING_CONTENT, "bar",
+                   :tSPACE,          nil,
+                   :tSTRING_END,     ']')
+
+    @lex.state = :expr_beg
+    assert_scanned(%Q{# foo\0\nbar},
+                   :tIDENTIFIER, 'bar')
+
+    @lex.state = :line_begin
+    assert_scanned(%Q{=begin\n\0\n=end\nbar},
+                   :tIDENTIFIER, 'bar')
   end
 
   def test_bug_num_adj_kw
