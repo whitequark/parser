@@ -99,7 +99,7 @@ module Parser
           raise ArgumentError, 'Source::Buffer is immutable'
         end
 
-        @source = source.freeze
+        @source = source.gsub(/\r\n/, "\n").freeze
       end
 
       def decompose_position(position)

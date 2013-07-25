@@ -4349,7 +4349,7 @@ class TestParser < Minitest::Test
       assert_equal s(:lvar, :foo),
                    ast
 
-      assert_equal range.call(2, 5),
+      assert_equal range.call(1, 4),
                    ast.loc.expression
     end
   end

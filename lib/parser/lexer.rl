@@ -439,7 +439,7 @@ class Parser::Lexer
     @newline_s = p
   }
 
-  c_nl       = '\r'? '\n' $ do_nl;
+  c_nl       = '\n' $ do_nl;
   c_space    = [ \t\r\f\v];
   c_space_nl = c_space | c_nl;
   c_eof      = 0x04 | 0x1a | 0; # ^D, ^Z, EOF

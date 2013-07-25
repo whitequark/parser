@@ -2588,7 +2588,7 @@ class TestLexer < Minitest::Test
   def test_bug_heredoc_cr_lf
     util_lex_token("<<FIN\r\nfoo\r\nFIN\r\n",
                    :tSTRING_BEG,     "\"",
-                   :tSTRING_CONTENT, "foo\r\n",
+                   :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     "FIN",
                    :tNL,             nil)
   end
