@@ -2819,6 +2819,13 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 'a')
   end
 
+  def test_bug_string_percent_newline
+    util_lex_token(%Q{%\nfoo\n},
+                   :tSTRING_BEG,     "%\n",
+                   :tSTRING_CONTENT, 'foo',
+                   :tSTRING_END,     "\n")
+  end
+
   def test_bug_string_utf_escape_composition
     util_lex_token(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99")

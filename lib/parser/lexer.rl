@@ -822,17 +822,24 @@ class Parser::Lexer
         # Ditto.
         @herebody_s = @te
       end
-    elsif @herebody_s
-      # This is a regular literal intertwined with a heredoc. Like:
-      #
-      #     p <<-foo+"1
-      #     bar
-      #     foo
-      #     2"
-      #
-      # which, incidentally, evaluates to "bar\n12".
-      p = @herebody_s - 1
-      @herebody_s = nil
+    else
+      # Try ending the literal with a newline.
+      if literal.nest_and_try_closing(tok, @ts, @te)
+        fnext *pop_literal; fbreak;
+      end
+
+      if @herebody_s
+        # This is a regular literal intertwined with a heredoc. Like:
+        #
+        #     p <<-foo+"1
+        #     bar
+        #     foo
+        #     2"
+        #
+        # which, incidentally, evaluates to "bar\n12".
+        p = @herebody_s - 1
+        @herebody_s = nil
+      end
     end
 
     if is_eof
