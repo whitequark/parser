@@ -116,11 +116,7 @@ rule
    stmt_or_begin: stmt
                 | klBEGIN tLCURLY top_compstmt tRCURLY
                     {
-                      if in_def?
-                        diagnostic(:error, :begin_in_method, val[0])
-                      end
-
-                      result = @builder.preexe(val[0], val[1], val[2], val[3])
+                      diagnostic(:error, :begin_in_method, val[0])
                     }
 
             stmt: kALIAS fitem
@@ -2317,5 +2313,5 @@ warn "warning: Ruby 2.1 is not released yet and parser support may be incomplete
   end
 
   def default_encoding
-    Encoding::BINARY
+    Encoding::UTF_8
   end
