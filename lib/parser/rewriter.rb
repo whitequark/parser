@@ -40,6 +40,8 @@ module Parser
   # Keep in mind that {Parser::Rewriter} does not take care of indentation when
   # inserting/replacing code so you'll have to do this yourself.
   #
+  # @api public
+  #
   class Rewriter < Parser::AST::Processor
     ##
     # Rewrites the AST/source buffer and returns a String containing the new

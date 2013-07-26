@@ -1,6 +1,9 @@
 module Parser
   module Source
 
+    ##
+    # @api private
+    #
     class Rewriter::Action
       attr_reader :range, :replacement
 

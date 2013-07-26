@@ -1,17 +1,22 @@
 module Parser
 
   ##
+  # @api public
+  #
   # @!attribute [r] level
-  #  @return [Symbol]
+  #  @see LEVELS
+  #  @return [Symbol] diagnostic level
   #
   # @!attribute [r] message
-  #  @return [String]
+  #  @return [String] error message
   #
   # @!attribute [r] location
-  #  @return [Parser::Source::Map]
+  #  Main error-related source range.
+  #  @return [Parser::Source::Range]
   #
   # @!attribute [r] highlights
-  #  @return [Array]
+  #  Supplementary error-related source ranges.
+  #  @return [Array<Parser::Source::Range>]
   #
   class Diagnostic
     ##
@@ -46,7 +51,15 @@ module Parser
     end
 
     ##
-    # Renders the diagnostic message as an array of three lines.
+    # Renders the diagnostic message as a clang-like diagnostic.
+    #
+    # @example
+    #  diagnostic.render # =>
+    #  # [
+    #  #   "(fragment:0):1:5: error: unexpected token $end",
+    #  #   "foo +",
+    #  #   "    ^"
+    #  # ]
     #
     # @return [Array<String>]
     #

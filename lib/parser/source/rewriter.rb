@@ -1,6 +1,9 @@
 module Parser
   module Source
 
+    ##
+    # @api public
+    #
     class Rewriter
       attr_accessor :diagnostics
 

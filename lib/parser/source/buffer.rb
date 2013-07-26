@@ -3,6 +3,9 @@
 module Parser
   module Source
 
+    ##
+    # @api public
+    #
     class Buffer
       attr_reader :name, :first_line
 

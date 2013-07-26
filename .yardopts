@@ -3,10 +3,10 @@
 -M kramdown
 -o ./yardoc
 -r ./README.md
---private
---protected
 --asset ./doc/css/common.css:css/common.css
 --verbose
+--api public
+--exclude lib/parser/lexer.rb
 --exclude lib/parser/ruby18.rb
 --exclude lib/parser/ruby19.rb
 --exclude lib/parser/ruby20.rb

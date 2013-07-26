@@ -1,6 +1,9 @@
 module Parser
   module Source
 
+    ##
+    # @api public
+    #
     class Comment::Associator
       def initialize(comments, ast)
         @comments    = comments

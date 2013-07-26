@@ -1,6 +1,9 @@
 module Parser
   module AST
 
+    ##
+    # @api public
+    #
     class Processor < ::AST::Processor
       def process_regular_node(node)
         node.updated(nil, process_all(node))

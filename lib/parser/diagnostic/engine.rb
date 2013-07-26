@@ -4,22 +4,23 @@ module Parser
   # {Parser::Diagnostic::Engine} provides a basic API for dealing with
   # diagnostics by delegating them to registered consumers.
   #
-  # Basic usage is as following:
+  # @example
+  #  buffer      = Parser::Source::Buffer.new(__FILE__)
+  #  buffer.code = 'foobar'
   #
-  #     buffer      = Parser::Source::Buffer.new(__FILE__)
-  #     buffer.code = 'foobar'
+  #  consumer = lambda do |diagnostic|
+  #    puts diagnostic.message
+  #  end
   #
-  #     consumer = lambda do |diagnostic|
-  #       puts diagnostic.message
-  #     end
+  #  engine     = Parser::Diagnostic::Engine.new(consumer)
+  #  diagnostic = Parser::Diagnostic.new(:warning, 'warning!', buffer, 1..2)
   #
-  #     engine     = Parser::Diagnostic::Engine.new(consumer)
-  #     diagnostic = Parser::Diagnostic.new(:warning, 'warning!', buffer, 1..2)
+  #  engine.process(diagnostic) # => "warning!"
   #
-  #     engine.process(diagnostic) # => "warning!"
+  # @api public
   #
   # @!attribute [rw] consumer
-  #  @return [#call]
+  #  @return [#call(Diagnostic)]
   #
   # @!attribute [rw] all_errors_are_fatal
   #  When set to `true` any error that is encountered will result in
@@ -37,7 +38,7 @@ module Parser
     attr_accessor :ignore_warnings
 
     ##
-    # @param [#call] consumer
+    # @param [#call(Diagnostic)] consumer
     #
     def initialize(consumer=nil)
       @consumer             = consumer

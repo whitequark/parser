@@ -1,12 +1,34 @@
 module Parser
 
+  ##
+  # Default AST builder. Uses {AST::Node}s.
+  #
   class Builders::Default
+    ##
+    # @api private
     attr_accessor :parser
+
+    ##
+    # If set to true, `__FILE__` and `__LINE__` are transformed to
+    # literal nodes. For example, `s(:str, "lib/foo.rb")` and `s(:int, 10)`.
+    #
+    # If set to false, `__FILE__` and `__LINE__` are emitted as-is,
+    # i.e. as `s(:__FILE__)` and `s(:__LINE__)` nodes.
+    #
+    # Source maps are identical in both cases.
+    #
+    # @return [TrueClass|FalseClass]
     attr_accessor :emit_file_line_as_literals
 
+    ##
+    # Initializes attributes:
+    #
+    #   * `emit_file_line_as_literals`: `true`
     def initialize
       @emit_file_line_as_literals = true
     end
+
+    # @!parse private
 
     #
     # Literals

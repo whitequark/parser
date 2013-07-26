@@ -1,6 +1,10 @@
 module Parser
 
   ##
+  # Base class for version-specific parsers.
+  #
+  # @api public
+  #
   # @!attribute [r] diagnostics
   #  @return [Parser::Diagnostic::Engine]
   #
@@ -9,7 +13,9 @@ module Parser
   #
   class Base < Racc::Parser
     ##
-    # Parses a string of Ruby code and returns the AST.
+    # Parses a string of Ruby code and returns the AST. If the source
+    # cannot be parsed, {SyntaxError} is raised and a diagnostic is
+    # printed to `stderr`.
     #
     # @example
     #  Parser::Base.parse('puts "hello"')
@@ -25,7 +31,6 @@ module Parser
       parser.diagnostics.all_errors_are_fatal = true
       parser.diagnostics.ignore_warnings      = true
 
-      # Temporary, for manual testing convenience
       parser.diagnostics.consumer = lambda do |diagnostic|
         $stderr.puts(diagnostic.render)
       end
@@ -44,7 +49,9 @@ module Parser
     end
 
     ##
-    # Parses Ruby source code by reading it from a file.
+    # Parses Ruby source code by reading it from a file. If the source
+    # cannot be parsed, {SyntaxError} is raised and a diagnostic is
+    # printed to `stderr`.
     #
     # @param [String] filename Path to the file to parse.
     # @see #parse
@@ -54,19 +61,8 @@ module Parser
     end
 
     attr_reader :diagnostics
-
     attr_reader :builder
-
-    ##
-    # @api internal
-    #
     attr_reader :static_env
-
-    ##
-    # The source file currently being parsed.
-    #
-    # @api internal
-    #
     attr_reader :source_buffer
 
     ##
@@ -160,14 +156,14 @@ module Parser
     end
 
     ##
-    # @api internal
+    # @api private
     # @return [TrueClass|FalseClass]
     #
     def in_def?
       @def_level > 0
     end
 
-    protected
+    private
 
     def next_token
       @lexer.advance

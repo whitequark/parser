@@ -11,6 +11,8 @@ par or better than Ripper, Melbourne, JRubyParser or ruby\_parser.
 You can also use [unparser](https://github.com/mbj/unparser) to produce
 equivalent source code from Parser's ASTs.
 
+Sponsored by [Evil Martians](http://evilmartians.com).
+
 ## Installation
 
 Most recent version of Parser is 2.0; however, per

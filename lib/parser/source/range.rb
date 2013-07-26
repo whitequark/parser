@@ -1,6 +1,9 @@
 module Parser
   module Source
 
+    ##
+    # @api public
+    #
     class Range
       attr_reader :source_buffer
       attr_reader :begin_pos, :end_pos

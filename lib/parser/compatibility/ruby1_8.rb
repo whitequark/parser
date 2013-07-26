@@ -1,3 +1,10 @@
+##
+# @api public
+#
+# This monkeypatch extends Ruby 1.8 {String#%} with an ability
+# to replace named capture groups, i.e.
+# `"foo: %{bar}" % { :bar => 10 } # => "foo: 10"`.
+#
 class String
   alias original_percent %
 
