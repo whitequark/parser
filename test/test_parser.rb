@@ -2211,6 +2211,14 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9))
   end
 
+  def test_block_kwarg
+    assert_parses_blockargs(
+      s(:args,
+        s(:kwarg, :foo)),
+      %q{|foo:|},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
   def test_arg_invalid
     assert_diagnoses(
       [:error, :argument_const],
