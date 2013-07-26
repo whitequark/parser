@@ -1,6 +1,61 @@
 Changelog
 =========
 
+v2.0.0.pre3 (2013-07-26)
+------------------------
+
+API modifications:
+ * lexer.rl: add simple explicit output encoding for strings. (Peter Zotov)
+
+Features implemented:
+ * Source::Buffer: support for -(dos|unix|mac) and utf8-mac encodings. (Peter Zotov)
+ * Source::Range#resize. (Peter Zotov)
+ * Significantly improve speed for large (>100k) and very large (>1M) files. (Peter Zotov)
+
+Bugs fixed:
+ * ruby21.y: fix typos. (Peter Zotov)
+ * builders/default: respect regexp encoding. (Peter Zotov)
+ * lexer.rl: literal EOF (\0, \x04, \x1a) inside literals and comments. (Peter Zotov)
+ * lexer.rl: "meth (lambda do end)" (1.8), "f x: -> do meth do end end": expr_cmdarg. (Peter Zotov)
+ * lexer.rl: "\<\<E\nE\r\r\n": extraneous CRs are ignored after heredoc delimiter. (Peter Zotov)
+ * lexer.rl: "%\nfoo\n": \n can be used as %-literal delimiter. (Peter Zotov)
+ * source/buffer, lexer.rl: convert CRLF to LF prior to lexing. (Peter Zotov)
+ * lexer.rl: "\<\<w; "\nfoo\nw\n"": interleaved heredoc and non-heredoc literals. (Peter Zotov)
+ * builders/default: 1.8 did not descend into &&/|| in conditional context. (Peter Zotov)
+ * lexer.rl: "1+a:a": respect context sensitivity in 1.8 label fallback. (Peter Zotov)
+ * lexer.rl: ruby 1.8 is context-sensitive wrt/ locals as well. (Peter Zotov)
+ * lexer.rl: "eof??a": expr_arg doesn't need space before character literal. (Peter Zotov)
+ * lexer.rl: interleaved heredoc and interpolated double-quoted string. (Peter Zotov)
+ * lexer.rl: "#{f:a}": interpolation starts expr_value, not expr_beg. (Peter Zotov)
+ * lexer.rl: "\cM" is "\r", not an error. (Peter Zotov)
+ * ruby{20,21}.y: constant op-assignment inside a def is not an error. (Peter Zotov)
+ * lexer.rl: "when Date:" fix label fallback for 1.8 mode. (Peter Zotov)
+ * ruby{19,20,21}.y: "->(scope){}; scope :foo": lambda identifier leakage. (Peter Zotov)
+ * lexer.rl: "eh ?\r\n": don't eat tEH if followed by CRLF. (Peter Zotov)
+ * lexer.rl: "f \<\<-TABLE\ndo |a,b|\nTABLE\nend": leave FSM after lexing heredoc. (Peter Zotov)
+ * lexer.rl: "foo %\n bar": don't % at expr_arg as tSTRING_BEG. (Peter Zotov)
+ * lexer.rl, lexer/literal: use lexer encoding for literal buffer. (Peter Zotov)
+ * lexer.rl: "\u{9}": one-digit braced unicode escapes. (Peter Zotov)
+ * Source::Buffer: don't chew \r from source lines. (Peter Zotov)
+ * builders/default: don't die in eh_keyword_map if else branch is empty. (Peter Zotov)
+ * lexer.rl: "0777_333": octal literals with internal underscores. (Peter Zotov)
+ * lexer.rl: "let [] {}": goto tLBRACE_ARG after any closing braces. (Peter Zotov)
+ * lexer.rl: "while not (1) do end": emit proper kDO* when in cond/cmdarg state. (Peter Zotov)
+ * lexer.rl: "rescue=>": correctly handle rescue+assoc at expr_beg. (Peter Zotov)
+ * lexer.rl: "puts 123do end": only trailing `_' and `e' in number are errors. (Peter Zotov)
+ * lexer.rl: "begin; rescue rescue1; end": accept barewords at expr_mid. (Peter Zotov)
+ * lexer.rl: "f.x!if 1": correct modifier handling in expr_arg. (Peter Zotov)
+ * lexer.rl: "=begin\n#=end\n=end": only recognize =end at bol. (Peter Zotov)
+ * builders/default: don't check for duplicate arguments in 1.8 mode. (Peter Zotov)
+ * Don't attempt to parse magic encoding comment in 1.8 mode. (Peter Zotov)
+ * lexer.rl: "\777": octal literals overflow. (Peter Zotov)
+ * lexer.rl: "foo;\n__END__", "\na:b": whitespace in expr_value. (Peter Zotov)
+ * lexer.rl: "\xE2\x80\x99": concatenation of byte escape sequences. (Peter Zotov)
+ * lexer.rl: "E10", "E4U": don't conflate floats and identifiers. (Peter Zotov)
+ * lexer.rl: "foo.bar= {1=>2}": return fid, = as separate tokens in expr_dot. (Peter Zotov)
+ * lexer.rl: "def defined?": properly return defined? in expr_fname. (Peter Zotov)
+ * lexer.rl: "Rainbows! do end", "foo.S?": allow bareword fid in expr_beg/dot. (Peter Zotov)
+
 v2.0.0.pre2 (2013-07-11)
 ------------------------
 
