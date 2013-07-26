@@ -663,8 +663,24 @@ module Parser
             receiver.children.count == 2 &&
             receiver.children.first.type == :str
 
-        regexp_str, _regopt = *receiver
-        regexp_body, = *regexp_str
+        str_node, opt_node = *receiver
+        regexp_body, = *str_node
+        *regexp_opt  = *opt_node
+
+        if defined?(Encoding)
+          regexp_body = case
+          when regexp_opt.include?(:u)
+            regexp_body.encode(Encoding::UTF_8)
+          when regexp_opt.include?(:e)
+            regexp_body.encode(Encoding::EUC_JP)
+          when regexp_opt.include?(:s)
+            regexp_body.encode(Encoding::WINDOWS_31J)
+          when regexp_opt.include?(:n)
+            regexp_body.encode(Encoding::BINARY)
+          else
+            regexp_body
+          end
+        end
 
         Regexp.new(regexp_body).names.each do |name|
           @parser.static_env.declare(name)

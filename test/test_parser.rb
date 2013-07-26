@@ -4461,6 +4461,18 @@ class TestParser < Minitest::Test
         %q{},
         %w(1.9 2.0 2.1))
     end
+
+    def test_regexp_encoding
+      assert_parses(
+        s(:match_with_lvasgn,
+          s(:regexp,
+            s(:str, "\\xa8"),
+            s(:regopt, :n)),
+          s(:str, "")),
+        %q{/\xa8/n =~ ""}.force_encoding(Encoding::UTF_8),
+        %{},
+        ALL_VERSIONS - %w(1.8))
+    end
   end
 
   #
