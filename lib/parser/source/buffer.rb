@@ -13,12 +13,12 @@ module Parser
         /\#.*coding\s*[:=]\s*
           (
             # Special-case: there's a UTF8-MAC encoding.
-            (?<encoding> utf8-mac)
+            (utf8-mac)
           |
             # Chew the suffix; it's there for emacs compat.
-            (?<encoding> [A-Za-z0-9_-]+?)(-unix|-dos|-mac)
+            ([A-Za-z0-9_-]+?)(-unix|-dos|-mac)
           |
-            (?<encoding> [A-Za-z0-9_-]+)
+            ([A-Za-z0-9_-]+)
           )
         /x
 
@@ -38,7 +38,7 @@ module Parser
         end
 
         if (result = ENCODING_RE.match(encoding_line))
-          Encoding.find(result[:encoding])
+          Encoding.find(result[2] || result[3] || result[5])
         else
           nil
         end
@@ -111,9 +111,10 @@ module Parser
         [ @first_line + line_no, position - line_begin ]
       end
 
-      def source_line(line)
+      def source_line(lineno)
         unless @lines
-          @lines = @source.lines.each { |line| line.gsub!(/\n$/, '') }
+          @lines = @source.lines.to_a
+          @lines.each { |line| line.gsub!(/\n$/, '') }
 
           # Lexer has an "infinite stream of EOF symbols" after the
           # actual EOF, so in some cases (e.g. EOF token of ruby-parse -E)
@@ -121,7 +122,7 @@ module Parser
           @lines << ""
         end
 
-        @lines[line - @first_line].dup
+        @lines[lineno - @first_line].dup
       end
 
       private

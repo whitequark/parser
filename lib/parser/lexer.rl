@@ -262,8 +262,8 @@ class Parser::Lexer
 
   protected
 
-  def eof_char?(char)
-    [0x04, 0x1a, 0x00].include? char.ord
+  def eof_codepoint?(point)
+    [0x04, 0x1a, 0x00].include? point
   end
 
   def version?(*versions)
@@ -865,7 +865,7 @@ class Parser::Lexer
       end
     end
 
-    if literal.words? && !eof_char?(tok)
+    if literal.words? && !eof_codepoint?(@source_pts[p])
       literal.extend_space @ts, @te
     else
       # A literal newline is appended if the heredoc was _not_ closed

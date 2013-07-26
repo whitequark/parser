@@ -1,7 +1,6 @@
 # encoding: binary
 
 require 'helper'
-require 'parser/all'
 
 class TestEncoding < Minitest::Test
   include AST::Sexp
@@ -11,6 +10,8 @@ class TestEncoding < Minitest::Test
   end
 
   if defined?(Encoding)
+    require 'parser/all'
+
     def test_default
       assert_equal nil, recognize('foobar')
     end

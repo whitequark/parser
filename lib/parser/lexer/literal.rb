@@ -204,7 +204,8 @@ module Parser
 
     def coerce_encoding(string)
       if defined?(Encoding)
-        string.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
+        string.encode(Encoding::UTF_8,
+                      :invalid => :replace, :undef => :replace)
       else
         string
       end
