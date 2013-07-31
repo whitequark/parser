@@ -8,7 +8,7 @@ module Parser
     #  @return String
     #
     # @!attribute [r] location
-    #  @return Parser::Source::Range
+    #  @return Parser::Source::Map
     class Comment
       attr_reader  :text
 
@@ -23,10 +23,10 @@ module Parser
       end
 
       ##
-      # @param [Parser::Source::Range] location
-      def initialize(location)
-        @location = location
-        @text     = location.source.freeze
+      # @param [Parser::Source::Range] range
+      def initialize(range)
+        @location = Parser::Source::Map.new(range)
+        @text     = range.source.freeze
 
         freeze
       end

@@ -25,6 +25,14 @@ module Parser
         with { |map| map.update_expression(expression_l) }
       end
 
+      def ==(other)
+        other.class == self.class &&
+          instance_variables.map do |ivar|
+            instance_variable_get(ivar) ==
+              other.send(:instance_variable_get, ivar)
+          end.reduce(:&)
+      end
+
       def to_hash
         Hash[instance_variables.map do |ivar|
           [ ivar[1..-1].to_sym, instance_variable_get(ivar) ]
