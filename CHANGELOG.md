@@ -1,6 +1,20 @@
 Changelog
 =========
 
+v2.0.0.pre4 (2013-07-31)
+------------------------
+
+API modifications:
+ * source/comment: make #loc/#location return Source::Map for consistency (fixes #96). (Peter Zotov)
+
+Features implemented:
+ * source/comment/associator: skip shebang and encoding line by default (fixes #95). (Peter Zotov)
+
+Bugs fixed:
+ * ruby{19,20,21}.y, lexer.rl, builders/default: correct begin for ?a (fixes #92). (Peter Zotov)
+ * ruby{18,19,20,21}.y, builders/default: don't add spurious begin/end for string parts (refs #92). (Peter Zotov)
+ * Activate `diagnostics.all_errors_are_fatal` on non-MRI Rubies as a workaround (closes #93). (Peter Zotov)
+
 v2.0.0.pre3 (2013-07-26)
 ------------------------
 
