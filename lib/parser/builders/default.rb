@@ -1221,8 +1221,8 @@ module Parser
     end
 
     def block_map(receiver_l, begin_t, end_t)
-      Source::Map::Block.new(loc(begin_t), loc(end_t),
-                             receiver_l.join(loc(end_t)))
+      Source::Map::Collection.new(loc(begin_t), loc(end_t),
+                                  receiver_l.join(loc(end_t)))
     end
 
     def keyword_map(keyword_t, begin_t, args, end_t)
