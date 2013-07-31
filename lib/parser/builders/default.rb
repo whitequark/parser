@@ -81,6 +81,11 @@ module Parser
         string_part_map(string_t))
     end
 
+    def string_internal(string_t)
+      n(:str, [ value(string_t) ],
+        unquoted_map(string_t))
+    end
+
     def string_compose(begin_t, parts, end_t)
       if collapse_string_parts?(parts)
         if begin_t.nil? && end_t.nil?
@@ -104,7 +109,12 @@ module Parser
 
     def symbol(symbol_t)
       n(:sym, [ value(symbol_t).to_sym ],
-        unquoted_symbol_map(symbol_t))
+        symbol_part_map(symbol_t))
+    end
+
+    def symbol_internal(symbol_t)
+      n(:sym, [ value(symbol_t).to_sym ],
+        unquoted_map(symbol_t))
     end
 
     def symbol_compose(begin_t, parts, end_t)
@@ -1030,9 +1040,20 @@ module Parser
                                   loc(string_t))
     end
 
-    def unquoted_symbol_map(symbol_t)
+    def symbol_part_map(symbol)
+      str_range = loc(symbol)
+
+      begin_l = Source::Range.new(str_range.source_buffer,
+                                  str_range.begin_pos,
+                                  str_range.begin_pos + 1)
+
+      Source::Map::Collection.new(begin_l, nil,
+                                  loc(symbol))
+    end
+
+    def unquoted_map(token)
       Source::Map::Collection.new(nil, nil,
-                                  loc(symbol_t))
+                                  loc(token))
     end
 
     def pair_keyword_map(key_t, value_e)

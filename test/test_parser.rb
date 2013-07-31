@@ -186,7 +186,8 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:sym, :foo),
       %q{:foo},
-      %q{~~~~ expression})
+      %q{~ begin
+        |~~~~ expression})
 
     assert_parses(
       s(:sym, :foo),

@@ -1743,7 +1743,7 @@ opt_block_args_tail:
                     }
                 | qword_list tSTRING_CONTENT tSPACE
                     {
-                      result = val[0] << @builder.string(val[1])
+                      result = val[0] << @builder.string_internal(val[1])
                     }
 
        qsym_list: # nothing
@@ -1752,7 +1752,7 @@ opt_block_args_tail:
                     }
                 | qsym_list tSTRING_CONTENT tSPACE
                     {
-                      result = val[0] << @builder.symbol(val[1])
+                      result = val[0] << @builder.symbol_internal(val[1])
                     }
 
  string_contents: # nothing
@@ -1784,7 +1784,7 @@ regexp_contents: # nothing
 
   string_content: tSTRING_CONTENT
                     {
-                      result = @builder.string(val[0])
+                      result = @builder.string_internal(val[0])
                     }
                 | tSTRING_DVAR string_dvar
                     {

@@ -1658,7 +1658,7 @@ rule
                     }
                 | qword_list tSTRING_CONTENT tSPACE
                     {
-                      result = val[0] << @builder.string(val[1])
+                      result = val[0] << @builder.string_internal(val[1])
                     }
 
  string_contents: # nothing
@@ -1690,7 +1690,7 @@ regexp_contents: # nothing
 
   string_content: tSTRING_CONTENT
                     {
-                      result = @builder.string(val[0])
+                      result = @builder.string_internal(val[0])
                     }
                 | tSTRING_DVAR string_dvar
                     {
