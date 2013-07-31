@@ -16,6 +16,8 @@ class TestSourceCommentAssociator < Minitest::Test
 
   def test_associate
     ast, associations = associate(<<-END)
+#!/usr/bin/env ruby
+# coding: utf-8
 # Class comment
 # another class comment
 class Foo

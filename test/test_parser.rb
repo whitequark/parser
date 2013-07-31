@@ -4547,7 +4547,7 @@ class TestParser < Minitest::Test
     assert_parses_with_comments(
       s(:send, s(:int, 1), :+, s(:int, 2)),
       %Q{1 + # foo\n 2},
-      [ [4, 9]  ])
+      [ [4, 9] ])
   end
 
   def test_comment_single

@@ -2,17 +2,31 @@ module Parser
   module Source
 
     ##
+    #
+    # @!attribute skip_directives
+    #  Skip file processing directives disguised as comments,
+    #  namely:
+    #
+    #    * Shebang line,
+    #    * Magic encoding comment.
+    #
     # @api public
     #
     class Comment::Associator
+      attr_accessor :skip_directives
+
       def initialize(comments, ast)
         @comments    = comments
         @ast         = ast
+
+        @skip_directives = true
       end
 
       def associate
         @mapping     = Hash.new { |h, k| h[k] = [] }
         @comment_num = 0
+
+        advance_through_directives if @skip_directives
 
         process(nil, @ast)
 
@@ -68,6 +82,18 @@ module Parser
       def associate_and_advance_comment(node)
         @mapping[node] << current_comment
         advance_comment
+      end
+
+      def advance_through_directives
+        # Skip shebang.
+        if current_comment.text =~ /^#!/
+          advance_comment
+        end
+
+        # Skip encoding line.
+        if current_comment.text =~ Buffer::ENCODING_RE
+          advance_comment
+        end
       end
     end
 
