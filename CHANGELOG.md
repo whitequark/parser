@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.0.0.pre5 (2013-07-31)
+------------------------
+
+Bugs fixed:
+ * Remove a forgotten require. (Peter Zotov)
+
 v2.0.0.pre4 (2013-07-31)
 ------------------------
 
