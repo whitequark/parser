@@ -78,7 +78,7 @@ module Parser
 
     def string(string_t)
       n(:str, [ value(string_t) ],
-        string_part_map(string_t))
+        delimited_string_map(string_t))
     end
 
     def string_internal(string_t)
@@ -100,6 +100,11 @@ module Parser
       end
     end
 
+    def character(char_t)
+      n(:str, [ value(char_t) ],
+        prefix_string_map(char_t))
+    end
+
     def __FILE__(__FILE__t)
       n0(:__FILE__,
         token_map(__FILE__t))
@@ -109,7 +114,7 @@ module Parser
 
     def symbol(symbol_t)
       n(:sym, [ value(symbol_t).to_sym ],
-        symbol_part_map(symbol_t))
+        prefix_string_map(symbol_t))
     end
 
     def symbol_internal(symbol_t)
@@ -1025,7 +1030,7 @@ module Parser
       end
     end
 
-    def string_part_map(string_t)
+    def delimited_string_map(string_t)
       str_range = loc(string_t)
 
       begin_l = Source::Range.new(str_range.source_buffer,
@@ -1040,7 +1045,7 @@ module Parser
                                   loc(string_t))
     end
 
-    def symbol_part_map(symbol)
+    def prefix_string_map(symbol)
       str_range = loc(symbol)
 
       begin_l = Source::Range.new(str_range.source_buffer,

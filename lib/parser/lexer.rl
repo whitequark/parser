@@ -1614,7 +1614,7 @@ class Parser::Lexer
         if version?(18)
           emit(:tINTEGER, value[0].ord)
         else
-          emit(:tSTRING, value)
+          emit(:tCHARACTER, value)
         end
 
         fnext expr_end; fbreak;

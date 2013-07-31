@@ -16,6 +16,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tBACK_REF2 tSYMBEG tSTRING_BEG tXSTRING_BEG tREGEXP_BEG tREGEXP_OPT
       tWORDS_BEG tQWORDS_BEG tSTRING_DBEG tSTRING_DVAR tSTRING_END
       tSTRING tSYMBOL tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG
+      tCHARACTER
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -1611,6 +1612,10 @@ rule
                 | tSTRING
                     {
                       result = @builder.string(val[0])
+                    }
+                | tCHARACTER
+                    {
+                      result = @builder.character(val[0])
                     }
 
          xstring: tXSTRING_BEG xstring_contents tSTRING_END

@@ -1023,7 +1023,7 @@ class TestLexer < Minitest::Test
   def test_question_eh_a__19
     setup_lexer 19
 
-    assert_scanned '?a', :tSTRING, "a"
+    assert_scanned '?a', :tCHARACTER, "a"
   end
 
   def test_question_eh_escape_M_escape_C__18
@@ -1035,7 +1035,7 @@ class TestLexer < Minitest::Test
   def test_question_eh_escape_M_escape_C__19
     setup_lexer 19
 
-    assert_scanned '?\M-\C-a', :tSTRING, "\M-\C-a"
+    assert_scanned '?\M-\C-a', :tCHARACTER, "\M-\C-a"
   end
 
   def test_integer_hex
@@ -1368,7 +1368,7 @@ class TestLexer < Minitest::Test
   def test_question__19
     setup_lexer 19
 
-    assert_scanned "?*", :tSTRING, "*"
+    assert_scanned "?*", :tCHARACTER, "*"
   end
 
   def test_question_bad_eos
@@ -1405,17 +1405,17 @@ class TestLexer < Minitest::Test
     setup_lexer 19
 
     @lex.state = :expr_beg
-    assert_scanned "?\\ ", :tSTRING, " "
+    assert_scanned "?\\ ", :tCHARACTER, " "
     @lex.state = :expr_beg
-    assert_scanned "?\\n", :tSTRING, "\n"
+    assert_scanned "?\\n", :tCHARACTER, "\n"
     @lex.state = :expr_beg
-    assert_scanned "?\\t", :tSTRING, "\t"
+    assert_scanned "?\\t", :tCHARACTER, "\t"
     @lex.state = :expr_beg
-    assert_scanned "?\\v", :tSTRING, "\v"
+    assert_scanned "?\\v", :tCHARACTER, "\v"
     @lex.state = :expr_beg
-    assert_scanned "?\\r", :tSTRING, "\r"
+    assert_scanned "?\\r", :tCHARACTER, "\r"
     @lex.state = :expr_beg
-    assert_scanned "?\\f", :tSTRING, "\f"
+    assert_scanned "?\\f", :tCHARACTER, "\f"
   end
 
   def test_rbracket
@@ -2807,8 +2807,8 @@ class TestLexer < Minitest::Test
   def test_bug_fid_char
     setup_lexer(19)
     assert_scanned(%Q{eof??a},
-                   :tFID,    'eof?',
-                   :tSTRING, 'a')
+                   :tFID,       'eof?',
+                   :tCHARACTER, 'a')
   end
 
   def test_bug_nonlabel_context__18

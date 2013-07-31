@@ -180,6 +180,21 @@ class TestParser < Minitest::Test
       %q{~~~~~~~~ expression})
   end
 
+  def test_character
+    assert_parses(
+      s(:str, 'a'),
+      %q{?a},
+      %q{^ begin
+        |~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:int, 97),
+      %q{?a},
+      %q{~~ expression},
+      %w(1.8))
+  end
+
   # Symbols
 
   def test_symbol_plain
