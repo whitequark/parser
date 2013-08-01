@@ -65,4 +65,22 @@ end
                  associations[ast].map(&:text)
   end
 
+  def test_associate_shebang_only
+    ast, associations = associate(<<-END)
+#!ruby
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_no_comments
+    ast, associations = associate(<<-END)
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
 end

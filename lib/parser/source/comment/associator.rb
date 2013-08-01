@@ -86,12 +86,12 @@ module Parser
 
       def advance_through_directives
         # Skip shebang.
-        if current_comment.text =~ /^#!/
+        if current_comment && current_comment.text =~ /^#!/
           advance_comment
         end
 
         # Skip encoding line.
-        if current_comment.text =~ Buffer::ENCODING_RE
+        if current_comment && current_comment.text =~ Buffer::ENCODING_RE
           advance_comment
         end
       end
