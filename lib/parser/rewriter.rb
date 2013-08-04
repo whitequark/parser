@@ -22,11 +22,11 @@ module Parser
   #     end
   #     EOF
   #
-  #     buffer      = Parser::Source::Buffer.new('(example)')
-  #     buffer.code = code
-  #     parser      = Parser::CurrentRuby.new
-  #     ast         = parser.parse(buffer)
-  #     rewriter    = RemoveDo.new
+  #     buffer        = Parser::Source::Buffer.new('(example)')
+  #     buffer.source = code
+  #     parser        = Parser::CurrentRuby.new
+  #     ast           = parser.parse(buffer)
+  #     rewriter      = RemoveDo.new
   #
   #     # Rewrite the AST, returns a String with the new form.
   #     puts rewriter.rewrite(buffer, ast)
