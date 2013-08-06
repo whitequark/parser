@@ -56,6 +56,18 @@ class TestSourceRewriter < Minitest::Test
                     process
   end
 
+  def test_multiple_insertions_at_same_location
+    assert_equal '<([foo] bar) baz>',
+                 @rewriter.
+                   insert_before(range(0, 11), '<').
+                   insert_after( range(0, 11), '>').
+                   insert_before(range(0, 7), '(').
+                   insert_after( range(0, 7), ')').
+                   insert_before(range(0, 3), '[').
+                   insert_after( range(0, 3), ']').
+                   process
+  end
+
   def test_clobber
     diagnostics = []
     @rewriter.diagnostics.consumer = lambda do |diag|

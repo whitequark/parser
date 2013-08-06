@@ -35,11 +35,12 @@ module Parser
       end
 
       def process
-        adjustment = 0
-        source     = @source_buffer.source.dup
-
-        @queue.sort_by { |action| action.range.begin_pos }.
-               each do |action|
+        adjustment   = 0
+        source       = @source_buffer.source.dup
+        sorted_queue = @queue.sort_by.with_index do |action, index|
+          [action.range.begin_pos, index]
+        end
+        sorted_queue.each do |action|
           begin_pos = action.range.begin_pos + adjustment
           end_pos   = begin_pos + action.range.length
 
