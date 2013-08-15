@@ -1648,10 +1648,20 @@ class Parser::Lexer
       # KEYWORDS AND PUNCTUATION
       #
 
+      # a({b=>c})
+      e_lbrace
+      => {
+        if @lambda_stack.last == @paren_nest
+          @lambda_stack.pop
+          emit(:tLAMBEG)
+        else
+          emit_table(PUNCTUATION_BEGIN)
+        end
+        fbreak;
+      };
+
       # a([1, 2])
       e_lbrack    |
-      # a({b=>c})
-      e_lbrace    |
       # a()
       e_lparen
       => { emit_table(PUNCTUATION_BEGIN)

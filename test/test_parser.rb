@@ -2919,6 +2919,17 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:block, s(:send, nil, :lambda),
+        s(:args, s(:restarg)), nil),
+      %q{-> * { }},
+      %q{~~ selector (send)
+        |     ^ begin
+        |       ^ end
+        |   ^ expression (args.restarg)
+        |~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
         s(:args), nil),
       %q{-> do end},
       %q{~~ selector (send)
