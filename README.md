@@ -228,7 +228,7 @@ As of 2013-07-25, affected gems are: activerdf, activerdf_net7, fastreader, gkel
 
 ### Invalid Unicode escape sequences
 
-Ruby MRI 1.9+ permits to specify invalid UTF-8 sequences in Unicode escape sequences, such as `\u{d800}`.
+Ruby MRI 1.9+ permits to specify invalid Unicode codepoints in Unicode escape sequences, such as `\u{d800}`.
 
 As of 2013-07-25, affected gems are: aws_cloud_search.
 
