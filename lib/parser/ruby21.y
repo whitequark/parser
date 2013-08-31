@@ -1235,8 +1235,6 @@ rule
 
           f_marg: f_norm_arg
                     {
-                      @static_env.declare val[0][0]
-
                       result = @builder.arg(val[0])
                     }
                 | tLPAREN f_margs rparen
@@ -1256,15 +1254,11 @@ rule
          f_margs: f_marg_list
                 | f_marg_list tCOMMA tSTAR f_norm_arg
                     {
-                      @static_env.declare val[3][0]
-
                       result = val[0].
                                   push(@builder.restarg(val[2], val[3]))
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
                     {
-                      @static_env.declare val[3][0]
-
                       result = val[0].
                                   push(@builder.restarg(val[2], val[3])).
                                   concat(val[5])
@@ -1282,14 +1276,10 @@ rule
                     }
                 |                    tSTAR f_norm_arg
                     {
-                      @static_env.declare val[1][0]
-
                       result = [ @builder.restarg(val[0], val[1]) ]
                     }
                 |                    tSTAR f_norm_arg tCOMMA f_marg_list
                     {
-                      @static_env.declare val[1][0]
-
                       result = [ @builder.restarg(val[0], val[1]),
                                  *val[3] ]
                     }
@@ -2087,11 +2077,14 @@ keyword_variable: kNIL
 
       f_norm_arg: f_bad_arg
                 | tIDENTIFIER
-
-      f_arg_item: f_norm_arg
                     {
                       @static_env.declare val[0][0]
 
+                      result = val[0]
+                    }
+
+      f_arg_item: f_norm_arg
+                    {
                       result = @builder.arg(val[0])
                     }
                 | tLPAREN f_margs rparen
@@ -2108,37 +2101,30 @@ keyword_variable: kNIL
                       result = val[0] << val[2]
                     }
 
-            f_kw: tLABEL arg_value
+         f_label: tLABEL
                     {
                       check_kwarg_name(val[0])
 
                       @static_env.declare val[0][0]
 
+                      result = val[0]
+                    }
+
+            f_kw: f_label arg_value
+                    {
                       result = @builder.kwoptarg(val[0], val[1])
                     }
-                | tLABEL
+                | f_label
                     {
-                      check_kwarg_name(val[0])
-
-                      @static_env.declare val[0][0]
-
                       result = @builder.kwarg(val[0])
                     }
 
-      f_block_kw: tLABEL primary_value
+      f_block_kw: f_label primary_value
                     {
-                      check_kwarg_name(val[0])
-
-                      @static_env.declare val[0][0]
-
                       result = @builder.kwoptarg(val[0], val[1])
                     }
-                | tLABEL
+                | f_label
                     {
-                      check_kwarg_name(val[0])
-
-                      @static_env.declare val[0][0]
-
                       result = @builder.kwarg(val[0])
                     }
 
@@ -2173,17 +2159,13 @@ keyword_variable: kNIL
                       result = [ @builder.kwrestarg(val[0]) ]
                     }
 
-           f_opt: tIDENTIFIER tEQL arg_value
+           f_opt: f_norm_arg tEQL arg_value
                     {
-                      @static_env.declare val[0][0]
-
                       result = @builder.optarg(val[0], val[1], val[2])
                     }
 
-     f_block_opt: tIDENTIFIER tEQL primary_value
+     f_block_opt: f_norm_arg tEQL primary_value
                     {
-                      @static_env.declare val[0][0]
-
                       result = @builder.optarg(val[0], val[1], val[2])
                     }
 
