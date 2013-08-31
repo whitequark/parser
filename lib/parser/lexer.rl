@@ -1910,15 +1910,39 @@ class Parser::Lexer
 
       (
         ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
+      ) [eE]
+      => {
+        if version?(18, 19, 20)
+          diagnostic :error,
+                     Parser::ERRORS[:trailing_in_number] % { :character => tok(@te - 1, @te) },
+                     range(@te - 1, @te)
+        else
+          emit(:tINTEGER, tok(@ts, @te - 1).to_i)
+          fhold; fbreak;
+        end
+      };
+
+      (
+        ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
         ( '.' ( digit+ '_' )* digit+ )?
-        ( [eE] [+\-]? ( digit+ '_' )* digit* )?
+      ) [eE]
+      => {
+        if version?(18, 19, 20)
+          diagnostic :error,
+                     Parser::ERRORS[:trailing_in_number] % { :character => tok(@te - 1, @te) },
+                     range(@te - 1, @te)
+        else
+          emit(:tFLOAT, tok(@ts, @te - 1).to_f)
+          fhold; fbreak;
+        end
+      };
+
+      (
+        ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
+        ( '.' ( digit+ '_' )* digit+ )?
+        ( [eE] [+\-]? ( digit+ '_' )* digit+ )?
       )
       => {
-        if tok.end_with? 'e'
-          diagnostic :error, Parser::ERRORS[:trailing_in_number] % { :character => 'e' },
-                     range(@te - 1, @te)
-        end
-
         emit(:tFLOAT, tok.to_f)
         fbreak;
       };

@@ -646,6 +646,28 @@ class TestLexer < Minitest::Test
     assert_scanned "0e0", :tFLOAT, 0e0
   end
 
+  def test_float_e_nothing
+    setup_lexer 18
+    refute_scanned "1end"
+    refute_scanned "1.1end"
+
+    setup_lexer 19
+    refute_scanned "1end"
+    refute_scanned "1.1end"
+
+    setup_lexer 20
+    refute_scanned "1end"
+    refute_scanned "1.1end"
+
+    setup_lexer 21
+    assert_scanned("1end",
+                   :tINTEGER, 1,
+                   :kEND,     'end')
+    assert_scanned("1.1end",
+                   :tFLOAT,   1.1,
+                   :kEND,     'end')
+  end
+
   def test_float_neg
     assert_scanned("-1.0",
                    :tUMINUS_NUM, "-",
