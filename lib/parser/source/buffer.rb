@@ -9,6 +9,7 @@ module Parser
     class Buffer
       attr_reader :name, :first_line
 
+      # @private
       ENCODING_RE =
         /\#.*coding\s*[:=]\s*
           (
