@@ -48,11 +48,16 @@ module Parser
     end
 
     ##
-    # Processes a diagnostic and optionally raises {Parser::SyntaxError} when
-    # `all_errors_are_fatal` is set to true.
+    # Processes a `diagnostic`:
+    #   * Passes the diagnostic to the consumer, if it's not a warning when
+    #     `ignore_warnings` is set.
+    #   * After that, raises {Parser::SyntaxError} when `all_errors_are_fatal`
+    #     is set to true.
     #
     # @param [Parser::Diagnostic] diagnostic
     # @return [Parser::Diagnostic::Engine]
+    # @see ignore?
+    # @see raise?
     #
     def process(diagnostic)
       if ignore?(diagnostic)
@@ -71,6 +76,8 @@ module Parser
     protected
 
     ##
+    # Checks whether `diagnostic` should be ignored.
+    #
     # @param [Parser::Diagnostic] diagnostic
     # @return [TrueClass|FalseClass]
     #
@@ -80,6 +87,8 @@ module Parser
     end
 
     ##
+    # Checks whether `diagnostic` should be raised as an exception.
+    #
     # @param [Parser::Diagnostic] diagnostic
     # @return [TrueClass|FalseClass]
     #
