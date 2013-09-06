@@ -26,6 +26,60 @@ module Parser
     # @return [Parser::AST::Node]
     #
     def self.parse(string, file='(string)', line=1)
+      parser = default_parser
+      source_buffer = setup_source_buffer(file, line, string, parser.default_encoding)
+      parser.parse(source_buffer)
+    end
+
+    ##
+    # Parses a string of Ruby code and returns the AST and comments. If the
+    # source cannot be parsed, {SyntaxError} is raised and a diagnostic is
+    # printed to `stderr`.
+    #
+    # @example
+    #  Parser::Base.parse_with_comments('puts "hello"')
+    #
+    # @param [String] string The block of code to parse.
+    # @param [String] file The name of the file the code originated from.
+    # @param [Numeric] line The initial line number.
+    # @return [Array]
+    #
+    def self.parse_with_comments(string, file='(string)', line=1)
+      parser = default_parser
+      source_buffer = setup_source_buffer(file, line, string, parser.default_encoding)
+      parser.parse_with_comments(source_buffer)
+    end
+
+    ##
+    # Parses Ruby source code by reading it from a file. If the source
+    # cannot be parsed, {SyntaxError} is raised and a diagnostic is
+    # printed to `stderr`.
+    #
+    # @param [String] filename Path to the file to parse.
+    # @return [Parser::AST::Node]
+    # @see #parse
+    #
+    def self.parse_file(filename)
+      parse(File.read(filename), filename)
+    end
+
+    ##
+    # Parses Ruby source code by reading it from a file and returns the AST and
+    # comments. If the source cannot be parsed, {SyntaxError} is raised and a
+    # diagnostic is printed to `stderr`.
+    #
+    # @param [String] filename Path to the file to parse.
+    # @return [Array]
+    # @see #parse
+    #
+    def self.parse_file_with_comments(filename)
+      parse_with_comments(File.read(filename), filename)
+    end
+
+    ##
+    # @return [Parser::Base] parser with the default options set.
+    #
+    def self.default_parser
       parser = new
 
       parser.diagnostics.all_errors_are_fatal = true
@@ -35,7 +89,11 @@ module Parser
         $stderr.puts(diagnostic.render)
       end
 
-      string = string.dup.force_encoding(parser.default_encoding)
+      parser
+    end
+
+    def self.setup_source_buffer(file, line, string, encoding)
+      string = string.dup.force_encoding(encoding)
 
       source_buffer = Source::Buffer.new(file, line)
 
@@ -45,20 +103,9 @@ module Parser
         source_buffer.source     = string
       end
 
-      parser.parse(source_buffer)
+      source_buffer
     end
-
-    ##
-    # Parses Ruby source code by reading it from a file. If the source
-    # cannot be parsed, {SyntaxError} is raised and a diagnostic is
-    # printed to `stderr`.
-    #
-    # @param [String] filename Path to the file to parse.
-    # @see #parse
-    #
-    def self.parse_file(filename)
-      parse(File.read(filename), filename)
-    end
+    private_class_method :setup_source_buffer
 
     attr_reader :diagnostics
     attr_reader :builder
