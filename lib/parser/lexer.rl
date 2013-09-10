@@ -497,8 +497,7 @@ class Parser::Lexer
 
   # A list of operators which can occur within an assignment shortcut (+ → +=).
   operator_arithmetic = '&'  | '|'   | '&&' | '||' | '^'  | '+'   | '-'  |
-                        '*'  | '/'   | '**' | '~'  | '**' | '<<'  | '>>' |
-                        '%'  ;
+                        '*'  | '/'   | '**' | '~'  | '<<' | '>>'  | '%'  ;
 
   # A list of all user-definable operators not covered by groups above.
   operator_rest       = '=~' | '!~' | '==' | '!=' | '!'   | '===' |
