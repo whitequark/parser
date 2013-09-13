@@ -21,8 +21,6 @@ module Parser
       alias on_erange   process_regular_node
 
       def on_var(node)
-        name, = *node
-
         node
       end
 
