@@ -114,7 +114,7 @@ task :changelog do
 end
 
 rule '.rb' => '.rl' do |t|
-  sh "ragel -R #{t.source} -o #{t.name}"
+  sh "ragel -F1 -R #{t.source} -o #{t.name}"
 end
 
 rule '.rb' => '.y' do |t|

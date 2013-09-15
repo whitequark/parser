@@ -229,11 +229,8 @@ class Parser::Lexer
 
     # Ugly, but dependent on Ragel output. Consider refactoring it somehow.
     _lex_trans_keys         = self.class.send :_lex_trans_keys
-    _lex_actions            = self.class.send :_lex_actions
-    _lex_key_offsets        = self.class.send :_lex_key_offsets
+    _lex_key_spans          = self.class.send :_lex_key_spans
     _lex_index_offsets      = self.class.send :_lex_index_offsets
-    _lex_single_lengths     = self.class.send :_lex_single_lengths
-    _lex_range_lengths      = self.class.send :_lex_range_lengths
     _lex_indicies           = self.class.send :_lex_indicies
     _lex_trans_targs        = self.class.send :_lex_trans_targs
     _lex_trans_actions      = self.class.send :_lex_trans_actions
