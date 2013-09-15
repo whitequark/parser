@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: binary
 
 module Parser
 
@@ -40,8 +40,8 @@ module Parser
 
       # DELIMITERS and TYPES are hashes with keys encoded in binary.
       # Coerce incoming data to the same encoding.
-      str_type  = coerce_encoding(str_type)
-      delimiter = coerce_encoding(delimiter)
+      str_type     = coerce_encoding(str_type)
+      delimiter    = coerce_encoding(delimiter)
 
       unless TYPES.include?(str_type)
         message = ERRORS[:unexpected_percent_str] % { :type => str_type }
@@ -204,8 +204,7 @@ module Parser
 
     def coerce_encoding(string)
       if defined?(Encoding)
-        string.encode(Encoding::UTF_8,
-                      :invalid => :replace, :undef => :replace)
+        string.dup.force_encoding(Encoding::BINARY)
       else
         string
       end
