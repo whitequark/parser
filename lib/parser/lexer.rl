@@ -157,16 +157,22 @@ class Parser::Lexer
     @source_buffer = source_buffer
 
     if @source_buffer
-      @source = @source_buffer.source + "\0"
+      @source = @source_buffer.source
+
+      if defined?(Encoding)
+        @encoding   = @source.encoding
+
+        # This is a workaround for 1.9.2, which (without force_encoding)
+        # would convert the result to UTF-8 (source encoding of lexer.rl).
+        @source    += "\0".force_encoding(@encoding)
+      else
+        @source    += "\0"
+      end
 
       if defined?(Encoding) && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
       else
         @source_pts = @source.unpack('C*')
-      end
-
-      if defined?(Encoding)
-        @encoding = @source.encoding
       end
 
       if @source_pts.size > 1_000_000 && @source.respond_to?(:encode)
