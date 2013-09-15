@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.0.0.pre8 (2013-09-15)
+------------------------
+
+API modifications:
+ * lexer.rl: make lexing faster and improve parsing speed by ~60%. (Peter Zotov)
+
 v2.0.0.pre7 (2013-09-10)
 ------------------------
 
