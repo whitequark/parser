@@ -7,6 +7,10 @@ if RUBY_VERSION < '1.9'
   require 'parser/compatibility/ruby1_8'
 end
 
+if RUBY_VERSION < '2.0'
+  require 'parser/compatibility/ruby1_9'
+end
+
 ##
 # @api public
 #
