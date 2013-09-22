@@ -31,13 +31,14 @@ Parse a chunk of code:
 Access the AST's source map:
 
     p Parser::CurrentRuby.parse("2 + 2").loc
-    # #<Parser::Source::Map::Send:0x007fe0ca8a69b8
-    #   @begin=nil,
-    #   @end=nil,
-    #   @expression=#<Source::Range (string) 0...5>,
-    #   @selector=#<Source::Range (string) 2...3>>
+    # #<Parser::Source::Map::Send:0x007fe5a1ac2388 
+    #   @dot=nil, 
+    #   @begin=nil, 
+    #   @end=nil, 
+    #   @selector=#<Source::Range (string) 2...3>, 
+    #   @expression=#<Source::Range (string) 0...5>>
 
-    p Parser::CurrentRuby.parse("2 + 2").loc.selector.to_source
+    p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
     # "+"
 
 Parse a chunk of code and display all diagnostics:
