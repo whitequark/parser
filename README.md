@@ -15,12 +15,7 @@ Sponsored by [Evil Martians](http://evilmartians.com).
 
 ## Installation
 
-Most recent version of Parser is 2.0; however, per
-[release schedule](https://github.com/whitequark/parser/issues/51), it stays in
-the beta status for a while. However, it handles much more input than stable
-1.x branch, and for new work it is advisable to use the beta versions.
-
-    $ gem install parser --pre
+    $ gem install parser
 
 ## Usage
 
@@ -36,11 +31,11 @@ Parse a chunk of code:
 Access the AST's source map:
 
     p Parser::CurrentRuby.parse("2 + 2").loc
-    # #<Parser::Source::Map::Send:0x007fe5a1ac2388 
-    #   @dot=nil, 
-    #   @begin=nil, 
-    #   @end=nil, 
-    #   @selector=#<Source::Range (string) 2...3>, 
+    # #<Parser::Source::Map::Send:0x007fe5a1ac2388
+    #   @dot=nil,
+    #   @begin=nil,
+    #   @end=nil,
+    #   @selector=#<Source::Range (string) 2...3>,
     #   @expression=#<Source::Range (string) 0...5>>
 
     p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
