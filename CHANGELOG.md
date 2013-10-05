@@ -1,6 +1,37 @@
 Changelog
 =========
 
+v2.0.0 (2013-10-06)
+-------------------
+
+API modifications:
+ * Source::Rewriter: raise an exception if updates clobber each other. (Peter Zotov)
+ * Source::Range#inspect: use full class name. (Peter Zotov)
+ * lexer.rl: make EOF tokens actually pointing at EOF and zero-length. (Peter Zotov)
+ * Source::Range#column_range: raise RangeError if range spans >1 line. (Peter Zotov)
+ * Source::Comment::Associator: fix argument order. (Peter Zotov)
+
+Features implemented:
+ * Source::Comment: implement #inspect. (Peter Zotov)
+ * Backport Array#bsearch from Ruby 2.0. (Peter Zotov)
+
+v2.0.0.pre8 (2013-09-15)
+------------------------
+
+API modifications:
+ * lexer.rl: make lexing faster and improve parsing speed by ~60%. (Peter Zotov)
+
+v2.0.0.pre7 (2013-09-10)
+------------------------
+
+Features implemented:
+ * Parser::Base: add #parse_with_comments, #parse_file_with_comments. (Trent Ogren)
+ * lexer.rl (Ruby 2.1): "1end": lex non-exponent `e' separate from number. (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl: "->*{}": tLAMBEG at expr_beg (fixes #103). (Peter Zotov)
+ * Source::Rewriter: apply actions in the insertion order. (Josh Cheek)
+
 v2.0.0.pre5 (2013-07-31)
 ------------------------
 
