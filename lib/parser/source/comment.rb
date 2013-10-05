@@ -18,7 +18,7 @@ module Parser
       ##
       # @see Parser::Source::Comment::Associator
       def self.associate(ast, comments)
-        associator = Associator.new(comments, ast)
+        associator = Associator.new(ast, comments)
         associator.associate
       end
 

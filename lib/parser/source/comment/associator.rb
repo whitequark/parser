@@ -15,9 +15,9 @@ module Parser
     class Comment::Associator
       attr_accessor :skip_directives
 
-      def initialize(comments, ast)
-        @comments    = comments
+      def initialize(ast, comments)
         @ast         = ast
+        @comments    = comments
 
         @skip_directives = true
       end
