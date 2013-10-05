@@ -74,9 +74,11 @@ class TestSourceRewriter < Minitest::Test
       diagnostics << diag
     end
 
-    @rewriter.
-      replace(range(3, 1), '---').
-      remove(range(3, 1))
+    assert_raises RuntimeError, /clobber/ do
+      @rewriter.
+        replace(range(3, 1), '---').
+        remove(range(3, 1))
+    end
 
     assert_equal 2, diagnostics.count
 

@@ -59,8 +59,6 @@ module Parser
       @source_rewriter.process
     end
 
-    private
-
     ##
     # Returns `true` if the specified node is an assignment node, returns false
     # otherwise.
