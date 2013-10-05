@@ -5,7 +5,8 @@ module Parser
     # @api public
     #
     class Rewriter
-      attr_accessor :diagnostics
+      attr_reader :source_buffer
+      attr_reader :diagnostics
 
       def initialize(source_buffer)
         @diagnostics = Diagnostic::Engine.new
@@ -67,6 +68,8 @@ module Parser
                                       "clobbered by: #{clobber_action}",
                                       clobber_action.range)
           @diagnostics.process(diagnostic)
+
+          raise RuntimeError, "Parser::Source::Rewriter detected clobbering"
         else
           clobber(action.range)
 
