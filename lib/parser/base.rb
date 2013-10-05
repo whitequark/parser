@@ -218,7 +218,7 @@ module Parser
 
     ##
     # @api private
-    # @return [TrueClass|FalseClass]
+    # @return [Boolean]
     #
     def in_def?
       @def_level > 0

@@ -25,11 +25,11 @@ module Parser
   # @!attribute [rw] all_errors_are_fatal
   #  When set to `true` any error that is encountered will result in
   #  {Parser::SyntaxError} being raised.
-  #  @return [TrueClass|FalseClass]
+  #  @return [Boolean]
   #
   # @!attribute [rw] ignore_warnings
   #  When set to `true` warnings will be ignored.
-  #  @return [TrueClass|FalseClass]
+  #  @return [Boolean]
   #
   class Diagnostic::Engine
     attr_accessor :consumer
@@ -79,7 +79,7 @@ module Parser
     # Checks whether `diagnostic` should be ignored.
     #
     # @param [Parser::Diagnostic] diagnostic
-    # @return [TrueClass|FalseClass]
+    # @return [Boolean]
     #
     def ignore?(diagnostic)
       @ignore_warnings &&
@@ -90,7 +90,7 @@ module Parser
     # Checks whether `diagnostic` should be raised as an exception.
     #
     # @param [Parser::Diagnostic] diagnostic
-    # @return [TrueClass|FalseClass]
+    # @return [Boolean]
     #
     def raise?(diagnostic)
       (@all_errors_are_fatal &&

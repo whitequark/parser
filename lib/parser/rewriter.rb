@@ -1,4 +1,5 @@
 module Parser
+
   ##
   # {Parser::Rewriter} offers a basic API that makes it easy to rewrite
   # existing ASTs. It's built on top of {Parser::AST::Processor} and
@@ -6,6 +7,8 @@ module Parser
   #
   # For example, assume you want to remove `do` tokens from a while statement.
   # You can do this as following:
+  #
+  #     require 'parser/current'
   #
   #     class RemoveDo < Parser::Rewriter
   #       def on_while(node)
@@ -40,6 +43,9 @@ module Parser
   # Keep in mind that {Parser::Rewriter} does not take care of indentation when
   # inserting/replacing code so you'll have to do this yourself.
   #
+  # See also [a blog entry](http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/)
+  # describing rewriters in greater detail.
+  #
   # @api public
   #
   class Rewriter < Parser::AST::Processor
@@ -64,7 +70,7 @@ module Parser
     # otherwise.
     #
     # @param [Parser::AST::Node] node
-    # @return [TrueClass|FalseClass]
+    # @return [Boolean]
     #
     def assignment?(node)
       [:lvasgn, :ivasgn, :gvasgn, :cvasgn, :casgn].include?(node.type)
@@ -109,4 +115,5 @@ module Parser
       @source_rewriter.replace(range, content)
     end
   end
+
 end
