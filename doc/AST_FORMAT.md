@@ -138,6 +138,8 @@ Format:
 (array (int 1) (int 2))
 
 "[1, 2]"
+ ^ begin
+      ^ end
  ~~~~~~ expression
 ~~~
 

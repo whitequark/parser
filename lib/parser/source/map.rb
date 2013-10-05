@@ -2,29 +2,99 @@ module Parser
   module Source
 
     ##
+    # {Map} relates AST nodes to the source code they were parsed from.
+    # More specifically, a {Map} or its subclass contains a set of ranges:
+    #
+    #  * `expression`: smallest range which includes all source corresponding
+    #    to the node and all `expression` ranges of its children.
+    #  * other ranges (`begin`, `end`, `operator`, ...): node-specific ranges
+    #    pointing to various interesting tokens corresponding to the node.
+    #
+    # All ranges except `expression` are defined by {Map} subclasses.
+    #
+    # Ranges (except `expression`) can be `nil` if the corresponding token is
+    # not present in source. For example, a hash may not have opening/closing
+    # braces, and so would its source map.
+    #
+    #     p Parser::CurrentRuby.parse('[1 => 2]').children[0].loc
+    #     # => <Parser::Source::Map::Collection:0x007f5492b547d8
+    #     #  @end=nil, @begin=nil,
+    #     #  @expression=#<Source::Range (string) 1...7>>
+    #
+    # The {file:doc/AST_FORMAT.md} document describes how ranges associated to source
+    # code tokens. For example, the entry
+    #
+    #     (array (int 1) (int 2))
+    #
+    #     "[1, 2]"
+    #      ^ begin
+    #           ^ end
+    #      ~~~~~~ expression
+    #
+    # means that if `node` is an {Parser::AST::Node} `(array (int 1) (int 2))`,
+    # then `node.loc` responds to `begin`, `end` and `expression`, and
+    # `node.loc.begin` returns a range pointing at the opening bracket, and so on.
+    #
+    # If you want to write code polymorphic by the source map (i.e. accepting
+    # several subclasses of {Map}), use `respond_to?` instead of `is_a?` to
+    # check whether the map features the range you need. Concrete {Map}
+    # subclasses may not be preserved between versions, but their interfaces
+    # will be kept compatible.
+    #
+    # You can visualize the source maps with `ruby-parse -E` command-line tool.
+    #
+    # @example
+    #  require 'parser/current'
+    #
+    #  p Parser::CurrentRuby.parse('[1, 2]').loc
+    #  # => #<Parser::Source::Map::Collection:0x007f14b80eccd8
+    #  #  @end=#<Source::Range (string) 5...6>,
+    #  #  @begin=#<Source::Range (string) 0...1>,
+    #  #  @expression=#<Source::Range (string) 0...6>>
+    #
+    # @!attribute [r] expression
+    #  @return [Range]
+    #
     # @api public
     #
     class Map
       attr_reader :expression
 
+      ##
+      # @param [Range] expression
       def initialize(expression)
         @expression = expression
 
         freeze
       end
 
+      ##
+      # A shortcut for `self.expression.line`.
+      # @return [Integer]
+      #
       def line
         @expression.line
       end
 
+      ##
+      # A shortcut for `self.expression.column`.
+      # @return [Integer]
+      #
       def column
         @expression.column
       end
 
+      ##
+      # @api private
+      #
       def with_expression(expression_l)
         with { |map| map.update_expression(expression_l) }
       end
 
+      ##
+      # Compares source maps.
+      # @return [Boolean]
+      #
       def ==(other)
         other.class == self.class &&
           instance_variables.map do |ivar|
@@ -33,6 +103,24 @@ module Parser
           end.reduce(:&)
       end
 
+      ##
+      # Converts this source map to a hash with keys corresponding to
+      # ranges. For example, if called on an instance of {Collection},
+      # which adds the `begin` and `end` ranges, the resulting hash
+      # will contain keys `:expression`, `:begin` and `:end`.
+      #
+      # @example
+      #  require 'parser/current'
+      #
+      #  p Parser::CurrentRuby.parse('[1, 2]').loc.to_hash
+      #  # => {
+      #  #   :begin => #<Source::Range (string) 0...1>,
+      #  #   :end => #<Source::Range (string) 5...6>,
+      #  #   :expression => #<Source::Range (string) 0...6>
+      #  # }
+      #
+      # @return [Hash(Symbol, Parser::Source::Range)]
+      #
       def to_hash
         Hash[instance_variables.map do |ivar|
           [ ivar[1..-1].to_sym, instance_variable_get(ivar) ]
