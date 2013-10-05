@@ -179,7 +179,7 @@ module Parser
       # @return [String] a human-readable representation of this range.
       #
       def inspect
-        "#<Source::Range #{@source_buffer.name} #{@begin_pos}...#{@end_pos}>"
+        "#<Parser::Source::Range #{@source_buffer.name} #{@begin_pos}...#{@end_pos}>"
       end
     end
 
