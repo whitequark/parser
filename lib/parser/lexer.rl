@@ -259,7 +259,7 @@ class Parser::Lexer
     elsif @cs == self.class.lex_error
       [ false, [ '$error', range(p - 1, p) ] ]
     else
-      [ false, [ '$eof',   range(p - 1, p) ] ]
+      [ false, [ '$eof',   range(p, p)     ] ]
     end
   end
 
