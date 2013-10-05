@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov', '~> 0.7'
   spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'json_pure' # for coveralls on 1.9.2
-  spec.add_development_dependency 'cliver' # executable version detection
+  spec.add_development_dependency 'cliver',    '~> 0.2.2' # executable version detection
 
   spec.add_development_dependency 'simplecov-sublime-ruby-coverage'
 
