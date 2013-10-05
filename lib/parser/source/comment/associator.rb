@@ -2,19 +2,50 @@ module Parser
   module Source
 
     ##
+    # A processor which associates AST nodes with comments based on their
+    # location in source code. It may be used, for example, to implement
+    # rdoc-style processing.
+    #
+    # @example
+    #   require 'parser/current'
+    #
+    #   ast, comments = Parser::CurrentRuby.parse_with_comments(<<-CODE)
+    #   # Class stuff
+    #   class Foo
+    #     # Attr stuff
+    #     # @see bar
+    #     attr_accessor :foo
+    #   end
+    #   CODE
+    #
+    #   p Parser::Source::Comment.associate(ast, comments)
+    #   # => {
+    #   #   (class (const nil :Foo) ...) =>
+    #   #     [#<Parser::Source::Comment (string):1:1 "# Class stuff">],
+    #   #   (send nil :attr_accessor (sym :foo)) =>
+    #   #     [#<Parser::Source::Comment (string):3:3 "# Attr stuff">,
+    #   #      #<Parser::Source::Comment (string):4:3 "# @see bar">]
+    #   # }
+    #
+    # @see #associate
     #
     # @!attribute skip_directives
-    #  Skip file processing directives disguised as comments,
-    #  namely:
+    #  Skip file processing directives disguised as comments.
+    #  Namely:
     #
     #    * Shebang line,
     #    * Magic encoding comment.
+    #
+    #  @return [Boolean]
     #
     # @api public
     #
     class Comment::Associator
       attr_accessor :skip_directives
 
+      ##
+      # @param [Parser::AST::Node] ast
+      # @param [Array(Parser::Source::Comment)] comments
       def initialize(ast, comments)
         @ast         = ast
         @comments    = comments
@@ -22,6 +53,31 @@ module Parser
         @skip_directives = true
       end
 
+      ##
+      # Compute a mapping between AST nodes and comments.
+      #
+      # A comment belongs to a certain node if it begins after end
+      # of the previous node (if one exists) and ends before beginning of
+      # the current node.
+      #
+      # This rule is unambiguous and produces the result
+      # one could reasonably expect; for example, this code
+      #
+      #     # foo
+      #     hoge # bar
+      #       + fuga
+      #
+      # will result in the following association:
+      #
+      #     {
+      #       (send (lvar :hoge) :+ (lvar :fuga)) =>
+      #         [#<Parser::Source::Comment (string):2:1 "# foo">],
+      #       (lvar :fuga) =>
+      #         [#<Parser::Source::Comment (string):3:8 "# bar">]
+      #     }
+      #
+      # @return [Hash(Parser::AST::Node, Array(Parser::Source::Comment))]
+      #
       def associate
         @mapping     = Hash.new { |h, k| h[k] = [] }
         @comment_num = 0
