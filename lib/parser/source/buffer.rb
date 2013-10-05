@@ -1,14 +1,32 @@
-# encoding:ascii-8bit
+# encoding: ascii-8bit
 
 module Parser
   module Source
 
     ##
+    # A buffer with source code. {Buffer} contains the source code itself,
+    # associated location information (name and first line), and takes care
+    # of encoding.
+    #
+    # A source buffer is immutable once populated.
+    #
+    # @!attribute [r] name
+    #  Buffer name. If the buffer was created from a file, the name corresponds
+    #  to relative path to the file.
+    #  @return [String] buffer name
+    #
+    # @!attribute [r] first_line
+    #  First line of the buffer, 1 by default.
+    #  @return [Integer] first line
+    #
     # @api public
     #
     class Buffer
       attr_reader :name, :first_line
 
+      ##
+      # @api private
+      #
       ENCODING_RE =
         /\#.*coding\s*[:=]\s*
           (
@@ -22,6 +40,13 @@ module Parser
           )
         /x
 
+      ##
+      # Try to recognize encoding of `string` as Ruby would, i.e. by looking for
+      # magic encoding comment or UTF-8 BOM. `string` can be in any encoding.
+      #
+      # @param [String]  string
+      # @return [String|nil] encoding name, if recognized
+      #
       def self.recognize_encoding(string)
         return if string.empty?
 
@@ -44,20 +69,31 @@ module Parser
         end
       end
 
-      # Lexer expects UTF-8 input. This method processes the input
-      # in an arbitrary valid Ruby encoding and returns an UTF-8 encoded
-      # string.
+      ##
+      # Recognize encoding of `input` and process it so it could be lexed.
       #
-      def self.reencode_string(string)
-        original_encoding = string.encoding
-        detected_encoding = recognize_encoding(string.force_encoding(Encoding::BINARY))
+      #  * If `input` does not contain BOM or magic encoding comment, it is
+      #    kept in the original encoding.
+      #  * If the detected encoding is binary, `input` is kept in binary.
+      #  * Otherwise, `input` is re-encoded into UTF-8 and returned as a
+      #    new string.
+      #
+      # This method mutates the encoding of `input`, but not its content.
+      #
+      # @param  [String] input
+      # @return [String]
+      # @raise  [EncodingError]
+      #
+      def self.reencode_string(input)
+        original_encoding = input.encoding
+        detected_encoding = recognize_encoding(input.force_encoding(Encoding::BINARY))
 
         if detected_encoding.nil?
-          string.force_encoding(original_encoding)
+          input.force_encoding(original_encoding)
         elsif detected_encoding == Encoding::BINARY
-          string
+          input
         else
-          string.
+          input.
             force_encoding(detected_encoding).
             encode(Encoding::UTF_8)
         end
@@ -72,6 +108,15 @@ module Parser
         @line_begins = nil
       end
 
+      ##
+      # Populate this buffer from correspondingly named file.
+      #
+      # @example
+      #  Parser::Source::Buffer.new('foo/bar.rb').read
+      #
+      # @return [Buffer] self
+      # @raise  [ArgumentError] if already populated
+      #
       def read
         File.open(@name, 'rb') do |io|
           self.source = io.read
@@ -80,6 +125,12 @@ module Parser
         self
       end
 
+      ##
+      # Source code contained in this buffer.
+      #
+      # @return [String] source code
+      # @raise  [RuntimeError] if buffer is not populated yet
+      #
       def source
         if @source.nil?
           raise RuntimeError, 'Cannot extract source from uninitialized Source::Buffer'
@@ -88,41 +139,68 @@ module Parser
         @source
       end
 
-      def source=(source)
+      ##
+      # Populate this buffer from a string with encoding autodetection.
+      # `input` is mutated if not frozen.
+      #
+      # @param [String] input
+      # @raise [ArgumentError] if already populated
+      # @return [String]
+      #
+      def source=(input)
         if defined?(Encoding)
-          source = source.dup if source.frozen?
-          source = self.class.reencode_string(source)
+          input = input.dup if input.frozen?
+          input = self.class.reencode_string(input)
         end
 
-        self.raw_source = source
+        self.raw_source = input
       end
 
-      def raw_source=(source)
+      ##
+      # Populate this buffer from a string without encoding autodetection.
+      #
+      # @param [String] input
+      # @raise [ArgumentError] if already populated
+      # @return [String]
+      #
+      def raw_source=(input)
         if @source
           raise ArgumentError, 'Source::Buffer is immutable'
         end
 
-        @source = source.gsub(/\r\n/, "\n").freeze
+        @source = input.gsub(/\r\n/, "\n").freeze
       end
 
+      ##
+      # Convert a character index into the source to a `[line, column]` tuple.
+      #
+      # @param  [Integer] position
+      # @return [[Integer, Integer]] `[line, column]`
+      #
       def decompose_position(position)
         line_no, line_begin = line_for(position)
 
         [ @first_line + line_no, position - line_begin ]
       end
 
+      ##
+      # Extract line `lineno` from source, taking `first_line` into account.
+      #
+      # @param  [Integer] lineno
+      # @return [String]
+      # @raise  [IndexError] if `lineno` is out of bounds
+      #
       def source_line(lineno)
         unless @lines
           @lines = @source.lines.to_a
           @lines.each { |line| line.gsub!(/\n$/, '') }
 
-          # Lexer has an "infinite stream of EOF symbols" after the
-          # actual EOF, so in some cases (e.g. EOF token of ruby-parse -E)
-          # tokens will refer to one line past EOF.
+          # If a file ends with a newline, the EOF token will appear
+          # to be one line further than the end of file.
           @lines << ""
         end
 
-        @lines[lineno - @first_line].dup
+        @lines.fetch(lineno - @first_line).dup
       end
 
       private
