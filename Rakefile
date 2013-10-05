@@ -65,7 +65,7 @@ task :changelog do
     end
   end
 
-  IO.popen("git log --pretty='#{format}' HEAD", 'r') do |io|
+  IO.popen("git log --pretty='#{format}' 2.0 master", 'r') do |io|
     current_version = nil
 
     io.each_line do |line|
@@ -102,7 +102,7 @@ task :changelog do
         next unless commits[sigil].any?
 
         io.puts description
-        commits[sigil].each do |commit|
+        commits[sigil].uniq.each do |commit|
           io.puts " * #{commit.gsub('<', '\<').lstrip}"
         end
         io.puts
