@@ -17,7 +17,7 @@ module Parser
     #
     # Source maps are identical in both cases.
     #
-    # @return [TrueClass|FalseClass]
+    # @return [Boolean]
     attr_accessor :emit_file_line_as_literals
 
     ##
