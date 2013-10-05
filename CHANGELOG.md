@@ -1,6 +1,20 @@
 Changelog
 =========
 
+v2.0.0 (2013-10-06)
+-------------------
+
+API modifications:
+ * Source::Rewriter: raise an exception if updates clobber each other. (Peter Zotov)
+ * Source::Range#inspect: use full class name. (Peter Zotov)
+ * lexer.rl: make EOF tokens actually pointing at EOF and zero-length. (Peter Zotov)
+ * Source::Range#column_range: raise RangeError if range spans >1 line. (Peter Zotov)
+ * Source::Comment::Associator: fix argument order. (Peter Zotov)
+
+Features implemented:
+ * Source::Comment: implement #inspect. (Peter Zotov)
+ * Backport Array#bsearch from Ruby 2.0. (Peter Zotov)
+
 v2.0.0.pre8 (2013-09-15)
 ------------------------
 
