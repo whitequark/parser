@@ -75,6 +75,13 @@ module Parser
         other.is_a?(Source::Comment) &&
           @location == other.location
       end
+
+      ##
+      # @return [String] a human-readable representation of this comment
+      #
+      def inspect
+        "#<Parser::Source::Comment #{@location.expression.to_s} #{text.inspect}>"
+      end
     end
 
   end
