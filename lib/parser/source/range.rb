@@ -63,7 +63,10 @@ module Parser
       alias length size
 
       ##
-      # @see Buffer#initialize
+      # Line number of the beginning of this range. By default, the first line
+      # of a buffer is 1; as such, line numbers are most commonly one-based.
+      #
+      # @see Buffer
       # @return [Integer] line number of the beginning of this range.
       #
       def line
