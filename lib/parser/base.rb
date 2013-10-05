@@ -182,6 +182,7 @@ module Parser
     # Ruby source code.
     #
     # @see #parse
+    # @see Parser::Source::Comment#associate
     # @return [Array]
     #
     def parse_with_comments(source_buffer)

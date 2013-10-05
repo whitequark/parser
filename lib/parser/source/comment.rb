@@ -2,13 +2,16 @@ module Parser
   module Source
 
     ##
-    # @api public
+    # A comment in the source code.
     #
     # @!attribute [r] text
-    #  @return String
+    #  @return [String]
     #
     # @!attribute [r] location
-    #  @return Parser::Source::Map
+    #  @return [Parser::Source::Map]
+    #
+    # @api public
+    #
     class Comment
       attr_reader  :text
 
@@ -16,7 +19,14 @@ module Parser
       alias_method :loc, :location
 
       ##
+      # Associate `comments` with `ast` nodes by their location in the
+      # source.
+      #
+      # @param [Parser::AST::Node] ast
+      # @param [Array(Comment)]    comments
+      # @return [Hash(Parser::AST::Node, Array(Comment))]
       # @see Parser::Source::Comment::Associator
+      #
       def self.associate(ast, comments)
         associator = Associator.new(ast, comments)
         associator.associate
@@ -24,6 +34,7 @@ module Parser
 
       ##
       # @param [Parser::Source::Range] range
+      #
       def initialize(range)
         @location = Parser::Source::Map.new(range)
         @text     = range.source.freeze
@@ -32,7 +43,7 @@ module Parser
       end
 
       ##
-      # Returns the type of this comment.
+      # Type of this comment.
       #
       #   * Inline comments correspond to `:inline`:
       #
@@ -43,6 +54,9 @@ module Parser
       #         =begin
       #         hi i am a document
       #         =end
+      #
+      # @return [Symbol]
+      #
       def type
         case text
         when /^#/
@@ -53,24 +67,28 @@ module Parser
       end
 
       ##
-      # @see [#type]
-      # @return [TrueClass|FalseClass]
+      # @see #type
+      # @return [Boolean] true if this is an inline comment.
+      #
       def inline?
         type == :inline
       end
 
       ##
-      # @see [#type]
-      # @return [TrueClass|FalseClass]
+      # @see #type
+      # @return [Boolean] true if this is a block comment.
+      #
       def document?
         type == :document
       end
 
       ##
-      # Compares comments. Two comments are identical if they
+      # Compares comments. Two comments are equal if they
       # correspond to the same source range.
+      #
       # @param [Object] other
-      # @return [TrueClass|FalseClass]
+      # @return [Boolean]
+      #
       def ==(other)
         other.is_a?(Source::Comment) &&
           @location == other.location

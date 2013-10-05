@@ -12,6 +12,9 @@ module Parser
         super(expression)
       end
 
+      ##
+      # @api private
+      #
       def with_operator(operator_l)
         with { |map| map.update_operator(operator_l) }
       end
