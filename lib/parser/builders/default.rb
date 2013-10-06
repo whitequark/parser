@@ -61,6 +61,14 @@ module Parser
       numeric(:float, float_t)
     end
 
+    def rational(rational_t)
+      numeric(:rational, rational_t)
+    end
+
+    def complex(complex_t)
+      numeric(:complex, complex_t)
+    end
+
     def numeric(kind, token)
       n(kind, [ value(token) ],
         Source::Map::Operator.new(nil, loc(token)))

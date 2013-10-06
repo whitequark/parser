@@ -116,6 +116,46 @@ class TestParser < Minitest::Test
         |~~~~~ expression})
   end
 
+  def test_rational
+    assert_parses(
+      s(:rational, Rational(42)),
+      %q{42r},
+      %q{~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses(
+      s(:rational, Rational(421, 10)),
+      %q{42.1r},
+      %q{~~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
+  def test_complex
+    assert_parses(
+      s(:complex, Complex(0, 42)),
+      %q{42i},
+      %q{~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses(
+      s(:complex, Complex(0, Rational(42))),
+      %q{42ri},
+      %q{~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses(
+      s(:complex, Complex(0, 42.1)),
+      %q{42.1i},
+      %q{~~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses(
+      s(:complex, Complex(0, Rational(421, 10))),
+      %q{42.1ri},
+      %q{~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
   # Strings
 
   def test_string_plain

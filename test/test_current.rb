@@ -10,6 +10,8 @@ class TestCurrent < Minitest::Test
       assert_equal Parser::Ruby19, Parser::CurrentRuby
     when '2.0.0'
       assert_equal Parser::Ruby20, Parser::CurrentRuby
+    when '2.1.0'
+      assert_equal Parser::Ruby21, Parser::CurrentRuby
     else
       flunk "Update test_parser_current for #{RUBY_VERSION}"
     end

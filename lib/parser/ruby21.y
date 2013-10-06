@@ -17,6 +17,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
+      tRATIONAL tIMAGINARY
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -1827,6 +1828,14 @@ regexp_contents: # nothing
                 | tFLOAT
                     {
                       result = @builder.float(val[0])
+                    }
+                | tRATIONAL
+                    {
+                      result = @builder.rational(val[0])
+                    }
+                | tIMAGINARY
+                    {
+                      result = @builder.complex(val[0])
                     }
 
    user_variable: tIDENTIFIER

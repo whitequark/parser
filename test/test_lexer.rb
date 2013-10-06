@@ -1,6 +1,7 @@
 # encoding: ascii-8bit
 
 require 'helper'
+require 'complex'
 
 class TestLexer < Minitest::Test
   def setup_lexer(version)
@@ -86,7 +87,7 @@ class TestLexer < Minitest::Test
 
       lex_token, (lex_value, *) = @lex.advance
       assert lex_token, 'no more tokens'
-      assert_equal [token, value], [lex_token, lex_value], input
+      assert_operator [lex_token, lex_value], :eql?, [token, value], input
     end
 
     lex_token, (lex_value, *) = @lex.advance
@@ -647,19 +648,15 @@ class TestLexer < Minitest::Test
   end
 
   def test_float_e_nothing
-    setup_lexer 18
-    refute_scanned "1end"
-    refute_scanned "1.1end"
+    [18, 19, 20].each do |version|
+      setup_lexer version
 
-    setup_lexer 19
-    refute_scanned "1end"
-    refute_scanned "1.1end"
-
-    setup_lexer 20
-    refute_scanned "1end"
-    refute_scanned "1.1end"
+      refute_scanned "1end"
+      refute_scanned "1.1end"
+    end
 
     setup_lexer 21
+
     assert_scanned("1end",
                    :tINTEGER, 1,
                    :kEND,     'end')
@@ -2185,6 +2182,71 @@ class TestLexer < Minitest::Test
                    :tRBRACK,     "]")
   end
 
+  def test_int_suffix
+    [18, 19, 20].each do |version|
+      setup_lexer version
+
+      assert_scanned("42r",
+                     :tINTEGER,    42,
+                     :tIDENTIFIER, 'r')
+
+      assert_scanned("42if",
+                     :tINTEGER,    42,
+                     :kIF_MOD,     'if')
+    end
+
+    setup_lexer 21
+
+    assert_scanned("42r",  :tRATIONAL,  Rational(42))
+    assert_scanned("42i",  :tIMAGINARY, Complex(0, 42))
+    assert_scanned("42ri", :tIMAGINARY, Complex(0, Rational(42)))
+  end
+
+  def test_float_suffix
+    [18, 19, 20].each do |version|
+      setup_lexer version
+
+      assert_scanned("42.1r",
+                     :tFLOAT,      42.1,
+                     :tIDENTIFIER, 'r')
+
+      assert_scanned("42.1if",
+                     :tFLOAT,      42.1,
+                     :kIF_MOD,     'if')
+
+      assert_scanned("1e1r",
+                     :tFLOAT,      1e1,
+                     :tIDENTIFIER, 'r')
+    end
+
+    begin
+      # Feature-check.
+      Rational("10")
+
+      setup_lexer 21
+
+      assert_scanned("42.1r",  :tRATIONAL,  Rational(421, 10))
+      assert_scanned("42.1i",  :tIMAGINARY, Complex(0, 42.1))
+      assert_scanned("42.1ri", :tIMAGINARY, Complex(0, Rational(421, 10)))
+      assert_scanned("42.1ir",
+                     :tIMAGINARY,  Complex(0, 42.1),
+                     :tIDENTIFIER, 'r')
+
+      assert_scanned("1e1i",   :tIMAGINARY, Complex(0, 1e1))
+      assert_scanned("1e1r",
+                     :tFLOAT,      1e1,
+                     :tIDENTIFIER, 'r')
+      assert_scanned("1e1ri",
+                     :tFLOAT,      1e1,
+                     :tIDENTIFIER, 'ri')
+      assert_scanned("1e1ir",
+                     :tIMAGINARY,  Complex(0, 1e1),
+                     :tIDENTIFIER, 'r')
+    rescue NoMethodError
+      # Ruby not modern enough
+    end
+  end
+
   #
   # Tests for whitespace.
   #
@@ -2428,7 +2490,6 @@ class TestLexer < Minitest::Test
                    :tUPLUS,   '+',
                    :tINTEGER, 1)
   end
-
 
   #
   # Tests for bugs.

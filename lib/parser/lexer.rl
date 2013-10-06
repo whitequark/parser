@@ -134,6 +134,8 @@ class Parser::Lexer
 
     @num_base      = nil # last numeric base
     @num_digits_s  = nil # starting position of numeric digits
+    @num_suffix_s  = nil # starting position of numeric suffix
+    @num_xfrm      = nil # numeric suffix-induced transformation
 
     @escape_s      = nil # starting position of current sequence
     @escape        = nil # last escaped sequence, as string
@@ -568,6 +570,33 @@ class Parser::Lexer
   instance_var_v = '@' c_alnum+;
 
   label          = bareword [?!]? ':';
+
+  #
+  # === NUMERIC PARSING ===
+  #
+
+  int_hex  = ( xdigit+ '_' )* xdigit* '_'? ;
+  int_dec  = ( digit+ '_' )* digit* '_'? ;
+  int_bin  = ( [01]+ '_' )* [01]* '_'? ;
+
+  flo_int  = [1-9] [0-9]* ( '_' digit+ )* | '0';
+  flo_frac = '.' ( digit+ '_' )* digit+;
+  flo_pow  = [eE] [+\-]? ( digit+ '_' )* digit+;
+
+  int_suffix =
+    ''   % { @num_xfrm = lambda { |value|  emit(:tINTEGER,   value) } }
+  | 'r'  % { @num_xfrm = lambda { |value|  emit(:tRATIONAL,  Rational(value)) } }
+  | 'i'  % { @num_xfrm = lambda { |value|  emit(:tIMAGINARY, Complex(0, value)) } }
+  | 'ri' % { @num_xfrm = lambda { |value|  emit(:tIMAGINARY, Complex(0, Rational(value))) } };
+
+  flo_pow_suffix =
+    ''   % { @num_xfrm = lambda { |digits| emit(:tFLOAT,     Float(digits)) } }
+  | 'i'  % { @num_xfrm = lambda { |digits| emit(:tIMAGINARY, Complex(0, Float(digits))) } };
+
+  flo_suffix =
+    flo_pow_suffix
+  | 'r'  % { @num_xfrm = lambda { |digits| emit(:tRATIONAL,  Rational(digits)) } }
+  | 'ri' % { @num_xfrm = lambda { |digits| emit(:tIMAGINARY, Complex(0, Rational(digits))) } };
 
   #
   # === ESCAPE SEQUENCE PARSING ===
@@ -1869,23 +1898,15 @@ class Parser::Lexer
       # NUMERIC LITERALS
       #
 
-      ( '0' [Xx]  %{ @num_base = 16; @num_digits_s = p }
-               ( xdigit+ '_' )* xdigit* '_'?
-      | '0' [Dd]  %{ @num_base = 10; @num_digits_s = p }
-               ( digit+ '_' )* digit* '_'?
-      | '0' [Oo]  %{ @num_base = 8;  @num_digits_s = p }
-               ( digit+ '_' )* digit* '_'?
-      | '0' [Bb]  %{ @num_base = 2;  @num_digits_s = p }
-               ( [01]+ '_' )* [01]* '_'?
-      | [1-9] digit*
-                  %{ @num_base = 10; @num_digits_s = @ts }
-               ( '_' digit+ )* digit* '_'?
-      | '0' digit*
-                  %{ @num_base = 8;  @num_digits_s = @ts }
-               ( '_' digit+ )* digit* '_'?
-      )
+      ( '0' [Xx] %{ @num_base = 16; @num_digits_s = p } int_hex
+      | '0' [Dd] %{ @num_base = 10; @num_digits_s = p } int_dec
+      | '0' [Oo] %{ @num_base = 8;  @num_digits_s = p } int_dec
+      | '0' [Bb] %{ @num_base = 2;  @num_digits_s = p } int_bin
+      | [1-9] digit* '_'? %{ @num_base = 10; @num_digits_s = @ts } int_dec
+      | '0'   digit* '_'? %{ @num_base = 8;  @num_digits_s = @ts } int_dec
+      ) %{ @num_suffix_s = p } int_suffix
       => {
-        digits = tok(@num_digits_s)
+        digits = tok(@num_digits_s, @num_suffix_s)
 
         if digits.end_with? '_'
           diagnostic :error, Parser::ERRORS[:trailing_in_number] % { :character => '_' },
@@ -1901,18 +1922,21 @@ class Parser::Lexer
                      range(invalid_s, invalid_s + 1)
         end
 
-        emit(:tINTEGER, digits.to_i(@num_base))
+        if version?(18, 19, 20)
+          emit(:tINTEGER, digits.to_i(@num_base))
+          p = @num_suffix_s - 1
+        else
+          @num_xfrm.call(digits.to_i(@num_base))
+        end
         fbreak;
       };
 
-      '.' ( digit+ '_' )* digit+
+      flo_frac flo_pow?
       => {
         diagnostic :error, Parser::ERRORS[:no_dot_digit_literal]
       };
 
-      (
-        ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
-      ) [eE]
+      flo_int [eE]
       => {
         if version?(18, 19, 20)
           diagnostic :error,
@@ -1924,10 +1948,7 @@ class Parser::Lexer
         end
       };
 
-      (
-        ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
-        ( '.' ( digit+ '_' )* digit+ )?
-      ) [eE]
+      flo_int flo_frac [eE]
       => {
         if version?(18, 19, 20)
           diagnostic :error,
@@ -1939,13 +1960,19 @@ class Parser::Lexer
         end
       };
 
-      (
-        ( [1-9] [0-9]* ( '_' digit+ )* | '0' )
-        ( '.' ( digit+ '_' )* digit+ )?
-        ( [eE] [+\-]? ( digit+ '_' )* digit+ )?
+      flo_int
+      ( flo_frac? flo_pow %{ @num_suffix_s = p } flo_pow_suffix
+      | flo_frac          %{ @num_suffix_s = p } flo_suffix
       )
       => {
-        emit(:tFLOAT, tok.to_f)
+        digits = tok(@ts, @num_suffix_s)
+
+        if version?(18, 19, 20)
+          emit(:tFLOAT, Float(digits))
+          p = @num_suffix_s - 1
+        else
+          @num_xfrm.call(digits)
+        end
         fbreak;
       };
 

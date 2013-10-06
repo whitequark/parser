@@ -28,6 +28,10 @@ module Parser
     require 'parser/ruby20'
     CurrentRuby = Ruby20
 
+  when /^2\.1\./
+    require 'parser/ruby21'
+    CurrentRuby = Ruby21
+
   else # :nocov:
     raise NotImplementedError, "Parser does not support parsing Ruby #{RUBY_VERSION}"
   end
