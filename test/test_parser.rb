@@ -92,7 +92,8 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:int, -42),
       %q{-42},
-      %q{~~~ expression})
+      %q{^ operator
+        |~~~ expression})
   end
 
   def test_int___LINE__
@@ -111,7 +112,8 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:float, -1.33),
       %q{-1.33},
-      %q{~~~~~ expression})
+      %q{^ operator
+        |~~~~~ expression})
   end
 
   # Strings

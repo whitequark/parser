@@ -53,25 +53,34 @@ module Parser
 
     # Numerics
 
-    def integer(integer_t, negate=false)
-      val = value(integer_t)
-      val = -val if negate
+    def integer(integer_t)
+      numeric(:int, integer_t)
+    end
 
-      n(:int, [ val ],
-        numeric_map(integer_t, negate))
+    def float(float_t)
+      numeric(:float, float_t)
+    end
+
+    def numeric(kind, token)
+      n(kind, [ value(token) ],
+        Source::Map::Operator.new(nil, loc(token)))
+    end
+    private :numeric
+
+    def negate(uminus_t, numeric)
+      value, = *numeric
+      operator_loc = loc(uminus_t)
+
+      numeric.updated(nil, [ -value ],
+        :location =>
+          Source::Map::Operator.new(
+            operator_loc,
+            operator_loc.join(numeric.loc.expression)))
     end
 
     def __LINE__(__LINE__t)
       n0(:__LINE__,
         token_map(__LINE__t))
-    end
-
-    def float(float_t, negate=false)
-      val = value(float_t)
-      val = -val if negate
-
-      n(:float, [ val ],
-        numeric_map(float_t, negate))
     end
 
     # Strings
@@ -1015,19 +1024,6 @@ module Parser
 
     def token_map(token)
       Source::Map.new(loc(token))
-    end
-
-    def numeric_map(num_t, negate)
-      if negate
-        num_range = loc(num_t)
-        range = Source::Range.new(num_range.source_buffer,
-                                  num_range.begin_pos - 1,
-                                  num_range.end_pos)
-
-        Source::Map.new(range)
-      else
-        token_map(num_t)
-      end
     end
 
     def delimited_string_map(string_t)

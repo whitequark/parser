@@ -689,19 +689,11 @@ rule
                     {
                       result = @builder.binary_op(val[0], val[1], val[2])
                     }
-                | tUMINUS_NUM tINTEGER tPOW arg
+                | tUMINUS_NUM simple_numeric tPOW arg
                     {
                       result = @builder.unary_op(val[0],
                                   @builder.binary_op(
-                                    @builder.integer(val[1]),
-                                      val[2], val[3]))
-                    }
-                | tUMINUS_NUM tFLOAT tPOW arg
-                    {
-                      result = @builder.unary_op(val[0],
-                                  @builder.binary_op(
-                                    @builder.float(val[1]),
-                                      val[2], val[3]))
+                                    val[1], val[2], val[3]))
                     }
                 | tUPLUS arg
                     {
@@ -1819,21 +1811,22 @@ regexp_contents: # nothing
                       result = @builder.symbol_compose(val[0], val[1], val[2])
                     }
 
-         numeric: tINTEGER
+         numeric: simple_numeric
+                    {
+                      result = val[0]
+                    }
+                | tUMINUS_NUM simple_numeric =tLOWEST
+                    {
+                      result = @builder.negate(val[0], val[1])
+                    }
+
+  simple_numeric: tINTEGER
                     {
                       result = @builder.integer(val[0])
                     }
                 | tFLOAT
                     {
                       result = @builder.float(val[0])
-                    }
-                | tUMINUS_NUM tINTEGER =tLOWEST
-                    {
-                      result = @builder.integer(val[1], true)
-                    }
-                | tUMINUS_NUM tFLOAT   =tLOWEST
-                    {
-                      result = @builder.float(val[1], true)
                     }
 
    user_variable: tIDENTIFIER

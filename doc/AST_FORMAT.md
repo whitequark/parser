@@ -29,6 +29,11 @@ Format:
 (int 123)
 "123"
  ~~~ expression
+
+(int -123)
+"-123"
+ ^ operator
+ ~~~ expression
 ~~~
 
 ### Float
@@ -39,6 +44,11 @@ Format:
 (float 1.0)
 "1.0"
  ~~~ expression
+
+(float -1.0)
+"-1.0"
+ ^ operator
+ ~~~~ expression
 ~~~
 
 ### String

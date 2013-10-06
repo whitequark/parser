@@ -1842,11 +1842,13 @@ regexp_contents: # nothing
                     }
                 | tUMINUS_NUM tINTEGER =tLOWEST
                     {
-                      result = @builder.integer(val[1], true)
+                      result = @builder.negate(val[0],
+                                  @builder.integer(val[1]))
                     }
                 | tUMINUS_NUM tFLOAT   =tLOWEST
                     {
-                      result = @builder.float(val[1], true)
+                      result = @builder.negate(val[0],
+                                  @builder.float(val[1]))
                     }
 
    user_variable: tIDENTIFIER
