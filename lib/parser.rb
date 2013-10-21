@@ -17,8 +17,10 @@ end
 module Parser
   require 'parser/version'
 
-  require 'parser/ast/node'
-  require 'parser/ast/processor'
+  module AST
+    require 'parser/ast/node'
+    require 'parser/ast/processor'
+  end
 
   module Source
     require 'parser/source/buffer'
