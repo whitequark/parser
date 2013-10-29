@@ -29,18 +29,19 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler',   '~> 1.2'
   spec.add_development_dependency 'rake',      '~> 0.9'
-  spec.add_development_dependency 'racc'
+  spec.add_development_dependency 'racc',      '= 1.4.9' # update to 1.4.11 when it's done
+  spec.add_development_dependency 'cliver',    '~> 0.3.0'
+
+  spec.add_development_dependency 'yard'
+  spec.add_development_dependency 'kramdown'
 
   spec.add_development_dependency 'minitest',  '~> 5.0'
   spec.add_development_dependency 'simplecov', '~> 0.7'
   spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'json_pure' # for coveralls on 1.9.2
-  spec.add_development_dependency 'cliver',    '~> 0.3.0'
+  spec.add_development_dependency 'mime-types', '~> 1.25' # for coveralls on 1.8.7
 
   spec.add_development_dependency 'simplecov-sublime-ruby-coverage'
-
-  spec.add_development_dependency 'yard'
-  spec.add_development_dependency 'kramdown'
 
   spec.add_development_dependency 'gauntlet'
 end
