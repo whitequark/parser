@@ -3,7 +3,7 @@ require 'helper'
 class TestSourceRewriter < Minitest::Test
   def setup
     @buf = Parser::Source::Buffer.new('(rewriter)')
-    @buf.source = 'foo bar baz'
+    @buf.source = "foo bar baz\n line"
 
     @rewriter = Parser::Source::Rewriter.new(@buf)
   end
@@ -13,35 +13,42 @@ class TestSourceRewriter < Minitest::Test
   end
 
   def test_remove
-    assert_equal 'foo  baz',
+    assert_equal "foo  baz\n line",
                  @rewriter.
                     remove(range(4, 3)).
                     process
   end
 
+  def test_remove_line
+    assert_equal "foo bar baz line",
+                 @rewriter.
+                    remove(range(11, 1)).
+                    process
+  end
+
   def test_insert_before
-    assert_equal 'foo quux bar baz',
+    assert_equal "foo quux bar baz\n line",
                  @rewriter.
                     insert_before(range(4, 3), 'quux ').
                     process
   end
 
   def test_insert_after
-    assert_equal 'foo bar quux baz',
+    assert_equal "foo bar quux baz\n line",
                  @rewriter.
                     insert_after(range(4, 3), ' quux').
                     process
   end
 
   def test_replace
-    assert_equal 'foo quux baz',
+    assert_equal "foo quux baz\n line",
                  @rewriter.
                     replace(range(4, 3), 'quux').
                     process
   end
 
   def test_composing_asc
-    assert_equal 'foo---bar---baz',
+    assert_equal "foo---bar---baz\n line",
                  @rewriter.
                     replace(range(3, 1), '---').
                     replace(range(7, 1), '---').
@@ -49,7 +56,7 @@ class TestSourceRewriter < Minitest::Test
   end
 
   def test_composing_desc
-    assert_equal 'foo---bar---baz',
+    assert_equal "foo---bar---baz\n line",
                  @rewriter.
                     replace(range(7, 1), '---').
                     replace(range(3, 1), '---').
@@ -57,7 +64,7 @@ class TestSourceRewriter < Minitest::Test
   end
 
   def test_multiple_insertions_at_same_location
-    assert_equal '<([foo] bar) baz>',
+    assert_equal "<([foo] bar) baz>\n line",
                  @rewriter.
                    insert_before(range(0, 11), '<').
                    insert_after( range(0, 11), '>').
