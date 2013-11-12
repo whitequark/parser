@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v2.1.0.pre1 (2013-11-12)
+------------------------
+
+API modifications:
+ * lexer.rl: correctly handle __END__ with non-whitespace after it (Peter Zotov)
+ * lexer.rl: handle \r in middle of a line as mere whitespace (Peter Zotov)
+ * ruby{18,19,20,21}.y, builders/default: precisely point to tUMINUS_NUM. (Peter Zotov)
+
+Features implemented:
+ * lexer.rl, ruby21.y, builders/default: rational/complex literals. (Peter Zotov)
+
 v2.0.0 (2013-10-06)
 -------------------
 
