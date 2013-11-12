@@ -2491,6 +2491,20 @@ class TestLexer < Minitest::Test
                    :tINTEGER, 1)
   end
 
+  def test_whitespace_cr
+    setup_lexer(20)
+    assert_scanned("<<E\nfoo\nE\rO",
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "foo\n",
+                   :tSTRING_END,     'E',
+                   :tNL,             nil)
+
+    setup_lexer(21)
+    refute_scanned("<<E\nfoo\nE\rO",
+                   :tSTRING_BEG,     '"',
+                   :tSTRING_CONTENT, "foo\n")
+  end
+
   #
   # Tests for bugs.
   #

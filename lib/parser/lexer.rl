@@ -863,6 +863,11 @@ class Parser::Lexer
     if literal.heredoc?
       line = tok(@herebody_s, @ts).gsub(/\r+$/, '')
 
+      if version?(18, 19, 20)
+        # See ruby:c48b4209c
+        line = line.gsub(/\r.*$/, '')
+      end
+
       # Try ending the heredoc with the complete most recently
       # scanned line. @herebody_s always refers to the start of such line.
       if literal.nest_and_try_closing(line, @herebody_s, @ts)
