@@ -2132,8 +2132,8 @@ class Parser::Lexer
       => { @eq_begin_s = @ts
            fgoto line_comment; };
 
-      '__END__' c_nl_zlen
-      => { p = pe - 1 };
+      '__END__' ( c_eol - zlen )
+      => { p = pe - 3 };
 
       c_any
       => { fhold; fgoto expr_value; };

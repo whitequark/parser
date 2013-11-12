@@ -2128,13 +2128,14 @@ class TestLexer < Minitest::Test
   end
 
   def test_underscore_end
-    source_buffer = Parser::Source::Buffer.new('(underscore_end)')
-    source_buffer.source = "__END__\n"
-
-    @lex.source_buffer = source_buffer
-
-    tok, = @lex.advance
-    refute tok
+    assert_scanned("__END__\n")
+    assert_scanned("__END__")
+    assert_scanned("__END__ foo",
+                   :tIDENTIFIER, '__END__',
+                   :tIDENTIFIER, 'foo')
+    assert_scanned("__END__\rfoo",
+                   :tIDENTIFIER, '__END__',
+                   :tIDENTIFIER, 'foo')
   end
 
   def test_uplus
