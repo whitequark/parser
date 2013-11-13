@@ -157,11 +157,7 @@ module Parser
 
       @buffer_e = te
 
-      if defined?(Encoding)
-        @buffer << string.encode(@lexer.encoding)
-      else
-        @buffer << string
-      end
+      @buffer << string
     end
 
     def flush_string

@@ -3030,6 +3030,14 @@ class TestLexer < Minitest::Test
                    :kIF_MOD,  'if')
   end
 
+  if defined?(Encoding)
+    def test_bug_unicode_in_literal
+      setup_lexer(19)
+      assert_scanned('"\u00a4"',
+                     :tSTRING, "\u00a4")
+    end
+  end
+
   def test_bug_ragel_stack
     assert_scanned("\"\#{$2 ? $2 : 1}\"",
                    :tSTRING_BEG,      "\"",
