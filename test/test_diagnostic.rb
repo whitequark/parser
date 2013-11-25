@@ -11,7 +11,7 @@ class TestDiagnostic < Minitest::Test
 
   def test_verifies_levels
     assert_raises ArgumentError, /level/ do
-      Parser::Diagnostic.new(:foobar, 'foo', @range1)
+      Parser::Diagnostic.new(:foobar, :escape_eof, @range1)
     end
   end
 
@@ -19,7 +19,7 @@ class TestDiagnostic < Minitest::Test
     string     = 'foo'
     highlights = [@range2]
 
-    diag = Parser::Diagnostic.new(:error, string, @range1, highlights)
+    diag = Parser::Diagnostic.new(:error, :escape_eof, @range1, highlights)
     assert diag.frozen?
     assert diag.message.frozen?
     assert diag.highlights.frozen?
@@ -36,10 +36,10 @@ class TestDiagnostic < Minitest::Test
       Parser::Source::Range.new(@buffer, 28, 32)
     ]
 
-    diag  = Parser::Diagnostic.new(:error, 'code far too bad',
+    diag  = Parser::Diagnostic.new(:error, :unexpected, { :character => '+' },
                                    location, highlights)
     assert_equal([
-      '(string):1:27: error: code far too bad',
+      "(string):1:27: error: unexpected `+'",
       'if (this is some bad code + bugs)',
       '                     ~~~~ ^ ~~~~ '
     ], diag.render)

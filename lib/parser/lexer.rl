@@ -348,9 +348,9 @@ class Parser::Lexer
     nil
   end
 
-  def diagnostic(type, message, location=range, highlights=[])
+  def diagnostic(type, reason, reason_info=nil, location=range, highlights=[])
     @diagnostics.process(
-        Parser::Diagnostic.new(type, message, location, highlights))
+        Parser::Diagnostic.new(type, reason, reason_info, location, highlights))
   end
 
   #
@@ -622,7 +622,7 @@ class Parser::Lexer
 
       if codepoint >= 0x110000
         @escape = lambda do
-          diagnostic :error, Parser::ERRORS[:unicode_point_too_large],
+          diagnostic :error, :unicode_point_too_large, nil,
                      range(codepoint_s, codepoint_s + codepoint_str.length)
         end
 
@@ -644,7 +644,7 @@ class Parser::Lexer
 
   action invalid_complex_escape {
     @escape = lambda do
-      diagnostic :error, Parser::ERRORS[:invalid_escape]
+      diagnostic :error, :invalid_escape
     end
   }
 
@@ -684,7 +684,7 @@ class Parser::Lexer
     | 'x' ( c_any - xdigit )
       % {
         @escape = lambda do
-          diagnostic :error, Parser::ERRORS[:invalid_hex_escape],
+          diagnostic :error, :invalid_hex_escape, nil,
                      range(@escape_s - 1, p + 2)
         end
       }
@@ -699,7 +699,7 @@ class Parser::Lexer
           )
       % {
         @escape = lambda do
-          diagnostic :error, Parser::ERRORS[:invalid_unicode_escape],
+          diagnostic :error, :invalid_unicode_escape, nil,
                      range(@escape_s - 1, p)
         end
       }
@@ -713,7 +713,7 @@ class Parser::Lexer
         | xdigit{7,}
         ) % {
           @escape = lambda do
-            diagnostic :fatal, Parser::ERRORS[:unterminated_unicode],
+            diagnostic :fatal, :unterminated_unicode, nil,
                        range(p - 1, p)
           end
         }
@@ -741,8 +741,7 @@ class Parser::Lexer
     | ( c_any - [0-7xuCMc] ) %unescape_char
 
     | c_eof % {
-      diagnostic :fatal, Parser::ERRORS[:escape_eof],
-                 range(p - 1, p)
+      diagnostic :fatal, :escape_eof, nil, range(p - 1, p)
     }
   );
 
@@ -856,7 +855,7 @@ class Parser::Lexer
   # has to handle such case specially.
   action extend_string_eol {
     if @te == pe
-      diagnostic :fatal, Parser::ERRORS[:string_eof],
+      diagnostic :fatal, :string_eof, nil,
                  range(literal.str_s, literal.str_s + 1)
     end
 
@@ -1031,8 +1030,8 @@ class Parser::Lexer
       => {
         unknown_options = tok.scan(/[^imxouesn]/)
         if unknown_options.any?
-          message = Parser::ERRORS[:regexp_options] % { :options => unknown_options.join }
-          diagnostic :error, message
+          diagnostic :error, :regexp_options,
+                     { :options => unknown_options.join }
         end
 
         emit(:tREGEXP_OPT)
@@ -1183,8 +1182,7 @@ class Parser::Lexer
       class_var_v
       => {
         if tok =~ /^@@[0-9]/
-          message = Parser::ERRORS[:cvar_name] % { :name => tok }
-          diagnostic :error, message
+          diagnostic :error, :cvar_name, { :name => tok }
         end
 
         emit(:tCVAR)
@@ -1194,8 +1192,7 @@ class Parser::Lexer
       instance_var_v
       => {
         if tok =~ /^@[0-9]/
-          message = Parser::ERRORS[:ivar_name] % { :name => tok }
-          diagnostic :error, message
+          diagnostic :error, :ivar_name, { :name => tok }
         end
 
         emit(:tIVAR)
@@ -1369,8 +1366,7 @@ class Parser::Lexer
       # Ambiguous regexp literal.
       w_space+ '/'
       => {
-        diagnostic :warning, Parser::ERRORS[:ambiguous_literal],
-                   range(@te - 1, @te)
+        diagnostic :warning, :ambiguous_literal, nil, range(@te - 1, @te)
 
         fhold; fgoto expr_beg;
       };
@@ -1379,8 +1375,7 @@ class Parser::Lexer
       # Ambiguous splat, kwsplat or block-pass.
       w_space+ %{ tm = p } ( '+' | '-' | '*' | '&' | '**' )
       => {
-        message = Parser::ERRORS[:ambiguous_prefix] % { :prefix => tok(tm, @te) }
-        diagnostic :warning, message,
+        diagnostic :warning, :ambiguous_prefix, { :prefix => tok(tm, @te) },
                    range(tm, @te)
 
         p = tm - 1
@@ -1581,8 +1576,7 @@ class Parser::Lexer
 
       '%' c_eof
       => {
-        diagnostic :fatal, Parser::ERRORS[:string_eof],
-                   range(@ts, @ts + 1)
+        diagnostic :fatal, :string_eof, nil, range(@ts, @ts + 1)
       };
 
       # Heredoc start.
@@ -1660,8 +1654,7 @@ class Parser::Lexer
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
                    "\v" => '\v', "\f" => '\f' }[tok[1]]
-        message = Parser::ERRORS[:invalid_escape_use] % { :escape => escape }
-        diagnostic :warning, message, range
+        diagnostic :warning, :invalid_escape_use, { :escape => escape }, range
 
         p = @ts - 1
         fgoto expr_end;
@@ -1669,8 +1662,7 @@ class Parser::Lexer
 
       '?' c_eof
       => {
-        diagnostic :fatal, Parser::ERRORS[:incomplete_escape],
-                   range(@ts, @ts + 1)
+        diagnostic :fatal, :incomplete_escape, nil, range(@ts, @ts + 1)
       };
 
       # f ?aa : b: Disambiguate with a character literal.
@@ -1914,16 +1906,16 @@ class Parser::Lexer
         digits = tok(@num_digits_s, @num_suffix_s)
 
         if digits.end_with? '_'
-          diagnostic :error, Parser::ERRORS[:trailing_in_number] % { :character => '_' },
+          diagnostic :error, :trailing_in_number, { :character => '_' },
                      range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
           digits = "0"
         elsif digits.empty?
-          diagnostic :error, Parser::ERRORS[:empty_numeric]
+          diagnostic :error, :empty_numeric
         elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
           invalid_s = @num_digits_s + invalid_idx
-          diagnostic :error, Parser::ERRORS[:invalid_octal],
+          diagnostic :error, :invalid_octal, nil,
                      range(invalid_s, invalid_s + 1)
         end
 
@@ -1938,14 +1930,14 @@ class Parser::Lexer
 
       flo_frac flo_pow?
       => {
-        diagnostic :error, Parser::ERRORS[:no_dot_digit_literal]
+        diagnostic :error, :no_dot_digit_literal
       };
 
       flo_int [eE]
       => {
         if version?(18, 19, 20)
           diagnostic :error,
-                     Parser::ERRORS[:trailing_in_number] % { :character => tok(@te - 1, @te) },
+                     :trailing_in_number, { :character => tok(@te - 1, @te) },
                      range(@te - 1, @te)
         else
           emit(:tINTEGER, tok(@ts, @te - 1).to_i)
@@ -1957,7 +1949,7 @@ class Parser::Lexer
       => {
         if version?(18, 19, 20)
           diagnostic :error,
-                     Parser::ERRORS[:trailing_in_number] % { :character => tok(@te - 1, @te) },
+                     :trailing_in_number, { :character => tok(@te - 1, @te) },
                      range(@te - 1, @te)
         else
           emit(:tFLOAT, tok(@ts, @te - 1).to_f)
@@ -2078,15 +2070,13 @@ class Parser::Lexer
            fnext expr_value; fbreak; };
 
       '\\' c_line {
-        diagnostic :error, Parser::ERRORS[:bare_backslash],
-                   range(@ts, @ts + 1)
+        diagnostic :error, :bare_backslash, nil, range(@ts, @ts + 1)
         fhold;
       };
 
       c_any
       => {
-        message = Parser::ERRORS[:unexpected] % { :character => tok.inspect[1..-2] }
-        diagnostic :fatal, message
+        diagnostic :fatal, :unexpected, { :character => tok.inspect[1..-2] }
       };
 
       c_eof => do_eof;
@@ -2120,7 +2110,7 @@ class Parser::Lexer
 
       c_line* zlen
       => {
-        diagnostic :fatal, Parser::ERRORS[:embedded_document],
+        diagnostic :fatal, :embedded_document, nil,
                    range(@eq_begin_s, @eq_begin_s + '=begin'.length)
       };
   *|;

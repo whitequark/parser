@@ -129,10 +129,11 @@ module ParseHelper
 
       emitted_diagnostic = @diagnostics.first
 
-      level, kind, substitutions = diagnostic
-      message = Parser::ERRORS[kind] % substitutions
+      level, reason, substitutions = diagnostic
+      message = Parser::ERRORS[reason] % substitutions
 
       assert_equal level, emitted_diagnostic.level
+      assert_equal reason, emitted_diagnostic.reason
       assert_equal message, emitted_diagnostic.message
 
       parse_source_map_descriptions(source_maps) \

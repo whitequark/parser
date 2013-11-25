@@ -114,6 +114,10 @@ module Parser
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',
+
+    # Rewriter diagnostics
+    :invalid_action          => 'cannot %{action}',
+    :clobbered               => 'clobbered by: %{action}',
   }.freeze
 
   ##

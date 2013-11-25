@@ -13,9 +13,10 @@ module Parser
   #  end
   #
   #  engine     = Parser::Diagnostic::Engine.new(consumer)
-  #  diagnostic = Parser::Diagnostic.new(:warning, 'warning!', buffer, 1..2)
+  #  diagnostic = Parser::Diagnostic.new(
+  #      :warning, :unexpected_token, { :token => 'abc' }, buffer, 1..2)
   #
-  #  engine.process(diagnostic) # => "warning!"
+  #  engine.process(diagnostic) # => "unexpected token abc"
   #
   # @api public
   #

@@ -235,11 +235,11 @@ module Parser
       when /^[a-z_]/
         # OK
       when /^[A-Z]/
-        diagnostic :error, :argument_const, name_t
+        diagnostic :error, :argument_const, nil, name_t
       end
     end
 
-    def diagnostic(level, kind, location_t, highlights_ts=[])
+    def diagnostic(level, reason, reason_info, location_t, highlights_ts=[])
       _, location = location_t
 
       highlights = highlights_ts.map do |token|
@@ -247,9 +247,8 @@ module Parser
         range
       end
 
-      message = ERRORS[kind]
       @diagnostics.process(
-          Diagnostic.new(level, message, location, highlights))
+          Diagnostic.new(level, reason, reason_info, location, highlights))
 
       if level == :error
         yyerror
@@ -260,9 +259,8 @@ module Parser
       token_name = token_to_str(error_token_id)
       _, location = error_value
 
-      message = ERRORS[:unexpected_token] % { :token => token_name }
-      @diagnostics.process(
-          Diagnostic.new(:error, message, location))
+      @diagnostics.process(Diagnostic.new(
+          :error, :unexpected_token, { :token => token_name }, location))
     end
   end
 

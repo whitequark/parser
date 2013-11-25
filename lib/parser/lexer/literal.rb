@@ -44,8 +44,8 @@ module Parser
       delimiter    = coerce_encoding(delimiter)
 
       unless TYPES.include?(str_type)
-        message = ERRORS[:unexpected_percent_str] % { :type => str_type }
-        lexer.send(:diagnostic, :error, message, @lexer.send(:range, str_s, str_s + 2))
+        lexer.send(:diagnostic, :error, :unexpected_percent_str,
+                   { :type => str_type }, @lexer.send(:range, str_s, str_s + 2))
       end
 
       # String type. For :'foo', it is :'
