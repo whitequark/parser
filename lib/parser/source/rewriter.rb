@@ -118,13 +118,15 @@ module Parser
         if (clobber_action = clobbered?(action.range))
           # cannot replace 3 characters with "foobar"
           diagnostic = Diagnostic.new(:error,
-                                      "cannot #{action}",
+                                      :invalid_action,
+                                      { :action => action },
                                       action.range)
           @diagnostics.process(diagnostic)
 
           # clobbered by: remove 3 characters
           diagnostic = Diagnostic.new(:note,
-                                      "clobbered by: #{clobber_action}",
+                                      :clobbered,
+                                      { :action => clobber_action },
                                       clobber_action.range)
           @diagnostics.process(diagnostic)
 
