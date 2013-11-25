@@ -7,6 +7,10 @@ module Parser
   #  @see LEVELS
   #  @return [Symbol] diagnostic level
   #
+  # @!attribute [r] reason
+  #  @see Parser::ERRORS
+  #  @return [Symbol] reason for error
+  #
   # @!attribute [r] message
   #  @return [String] error message
   #
@@ -26,26 +30,32 @@ module Parser
     #
     LEVELS = [:note, :warning, :error, :fatal].freeze
 
-    attr_reader :level, :message
+    attr_reader :level, :reason, :message
     attr_reader :location, :highlights
 
     ##
     # @param [Symbol] level
-    # @param [String] message
+    # @param [Symbol] reason
+    # @param [Hash, nil] reason_info
     # @param [Parser::Source::Range] location
     # @param [Array<Parser::Source::Range>] highlights
     #
-    def initialize(level, message, location, highlights=[])
+    def initialize(level, reason, reason_info, location, highlights=[])
       unless LEVELS.include?(level)
         raise ArgumentError,
               "Diagnostic#level must be one of #{LEVELS.join(', ')}; " \
               "#{level.inspect} provided."
       end
+      raise 'Expected a location' unless location
 
       @level       = level
-      @message     = message.to_s.dup.freeze
+      @reason      = reason
       @location    = location
       @highlights  = highlights.dup.freeze
+
+      @message = ERRORS[reason].to_s.dup
+      @message = @message % reason_info if reason_info
+      @message.freeze
 
       freeze
     end

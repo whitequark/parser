@@ -55,7 +55,7 @@ rule
                       ensure_t, ensure_ = val[3]
 
                       if rescue_bodies.empty? && !else_.nil?
-                        diagnostic :warning, :useless_else, else_t
+                        diagnostic :warning, :useless_else, nil, else_t
                       end
 
                       result = @builder.begin_body(val[0],
@@ -108,7 +108,7 @@ rule
                     }
                 | kALIAS tGVAR tNTH_REF
                     {
-                      diagnostic(:error, :nth_ref_alias, val[2])
+                      diagnostic :error, :nth_ref_alias, nil, val[2]
                     }
                 | kUNDEF undef_list
                     {
@@ -143,7 +143,7 @@ rule
                 | klBEGIN tLCURLY compstmt tRCURLY
                     {
                       if in_def?
-                        diagnostic(:error, :begin_in_method, val[0])
+                        diagnostic :error, :begin_in_method, nil, val[0]
                       end
 
                       result = @builder.preexe(val[0], val[1], val[2], val[3])
@@ -468,7 +468,7 @@ rule
 
            cname: tIDENTIFIER
                     {
-                      diagnostic(:error, :module_name_const, val[0])
+                      diagnostic :error, :module_name_const, nil, val[0]
                     }
                 | tCONSTANT
 
@@ -573,11 +573,11 @@ rule
                     }
                 | primary_value tCOLON2 tCONSTANT tOP_ASGN arg
                     {
-                      diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
+                      diagnostic :error, :dynamic_const, nil, val[2], [ val[3] ]
                     }
                 | tCOLON3 tCONSTANT tOP_ASGN arg
                     {
-                      diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
+                      diagnostic :error, :dynamic_const, nil, val[1], [ val[2] ]
                     }
                 | backref tOP_ASGN arg
                     {
@@ -1126,7 +1126,7 @@ rule
                     bodystmt kEND
                     {
                       if in_def?
-                        diagnostic(:error, :class_in_def, val[0])
+                        diagnostic :error, :class_in_def, nil, val[0]
                       end
 
                       lt_t, superclass = val[2]
@@ -1159,7 +1159,7 @@ rule
                     bodystmt kEND
                     {
                       if in_def?
-                        diagnostic(:error, :module_in_def, val[0])
+                        diagnostic :error, :module_in_def, nil, val[0]
                       end
 
                       result = @builder.def_module(val[0], val[1],
@@ -1768,19 +1768,19 @@ xstring_contents: # nothing
 
       f_norm_arg: tCONSTANT
                     {
-                      diagnostic(:error, :argument_const, val[0])
+                      diagnostic :error, :argument_const, nil, val[0]
                     }
                 | tIVAR
                     {
-                      diagnostic(:error, :argument_ivar, val[0])
+                      diagnostic :error, :argument_ivar, nil, val[0]
                     }
                 | tGVAR
                     {
-                      diagnostic(:error, :argument_gvar, val[0])
+                      diagnostic :error, :argument_gvar, nil, val[0]
                     }
                 | tCVAR
                     {
-                      diagnostic(:error, :argument_cvar, val[0])
+                      diagnostic :error, :argument_cvar, nil, val[0]
                     }
                 | tIDENTIFIER
                     {
