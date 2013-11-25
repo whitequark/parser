@@ -8,11 +8,11 @@ module Parser
   #  @return [Symbol] diagnostic level
   #
   # @!attribute [r] reason
-  #  @see Parser::ERRORS
+  #  @see Parser::MESSAGES
   #  @return [Symbol] reason for error
   #
   # @!attribute [r] arguments
-  #  @see Parser::ERRORS
+  #  @see Parser::MESSAGES
   #  @return [Symbol] extended arguments that describe the error
   #
   # @!attribute [r] message
@@ -65,7 +65,7 @@ module Parser
     # @return [String] the rendered message.
     #
     def message
-      ERRORS[@reason] % @arguments
+      MESSAGES[@reason] % @arguments
     end
 
     ##

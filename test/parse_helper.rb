@@ -131,7 +131,7 @@ module ParseHelper
 
       level, reason, arguments = diagnostic
       arguments ||= {}
-      message     = Parser::ERRORS[reason] % arguments
+      message     = Parser::MESSAGES[reason] % arguments
 
       assert_equal level, emitted_diagnostic.level
       assert_equal reason, emitted_diagnostic.reason
