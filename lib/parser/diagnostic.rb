@@ -7,6 +7,14 @@ module Parser
   #  @see LEVELS
   #  @return [Symbol] diagnostic level
   #
+  # @!attribute [r] reason
+  #  @see Parser::ERRORS
+  #  @return [Symbol] reason for error
+  #
+  # @!attribute [r] arguments
+  #  @see Parser::ERRORS
+  #  @return [Symbol] extended arguments that describe the error
+  #
   # @!attribute [r] message
   #  @return [String] error message
   #
@@ -26,28 +34,38 @@ module Parser
     #
     LEVELS = [:note, :warning, :error, :fatal].freeze
 
-    attr_reader :level, :message
+    attr_reader :level, :reason, :arguments
     attr_reader :location, :highlights
 
     ##
     # @param [Symbol] level
-    # @param [String] message
+    # @param [Symbol] reason
+    # @param [Hash] arguments
     # @param [Parser::Source::Range] location
     # @param [Array<Parser::Source::Range>] highlights
     #
-    def initialize(level, message, location, highlights=[])
+    def initialize(level, reason, arguments, location, highlights=[])
       unless LEVELS.include?(level)
         raise ArgumentError,
               "Diagnostic#level must be one of #{LEVELS.join(', ')}; " \
               "#{level.inspect} provided."
       end
+      raise 'Expected a location' unless location
 
       @level       = level
-      @message     = message.to_s.dup.freeze
+      @reason      = reason
+      @arguments   = (arguments || {}).dup.freeze
       @location    = location
       @highlights  = highlights.dup.freeze
 
       freeze
+    end
+
+    ##
+    # @return [String] the rendered message.
+    #
+    def message
+      ERRORS[@reason] % @arguments
     end
 
     ##
@@ -76,7 +94,7 @@ module Parser
       highlight_line[range] = '^' * @location.size
 
       [
-        "#{@location.to_s}: #{@level}: #{@message}",
+        "#{@location.to_s}: #{@level}: #{message}",
         source_line,
         highlight_line,
       ]
