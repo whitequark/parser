@@ -146,7 +146,7 @@ module Parser
         n(:sym, [ str.children.first.to_sym ],
           collection_map(begin_t, str.loc.expression, end_t))
       elsif @parser.version == 18 && parts.empty?
-        diagnostic(:error, ERRORS[:empty_symbol], loc(begin_t).join(loc(end_t)))
+        diagnostic :error, :empty_symbol, nil, loc(begin_t).join(loc(end_t))
       else
         n(:dsym, [ *parts ],
           collection_map(begin_t, parts, end_t))
@@ -233,8 +233,7 @@ module Parser
 
     def pair_list_18(list)
       if list.size % 2 != 0
-        message = ERRORS[:odd_hash]
-        diagnostic :error, message, list.last.loc.expression
+        diagnostic :error, :odd_hash, nil, list.last.loc.expression
       else
         list.
           each_slice(2).map do |key, value|
@@ -390,8 +389,7 @@ module Parser
 
       when :const
         if @parser.in_def?
-          message = ERRORS[:dynamic_const]
-          diagnostic :error, message, node.loc.expression
+          diagnostic :error, :dynamic_const, nil, node.loc.expression
         end
 
         node.updated(:casgn)
@@ -404,12 +402,10 @@ module Parser
 
       when :nil, :self, :true, :false,
            :__FILE__, :__LINE__, :__ENCODING__
-        message = ERRORS[:invalid_assignment]
-        diagnostic :error, message, node.loc.expression
+        diagnostic :error, :invalid_assignment, nil, node.loc.expression
 
       when :back_ref, :nth_ref
-        message = ERRORS[:backref_assignment]
-        diagnostic :error, message, node.loc.expression
+        diagnostic :error, :backref_assignment, nil, node.loc.expression
       end
     end
 
@@ -442,8 +438,7 @@ module Parser
         end
 
       when :back_ref, :nth_ref
-        message = ERRORS[:backref_assignment]
-        diagnostic :error, message, lhs.loc.expression
+        diagnostic :error, :backref_assignment, nil, lhs.loc.expression
       end
     end
 
@@ -497,8 +492,7 @@ module Parser
       when :int, :str, :dstr, :sym, :dsym,
            :regexp, :array, :hash
 
-        message = ERRORS[:singleton_literal]
-        diagnostic :error, message, definee.loc.expression
+        diagnostic :error, :singleton_literal, nil, definee.loc.expression
 
       else
         n(:defs, [ definee, value(name_t).to_sym, args, body ],
@@ -634,8 +628,7 @@ module Parser
       last_arg = call_args.last
 
       if last_arg && last_arg.type == :block_pass
-        diagnostic :error, ERRORS[:block_and_blockarg],
-                   last_arg.loc.expression
+        diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression
       end
 
       n(:block, [ method_call, args, body ],
@@ -935,8 +928,7 @@ module Parser
     def check_condition(cond)
       case cond.type
       when :masgn
-        diagnostic :error, ERRORS[:masgn_as_condition],
-                   cond.loc.expression
+        diagnostic :error, :masgn_as_condition, nil, cond.loc.expression
 
       when :begin
         if cond.children.count == 1
@@ -988,7 +980,7 @@ module Parser
           if that_arg.nil?
             map[this_name] = this_arg
           elsif arg_name_collides?(this_name, that_name)
-            diagnostic :error, ERRORS[:duplicate_argument],
+            diagnostic :error, :duplicate_argument, nil,
                        this_arg.loc.name, [ that_arg.loc.name ]
           end
 
@@ -1341,9 +1333,9 @@ module Parser
       token[1] if token && token[0]
     end
 
-    def diagnostic(type, message, location, highlights=[])
+    def diagnostic(type, reason, arguments, location, highlights=[])
       @parser.diagnostics.process(
-          Diagnostic.new(type, message, location, highlights))
+          Diagnostic.new(type, reason, arguments, location, highlights))
 
       if type == :error
         @parser.send :yyerror
