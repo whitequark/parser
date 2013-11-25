@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v2.1.0.pre2 (2013-11-25)
+------------------------
+
+API modifications:
+ * Parser::Diagnostic: expose reason symbolically (closes #115, #116). (Ian MacLeod)
+
+vir (2013-11-13)
+----------------
+
+API modifications:
+ * lexer.rl: coerce literals to UTF-8 in ASCII-encoded files if they contain \uXXXX (Peter Zotov)
+
 v2.1.0.pre1 (2013-11-12)
 ------------------------
 
