@@ -641,7 +641,8 @@ class Parser::Lexer
   }
 
   action unescape_char {
-    @escape = ESCAPES.fetch(@source[p - 1].chr, @source[p - 1].chr)
+    char = @source[p - 1].chr
+    @escape = ESCAPES.fetch(char, char)
   }
 
   action invalid_complex_escape {
