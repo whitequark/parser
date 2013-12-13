@@ -81,6 +81,12 @@ class Parser::Lexer
   %% write data nofinal;
   # %
 
+  ESCAPES = {
+    'a' => "\a", 'b'  => "\b", 'e'  => "\e", 'f' => "\f",
+    'n' => "\n", 'r'  => "\r", 's'  => "\s", 't' => "\t",
+    'v' => "\v", '\\' => "\\"
+  }
+
   attr_reader   :source_buffer
   attr_reader   :encoding
 
@@ -635,11 +641,7 @@ class Parser::Lexer
   }
 
   action unescape_char {
-    @escape = {
-      'a' => "\a", 'b'  => "\b", 'e'  => "\e", 'f' => "\f",
-      'n' => "\n", 'r'  => "\r", 's'  => "\s", 't' => "\t",
-      'v' => "\v", '\\' => "\\"
-    }.fetch(@source[p - 1].chr, @source[p - 1].chr)
+    @escape = ESCAPES.fetch(@source[p - 1].chr, @source[p - 1].chr)
   }
 
   action invalid_complex_escape {
