@@ -10,6 +10,10 @@ module Parser
     #  * other ranges (`begin`, `end`, `operator`, ...): node-specific ranges
     #    pointing to various interesting tokens corresponding to the node.
     #
+    # Note that the {Map::Heredoc} map is the only one whose `expression` does
+    # not include other ranges. It only covers the heredoc marker (`<<HERE`),
+    # not the here document itself.
+    #
     # All ranges except `expression` are defined by {Map} subclasses.
     #
     # Ranges (except `expression`) can be `nil` if the corresponding token is

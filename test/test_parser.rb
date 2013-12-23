@@ -237,6 +237,29 @@ class TestParser < Minitest::Test
       %w(1.8))
   end
 
+  def test_heredoc
+    assert_parses(
+      s(:dstr, s(:str, "foo\n"), s(:str, "bar\n")),
+      %Q{<<HERE!foo!bar!HERE}.gsub('!', "\n"),
+      %q{~~~~~~ expression
+        |       ~~~~~~~~ heredoc_body
+        |               ~~~~ heredoc_end})
+
+    assert_parses(
+      s(:dstr, s(:str, "foo\n"), s(:str, "bar\n")),
+      %Q{<<'HERE'!foo!bar!HERE}.gsub('!', "\n"),
+      %q{~~~~~~~~ expression
+        |         ~~~~~~~~ heredoc_body
+        |                 ~~~~ heredoc_end})
+
+    assert_parses(
+      s(:xstr, s(:str, "foo\n"), s(:str, "bar\n")),
+      %Q{<<`HERE`!foo!bar!HERE}.gsub('!', "\n"),
+      %q{~~~~~~~~ expression
+        |         ~~~~~~~~ heredoc_body
+        |                 ~~~~ heredoc_end})
+  end
+
   # Symbols
 
   def test_symbol_plain

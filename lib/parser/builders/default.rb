@@ -109,11 +109,11 @@ module Parser
           parts.first
         else
           n(:str, parts.first.children,
-            collection_map(begin_t, parts, end_t))
+            string_map(begin_t, parts, end_t))
         end
       else
         n(:dstr, [ *parts ],
-          collection_map(begin_t, parts, end_t))
+          string_map(begin_t, parts, end_t))
       end
     end
 
@@ -157,7 +157,7 @@ module Parser
 
     def xstring_compose(begin_t, parts, end_t)
       n(:xstr, [ *parts ],
-        collection_map(begin_t, parts, end_t))
+        string_map(begin_t, parts, end_t))
     end
 
     # Regular expressions
@@ -1090,6 +1090,20 @@ module Parser
       end
 
       Source::Map::Collection.new(loc(begin_t), loc(end_t), expr_l)
+    end
+
+    def string_map(begin_t, parts, end_t)
+      if begin_t && value(begin_t).start_with?('<<')
+        if parts.any?
+          expr_l = join_exprs(parts.first, parts.last)
+        else
+          expr_l = loc(end_t).begin
+        end
+
+        Source::Map::Heredoc.new(loc(begin_t), expr_l, loc(end_t))
+      else
+        collection_map(begin_t, parts, end_t)
+      end
     end
 
     def regexp_map(begin_t, end_t, options_e)

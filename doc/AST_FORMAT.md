@@ -76,6 +76,18 @@ Format:
  ~~~~~~~~~~~~~~ expression
 ~~~
 
+#### Here document
+
+Format:
+
+~~~
+(str "foo\nbar\n")
+'<<HERE␊foo␊bar␊HERE'
+ ~~~~~~ expression
+        ~~~~~~~~ heredoc_body
+                ~~~~ heredoc_end
+~~~
+
 ### Symbol
 
 #### Plain
@@ -106,6 +118,8 @@ Format:
 
 ### Execute-string
 
+#### Plain
+
 Format:
 
 ~~~
@@ -113,6 +127,18 @@ Format:
 "`foo#{bar}`"
  ^ begin   ^ end
  ~~~~~~~~~~~ expression
+~~~
+
+#### Here document
+
+Format:
+
+~~~
+(xstr (str "foo\nbar\n"))
+"<<`HERE`␊foo␊bar␊HERE"
+ ~~~~~~~~ expression
+          ~~~~~~~~ heredoc_body
+                  ~~~~ heredoc_end
 ~~~
 
 ### Regexp

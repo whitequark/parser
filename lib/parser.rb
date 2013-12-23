@@ -45,6 +45,7 @@ module Parser
     require 'parser/source/map/ternary'
     require 'parser/source/map/for'
     require 'parser/source/map/rescue_body'
+    require 'parser/source/map/heredoc'
   end
 
   require 'parser/syntax_error'
