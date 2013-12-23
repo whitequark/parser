@@ -1594,7 +1594,7 @@ class Parser::Lexer
         tok(@ts, @heredoc_e) =~ /^<<(-?)(["'`]?)(.*)\2$/
 
         indent    = !$1.empty?
-        type      =  $2.empty? ? '"' : $2
+        type      =  '<<' + ($2.empty? ? '"' : $2)
         delimiter =  $3
 
         fnext *push_literal(type, delimiter, @ts, @heredoc_e, indent);

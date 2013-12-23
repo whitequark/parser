@@ -745,8 +745,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_backtick
     assert_scanned("a = <<`EOF`\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tXSTRING_BEG,    "`",
+                   :tEQL,            "=",
+                   :tXSTRING_BEG,    "<<`",
                    :tSTRING_CONTENT, "  blah blah\n",
                    :tSTRING_END,     "EOF",
                    :tNL,             nil)
@@ -755,8 +755,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_double
     assert_scanned("a = <<\"EOF\"\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "  blah blah\n",
                    :tSTRING_END,     "EOF",
                    :tNL,             nil)
@@ -765,8 +765,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_double_dash
     assert_scanned("a = <<-\"EOF\"\n  blah blah\n  EOF\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "  blah blah\n",
                    :tSTRING_END,     "EOF",
                    :tNL,             nil)
@@ -775,22 +775,22 @@ class TestLexer < Minitest::Test
   def test_heredoc_double_eos
     refute_scanned("a = <<\"EOF\"\nblah",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"")
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"")
   end
 
   def test_heredoc_double_eos_nl
     refute_scanned("a = <<\"EOF\"\nblah\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"")
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"")
   end
 
   def test_heredoc_double_interp
     assert_scanned("a = <<\"EOF\"\n#x a \#@a b \#$b c \#{3} \nEOF\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "#x a ",
                    :tSTRING_DVAR,    nil,
                    :tIVAR,           "@a",
@@ -808,7 +808,7 @@ class TestLexer < Minitest::Test
 
   def test_heredoc_empty
     assert_scanned("<<\"\"\n\#{x}\nblah2\n\n",
-                   :tSTRING_BEG,     "\"",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_DBEG,    "\#{",
                    :tIDENTIFIER,     "x",
                    :tRCURLY,         "}",
@@ -821,8 +821,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_none
     assert_scanned("a = <<EOF\nblah\nblah\nEOF",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "blah\n",
                    :tSTRING_CONTENT, "blah\n",
                    :tSTRING_END,     "EOF",
@@ -832,8 +832,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_none_dash
     assert_scanned("a = <<-EOF\nblah\nblah\n  EOF",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "blah\n",
                    :tSTRING_CONTENT, "blah\n",
                    :tSTRING_END,     "EOF",
@@ -843,8 +843,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_single
     assert_scanned("a = <<'EOF'\n  blah blah\nEOF\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "'",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<'",
                    :tSTRING_CONTENT, "  blah blah\n",
                    :tSTRING_END,     "EOF",
                    :tNL,             nil)
@@ -860,8 +860,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_single_dash
     assert_scanned("a = <<-'EOF'\n  blah blah\n  EOF\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "'",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<'",
                    :tSTRING_CONTENT, "  blah blah\n",
                    :tSTRING_END,     "EOF",
                    :tNL,             nil)
@@ -870,8 +870,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_one_character
     assert_scanned("a = <<E\nABCDEF\nE\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "ABCDEF\n",
                    :tSTRING_END,     "E",
                    :tNL,             nil)
@@ -880,8 +880,8 @@ class TestLexer < Minitest::Test
   def test_heredoc_cr
     assert_scanned("a = <<E\r\r\nABCDEF\r\r\nE\r\r\r\n",
                    :tIDENTIFIER,     "a",
-                   :tEQL,              "=",
-                   :tSTRING_BEG,     "\"",
+                   :tEQL,            "=",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "ABCDEF\r\n",
                    :tSTRING_END,     "E",
                    :tNL,             nil)
@@ -2495,14 +2495,14 @@ class TestLexer < Minitest::Test
   def test_whitespace_cr
     setup_lexer(20)
     assert_scanned("<<E\nfoo\nE\rO",
-                   :tSTRING_BEG,     '"',
+                   :tSTRING_BEG,     '<<"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'E',
                    :tNL,             nil)
 
     setup_lexer(21)
     refute_scanned("<<E\nfoo\nE\rO",
-                   :tSTRING_BEG,     '"',
+                   :tSTRING_BEG,     '<<"',
                    :tSTRING_CONTENT, "foo\n")
   end
 
@@ -2581,7 +2581,7 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_beg_heredoc
     assert_scanned("<<EOL % [\nfoo\nEOL\n]",
-                   :tSTRING_BEG,      '"',
+                   :tSTRING_BEG,      '<<"',
                    :tSTRING_CONTENT,  "foo\n",
                    :tSTRING_END,      'EOL',
                    :tPERCENT,         '%',
@@ -2638,9 +2638,9 @@ class TestLexer < Minitest::Test
 
     @lex.state = :expr_arg
     assert_scanned(" <<EOS\nEOS",
-                   :tSTRING_BEG,     "\"",
-                   :tSTRING_END,     "EOS",
-                   :tNL,             nil)
+                   :tSTRING_BEG, "<<\"",
+                   :tSTRING_END, "EOS",
+                   :tNL,         nil)
   end
 
   def test_bug_expr_arg_slash
@@ -2682,7 +2682,7 @@ class TestLexer < Minitest::Test
   def test_bug_heredoc_continuation
     @lex.state = :expr_arg
     assert_scanned(" <<EOS\nEOS\nend",
-                   :tSTRING_BEG,     "\"",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_END,     "EOS",
                    :tNL,             nil,
                    :kEND,            "end")
@@ -2690,7 +2690,7 @@ class TestLexer < Minitest::Test
 
   def test_bug_heredoc_cr_lf
     assert_scanned("<<FIN\r\nfoo\r\nFIN\r\n",
-                   :tSTRING_BEG,     "\"",
+                   :tSTRING_BEG,     "<<\"",
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     "FIN",
                    :tNL,             nil)
@@ -2735,7 +2735,7 @@ class TestLexer < Minitest::Test
 
   def test_bug_heredoc_backspace_nl
     assert_scanned(" <<'XXX'\nf \\\nXXX\n",
-                   :tSTRING_BEG,     "'",
+                   :tSTRING_BEG,     "<<'",
                    :tSTRING_CONTENT, "f \\\n",
                    :tSTRING_END,     "XXX",
                    :tNL,             nil)
@@ -2743,7 +2743,7 @@ class TestLexer < Minitest::Test
 
   def test_bug_heredoc_lshft
     assert_scanned("<<RULES << CLEANINGS\nRULES",
-                   :tSTRING_BEG, '"',
+                   :tSTRING_BEG, '<<"',
                    :tSTRING_END, 'RULES',
                    :tLSHFT,      '<<',
                    :tCONSTANT,   'CLEANINGS')
@@ -2871,7 +2871,7 @@ class TestLexer < Minitest::Test
 
   def test_bug_interleaved_heredoc
     assert_scanned(%Q{<<w; "\nfoo\nw\n"},
-                   :tSTRING_BEG,     '"',
+                   :tSTRING_BEG,     '<<"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'w',
                    :tSEMI,           ';',
@@ -2881,7 +2881,7 @@ class TestLexer < Minitest::Test
 
     @lex.state = :expr_beg
     assert_scanned(%Q{<<w; %w[\nfoo\nw\n1]},
-                   :tSTRING_BEG,     '"',
+                   :tSTRING_BEG,     '<<"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'w',
                    :tSEMI,           ';',
@@ -2892,7 +2892,7 @@ class TestLexer < Minitest::Test
 
                    @lex.state = :expr_beg
     assert_scanned(%Q{<<w; "\#{\nfoo\nw\n}"},
-                   :tSTRING_BEG,     '"',
+                   :tSTRING_BEG,     '<<"',
                    :tSTRING_CONTENT, "foo\n",
                    :tSTRING_END,     'w',
                    :tSEMI,           ';',

@@ -8,27 +8,30 @@ module Parser
 
     TYPES = {
     # type      start token     interpolate?
-      "'"  => [ :tSTRING_BEG,   false ],
-      '%q' => [ :tSTRING_BEG,   false ],
-      '"'  => [ :tSTRING_BEG,   true  ],
-      '%'  => [ :tSTRING_BEG,   true  ],
-      '%Q' => [ :tSTRING_BEG,   true  ],
+      "'"   => [ :tSTRING_BEG,   false ],
+      "<<'" => [ :tSTRING_BEG,   false ],
+      '%q'  => [ :tSTRING_BEG,   false ],
+      '"'   => [ :tSTRING_BEG,   true  ],
+      '<<"' => [ :tSTRING_BEG,   true  ],
+      '%'   => [ :tSTRING_BEG,   true  ],
+      '%Q'  => [ :tSTRING_BEG,   true  ],
 
-      '%w' => [ :tQWORDS_BEG,   false ],
-      '%W' => [ :tWORDS_BEG,    true  ],
+      '%w'  => [ :tQWORDS_BEG,   false ],
+      '%W'  => [ :tWORDS_BEG,    true  ],
 
-      '%i' => [ :tQSYMBOLS_BEG, false ],
-      '%I' => [ :tSYMBOLS_BEG,  true  ],
+      '%i'  => [ :tQSYMBOLS_BEG, false ],
+      '%I'  => [ :tSYMBOLS_BEG,  true  ],
 
-      ":'" => [ :tSYMBEG,       false ],
-      '%s' => [ :tSYMBEG,       false ],
-      ':"' => [ :tSYMBEG,       true  ],
+      ":'"  => [ :tSYMBEG,       false ],
+      '%s'  => [ :tSYMBEG,       false ],
+      ':"'  => [ :tSYMBEG,       true  ],
 
-      '/'  => [ :tREGEXP_BEG,   true  ],
-      '%r' => [ :tREGEXP_BEG,   true  ],
+      '/'   => [ :tREGEXP_BEG,   true  ],
+      '%r'  => [ :tREGEXP_BEG,   true  ],
 
-      '%x' => [ :tXSTRING_BEG,  true  ],
-      '`'  => [ :tXSTRING_BEG,  true  ],
+      '%x'  => [ :tXSTRING_BEG,  true  ],
+      '`'   => [ :tXSTRING_BEG,  true  ],
+      '<<`' => [ :tXSTRING_BEG,  true  ],
     }
 
     attr_reader   :heredoc_e, :str_s
