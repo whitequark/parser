@@ -1,12 +1,15 @@
 Changelog
 =========
 
-v2.1.0.pre2 (2013-11-25)
-------------------------
+v2.1.0 (2013-12-25)
+-------------------
 
 API modifications:
  * Parser::Diagnostic: expose reason symbolically (closes #115, #116). (Ian MacLeod)
  * lexer.rl: coerce literals to UTF-8 in ASCII-encoded files if they contain \uXXXX (Peter Zotov)
+
+Bugs fixed:
+ * builders/default: represent heredocs with dedicated map (fixes #100). (Peter Zotov)
 
 v2.1.0.pre1 (2013-11-12)
 ------------------------
