@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.1.1 (2013-12-25)
+-------------------
+
+API modifications:
+ * ruby21.y: Ruby 2.1 is released already. (Peter Zotov)
+
 v2.1.0 (2013-12-25)
 -------------------
 
