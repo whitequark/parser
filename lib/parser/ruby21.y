@@ -2291,9 +2291,6 @@ require 'parser'
 
 Parser.check_for_encoding_support
 
-warn "warning: you are loading parser/ruby21 from #{caller[0]}."
-warn "warning: Ruby 2.1 is not released yet and parser support may be incomplete."
-
 ---- inner
 
   def version
