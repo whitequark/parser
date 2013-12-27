@@ -72,7 +72,7 @@ module Parser
         @parser_class = Parser::Ruby20
       end
 
-      @slop.on '21', 'Parse as Ruby trunk would (use with caution)' do
+      @slop.on '21', 'Parse as Ruby 2.1.0 would' do
         require 'parser/ruby21'
         @parser_class = Parser::Ruby21
       end
