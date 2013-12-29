@@ -1,8 +1,4 @@
 language: ruby
-# We're stuck on old bundler to verify 1.8 builds.
-before_script:
- - rvm @global do gem uninstall bundler -ax
- - gem install bundler -v 1.3.5
 rvm:
  - 1.8.7
  - 1.9.2
