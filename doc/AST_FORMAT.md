@@ -334,12 +334,40 @@ Format:
 
 ### Global variable
 
+#### Regular global variable
+
 Format:
 
 ~~~
 (gvar :$foo)
 "$foo"
  ~~~~ expression
+~~~
+
+#### Regular expression capture groups
+
+Format:
+
+~~~
+(nth-ref 1)
+"$1"
+ ~~ expression
+~~~
+
+#### Regular expression back-references
+
+Format:
+
+~~~
+(back-ref :$&)
+"$&"
+ ~~ expression
+(back-ref :$`)
+"$`"
+(back-ref :$')
+"$'"
+(back-ref :$+)
+"$+"
 ~~~
 
 ### Constant
