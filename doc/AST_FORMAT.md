@@ -593,7 +593,7 @@ Format:
     ~~~ operator
  ~~~~~~~~ expression
 
-(and-asgn (lasgn :a) (int 1))
+(and-asgn (lvasgn :a) (int 1))
 "a &&= 1"
    ~~~ operator
  ~~~~~~~ expression
@@ -605,7 +605,7 @@ Ruby_parser output for reference:
 s(:op_asgn_or, s(:ivar, :@a), s(:iasgn, :@a, s(:int, 1)))
 
 "a &&= 1"
-s(:op_asgn_and, s(:lvar, :a), s(:lasgn, :a, s(:int, 1)))
+s(:op_asgn_and, s(:lvar, :a), s(:lvasgn, :a, s(:int, 1)))
 ~~~
 
 #### Method logical operator-assignment
@@ -1292,7 +1292,7 @@ Format:
 Format:
 
 ~~~
-(for (lasgn :a) (lvar :array) (send nil :p (lvar :a)))
+(for (lvasgn :a) (lvar :array) (send nil :p (lvar :a)))
 "for a in array do p a; end"
  ~~~ keyword
        ~~ in
@@ -1305,7 +1305,7 @@ Format:
                       ~~~ end
 
 (for
-  (mlhs (lasgn :a) (lasgn :b)) (lvar :array)
+  (mlhs (lvasgn :a) (lvasgn :b)) (lvar :array)
   (send nil :p (lvar :a) (lvar :b)))
 "for a, b in array; p a, b; end"
 ~~~
