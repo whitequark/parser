@@ -588,7 +588,7 @@ Logical operator-assignment features the same "incomplete assignments" and "inco
 Format:
 
 ~~~
-(or-asgn (iasgn :@a) (int 1))
+(or-asgn (ivasgn :@a) (int 1))
 "@a ||= 1"
     ~~~ operator
  ~~~~~~~~ expression
@@ -602,7 +602,7 @@ Format:
 Ruby_parser output for reference:
 ~~~
 "@a ||= 1"
-s(:op_asgn_or, s(:ivar, :@a), s(:iasgn, :@a, s(:int, 1)))
+s(:op_asgn_or, s(:ivar, :@a), s(:ivasgn, :@a, s(:int, 1)))
 
 "a &&= 1"
 s(:op_asgn_and, s(:lvar, :a), s(:lvasgn, :a, s(:int, 1)))
