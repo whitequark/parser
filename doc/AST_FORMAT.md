@@ -1309,13 +1309,13 @@ Format:
 Format:
 
 ~~~
-(while-post (lvar :condition) (begin (send nil :foo)))
+(while-post (lvar :condition) (kwbegin (send nil :foo)))
 "begin; foo; end while condition"
  ~~~~~ begin (begin)
              ~~~ end (begin)
                  ~~~~~ keyword (while-post)
 
-(until-post (lvar :condition) (begin (send nil :foo)))
+(until-post (lvar :condition) (kwbegin (send nil :foo)))
 "begin; foo; end until condition"
  ~~~~~ begin (begin)
              ~~~ end (begin)
