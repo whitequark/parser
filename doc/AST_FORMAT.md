@@ -1042,6 +1042,13 @@ Format:
  ~~~~~~~~~~~ expression
 ~~~
 
+~~~
+(or (lvar :foo) (lvar :bar))
+"foo or bar"
+     ~~ operator
+ ~~~~~~~~~~ expression
+~~~
+
 #### Unary (! not) (1.8)
 
 Format:
