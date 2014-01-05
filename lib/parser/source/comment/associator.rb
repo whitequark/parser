@@ -103,7 +103,7 @@ module Parser
         end
 
         node.children.each do |child|
-          if child.is_a?(AST::Node) && child.location.expression
+          if child.is_a?(AST::Node) && child.loc && child.loc.expression
             prev_node, next_node = next_node, child
 
             process(prev_node, child)

@@ -83,4 +83,25 @@ end
 
     assert_equal 0, associations.size
   end
+
+  def test_associate_stray_comment
+    ast, associations = associate(<<-END)
+def foo
+  # foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate___ENCODING__
+    ast, associations = associate(<<-END)
+# foo
+__ENCODING__
+    END
+
+    assert_equal 1, associations.size
+    assert_equal ['# foo'],
+                 associations[ast].map(&:text)
+  end
 end
