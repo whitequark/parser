@@ -1531,6 +1531,7 @@ Format:
 ~~~
 (match-current-line (regexp (str "a") (regopt)))
 "if /a/; end"
+    ~~~ expression
 ~~~
 
 ### Local variable injecting matches

@@ -958,7 +958,7 @@ module Parser
         end
 
       when :regexp
-        n(:match_current_line, [ cond ], nil)
+        n(:match_current_line, [ cond ], expr_map(cond.loc.expression))
 
       else
         cond
