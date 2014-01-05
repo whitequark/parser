@@ -2014,9 +2014,17 @@ class Parser::Lexer
       => local_ident;
 
       bareword ambiguous_fid_suffix
-      => { emit(:tFID, tok(@ts, tm), @ts, tm)
-           p = tm - 1
-           fnext expr_arg; fbreak; };
+      => {
+        if tm == @te
+          # Suffix was consumed, e.g. foo!
+          emit(:tFID)
+        else
+          # Suffix was not consumed, e.g. foo!=
+          emit(:tIDENTIFIER, tok(@ts, tm), @ts, tm)
+          p = tm - 1
+        end
+        fnext expr_arg; fbreak;
+      };
 
       #
       # OPERATORS

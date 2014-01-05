@@ -888,16 +888,17 @@ class TestLexer < Minitest::Test
   end
 
   def test_identifier
-    assert_scanned("identifier", :tIDENTIFIER, "identifier")
+    assert_scanned("identifier",
+                   :tIDENTIFIER, "identifier")
   end
 
   def test_identifier_bang
     assert_scanned("identifier!",
-                   :tFID, "identifier!")
+                   :tFID,        "identifier!")
 
     assert_scanned("identifier!=",
-                   :tFID, "identifier",
-                   :tNEQ, "!=")
+                   :tIDENTIFIER, "identifier",
+                   :tNEQ,        "!=")
   end
 
   def test_identifier_cmp
