@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.1.2 (2014-01-05)
+-------------------
+
+Bugs fixed:
+ * lexer.rl: in "foo!= x", foo is tIDENTIFIER, not tFID (closes #126). (Peter Zotov)
+
 v2.1.1 (2013-12-25)
 -------------------
 
