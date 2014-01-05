@@ -3873,7 +3873,8 @@ class TestParser < Minitest::Test
             s(:str, 'wat'),
             s(:regopt))),
         nil, nil),
-      %q{if /wat/; end})
+      %q{if /wat/; end},
+      %q{   ~~~~~ expression (match_current_line)})
   end
 
   # Case matching
