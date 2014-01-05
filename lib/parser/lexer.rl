@@ -1357,21 +1357,21 @@ class Parser::Lexer
       w_space* '?'
       => { fhold; fgoto expr_beg; };
 
-               # a %{1}, a %[1] (but not "a %=1=" or "a % foo")
-               # a /foo/ (but not "a / foo" or "a /=foo")
-      w_space+ ( [%/] ( c_any - c_space_nl - '=' ) # /
-               # a <<HEREDOC
-               | '<<'
-               )
-      => { fhold; fhold; fgoto expr_beg; };
-
-      # x /1
-      # Ambiguous regexp literal.
-      w_space+ '/'
+      # a %{1}, a %[1] (but not "a %=1=" or "a % foo")
+      # a /foo/ (but not "a / foo" or "a /=foo")
+      # a <<HEREDOC
+      w_space+ %{ tm = p }
+      ( [%/] ( c_any - c_space_nl - '=' ) # /
+      | '<<'
+      )
       => {
-        diagnostic :warning, :ambiguous_literal, nil, range(@te - 1, @te)
+        if tok(tm, tm + 1) == '/'
+          # Ambiguous regexp literal.
+          diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
+        end
 
-        fhold; fgoto expr_beg;
+        p = tm - 1
+        fgoto expr_beg;
       };
 
       # x *1

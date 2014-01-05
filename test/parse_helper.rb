@@ -161,6 +161,23 @@ module ParseHelper
     end
   end
 
+  def refute_diagnoses(code, versions=ALL_VERSIONS)
+    with_versions(versions) do |version, parser|
+      source_file = Parser::Source::Buffer.new('(refute_diagnoses)')
+      source_file.source = code
+
+      begin
+        parser = parser.parse(source_file)
+      rescue Parser::SyntaxError
+        # do nothing; the diagnostic was reported
+      end
+
+      assert_empty @diagnostics,
+                   "(#{version}) emits no diagnostics, not\n" \
+                   "#{@diagnostics.map(&:render).join("\n")}"
+    end
+  end
+
   SOURCE_MAP_DESCRIPTION_RE =
       /(?x)
        ^(?# $1 skip)            ^(\s*)
