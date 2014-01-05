@@ -7,8 +7,8 @@ rvm:
  - jruby-18mode
  - jruby-19mode
  - rbx
-matrix:
-  allow_failure:
-    - rvm: 1.8.7
-    - rvm: jruby-18mode
-cache: bundler
+before_install:
+ - gem update bundler
+ - bundle --version
+ - gem update --system 2.1.11
+ - gem --version
