@@ -29,7 +29,7 @@ module Parser
             source_line
           end
 
-          node.loc.to_hash.
+          (node.loc || {}).to_hash.
             sort_by do |name, range|
               [(range ? range.line : 0),
                (name == :expression ? 1 : 0)]
