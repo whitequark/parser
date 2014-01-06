@@ -2578,6 +2578,16 @@ class TestParser < Minitest::Test
         |~~~~~~~~~~~~ expression})
   end
 
+  def test_send_plain_cmd_ambiguous_literal
+    assert_diagnoses(
+      [:warning, :ambiguous_literal],
+      %q{m /foo/},
+      %q{  ^ location})
+
+    refute_diagnoses(
+      %q{m %[1]})
+  end
+
   def test_send_plain_cmd_ambiguous_prefix
     assert_diagnoses(
       [:warning, :ambiguous_prefix, { :prefix => '+' }],
