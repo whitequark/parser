@@ -3,8 +3,8 @@ require 'tempfile'
 require 'simplecov'
 require 'coveralls'
 
-if SimpleCov.usable?
-  if defined?(TracePoint) && ENV.include?('COVERAGE')
+if ENV.include?('COVERAGE') && SimpleCov.usable?
+  if defined?(TracePoint)
     require_relative 'racc_coverage_helper'
 
     RaccCoverage.start(%w(ruby18.y ruby19.y ruby20.y ruby21.y),

@@ -13,4 +13,4 @@ before_install:
  - gem update --system 2.1.11
  - gem --version
 script:
- - rake test_cov
+ - bundle exec rake test_cov
