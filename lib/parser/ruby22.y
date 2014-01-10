@@ -1102,6 +1102,7 @@ rule
                 | kCLASS cpath superclass
                     {
                       @static_env.extend_static
+                      @lexer.push_cmdarg
                     }
                     bodystmt kEND
                     {
@@ -1114,6 +1115,7 @@ rule
                                                   lt_t, superclass,
                                                   val[4], val[5])
 
+                      @lexer.pop_cmdarg
                       @static_env.unextend
                     }
                 | kCLASS tLSHFT expr term
@@ -1122,12 +1124,14 @@ rule
                       @def_level = 0
 
                       @static_env.extend_static
+                      @lexer.push_cmdarg
                     }
                     bodystmt kEND
                     {
                       result = @builder.def_sclass(val[0], val[1], val[2],
                                                    val[5], val[6])
 
+                      @lexer.pop_cmdarg
                       @static_env.unextend
 
                       @def_level = val[4]
@@ -1135,6 +1139,7 @@ rule
                 | kMODULE cpath
                     {
                       @static_env.extend_static
+                      @lexer.push_cmdarg
                     }
                     bodystmt kEND
                     {
@@ -1145,18 +1150,21 @@ rule
                       result = @builder.def_module(val[0], val[1],
                                                    val[3], val[4])
 
+                      @lexer.pop_cmdarg
                       @static_env.unextend
                     }
                 | kDEF fname
                     {
                       @def_level += 1
                       @static_env.extend_static
+                      @lexer.push_cmdarg
                     }
                     f_arglist bodystmt kEND
                     {
                       result = @builder.def_method(val[0], val[1],
                                   val[3], val[4], val[5])
 
+                      @lexer.pop_cmdarg
                       @static_env.unextend
                       @def_level -= 1
                     }
@@ -1168,12 +1176,14 @@ rule
                     {
                       @def_level += 1
                       @static_env.extend_static
+                      @lexer.push_cmdarg
                     }
                     f_arglist bodystmt kEND
                     {
                       result = @builder.def_singleton(val[0], val[1], val[2],
                                   val[4], val[6], val[7], val[8])
 
+                      @lexer.pop_cmdarg
                       @static_env.unextend
                       @def_level -= 1
                     }

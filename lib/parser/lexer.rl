@@ -115,6 +115,7 @@ class Parser::Lexer
 
       @cond   = StackState.new('cond')
       @cmdarg = StackState.new('cmdarg')
+      @cmdarg_stack = []
     end
 
     @source        = nil # source string
@@ -233,6 +234,15 @@ class Parser::Lexer
 
   def state=(state)
     @cs = LEX_STATES.fetch(state)
+  end
+
+  def push_cmdarg
+    @cmdarg_stack.push(@cmdarg)
+    @cmdarg = StackState.new("cmdarg.#{@cmdarg_stack.count}")
+  end
+
+  def pop_cmdarg
+    @cmdarg = @cmdarg_stack.pop
   end
 
   # Return next token: [type, value].

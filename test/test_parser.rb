@@ -4751,6 +4751,21 @@ class TestParser < Minitest::Test
       %q{desc "foo" do end})
   end
 
+  def test_bug_do_block_in_call_args
+    # [ruby-core:59342] [Bug #9308]
+    assert_parses(
+      s(:send, nil, :bar,
+        s(:def, :foo,
+          s(:args),
+          s(:block,
+            s(:send, s(:self), :each),
+            s(:args),
+            nil))),
+      %q{bar def foo; self.each do end end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+  end
+
   def test_bug_interp_single
     assert_parses(
       s(:dstr, s(:begin, s(:int, 1))),
