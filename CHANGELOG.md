@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v2.1.3 (2014-01-10)
+-------------------
+
+Bugs fixed:
+ * lexer.rl: "/\//": don't include escaped delimiter in AST in its escaped form (fixes #125). (Peter Zotov)
+ * Builders::Default: "return x y do end": correctly build AST for keywords followed by command (closes #129). (Peter Zotov)
+ * Fix a bug where "ambiguous first argument" diagnostic was not emitted (Yuji Nakayama)
+ * Source::Comment::Associator: don't die while associating with "__ENCODING__". (Peter Zotov)
+ * ruby-parse: don't die when invoked with -L -e "__ENCODING__". (Peter Zotov)
+ * Add missing source map for match-current-line (Yuji Nakayama)
+
 v2.1.2 (2014-01-05)
 -------------------
 
