@@ -53,6 +53,7 @@ module Parser
     :unexpected_percent_str  => '%{type}: unknown type of percent-literal',
     :block_and_blockarg      => 'both block argument and literal block are passed',
     :masgn_as_condition      => 'multiple assignment in conditional context',
+    :block_given_to_yield    => 'block given to yield',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',

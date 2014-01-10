@@ -2527,7 +2527,8 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :block_and_blockarg],
       %q{fun(&bar) do end},
-      %q{    ~~~~ location})
+      %q{    ~~~~ location
+        |          ~~ highlights (0)})
   end
 
   # To receiver
@@ -3164,6 +3165,20 @@ class TestParser < Minitest::Test
       %q{yield},
       %q{~~~~~ keyword
         |~~~~~ expression})
+  end
+
+  def test_yield_block
+    assert_diagnoses(
+      [:error, :block_given_to_yield],
+      %q{yield foo do end},
+      %q{~~~~~ location
+        |          ~~ highlights (0)})
+
+    assert_diagnoses(
+      [:error, :block_given_to_yield],
+      %q{yield(&foo)},
+      %q{~~~~~ location
+        |      ~~~~ highlights (0)})
   end
 
   # Call arguments
@@ -4143,6 +4158,18 @@ class TestParser < Minitest::Test
         |~~~~~ expression})
   end
 
+  def test_break_block
+    assert_parses(
+      s(:break,
+        s(:block,
+          s(:send, nil, :fun, s(:lvar, :foo)),
+          s(:args), nil)),
+      %q{break fun foo do end},
+      %q{      ~~~~~~~~~~~~~~ expression (block)
+        |~~~~~~~~~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_return
     assert_parses(
       s(:return, s(:begin, s(:lvar, :foo))),
@@ -4178,6 +4205,18 @@ class TestParser < Minitest::Test
         |~~~~~~ expression})
   end
 
+  def test_return_block
+    assert_parses(
+      s(:return,
+        s(:block,
+          s(:send, nil, :fun, s(:lvar, :foo)),
+          s(:args), nil)),
+      %q{return fun foo do end},
+      %q{       ~~~~~~~~~~~~~~ expression (block)
+        |~~~~~~~~~~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_next
     assert_parses(
       s(:next, s(:begin, s(:lvar, :foo))),
@@ -4211,6 +4250,18 @@ class TestParser < Minitest::Test
       %q{next},
       %q{~~~~ keyword
         |~~~~ expression})
+  end
+
+  def test_next_block
+    assert_parses(
+      s(:next,
+        s(:block,
+          s(:send, nil, :fun, s(:lvar, :foo)),
+          s(:args), nil)),
+      %q{next fun foo do end},
+      %q{     ~~~~~~~~~~~~~~ expression (block)
+        |~~~~~~~~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_redo

@@ -625,14 +625,30 @@ module Parser
 
     def block(method_call, begin_t, args, body, end_t)
       _receiver, _selector, *call_args = *method_call
-      last_arg = call_args.last
 
-      if last_arg && last_arg.type == :block_pass
-        diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression
+      if method_call.type == :yield
+        diagnostic :error, :block_given_to_yield, nil, method_call.loc.keyword, [loc(begin_t)]
       end
 
-      n(:block, [ method_call, args, body ],
-        block_map(method_call.loc.expression, begin_t, end_t))
+      last_arg = call_args.last
+      if last_arg && last_arg.type == :block_pass
+        diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
+      end
+
+      if method_call.type == :send
+        n(:block, [ method_call, args, body ],
+          block_map(method_call.loc.expression, begin_t, end_t))
+      else
+        # Code like "return foo 1 do end" is reduced in a weird sequence.
+        # Here, method_call is actually (return).
+        actual_send, = *method_call
+        block =
+          n(:block, [ actual_send, args, body ],
+            block_map(actual_send.loc.expression, begin_t, end_t))
+
+        n(method_call.type, [ block ],
+          method_call.loc.with_expression(join_exprs(method_call, block)))
+      end
     end
 
     def block_pass(amper_t, arg)
@@ -816,6 +832,13 @@ module Parser
     # Keywords
 
     def keyword_cmd(type, keyword_t, lparen_t=nil, args=[], rparen_t=nil)
+      if type == :yield && args.count > 0
+        last_arg = args.last
+        if last_arg.type == :block_pass
+          diagnostic :error, :block_given_to_yield, nil, loc(keyword_t), [last_arg.loc.expression]
+        end
+      end
+
       n(type, args,
         keyword_map(keyword_t, lparen_t, args, rparen_t))
     end
