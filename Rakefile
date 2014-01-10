@@ -11,6 +11,11 @@ Rake::TestTask.new do |t|
   t.test_files = FileList["test/**/test_*.rb"]
 end
 
+task :test_cov do
+  ENV['COVERAGE'] = '1'
+  Rake::Task['test'].invoke
+end
+
 task :build => [:generate_release, :changelog]
 
 GENERATED_FILES = %w(lib/parser/lexer.rb
