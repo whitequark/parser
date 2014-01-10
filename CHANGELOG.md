@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v2.1.4 (2014-01-11)
+-------------------
+
+Features implemented:
+ * ruby22.y: "x def y; z do end end": save cmdarg stack to isolate command argument state from outer scope. (Peter Zotov)
+ * Add Ruby 2.2 syntax. (Peter Zotov)
+
+Bugs fixed:
+ * Builders::Default: "super do end": super and zsuper are like send (fixes #131). (Peter Zotov)
+
 v2.1.3 (2014-01-10)
 -------------------
 
