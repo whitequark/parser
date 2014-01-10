@@ -3135,6 +3135,20 @@ class TestParser < Minitest::Test
         |~~~~~ expression})
   end
 
+  def test_super_block
+    assert_parses(
+      s(:block,
+        s(:super, s(:lvar, :foo), s(:lvar, :bar)),
+        s(:args), nil),
+      %q{super foo, bar do end})
+
+    assert_parses(
+      s(:block,
+        s(:zsuper),
+        s(:args), nil),
+      %q{super do end})
+  end
+
   # To block argument
 
   def test_yield
