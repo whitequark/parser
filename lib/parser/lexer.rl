@@ -823,9 +823,9 @@ class Parser::Lexer
         # or closing delimiter, it is an escape sequence for that
         # particular character. Write it without the backslash.
 
-        if literal.regexp?
-          # Regular expressions should have every escape sequence in its
-          # raw form.
+        if literal.regexp? && escaped_char == '\\'
+          # Regular expressions should include backslashes in their escaped
+          # form.
           literal.extend_string(tok, @ts, @te)
         else
           literal.extend_string(escaped_char, @ts, @te)
@@ -844,7 +844,8 @@ class Parser::Lexer
         @escape.call if @escape.respond_to? :call
 
         if literal.regexp?
-          # Ditto. Also, expand escaped newlines.
+          # Regular expressions should include escape sequences in their
+          # escaped form. On the other hand, escaped newlines are removed.
           literal.extend_string(tok.gsub("\\\n", ''), @ts, @te)
         else
           literal.extend_string(@escape || tok, @ts, @te)

@@ -1549,7 +1549,7 @@ class TestLexer < Minitest::Test
   def test_regexp_escape_backslash_slash
     assert_scanned('/\\//',
                    :tREGEXP_BEG,     "/",
-                   :tSTRING_CONTENT, '\\/',
+                   :tSTRING_CONTENT, '/',
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
   end
@@ -1557,7 +1557,7 @@ class TestLexer < Minitest::Test
   def test_regexp_escape_backslash_terminator
     assert_scanned('%r%blah\\%blah%',
                    :tREGEXP_BEG,     "%r%",
-                   :tSTRING_CONTENT, "blah\\%blah",
+                   :tSTRING_CONTENT, "blah%blah",
                    :tSTRING_END,     "%",
                    :tREGEXP_OPT,     "")
   end
@@ -1565,7 +1565,7 @@ class TestLexer < Minitest::Test
   def test_regexp_escape_backslash_terminator_meta1
     assert_scanned('%r{blah\\}blah}',
                    :tREGEXP_BEG,     "%r{",
-                   :tSTRING_CONTENT, "blah\\}blah",
+                   :tSTRING_CONTENT, "blah}blah",
                    :tSTRING_END,     "}",
                    :tREGEXP_OPT,     "")
   end
@@ -1573,7 +1573,7 @@ class TestLexer < Minitest::Test
   def test_regexp_escape_backslash_terminator_meta2
     assert_scanned('%r/blah\\/blah/',
                    :tREGEXP_BEG,     "%r/",
-                   :tSTRING_CONTENT, "blah\\/blah",
+                   :tSTRING_CONTENT, "blah/blah",
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
   end
@@ -1623,10 +1623,9 @@ class TestLexer < Minitest::Test
   end
 
   def test_regexp_escape_double_backslash
-    regexp = '/[\\/\\\\]$/'
-    assert_scanned(regexp,
+    assert_scanned('/[\\/\\\\]$/',
                    :tREGEXP_BEG,     "/",
-                   :tSTRING_CONTENT, regexp[1..-2],
+                   :tSTRING_CONTENT,'[/\\\\]$',
                    :tSTRING_END,     "/",
                    :tREGEXP_OPT,     "")
   end
