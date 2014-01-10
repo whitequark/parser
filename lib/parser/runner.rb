@@ -67,14 +67,19 @@ module Parser
         @parser_class = Parser::Ruby19
       end
 
-      @slop.on '20', 'Parse as Ruby 2.0.0 would' do
+      @slop.on '20', 'Parse as Ruby 2.0 would' do
         require 'parser/ruby20'
         @parser_class = Parser::Ruby20
       end
 
-      @slop.on '21', 'Parse as Ruby 2.1.0 would' do
+      @slop.on '21', 'Parse as Ruby 2.1 would' do
         require 'parser/ruby21'
         @parser_class = Parser::Ruby21
+      end
+
+      @slop.on '22', 'Parse as Ruby 2.2 would' do
+        require 'parser/ruby22'
+        @parser_class = Parser::Ruby22
       end
 
       @slop.on 'w',  'warnings',  'Enable warnings'

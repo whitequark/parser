@@ -7,9 +7,9 @@ module ParseHelper
     ALL_VERSIONS = %w(1.8)
   else
     require 'parser/all'
-    require 'parser/ruby21'
+    require 'parser/ruby22'
 
-    ALL_VERSIONS = %w(1.8 1.9 2.0 2.1)
+    ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2)
   end
 
   def setup
@@ -24,6 +24,7 @@ module ParseHelper
     when '1.9' then parser = Parser::Ruby19.new
     when '2.0' then parser = Parser::Ruby20.new
     when '2.1' then parser = Parser::Ruby21.new
+    when '2.2' then parser = Parser::Ruby22.new
     else raise "Unrecognized Ruby version #{version}"
     end
 

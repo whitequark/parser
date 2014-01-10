@@ -96,7 +96,7 @@ with Parser:
 * Precise source location reporting.
 * [Documented](doc/AST_FORMAT.md) AST format which is convenient to work with.
 * A simple interface and a powerful, tweakable one.
-* Parses 1.8, 1.9, 2.0 and 2.1 (preliminary) syntax with backwards-compatible
+* Parses 1.8, 1.9, 2.0, 2.1 and 2.2 (preliminary) syntax with backwards-compatible
   AST formats.
 * [Rewriting][rewriting] support.
 * Parsing error recovery.
