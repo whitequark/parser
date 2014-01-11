@@ -125,7 +125,7 @@ Several Parser nodes seem to be confusing enough to warrant a dedicated README s
 
 #### (block)
 
-The `(block)` node passes a Ruby block, that is, a closure, to a method call represented by its first child, a `send` node. To demonstrate:
+The `(block)` node passes a Ruby block, that is, a closure, to a method call represented by its first child, a `(send)`, `(super)` or `(zsuper)` node. To demonstrate:
 
 ```
 $ ruby-parse -e 'foo { |x| x + 2 }'
@@ -230,13 +230,27 @@ Ruby MRI 1.9+ permits to specify invalid Unicode codepoints in Unicode escape se
 
 As of 2013-07-25, affected gems are: aws_cloud_search.
 
+### Dollar-dash
+
+(This one is so obscure I couldn't even think of a saner name for this issue.) Pre-2.1 Ruby allows
+to specify a global variable named `$-`. Ruby 2.1 and later treat it as a syntax error. Parser
+follows 2.1 behavior.
+
+No known code is affected by this issue.
+
 ## Contributors
 
 * Peter Zotov ([whitequark][])
+* Markus Schirp ([mbj][])
+* Yorick Peterse ([yorickpeterse][])
 * Magnus Holm ([judofyr][])
+* Bozhidar Batsov ([bbatsov][])
 
-[whitequark]: https://github.com/whitequark
-[judofyr]:    https://github.com/judofyr
+[whitequark]:     https://github.com/whitequark
+[mbj]:            https://github.com/mbj
+[yorickpeterse]:  https://github.com/yorickpeterse
+[judofyr]:        https://github.com/judofyr
+[bbatsov]:        https://github.com/bbatsov
 
 ## Acknowledgements
 
