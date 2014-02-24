@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.1.5 (2014-02-24)
+-------------------
+
+Bugs fixed:
+ * Parser::Base, ruby18.y: don't try to lookup Encoding on 1.8 (fixes #133). (Peter Zotov)
+
 v2.1.4 (2014-01-11)
 -------------------
 
