@@ -21,6 +21,7 @@ module Parser
   module AST
     require 'parser/ast/node'
     require 'parser/ast/processor'
+    require 'parser/meta'
   end
 
   module Source
