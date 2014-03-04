@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.1.6 (2014-03-04)
+-------------------
+
+Features implemented:
+ * Add the list of all node types within Parser::Meta. (Markus Schirp)
+
 v2.1.5 (2014-02-24)
 -------------------
 
