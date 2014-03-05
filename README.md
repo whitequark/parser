@@ -21,43 +21,49 @@ Sponsored by [Evil Martians](http://evilmartians.com).
 
 Parse a chunk of code:
 
-    require 'parser/current'
+``` ruby
+require 'parser/current'
 
-    p Parser::CurrentRuby.parse("2 + 2")
-    # (send
-    #   (int 2) :+
-    #   (int 2))
+p Parser::CurrentRuby.parse("2 + 2")
+# (send
+#   (int 2) :+
+#   (int 2))
+```
 
 Access the AST's source map:
 
-    p Parser::CurrentRuby.parse("2 + 2").loc
-    # #<Parser::Source::Map::Send:0x007fe5a1ac2388
-    #   @dot=nil,
-    #   @begin=nil,
-    #   @end=nil,
-    #   @selector=#<Source::Range (string) 2...3>,
-    #   @expression=#<Source::Range (string) 0...5>>
+``` ruby
+p Parser::CurrentRuby.parse("2 + 2").loc
+# #<Parser::Source::Map::Send:0x007fe5a1ac2388
+#   @dot=nil,
+#   @begin=nil,
+#   @end=nil,
+#   @selector=#<Source::Range (string) 2...3>,
+#   @expression=#<Source::Range (string) 0...5>>
 
-    p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
-    # "+"
+p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
+# "+"
+```
 
 Parse a chunk of code and display all diagnostics:
 
-    parser = Parser::CurrentRuby.new
-    parser.diagnostics.consumer = lambda do |diag|
-      puts diag.render
-    end
+``` ruby
+parser = Parser::CurrentRuby.new
+parser.diagnostics.consumer = lambda do |diag|
+  puts diag.render
+end
 
-    buffer = Parser::Source::Buffer.new('(string)')
-    buffer.source = "foo *bar"
+buffer = Parser::Source::Buffer.new('(string)')
+buffer.source = "foo *bar"
 
-    p parser.parse(buffer)
-    # (string):1:5: warning: `*' interpreted as argument prefix
-    # foo *bar
-    #     ^
-    # (send nil :foo
-    #   (splat
-    #     (send nil :bar)))
+p parser.parse(buffer)
+# (string):1:5: warning: `*' interpreted as argument prefix
+# foo *bar
+#     ^
+# (send nil :foo
+#   (splat
+#     (send nil :bar)))
+```
 
 If you reuse the same parser object for multiple `#parse` runs, you need to
 `#reset` it.
@@ -166,7 +172,7 @@ $ ruby-parse -e 'def x; foo; bar end'
 
 Note that, despite its name, `kwbegin` node only has tangential relation to the `begin` keyword. Normally, Parser AST is semantic, that is, if two constructs look differently but behave identically, they get parsed to the same node. However, there exists a peculiar construct called post-loop in Ruby:
 
-```
+``` ruby
 begin
   body
 end while condition
