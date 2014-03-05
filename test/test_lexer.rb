@@ -63,10 +63,11 @@ class TestLexer < Minitest::Test
   end
 
   def refute_escape(input)
-    assert_raises Parser::SyntaxError do
+    err = assert_raises Parser::SyntaxError do
       @lex.state = :expr_beg
       assert_scanned "%Q[\\#{input}]"
     end
+    assert_equal :fatal, err.diagnostic.level
   end
 
   def assert_lex_fname(name, type)
@@ -145,6 +146,8 @@ class TestLexer < Minitest::Test
     refute_escape "C-"
 
     refute_escape "c"
+
+    refute_escape "x"
   end
 
   def test_read_escape_unicode__19
