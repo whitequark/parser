@@ -657,7 +657,7 @@ class Parser::Lexer
 
   action invalid_complex_escape {
     @escape = lambda do
-      diagnostic :error, :invalid_escape
+      diagnostic :fatal, :invalid_escape
     end
   }
 
@@ -697,7 +697,7 @@ class Parser::Lexer
     | 'x' ( c_any - xdigit )
       % {
         @escape = lambda do
-          diagnostic :error, :invalid_hex_escape, nil,
+          diagnostic :fatal, :invalid_hex_escape, nil,
                      range(@escape_s - 1, p + 2)
         end
       }
@@ -712,7 +712,7 @@ class Parser::Lexer
           )
       % {
         @escape = lambda do
-          diagnostic :error, :invalid_unicode_escape, nil,
+          diagnostic :fatal, :invalid_unicode_escape, nil,
                      range(@escape_s - 1, p)
         end
       }
