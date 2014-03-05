@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.1.7 (2014-03-05)
+-------------------
+
+Bugs fixed:
+ * lexer.rl: make sure all invalid escapes lead to fatal errors (fixes #136). (Peter Zotov)
+
 v2.1.6 (2014-03-04)
 -------------------
 
