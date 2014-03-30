@@ -600,19 +600,19 @@ class Parser::Lexer
   flo_pow  = [eE] [+\-]? ( digit+ '_' )* digit+;
 
   int_suffix =
-    ''   % { @num_xfrm = lambda { |value|  emit(:tINTEGER,   value) } }
-  | 'r'  % { @num_xfrm = lambda { |value|  emit(:tRATIONAL,  Rational(value)) } }
-  | 'i'  % { @num_xfrm = lambda { |value|  emit(:tIMAGINARY, Complex(0, value)) } }
-  | 'ri' % { @num_xfrm = lambda { |value|  emit(:tIMAGINARY, Complex(0, Rational(value))) } };
+    ''   % { @num_xfrm = lambda { |chars|  emit(:tINTEGER,   chars) } }
+  | 'r'  % { @num_xfrm = lambda { |chars|  emit(:tRATIONAL,  Rational(chars)) } }
+  | 'i'  % { @num_xfrm = lambda { |chars|  emit(:tIMAGINARY, Complex(0, chars)) } }
+  | 'ri' % { @num_xfrm = lambda { |chars|  emit(:tIMAGINARY, Complex(0, Rational(chars))) } };
 
   flo_pow_suffix =
-    ''   % { @num_xfrm = lambda { |digits| emit(:tFLOAT,     Float(digits)) } }
-  | 'i'  % { @num_xfrm = lambda { |digits| emit(:tIMAGINARY, Complex(0, Float(digits))) } };
+    ''   % { @num_xfrm = lambda { |chars| emit(:tFLOAT,     Float(chars)) } }
+  | 'i'  % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Float(chars))) } };
 
   flo_suffix =
     flo_pow_suffix
-  | 'r'  % { @num_xfrm = lambda { |digits| emit(:tRATIONAL,  Rational(digits)) } }
-  | 'ri' % { @num_xfrm = lambda { |digits| emit(:tIMAGINARY, Complex(0, Rational(digits))) } };
+  | 'r'  % { @num_xfrm = lambda { |chars| emit(:tRATIONAL,  Rational(chars)) } }
+  | 'ri' % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Rational(chars))) } };
 
   #
   # === ESCAPE SEQUENCE PARSING ===
