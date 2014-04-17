@@ -801,7 +801,8 @@ class Parser::Lexer
   };
 
   action extend_string {
-    string = @source[@ts...@te].encode(@encoding)
+    string = @source[@ts...@te]
+    string = string.encode(@encoding) if string.respond_to?(:encode)
 
     if !literal.heredoc? && literal.nest_and_try_closing(string, @ts, @te)
       fnext *pop_literal; fbreak;
