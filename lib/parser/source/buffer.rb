@@ -168,7 +168,7 @@ module Parser
           raise ArgumentError, 'Source::Buffer is immutable'
         end
 
-        @source = input.gsub(/\r\n/, "\n").freeze
+        @source = input.gsub("\r\n", "\n").freeze
       end
 
       ##
@@ -193,7 +193,7 @@ module Parser
       def source_line(lineno)
         unless @lines
           @lines = @source.lines.to_a
-          @lines.each { |line| line.gsub!(/\n$/, '') }
+          @lines.each { |line| line.chomp!("\n") }
 
           # If a file ends with a newline, the EOF token will appear
           # to be one line further than the end of file.

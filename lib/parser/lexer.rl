@@ -92,6 +92,7 @@ class Parser::Lexer
 
   attr_accessor :diagnostics
   attr_accessor :static_env
+  attr_accessor :force_utf32
 
   attr_accessor :cond, :cmdarg
 
@@ -183,7 +184,8 @@ class Parser::Lexer
         @source_pts = @source.unpack('C*')
       end
 
-      if @source_pts.size > 1_000_000 && @source.respond_to?(:encode)
+      if (@source_pts.size > 1_000_000 && @source.respond_to?(:encode)) ||
+         @force_utf32
         # A heuristic: if the buffer is larger than 1M, then
         # store it in UTF-32 and convert the tokens as they're
         # going out. If it's smaller, the conversion overhead
@@ -799,7 +801,7 @@ class Parser::Lexer
   };
 
   action extend_string {
-    string = @source[@ts...@te]
+    string = @source[@ts...@te].encode(@encoding)
 
     if !literal.heredoc? && literal.nest_and_try_closing(string, @ts, @te)
       fnext *pop_literal; fbreak;
