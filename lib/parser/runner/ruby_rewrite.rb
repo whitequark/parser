@@ -8,6 +8,7 @@ module Parser
       super
 
       @rewriters = []
+      @modify    = false
     end
 
     private
@@ -21,6 +22,10 @@ module Parser
 
       @slop.on 'l=', 'load=', 'Load a rewriter' do |file|
         load_and_discover(file)
+      end
+
+      @slop.on 'm', 'modify', 'Assume rewriters normally modify AST' do
+        @modify = true
       end
     end
 
@@ -53,7 +58,7 @@ module Parser
         @parser.reset
         new_ast = @parser.parse(new_buffer)
 
-        unless ast == new_ast
+        if !@modify && ast != new_ast
           $stderr.puts 'ASTs do not match:'
 
           old = Tempfile.new('old')
