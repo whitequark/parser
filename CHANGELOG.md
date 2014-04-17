@@ -1,6 +1,18 @@
 Changelog
 =========
 
+v2.1.8 (2014-04-17)
+-------------------
+
+API modifications:
+ * parser/current: fallback to latest released Ruby instead of raising (fixes #140). (Peter Zotov)
+
+Features implemented:
+ * ruby-rewrite: add a --modify switch for rewriters that modify AST (fixes #143). (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl: don't fail to parse string literals in huge files (fixes #142). (Peter Zotov)
+
 v2.1.7 (2014-03-05)
 -------------------
 
@@ -69,34 +81,17 @@ API modifications:
  * lexer.rl: correctly handle __END__ with non-whitespace after it (Peter Zotov)
  * lexer.rl: handle \r in middle of a line as mere whitespace (Peter Zotov)
  * ruby{18,19,20,21}.y, builders/default: precisely point to tUMINUS_NUM. (Peter Zotov)
-
-Features implemented:
- * lexer.rl, ruby21.y, builders/default: rational/complex literals. (Peter Zotov)
-
-v2.0.0 (2013-10-06)
--------------------
-
-API modifications:
  * Source::Rewriter: raise an exception if updates clobber each other. (Peter Zotov)
  * Source::Range#inspect: use full class name. (Peter Zotov)
  * lexer.rl: make EOF tokens actually pointing at EOF and zero-length. (Peter Zotov)
  * Source::Range#column_range: raise RangeError if range spans >1 line. (Peter Zotov)
  * Source::Comment::Associator: fix argument order. (Peter Zotov)
-
-Features implemented:
- * Source::Comment: implement #inspect. (Peter Zotov)
- * Backport Array#bsearch from Ruby 2.0. (Peter Zotov)
-
-v2.0.0.pre8 (2013-09-15)
-------------------------
-
-API modifications:
  * lexer.rl: make lexing faster and improve parsing speed by ~60%. (Peter Zotov)
 
-v2.0.0.pre7 (2013-09-10)
-------------------------
-
 Features implemented:
+ * lexer.rl, ruby21.y, builders/default: rational/complex literals. (Peter Zotov)
+ * Source::Comment: implement #inspect. (Peter Zotov)
+ * Backport Array#bsearch from Ruby 2.0. (Peter Zotov)
  * Parser::Base: add #parse_with_comments, #parse_file_with_comments. (Trent Ogren)
  * lexer.rl (Ruby 2.1): "1end": lex non-exponent `e' separate from number. (Peter Zotov)
 
