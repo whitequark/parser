@@ -33,6 +33,8 @@ module Parser
     CurrentRuby = Ruby21
 
   else # :nocov:
-    raise NotImplementedError, "Parser does not support parsing Ruby #{RUBY_VERSION}"
+    # Keep this in sync with released Ruby.
+    warn_syntax_deviation 'parser/ruby21', '2.1'
+    CurrentRuby = Ruby21
   end
 end
