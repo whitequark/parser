@@ -3039,6 +3039,13 @@ class TestLexer < Minitest::Test
       assert_scanned('"\u00a4"',
                      :tSTRING, "\u00a4")
     end
+
+    def test_bug_utf32le_leak
+      setup_lexer(19)
+      @lex.force_utf32 = true
+      assert_scanned('"F0"',
+                     :tSTRING, "F0")
+    end
   end
 
   def test_bug_ragel_stack
