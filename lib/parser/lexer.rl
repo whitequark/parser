@@ -118,6 +118,8 @@ class Parser::Lexer
       @cmdarg = StackState.new('cmdarg')
     end
 
+    @force_utf32   = false # Set to true by some tests
+
     @source        = nil # source string
     @source_pts    = nil # @source as a codepoint array
     @encoding      = nil # target encoding for output strings
