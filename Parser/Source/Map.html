@@ -1,0 +1,891 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Parser::Source::Map
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Parser/Source/Map.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Parser.html" title="Parser (module)">Parser</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Source.html" title="Parser::Source (module)">Source</a></span></span>
+     &raquo; 
+    <span class="title">Map</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Parser::Source::Map
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Parser::Source::Map</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/parser/source/map.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p><span class='object_link'><a href="" title="Parser::Source::Map (class)">Map</a></span> relates AST nodes to the source code they were parsed from.
+More specifically, a <span class='object_link'><a href="" title="Parser::Source::Map (class)">Map</a></span> or its subclass contains a set of ranges:</p>
+
+<ul>
+  <li><code>expression</code>: smallest range which includes all source corresponding
+to the node and all <code>expression</code> ranges of its children.</li>
+  <li>other ranges (<code>begin</code>, <code>end</code>, <code>operator</code>, …): node-specific ranges
+pointing to various interesting tokens corresponding to the node.</li>
+</ul>
+
+<p>Note that the <span class='object_link'><a href="Map/Heredoc.html" title="Parser::Source::Map::Heredoc (class)">Heredoc</a></span> map is the only one whose <code>expression</code> does
+not include other ranges. It only covers the heredoc marker (<code>&lt;&lt;HERE</code>),
+not the here document itself.</p>
+
+<p>All ranges except <code>expression</code> are defined by <span class='object_link'><a href="" title="Parser::Source::Map (class)">Map</a></span> subclasses.</p>
+
+<p>Ranges (except <code>expression</code>) can be <code>nil</code> if the corresponding token is
+not present in source. For example, a hash may not have opening/closing
+braces, and so would its source map.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_p'>p</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>CurrentRuby</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[1 =&gt; 2]</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_loc'>loc</span>
+<span class='comment'># =&gt; &lt;Parser::Source::Map::Collection:0x007f5492b547d8
+</span><span class='comment'>#  @end=nil, @begin=nil,
+</span><span class='comment'>#  @expression=#&lt;Source::Range (string) 1...7&gt;&gt;
+</span></code></pre>
+
+<p>The <a href="../../file.AST_FORMAT.html" title="AST_FORMAT">AST_FORMAT</a> document describes how ranges associated to source
+code tokens. For example, the entry</p>
+
+<pre class="code ruby"><code class="ruby">(array (int 1) (int 2))
+
+&quot;[1, 2]&quot;
+ ^ begin
+      ^ end
+ ~~~~~~ expression
+</code></pre>
+
+<p>means that if <code>node</code> is an <span class='object_link'><a href="../AST/Node.html" title="Parser::AST::Node (class)">AST::Node</a></span> <code>(array (int 1) (int 2))</code>,
+then <code>node.loc</code> responds to <code>begin</code>, <code>end</code> and <code>expression</code>, and
+<code>node.loc.begin</code> returns a range pointing at the opening bracket, and so on.</p>
+
+<p>If you want to write code polymorphic by the source map (i.e. accepting
+several subclasses of <span class='object_link'><a href="" title="Parser::Source::Map (class)">Map</a></span>), use <code>respond_to?</code> instead of <code>is_a?</code> to
+check whether the map features the range you need. Concrete <span class='object_link'><a href="" title="Parser::Source::Map (class)">Map</a></span>
+subclasses may not be preserved between versions, but their interfaces
+will be kept compatible.</p>
+
+<p>You can visualize the source maps with <code>ruby-parse -E</code> command-line tool.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>parser/current</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_p'>p</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>CurrentRuby</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[1, 2]</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_loc'>loc</span>
+<span class='comment'># =&gt; #&lt;Parser::Source::Map::Collection:0x007f14b80eccd8
+</span><span class='comment'>#  @end=#&lt;Source::Range (string) 5...6&gt;,
+</span><span class='comment'>#  @begin=#&lt;Source::Range (string) 0...1&gt;,
+</span><span class='comment'>#  @expression=#&lt;Source::Range (string) 0...6&gt;&gt;</span></code></pre>
+    
+  </div>
+
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Map/Collection.html" title="Parser::Source::Map::Collection (class)">Collection</a></span>, <span class='object_link'><a href="Map/Condition.html" title="Parser::Source::Map::Condition (class)">Condition</a></span>, <span class='object_link'><a href="Map/Constant.html" title="Parser::Source::Map::Constant (class)">Constant</a></span>, <span class='object_link'><a href="Map/Definition.html" title="Parser::Source::Map::Definition (class)">Definition</a></span>, <span class='object_link'><a href="Map/For.html" title="Parser::Source::Map::For (class)">For</a></span>, <span class='object_link'><a href="Map/Heredoc.html" title="Parser::Source::Map::Heredoc (class)">Heredoc</a></span>, <span class='object_link'><a href="Map/Keyword.html" title="Parser::Source::Map::Keyword (class)">Keyword</a></span>, <span class='object_link'><a href="Map/Operator.html" title="Parser::Source::Map::Operator (class)">Operator</a></span>, <span class='object_link'><a href="Map/RescueBody.html" title="Parser::Source::Map::RescueBody (class)">RescueBody</a></span>, <span class='object_link'><a href="Map/Send.html" title="Parser::Source::Map::Send (class)">Send</a></span>, <span class='object_link'><a href="Map/Ternary.html" title="Parser::Source::Map::Ternary (class)">Ternary</a></span>, <span class='object_link'><a href="Map/Variable.html" title="Parser::Source::Map::Variable (class)">Variable</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Map/Collection.html" title="Parser::Source::Map::Collection (class)">Collection</a></span>, <span class='object_link'><a href="Map/Condition.html" title="Parser::Source::Map::Condition (class)">Condition</a></span>, <span class='object_link'><a href="Map/Constant.html" title="Parser::Source::Map::Constant (class)">Constant</a></span>, <span class='object_link'><a href="Map/Definition.html" title="Parser::Source::Map::Definition (class)">Definition</a></span>, <span class='object_link'><a href="Map/For.html" title="Parser::Source::Map::For (class)">For</a></span>, <span class='object_link'><a href="Map/Heredoc.html" title="Parser::Source::Map::Heredoc (class)">Heredoc</a></span>, <span class='object_link'><a href="Map/Keyword.html" title="Parser::Source::Map::Keyword (class)">Keyword</a></span>, <span class='object_link'><a href="Map/Operator.html" title="Parser::Source::Map::Operator (class)">Operator</a></span>, <span class='object_link'><a href="Map/RescueBody.html" title="Parser::Source::Map::RescueBody (class)">RescueBody</a></span>, <span class='object_link'><a href="Map/Send.html" title="Parser::Source::Map::Send (class)">Send</a></span>, <span class='object_link'><a href="Map/Ternary.html" title="Parser::Source::Map::Ternary (class)">Ternary</a></span>, <span class='object_link'><a href="Map/Variable.html" title="Parser::Source::Map::Variable (class)">Variable</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#expression-instance_method" title="#expression (instance method)">- (Range) <strong>expression</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#%3D%3D-instance_method" title="#== (instance method)">- (Boolean) <strong>==</strong>(other) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Compares source maps.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#column-instance_method" title="#column (instance method)">- (Integer) <strong>column</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A shortcut for <code>self.expression.column</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Map) <strong>initialize</strong>(expression) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Map.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#line-instance_method" title="#line (instance method)">- (Integer) <strong>line</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A shortcut for <code>self.expression.line</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_hash-instance_method" title="#to_hash (instance method)">- (Hash(Symbol, Parser::Source::Range)) <strong>to_hash</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Converts this source map to a hash with keys corresponding to ranges.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Parser::Source::Map (class)">Map</a></span></tt>) <strong>initialize</strong>(expression) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of Map</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>expression</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Range.html" title="Parser::Source::Range (class)">Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
+  <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
+
+  <span class='id identifier rubyid_freeze'>freeze</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="expression-instance_method">
+  
+    - (<tt><span class='object_link'><a href="Range.html" title="Parser::Source::Range (class)">Range</a></span></tt>) <strong>expression</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Range.html" title="Parser::Source::Range (class)">Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 64</span>
+
+<span class='kw'>class</span> <span class='const'>Map</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:expression</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Range] expression
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
+    <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># A shortcut for `self.expression.line`.
+</span>  <span class='comment'># @return [Integer]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_line'>line</span>
+    <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_line'>line</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># A shortcut for `self.expression.column`.
+</span>  <span class='comment'># @return [Integer]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_column'>column</span>
+    <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_column'>column</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @api private
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_with_expression'>with_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_with'>with</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_map'>map</span><span class='op'>|</span> <span class='id identifier rubyid_map'>map</span><span class='period'>.</span><span class='id identifier rubyid_update_expression'>update_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Compares source maps.
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&amp;&amp;</span>
+      <span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+        <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='op'>==</span>
+          <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:instance_variable_get</span><span class='comma'>,</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span>
+      <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_reduce'>reduce</span><span class='lparen'>(</span><span class='symbol'>:&amp;</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Converts this source map to a hash with keys corresponding to
+</span>  <span class='comment'># ranges. For example, if called on an instance of {Collection},
+</span>  <span class='comment'># which adds the `begin` and `end` ranges, the resulting hash
+</span>  <span class='comment'># will contain keys `:expression`, `:begin` and `:end`.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  require &#39;parser/current&#39;
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#  p Parser::CurrentRuby.parse(&#39;[1, 2]&#39;).loc.to_hash
+</span>  <span class='comment'>#  # =&gt; {
+</span>  <span class='comment'>#  #   :begin =&gt; #&lt;Source::Range (string) 0...1&gt;,
+</span>  <span class='comment'>#  #   :end =&gt; #&lt;Source::Range (string) 5...6&gt;,
+</span>  <span class='comment'>#  #   :expression =&gt; #&lt;Source::Range (string) 0...6&gt;
+</span>  <span class='comment'>#  # }
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Hash(Symbol, Parser::Source::Range)]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
+    <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+      <span class='lbracket'>[</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+    <span class='kw'>end</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_protected'>protected</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_with'>with</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_update_expression'>update_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span>
+    <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression_l'>expression_l</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="==-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>==</strong>(other) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Compares source maps.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104
+105
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&amp;&amp;</span>
+    <span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+      <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='op'>==</span>
+        <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:instance_variable_get</span><span class='comma'>,</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span>
+    <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_reduce'>reduce</span><span class='lparen'>(</span><span class='symbol'>:&amp;</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="column-instance_method">
+  
+    - (<tt>Integer</tt>) <strong>column</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>A shortcut for <code>self.expression.column</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_column'>column</span>
+  <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_column'>column</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="line-instance_method">
+  
+    - (<tt>Integer</tt>) <strong>line</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>A shortcut for <code>self.expression.line</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_line'>line</span>
+  <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_line'>line</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_hash-instance_method">
+  
+    - (<tt>Hash(Symbol, <span class='object_link'><a href="Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span>)</tt>) <strong>to_hash</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Converts this source map to a hash with keys corresponding to
+ranges. For example, if called on an instance of <span class='object_link'><a href="Map/Collection.html" title="Parser::Source::Map::Collection (class)">Collection</a></span>,
+which adds the <code>begin</code> and <code>end</code> ranges, the resulting hash
+will contain keys <code>:expression</code>, <code>:begin</code> and <code>:end</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>parser/current</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_p'>p</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>CurrentRuby</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[1, 2]</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_loc'>loc</span><span class='period'>.</span><span class='id identifier rubyid_to_hash'>to_hash</span>
+<span class='comment'># =&gt; {
+</span><span class='comment'>#   :begin =&gt; #&lt;Source::Range (string) 0...1&gt;,
+</span><span class='comment'>#   :end =&gt; #&lt;Source::Range (string) 5...6&gt;,
+</span><span class='comment'>#   :expression =&gt; #&lt;Source::Range (string) 0...6&gt;
+</span><span class='comment'># }</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash(Symbol, <span class='object_link'><a href="Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span>)</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
+  <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+  <span class='kw'>end</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>

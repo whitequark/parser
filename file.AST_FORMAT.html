@@ -1,0 +1,1528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
+  File: AST_FORMAT
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '';
+  framesUrl = "frames.html#!file.AST_FORMAT.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: AST_FORMAT</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><div id='filecontents'><h1 id="ast-and-source-location">AST and Source Location</h1>
+
+<h2 id="literals">Literals</h2>
+
+<h3 id="singletons">Singletons</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>true</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>true</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+
+<span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+
+<span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>nil</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="integer">Integer</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(int 123)
+&quot;123&quot;
+ ~~~ expression
+
+(int -123)
+&quot;-123&quot;
+ ^ operator
+ ~~~ expression
+</code></pre>
+
+<h3 id="float">Float</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(float 1.0)
+&quot;1.0&quot;
+ ~~~ expression
+
+(float -1.0)
+&quot;-1.0&quot;
+ ^ operator
+ ~~~~ expression
+</code></pre>
+
+<h3 id="string">String</h3>
+
+<h4 id="plain">Plain</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(str &quot;foo&quot;)
+&quot;&#39;foo&#39;&quot;
+ ^ begin
+     ^ end
+ ~~~~~ expresion
+</code></pre>
+
+<h4 id="with-interpolation">With interpolation</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(dstr (str &quot;foo&quot;) (lvar bar) (str &quot;baz&quot;))
+&#39;&quot;foo#{bar}baz&quot;&#39;
+ ^ begin      ^ end
+ ~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="here-document">Here document</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>foo\nbar\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&lt;&lt;HERE␊foo␊bar␊HERE</span><span class='tstring_end'>&#39;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+        <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_heredoc_body'>heredoc_body</span>
+                <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_heredoc_end'>heredoc_end</span>
+</code></pre>
+
+<h3 id="symbol">Symbol</h3>
+
+<h4 id="plain-1">Plain</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(sym :foo)
+&quot;:foo&quot;
+ ~~~~ expresion
+
+&quot;:&#39;foo&#39;&quot;
+  ^ begin
+      ^ end
+ ~~~~~~ expression
+</code></pre>
+
+<h4 id="with-interpolation-1">With interpolation</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(dsym (str &quot;foo&quot;) (lvar bar) (str &quot;baz&quot;))
+&#39;:&quot;foo#{bar}baz&quot;&#39;
+  ^ begin      ^ end
+ ~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="execute-string">Execute-string</h3>
+
+<h4 id="plain-2">Plain</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(xstr (str &quot;foo&quot;) (lvar bar))
+&quot;`foo#{bar}`&quot;
+ ^ begin   ^ end
+ ~~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="here-document-1">Here document</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_xstr'>xstr</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>foo\nbar\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;&lt;`HERE`␊foo␊bar␊HERE</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+          <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_heredoc_body'>heredoc_body</span>
+                  <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_heredoc_end'>heredoc_end</span>
+</code></pre>
+
+<h3 id="regexp">Regexp</h3>
+
+<h4 id="options">Options</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(regopt :i :m)
+&quot;im&quot;
+ ~~ expression
+</code></pre>
+
+<h4 id="regexp-1">Regexp</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(regexp (str &quot;foo&quot;) (lvar :bar) (regopt :i))
+&quot;/foo#{bar}/i&quot;
+ ^ begin   ^ end
+ ~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="array">Array</h3>
+
+<h4 id="plain-3">Plain</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(array (int 1) (int 2))
+
+&quot;[1, 2]&quot;
+ ^ begin
+      ^ end
+ ~~~~~~ expression
+</code></pre>
+
+<h4 id="splat">Splat</h4>
+
+<p>Can also be used in argument lists: <code>foo(bar, *baz)</code></p>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(splat (lvar :foo))
+&quot;*foo&quot;
+ ^ operator
+ ~~~~ expression
+</code></pre>
+
+<h4 id="with-interpolation-2">With interpolation</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(array (int 1) (splat (lvar :foo)) (int 2))
+
+&quot;[1, *foo, 2]&quot;
+ ^ begin    ^ end
+ ~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="hash">Hash</h3>
+
+<h4 id="pair">Pair</h4>
+
+<h5 id="with-hashrocket">With hashrocket</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(pair (int 1) (int 2))
+&quot;1 =&gt; 2&quot;
+   ~~ operator
+ ~~~~~~ expression
+</code></pre>
+
+<h5 id="with-label-19">With label (1.9)</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(pair (sym :answer) (int 42))
+&quot;answer: 42&quot;
+       ^ operator (pair)
+ ~~~~~~ expression (sym)
+ ~~~~~~~~~~ expression (pair)
+</code></pre>
+
+<h4 id="plain-4">Plain</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(hash (pair (int 1) (int 2)) (pair (int 3) (int 4)))
+&quot;{1 =&gt; 2, 3 =&gt; 4}&quot;
+ ^ begin        ^ end
+ ~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="keyword-splat-20">Keyword splat (2.0)</h4>
+
+<p>Can also be used in argument lists: <code>foo(bar, **baz)</code></p>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_kwsplat'>kwsplat</span> <span class='lparen'>(</span><span class='id identifier rubyid_lvar'>lvar</span> <span class='symbol'>:foo</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>**foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_operator'>operator</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h4 id="with-interpolation-20">With interpolation (2.0)</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(hash (pair (sym :foo) (int 2)) (kwsplat (lvar :bar)))
+&quot;{ foo: 2, **bar }&quot;
+ ^ begin         ^ end
+ ~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="range">Range</h3>
+
+<h4 id="inclusive">Inclusive</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(irange (int 1) (int 2))
+&quot;1..2&quot;
+  ~~ operator
+ ~~~~ expression
+</code></pre>
+
+<h4 id="exclusive">Exclusive</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(erange (int 1) (int 2))
+&quot;1...2&quot;
+  ~~~ operator
+ ~~~~~ expression
+</code></pre>
+
+<h2 id="access">Access</h2>
+
+<h3 id="self">Self</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>self</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="local-variable">Local variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_lvar'>lvar</span> <span class='symbol'>:foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="instance-variable">Instance variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span> <span class='symbol'>:@foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>@foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="class-variable">Class variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_cvar'>cvar</span> <span class='symbol'>:$foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="global-variable">Global variable</h3>
+
+<h4 id="regular-global-variable">Regular global variable</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_gvar'>gvar</span> <span class='symbol'>:$foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h4 id="regular-expression-capture-groups">Regular expression capture groups</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(nth-ref 1)
+&quot;$1&quot;
+ ~~ expression
+</code></pre>
+
+<h4 id="regular-expression-back-references">Regular expression back-references</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(back-ref :$&amp;)
+&quot;$&amp;&quot;
+ ~~ expression
+(back-ref :$`)
+&quot;$`&quot;
+(back-ref :$&#39;)
+&quot;$&#39;&quot;
+(back-ref :$+)
+&quot;$+&quot;
+</code></pre>
+
+<h3 id="constant">Constant</h3>
+
+<h4 id="top-level-constant">Top-level constant</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(const (cbase) :Foo)
+&quot;::Foo&quot;
+   ~~~ name
+ ~~ double_colon
+ ~~~~~ expression
+</code></pre>
+
+<h4 id="scoped-constant">Scoped constant</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(const (lvar :a) :Foo)
+&quot;a::Foo&quot;
+    ~~~ name
+  ~~ double_colon
+ ~~~~~~ expression
+</code></pre>
+
+<h4 id="unscoped-constant">Unscoped constant</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(const nil :Foo)
+&quot;Foo&quot;
+ ~~~ name
+ ~~~ expression
+</code></pre>
+
+<h3 id="defined">defined?</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(defined? (lvar :a))
+&quot;defined? a&quot;
+ ~~~~~~~~ keyword
+ ~~~~~~~~~~ expression
+
+&quot;defined?(a)&quot;
+ ~~~~~~~~ keyword
+         ^ begin
+           ^ end
+ ~~~~~~~~~~~ expression
+</code></pre>
+
+<h2 id="assignment">Assignment</h2>
+
+<h3 id="to-local-variable">To local variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(lvasgn :foo (lvar :bar))
+&quot;foo = bar&quot;
+     ^ operator
+ ~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="to-instance-variable">To instance variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(ivasgn :@foo (lvar :bar))
+&quot;@foo = bar&quot;
+      ^ operator
+ ~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="to-class-variable">To class variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(cvasgn :@@foo (lvar :bar))
+&quot;@@foo = bar&quot;
+       ^ operator
+ ~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="to-global-variable">To global variable</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(gvasgn :$foo (lvar :bar))
+&quot;$foo = bar&quot;
+      ^ operator
+ ~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="to-constant">To constant</h3>
+
+<h4 id="top-level-constant-1">Top-level constant</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(casgn (cbase) :Foo (int 1))
+&quot;::Foo = 1&quot;
+   ~~~ name
+       ~ operator
+ ~~~~~~~ expression
+</code></pre>
+
+<h4 id="scoped-constant-1">Scoped constant</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(casgn (lvar :a) :Foo (int 1))
+&quot;a::Foo = 1&quot;
+    ~~~ name
+        ~ operator
+ ~~~~~~~~ expression
+</code></pre>
+
+<h4 id="unscoped-constant-1">Unscoped constant</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(casgn nil :Foo (int 1))
+&quot;Foo = 1&quot;
+ ~~~ name
+     ~ operator
+ ~~~~~~~ expression
+</code></pre>
+
+<h3 id="multiple-assignment">Multiple assignment</h3>
+
+<h4 id="multiple-left-hand-side">Multiple left hand side</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(mlhs (lvasgn :a) (lvasgn :b))
+&quot;a, b&quot;
+ ~~~~ expression
+&quot;(a, b)&quot;
+ ^ begin
+      ^ end
+ ~~~~~~ expression
+</code></pre>
+
+<h4 id="assignment-1">Assignment</h4>
+
+<p>Rule of thumb: every node inside <code>(mlhs)</code> is “incomplete”; to make
+it “complete”, one could imagine that a corresponding node from the
+mrhs is “appended” to the node in question. This applies both to
+side-effect free assignments (<code>lvasgn</code>, etc) and side-effectful
+assignments (<code>send</code>).</p>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(masgn (mlhs (lvasgn :foo) (lvasgn :bar)) (array (int 1) (int 2)))
+&quot;foo, bar = 1, 2&quot;
+          ^ operator
+ ~~~~~~~~~~~~~~~ expression
+
+(masgn (mlhs (ivasgn :@a) (cvasgn :@@b)) (array (splat (lvar :c))))
+&quot;@a, @@b = *c&quot;
+
+(masgn (mlhs (mlhs (lvasgn :a) (lvasgn :b)) (lvasgn :c)) (lvar :d))
+&quot;a, (b, c) = d&quot;
+
+(masgn (mlhs (send (self) :a=) (send (self) :[]= (int 1))) (lvar :a))
+&quot;self.a, self[1] = a&quot;
+</code></pre>
+
+<h3 id="binary-operator-assignment">Binary operator-assignment</h3>
+
+<p>Binary operator-assignment features the same “incomplete assignments” and “incomplete calls” as <a href="#assignment-1">multiple assignment</a>.</p>
+
+<h4 id="variable-binary-operator-assignment">Variable binary operator-assignment</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(op-asgn (lvasgn :a) :+ (int 1))
+&quot;a += 1&quot;
+   ~~ operator
+ ~~~~~~ expression
+
+(op-asgn (ivasgn :a) :+ (int 1))
+&quot;@a += 1&quot;
+</code></pre>
+
+<p>Ruby_parser output for reference:
+~~~
+“a += 1”
+s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:int, 1)))</p>
+
+<p>“@a += 1”
+s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:int, 1)))
+~~~</p>
+
+<h4 id="method-binary-operator-assignment">Method binary operator-assignment</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(op-asgn (send (ivar :@a) :b) :+ (int 1))
+&quot;@a.b += 1&quot;
+    ~ selector (send)
+ ~~~~ expression (send)
+      ~~ operator (op-asgn)
+ ~~~~~~~~~ expression (op-asgn)
+
+(op-asgn (send (ivar :@a) :[] (int 0) (int 1))) :+ (int 1))
+&quot;@a[0, 1] += 1&quot;
+   ~~~~~~ selector (send)
+ ~~~~~~~~ expression (send)
+          ~~ operator (op-asgn)
+ ~~~~~~~~~~~~~ expression (op-asgn)
+</code></pre>
+
+<p>Ruby_parser output for reference:
+~~~
+“@a.b += 1”
+s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:int, 1))</p>
+
+<p>“@a[0, 1] += 1”
+s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:int, 0), s(:int, 1)), :+, s(:int, 1))
+~~~</p>
+
+<h3 id="logical-operator-assignment">Logical operator-assignment</h3>
+
+<p>Logical operator-assignment features the same “incomplete assignments” and “incomplete calls” as <a href="#assignment-1">multiple assignment</a>.</p>
+
+<h4 id="variable-logical-operator-assignment">Variable logical operator-assignment</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(or-asgn (ivasgn :@a) (int 1))
+&quot;@a ||= 1&quot;
+    ~~~ operator
+ ~~~~~~~~ expression
+
+(and-asgn (lvasgn :a) (int 1))
+&quot;a &amp;&amp;= 1&quot;
+   ~~~ operator
+ ~~~~~~~ expression
+</code></pre>
+
+<p>Ruby_parser output for reference:
+~~~
+“@a ||= 1”
+s(:op_asgn_or, s(:ivar, :@a), s(:ivasgn, :@a, s(:int, 1)))</p>
+
+<p>“a &amp;&amp;= 1”
+s(:op_asgn_and, s(:lvar, :a), s(:lvasgn, :a, s(:int, 1)))
+~~~</p>
+
+<h4 id="method-logical-operator-assignment">Method logical operator-assignment</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(or-asgn (send (ivar :@foo) :bar) (int 1))
+&quot;@foo.bar ||= 1&quot;
+      ~~~ selector (send)
+ ~~~~~~~~ expr (send)
+          ~~~ operator (or-asgn)
+ ~~~~~~~~~~~~~~ expression (or-asgn)
+
+(and-asgn (send (lvar :@foo) :bar) (int 1))
+&quot;foo.bar &amp;&amp;= 1&quot;
+     ~~~ selector (send)
+ ~~~~~~~ expr (send)
+         ~~~ operator (and-asgn)
+ ~~~~~~~~~~~~~ expression (and-asgn)
+
+(or-asgn (send (ivar :@foo) :[] (int 1) (int 2)) (int 1))
+&quot;@foo[1, 2] ||= 1&quot;
+     ~~~~~~ selector (send)
+ ~~~~~~~~~~ expr (send)
+            ~~~ operator (or-asgn)
+ ~~~~~~~~~~~~~~~~ expression (or-asgn)
+
+</code></pre>
+
+<p>Ruby_parser output for reference:
+~~~
+“@foo.bar &amp;&amp;= 1”
+s(:op_asgn2, s(:ivar, :@foo), :bar=, :”&amp;&amp;”, s(:int, 1))</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>“@foo[0]</td>
+      <td> </td>
+      <td>= 1”</td>
+    </tr>
+    <tr>
+      <td>s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :”</td>
+      <td> </td>
+      <td>”, s(:int, 1))</td>
+    </tr>
+  </tbody>
+</table>
+
+<pre class="code ruby"><code class="ruby">
+## Class and module definition
+
+### Module
+
+Format:
+
+</code></pre>
+<p>(module (const nil :Foo) (nil))
+“module Foo; end”
+ ~~~~~~ keyword
+             ~~~ end
+~~~</p>
+
+<h3 id="class">Class</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(class (const nil :Foo) (const nil :Bar) (nil))
+&quot;class Foo &lt; Bar; end&quot;
+ ~~~~~ keyword    ~~~ end
+           ~ operator
+ ~~~~~~~~~~~~~~~~~~~~ expression
+
+(class (const nil :Foo) nil (nil))
+&quot;class Foo; end&quot;
+ ~~~~~ keyword
+            ~~~ end
+ ~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="singleton-class">Singleton class</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(sclass (lvar :a) (nil))
+&quot;class &lt;&lt; a; end&quot;
+ ~~~~~ keyword
+       ~~ operator
+             ~~~ end
+ ~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h2 id="method-undefinition">Method (un)definition</h2>
+
+<h3 id="instance-methods">Instance methods</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(def :foo (args) nil)
+&quot;def foo; end&quot;
+ ~~~ keyword
+     ~~~ name
+          ~~~ end
+ ~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="singleton-methods">Singleton methods</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(defs (self) (args) nil)
+&quot;def self.foo; end&quot;
+ ~~~ keyword
+          ~~~ name
+               ~~~ end
+ ~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="undefinition">Undefinition</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(undef (sym :foo) (sym :bar) (dsym (str &quot;foo&quot;) (int 1)))
+&quot;undef foo :bar :&quot;foo#{1}&quot;&quot;
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h2 id="aliasing">Aliasing</h2>
+
+<h3 id="method-aliasing">Method aliasing</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(alias (sym :foo) (dsym (str &quot;foo&quot;) (int 1)))
+&quot;alias foo :&quot;foo#{1}&quot;&quot;
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="global-variable-aliasing">Global variable aliasing</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(alias (gvar :$foo) (gvar :$bar))
+&quot;alias $foo $bar&quot;
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~ expression
+
+(alias (gvar :$foo) (back-ref :$&amp;))
+&quot;alias $foo $&amp;&quot;
+ ~~~~~ keyword
+ ~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h2 id="formal-arguments">Formal arguments</h2>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span> <span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span> <span class='symbol'>:foo</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>(foo)</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="required-argument">Required argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span> <span class='symbol'>:foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_name'>name</span>
+</code></pre>
+
+<h3 id="optional-argument">Optional argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(optarg :foo (int 1))
+&quot;foo = 1&quot;
+ ~~~~~~~ expression
+     ^ operator
+ ~~~ name
+</code></pre>
+
+<h3 id="named-splat-argument">Named splat argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_restarg'>restarg</span> <span class='symbol'>:foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+  <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_name'>name</span>
+</code></pre>
+
+<p>Begin of the <code>expression</code> points to <code>*</code>.</p>
+
+<h3 id="unnamed-splat-argument">Unnamed splat argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(restarg)
+&quot;*&quot;
+ ^ expression
+</code></pre>
+
+<h3 id="block-argument">Block argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_blockarg'>blockarg</span> <span class='symbol'>:foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&amp;foo</span><span class='tstring_end'>&quot;</span></span>
+  <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_name'>name</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<p>Begin of the <code>expression</code> points to <code>&amp;</code>.</p>
+
+<h3 id="expression-arguments">Expression arguments</h3>
+
+<p>Ruby 1.8 allows to use arbitrary expressions as block arguments,
+such as <code>@var</code> or <code>foo.bar</code>. Such expressions should be treated as
+if they were on the lhs of a multiple assignment.</p>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(args (arg_expr (ivasgn :@bar)))
+&quot;|@bar|&quot;
+
+(args (arg_expr (send (send nil :foo) :a=)))
+&quot;|foo.a|&quot;
+
+(args (restarg_expr (ivasgn :@bar)))
+&quot;|*@bar|&quot;
+
+(args (blockarg_expr (ivasgn :@bar)))
+&quot;|&amp;@bar|&quot;
+</code></pre>
+
+<h3 id="block-shadow-arguments">Block shadow arguments</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(args (shadowarg :foo) (shadowarg :bar))
+&quot;|; foo, bar|&quot;
+</code></pre>
+
+<h3 id="decomposition">Decomposition</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(def :f (args (arg :a) (mlhs (arg :foo) (restarg :bar))))
+&quot;def f(a, (foo, *bar)); end&quot;
+          ^ begin   ^ end
+          ~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="required-keyword-argument">Required keyword argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(kwarg :foo (int 1))
+&quot;foo:&quot;
+ ~~~~ expression
+ ~~~~ name
+</code></pre>
+
+<h3 id="optional-keyword-argument">Optional keyword argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(kwoptarg :foo (int 1))
+&quot;foo: 1&quot;
+ ~~~~~~ expression
+ ~~~~ name
+</code></pre>
+
+<h3 id="named-keyword-splat-argument">Named keyword splat argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_kwrestarg'>kwrestarg</span> <span class='symbol'>:foo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>**foo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+   <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_name'>name</span>
+</code></pre>
+
+<h3 id="unnamed-keyword-splat-argument">Unnamed keyword splat argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='id identifier rubyid_kwrestarg'>kwrestarg</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>**</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h2 id="send">Send</h2>
+
+<h3 id="to-self">To self</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(send nil :foo (lvar :bar))
+&quot;foo(bar)&quot;
+ ~~~ selector
+    ^ begin
+        ^ end
+ ~~~~~~~~ expression
+</code></pre>
+
+<h3 id="to-receiver">To receiver</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(send (lvar :foo) :bar (int 1))
+&quot;foo.bar(1)&quot;
+     ~~~ selector
+        ^ begin
+          ^ end
+ ~~~~~~~~~~ expression
+
+(send (lvar :foo) :+ (int 1))
+&quot;foo + 1&quot;
+     ^ selector
+ ~~~~~~~ expression
+
+(send (lvar :foo) :-@)
+&quot;-foo&quot;
+ ^ selector
+ ~~~~ expression
+
+(send (lvar :foo) :a= (int 1))
+&quot;foo.a = 1&quot;
+     ~ selector
+       ^ operator
+ ~~~~~~~~~ expression
+
+(send (lvar :foo) :[] (int 1))
+&quot;foo[i]&quot;
+    ~~~ selector
+ ~~~~~~ expression
+
+(send (lvar :bar) :[]= (int 1) (int 2) (lvar :baz))
+&quot;bar[1, 2] = baz&quot;
+    ~~~~~~ selector
+           ^ operator
+ ~~~~~~~~~~~~~~~ expression
+
+</code></pre>
+
+<h3 id="to-superclass">To superclass</h3>
+
+<p>Format of super with arguments:
+~~~
+(super (lvar :a))
+“super a”
+ ~~~~~ keyword
+ ~~~~~~~ expression</p>
+
+<p>(super)
+“super()”
+      ^ begin
+       ^ end
+ ~~~~~ keyword
+ ~~~~~~~ expression
+~~~</p>
+
+<p>Format of super without arguments (<strong>z</strong>ero-arity):
+~~~
+(zsuper)
+“super”
+ ~~~~~ keyword
+ ~~~~~ expression
+~~~</p>
+
+<h3 id="to-block-argument">To block argument</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(yield (lvar :foo))
+&quot;yield(foo)&quot;
+ ~~~~~ keyword
+      ^ begin
+          ^ end
+ ~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="passing-a-literal-block">Passing a literal block</h3>
+
+<pre class="code ruby"><code class="ruby">(block (send nil :foo) (args (arg :bar)) (begin ...))
+&quot;foo do |bar|; end&quot;
+     ~~ begin
+               ~~~ end
+     ~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="passing-expression-as-block">Passing expression as block</h3>
+
+<p>Used when passing expression as block <code>foo(&amp;bar)</code></p>
+
+<pre class="code ruby"><code class="ruby">(send nil :foo (int 1) (block-pass (lvar :foo)))
+&quot;foo(1, &amp;foo)&quot;
+        ^ operator
+        ~~~~ expression
+</code></pre>
+
+<h2 id="control-flow">Control flow</h2>
+
+<h3 id="logical-operators">Logical operators</h3>
+
+<h4 id="binary-and-or--">Binary (and or &amp;&amp; ||)</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(and (lvar :foo) (lvar :bar))
+&quot;foo and bar&quot;
+     ~~~ operator
+ ~~~~~~~~~~~ expression
+</code></pre>
+
+<pre class="code ruby"><code class="ruby">(or (lvar :foo) (lvar :bar))
+&quot;foo or bar&quot;
+     ~~ operator
+ ~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="unary--not-18">Unary (! not) (1.8)</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(not (lvar :foo))
+&quot;!foo&quot;
+ ^ operator
+&quot;not foo&quot;
+ ~~~ operator
+</code></pre>
+
+<h3 id="branching">Branching</h3>
+
+<h4 id="without-else">Without else</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(if (lvar :cond) (lvar :iftrue) nil)
+&quot;if cond then iftrue; end&quot;
+ ~~ keyword
+         ~~~~ begin
+                      ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;if cond; iftrue; end&quot;
+ ~~ keyword
+                  ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;iftrue if cond&quot;
+        ~~ keyword
+ ~~~~~~~~~~~~~~ expression
+
+(if (lvar :cond) nil (lvar :iftrue))
+&quot;unless cond then iftrue; end&quot;
+ ~~~~~~ keyword
+             ~~~~ begin
+                          ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;unless cond; iftrue; end&quot;
+ ~~~~~~ keyword
+                      ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;iftrue unless cond&quot;
+        ~~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="with-else">With else</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
+&quot;if cond then iftrue; else; iffalse; end&quot;
+ ~~ keyword
+         ~~~~ begin
+                      ~~~~ else
+                                 ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;if cond; iftrue; else; iffalse; end&quot;
+ ~~ keyword
+                  ~~~~ else
+                                 ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+(if (lvar :cond) (lvar :iffalse) (lvar :iftrue))
+&quot;unless cond then iftrue; else; iffalse; end&quot;
+ ~~~~~~ keyword
+             ~~~~ begin
+                          ~~~~ else
+                                     ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;unless cond; iftrue; else; iffalse; end&quot;
+ ~~~~~~ keyword
+                      ~~~~ else
+                                     ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="with-elsif">With elsif</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(if (lvar :cond1) (int 1) (if (lvar :cond2 (int 2) (int 3))))
+&quot;if cond1; 1; elsif cond2; 2; else 3; end&quot;
+ ~~ keyword (left)
+              ~~~~~ else (left)
+                                      ~~~ end (left)
+              ~~~~~ keyword (right)
+                              ~~~~ else (right)
+                                      ~~~ end (right)
+</code></pre>
+
+<h4 id="ternary">Ternary</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(if (lvar :cond) (lvar :iftrue) (lvar :iffalse))
+&quot;cond ? iftrue : iffalse&quot;
+      ^ question
+               ^ colon
+ ~~~~~~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h3 id="case-matching">Case matching</h3>
+
+<h4 id="when-clause">When clause</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(when (regexp &quot;foo&quot; (regopt)) (begin (lvar :bar)))
+&quot;when /foo/ then bar&quot;
+ ~~~~ keyword
+            ~~~~ begin
+ ~~~~~~~~~~~~~~~~~~~ expression
+
+(when (int 1) (int 2) (send nil :meth))
+&quot;when 1, 2; meth&quot;
+
+(when (int 1) (splat (lvar :foo)) (send nil :meth))
+&quot;when 1, *foo; meth&quot;
+
+(when (splat (lvar :foo)) (send nil :meth))
+&quot;when *foo; meth&quot;
+</code></pre>
+
+<h4 id="case-expression-clause">Case-expression clause</h4>
+
+<h5 id="without-else-1">Without else</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(case (lvar :foo) (when (str &quot;bar&quot;) (lvar :bar)) nil)
+&quot;case foo; when &quot;bar&quot;; bar; end&quot;
+ ~~~~ keyword               ~~~ end
+</code></pre>
+
+<h5 id="with-else-1">With else</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(case (lvar :foo) (when (str &quot;bar&quot;) (lvar :bar)) (lvar :baz))
+&quot;case foo; when &quot;bar&quot;; bar; else baz; end&quot;
+ ~~~~ keyword               ~~~~ else ~~~ end
+</code></pre>
+
+<h4 id="case-conditions-clause">Case-conditions clause</h4>
+
+<h5 id="without-else-2">Without else</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(case nil (when (lvar :bar) (lvar :bar)) nil)
+&quot;case; when bar; bar; end&quot;
+ ~~~~ keyword         ~~~ end
+</code></pre>
+
+<h5 id="with-else-2">With else</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(case nil (when (lvar :bar) (lvar :bar)) (lvar :baz))
+&quot;case; when bar; bar; else baz; end&quot;
+ ~~~~ keyword         ~~~~ else ~~~ end
+
+(case nil (lvar :baz))
+&quot;case; else baz; end&quot;
+ ~~~~ keyword
+       ~~~~ else
+                 ~~~ end
+</code></pre>
+
+<h3 id="looping">Looping</h3>
+
+<h4 id="with-precondition">With precondition</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(while (lvar :condition) (send nil :foo))
+&quot;while condition do foo; end&quot;
+ ~~~~~ keyword
+                 ~~ begin
+                         ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;while condition; foo; end&quot;
+ ~~~~~ keyword
+                       ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;foo while condition&quot;
+     ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~ expression
+
+(until (lvar :condition) (send nil :foo))
+&quot;until condition do foo; end&quot;
+ ~~~~~ keyword
+                 ~~ begin
+                         ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+(until (lvar :condition) (send nil :foo))
+&quot;until condition; foo; end&quot;
+ ~~~~~ keyword
+                       ~~~ end
+~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;foo until condition&quot;
+     ~~~~~ keyword
+ ~~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h4 id="with-postcondition">With postcondition</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(while-post (lvar :condition) (kwbegin (send nil :foo)))
+&quot;begin; foo; end while condition&quot;
+ ~~~~~ begin (begin)
+             ~~~ end (begin)
+                 ~~~~~ keyword (while-post)
+
+(until-post (lvar :condition) (kwbegin (send nil :foo)))
+&quot;begin; foo; end until condition&quot;
+ ~~~~~ begin (begin)
+             ~~~ end (begin)
+                 ~~~~~ keyword (until-post)
+</code></pre>
+
+<h4 id="for-in">For-in</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(for (lvasgn :a) (lvar :array) (send nil :p (lvar :a)))
+&quot;for a in array do p a; end&quot;
+ ~~~ keyword
+       ~~ in
+                ~~ begin
+                        ~~~ end
+
+&quot;for a in array; p a; end&quot;
+ ~~~ keyword
+       ~~ in
+                      ~~~ end
+
+(for
+  (mlhs (lvasgn :a) (lvasgn :b)) (lvar :array)
+  (send nil :p (lvar :a) (lvar :b)))
+&quot;for a, b in array; p a, b; end&quot;
+</code></pre>
+
+<h4 id="break">Break</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>break</span> <span class='lparen'>(</span><span class='id identifier rubyid_int'>int</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>break 1</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_keyword'>keyword</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h4 id="next">Next</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>next</span> <span class='lparen'>(</span><span class='id identifier rubyid_int'>int</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>next 1</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_keyword'>keyword</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h4 id="redo">Redo</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>redo</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>redo</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_keyword'>keyword</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="return">Return</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>return</span> <span class='lparen'>(</span><span class='id identifier rubyid_lvar'>lvar</span> <span class='symbol'>:foo</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return(foo)</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_keyword'>keyword</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="exception-handling">Exception handling</h3>
+
+<h4 id="rescue-body">Rescue body</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(resbody (array (const nil :Exception) (const nil :A)) (lvasgn :bar) (int 1))
+&quot;rescue Exception, A =&gt; bar; 1&quot;
+ ~~~~~~ keyword      ~~ assoc
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+
+&quot;rescue Exception, A =&gt; bar then 1&quot;
+ ~~~~~~ keyword      ~~ assoc
+                            ~~~~ begin
+
+(resbody (array (const nil :Exception)) (ivasgn :bar) (int 1))
+&quot;rescue Exception =&gt; @bar; 1&quot;
+ ~~~~~~ keyword   ~~ assoc
+
+(resbody nil (lvasgn :bar) (int 1))
+&quot;rescue =&gt; bar; 1&quot;
+ ~~~~~~ keyword
+        ~~ assoc
+
+(resbody nil nil (int 1))
+&quot;rescue; 1&quot;
+ ~~~~~~ keyword
+</code></pre>
+
+<h4 id="rescue-statement">Rescue statement</h4>
+
+<h5 id="without-else-3">Without else</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(begin
+  (rescue (send nil :foo) (resbody ...) (resbody ...) nil))
+&quot;begin; foo; rescue Exception; rescue; end&quot;
+ ~~~~~ begin                           ~~~ end
+             ~~~~~~~~~~~~~~~~~ expression (rescue.resbody/1)
+                               ~~~~~~~ expression (rescue.resbody/2)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)
+</code></pre>
+
+<h5 id="with-else-3">With else</h5>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(begin
+  (rescue (send nil :foo) (resbody ...) (resbody ...) (true)))
+&quot;begin; foo; rescue Exception; rescue; else true end&quot;
+ ~~~~~ begin                           ~~~~ else (rescue)
+                                                 ~~~ end
+</code></pre>
+
+<h4 id="ensure-statement">Ensure statement</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(begin
+  (ensure (send nil :foo) (send nil :bar))
+&quot;begin; foo; ensure; bar; end&quot;
+ ~~~~~ begin ~~~~~~ keyword (ensure)
+                          ~~~ end
+</code></pre>
+
+<h4 id="rescue-with-ensure">Rescue with ensure</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(begin
+  (ensure
+    (rescue (send nil :foo) (resbody ...) (int 1))
+    (send nil :bar))
+&quot;begin; foo; rescue; nil; else; 1; ensure; bar; end&quot;
+ ~~~~~ begin
+                          ~~~~ else (ensure.rescue)
+             ~~~~~~~~~~~~~~~~~~~~~ expression (rescue)
+                                   ~~~~~~ keyword (ensure)
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (ensure)
+                                                ~~~ end
+</code></pre>
+
+<h4 id="retry">Retry</h4>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lparen'>(</span><span class='kw'>retry</span><span class='rparen'>)</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>retry</span><span class='tstring_end'>&quot;</span></span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_keyword'>keyword</span>
+ <span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span><span class='op'>~</span> <span class='id identifier rubyid_expression'>expression</span>
+</code></pre>
+
+<h3 id="begin-and-end">BEGIN and END</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(preexe (send nil :puts (str &quot;foo&quot;)))
+&quot;BEGIN { puts &quot;foo&quot; }&quot;
+ ~~~~~ keyword
+       ^ begin      ^ end
+ ~~~~~~~~~~~~~~~~~~~~ expression
+
+(postexe (send nil :puts (str &quot;bar&quot;)))
+&quot;END { puts &quot;bar&quot; }&quot;
+ ~~~ keyword
+     ^ begin      ^ end
+ ~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+
+<h2 id="miscellanea">Miscellanea</h2>
+
+<h3 id="flip-flops">Flip-flops</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(iflipflop (lvar :a) (lvar :b))
+&quot;if a..b; end&quot;
+     ~~ operator
+    ~~~~ expression
+
+(eflipflop (lvar :a) (lvar :b))
+&quot;if a...b; end&quot;
+     ~~~ operator
+    ~~~~~ expression
+</code></pre>
+
+<h3 id="implicit-matches">Implicit matches</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(match-current-line (regexp (str &quot;a&quot;) (regopt)))
+&quot;if /a/; end&quot;
+    ~~~ expression
+</code></pre>
+
+<h3 id="local-variable-injecting-matches">Local variable injecting matches</h3>
+
+<p>Format:</p>
+
+<pre class="code ruby"><code class="ruby">(match-with-lvasgn (regexp (str &quot;(?&lt;match&gt;bar)&quot;) (regopt)) (lvar :baz))
+&quot;/(?&lt;match&gt;bar)/ =~ baz&quot;
+                 ~~ selector
+ ~~~~~~~~~~~~~~~~~~~~~~ expression
+</code></pre>
+</div></div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>

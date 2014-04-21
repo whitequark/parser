@@ -1,0 +1,1067 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Parser::AST::Processor
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Parser/AST/Processor.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Parser.html" title="Parser (module)">Parser</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../AST.html" title="Parser::AST (module)">AST</a></span></span>
+     &raquo; 
+    <span class="title">Processor</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Parser::AST::Processor
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">AST::Processor</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">AST::Processor</li>
+          
+            <li class="next">Parser::AST::Processor</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/parser/ast/processor.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="../Rewriter.html" title="Parser::Rewriter (class)">Rewriter</a></span></p>
+</div>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_argument-instance_method" title="#on_argument (instance method)">- (Object) <strong>on_argument</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_casgn-instance_method" title="#on_casgn (instance method)">- (Object) <strong>on_casgn</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_const-instance_method" title="#on_const (instance method)">- (Object) <strong>on_const</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_def-instance_method" title="#on_def (instance method)">- (Object) <strong>on_def</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_defs-instance_method" title="#on_defs (instance method)">- (Object) <strong>on_defs</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_op_asgn-instance_method" title="#on_op_asgn (instance method)">- (Object) <strong>on_op_asgn</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_send-instance_method" title="#on_send (instance method)">- (Object) <strong>on_send</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_var-instance_method" title="#on_var (instance method)">- (Object) <strong>on_var</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_vasgn-instance_method" title="#on_vasgn (instance method)">- (Object) <strong>on_vasgn</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_argument_node-instance_method" title="#process_argument_node (instance method)">- (Object) <strong>process_argument_node</strong>(node) </a>
+    
+
+    
+      (also: #on_arg, #on_optarg, #on_restarg, #on_blockarg, #on_shadowarg, #on_kwarg, #on_kwoptarg, #on_kwrestarg)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_regular_node-instance_method" title="#process_regular_node (instance method)">- (Object) <strong>process_regular_node</strong>(node) </a>
+    
+
+    
+      (also: #on_dstr, #on_dsym, #on_regexp, #on_xstr, #on_splat, #on_array, #on_pair, #on_hash, #on_irange, #on_erange, #on_and_asgn, #on_or_asgn, #on_mlhs, #on_masgn, #on_args, #on_arg_expr, #on_restarg_expr, #on_blockarg_expr, #on_module, #on_class, #on_sclass, #on_undef, #on_alias, #on_block, #on_while, #on_while_post, #on_until, #on_until_post, #on_for, #on_return, #on_break, #on_next, #on_redo, #on_retry, #on_super, #on_yield, #on_defined?, #on_not, #on_and, #on_or, #on_if, #on_when, #on_case, #on_iflipflop, #on_eflipflop, #on_match_current_line, #on_match_with_lvasgn, #on_resbody, #on_rescue, #on_ensure, #on_begin, #on_kwbegin, #on_preexe, #on_postexe)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_var_asgn_node-instance_method" title="#process_var_asgn_node (instance method)">- (Object) <strong>process_var_asgn_node</strong>(node) </a>
+    
+
+    
+      (also: #on_lvasgn, #on_ivasgn, #on_gvasgn, #on_cvasgn)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_variable_node-instance_method" title="#process_variable_node (instance method)">- (Object) <strong>process_variable_node</strong>(node) </a>
+    
+
+    
+      (also: #on_lvar, #on_ivar, #on_gvar, #on_cvar, #on_back_ref, #on_nth_ref)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="on_argument-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_argument</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_argument'>on_argument</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_arg_name'>arg_name</span><span class='comma'>,</span> <span class='id identifier rubyid_value_node'>value_node</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_arg_name'>arg_name</span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_value_node'>value_node</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_casgn-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_casgn</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_casgn'>on_casgn</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_scope_node'>scope_node</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value_node'>value_node</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_scope_node'>scope_node</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_value_node'>value_node</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_const-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_const</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_const'>on_const</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_scope_node'>scope_node</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_scope_node'>scope_node</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_def-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_def</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122
+123</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_def'>on_def</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_args_node'>args_node</span><span class='comma'>,</span> <span class='id identifier rubyid_body_node'>body_node</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_args_node'>args_node</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_body_node'>body_node</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_defs-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_defs</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127
+128
+129
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_defs'>on_defs</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_definee_node'>definee_node</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_args_node'>args_node</span><span class='comma'>,</span> <span class='id identifier rubyid_body_node'>body_node</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_definee_node'>definee_node</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_args_node'>args_node</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_body_node'>body_node</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_op_asgn-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_op_asgn</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_op_asgn'>on_op_asgn</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_var_node'>var_node</span><span class='comma'>,</span> <span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='id identifier rubyid_value_node'>value_node</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_var_node'>var_node</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_value_node'>value_node</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_send-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_send</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139
+140
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_send'>on_send</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_receiver_node'>receiver_node</span><span class='comma'>,</span> <span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_arg_nodes'>arg_nodes</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_receiver_node'>receiver_node</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_receiver_node'>receiver_node</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_receiver_node'>receiver_node</span>
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_receiver_node'>receiver_node</span><span class='comma'>,</span> <span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_process_all'>process_all</span><span class='lparen'>(</span><span class='id identifier rubyid_arg_nodes'>arg_nodes</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_var-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_var</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_var'>on_var</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_node'>node</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_vasgn-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_vasgn</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_vasgn'>on_vasgn</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value_node'>value_node</span> <span class='op'>=</span> <span class='op'>*</span><span class='id identifier rubyid_node'>node</span>
+
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_value_node'>value_node</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_argument_node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>process_argument_node</strong>(node) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='on_arg-instance_method'>on_arg</span>, <span id='on_optarg-instance_method'>on_optarg</span>, <span id='on_restarg-instance_method'>on_restarg</span>, <span id='on_blockarg-instance_method'>on_blockarg</span>, <span id='on_shadowarg-instance_method'>on_shadowarg</span>, <span id='on_kwarg-instance_method'>on_kwarg</span>, <span id='on_kwoptarg-instance_method'>on_kwoptarg</span>, <span id='on_kwrestarg-instance_method'>on_kwrestarg</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_argument_node'>process_argument_node</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_on_argument'>on_argument</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_regular_node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>process_regular_node</strong>(node) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='on_dstr-instance_method'>on_dstr</span>, <span id='on_dsym-instance_method'>on_dsym</span>, <span id='on_regexp-instance_method'>on_regexp</span>, <span id='on_xstr-instance_method'>on_xstr</span>, <span id='on_splat-instance_method'>on_splat</span>, <span id='on_array-instance_method'>on_array</span>, <span id='on_pair-instance_method'>on_pair</span>, <span id='on_hash-instance_method'>on_hash</span>, <span id='on_irange-instance_method'>on_irange</span>, <span id='on_erange-instance_method'>on_erange</span>, <span id='on_and_asgn-instance_method'>on_and_asgn</span>, <span id='on_or_asgn-instance_method'>on_or_asgn</span>, <span id='on_mlhs-instance_method'>on_mlhs</span>, <span id='on_masgn-instance_method'>on_masgn</span>, <span id='on_args-instance_method'>on_args</span>, <span id='on_arg_expr-instance_method'>on_arg_expr</span>, <span id='on_restarg_expr-instance_method'>on_restarg_expr</span>, <span id='on_blockarg_expr-instance_method'>on_blockarg_expr</span>, <span id='on_module-instance_method'>on_module</span>, <span id='on_class-instance_method'>on_class</span>, <span id='on_sclass-instance_method'>on_sclass</span>, <span id='on_undef-instance_method'>on_undef</span>, <span id='on_alias-instance_method'>on_alias</span>, <span id='on_block-instance_method'>on_block</span>, <span id='on_while-instance_method'>on_while</span>, <span id='on_while_post-instance_method'>on_while_post</span>, <span id='on_until-instance_method'>on_until</span>, <span id='on_until_post-instance_method'>on_until_post</span>, <span id='on_for-instance_method'>on_for</span>, <span id='on_return-instance_method'>on_return</span>, <span id='on_break-instance_method'>on_break</span>, <span id='on_next-instance_method'>on_next</span>, <span id='on_redo-instance_method'>on_redo</span>, <span id='on_retry-instance_method'>on_retry</span>, <span id='on_super-instance_method'>on_super</span>, <span id='on_yield-instance_method'>on_yield</span>, <span id='on_defined?-instance_method'>on_defined?</span>, <span id='on_not-instance_method'>on_not</span>, <span id='on_and-instance_method'>on_and</span>, <span id='on_or-instance_method'>on_or</span>, <span id='on_if-instance_method'>on_if</span>, <span id='on_when-instance_method'>on_when</span>, <span id='on_case-instance_method'>on_case</span>, <span id='on_iflipflop-instance_method'>on_iflipflop</span>, <span id='on_eflipflop-instance_method'>on_eflipflop</span>, <span id='on_match_current_line-instance_method'>on_match_current_line</span>, <span id='on_match_with_lvasgn-instance_method'>on_match_with_lvasgn</span>, <span id='on_resbody-instance_method'>on_resbody</span>, <span id='on_rescue-instance_method'>on_rescue</span>, <span id='on_ensure-instance_method'>on_ensure</span>, <span id='on_begin-instance_method'>on_begin</span>, <span id='on_kwbegin-instance_method'>on_kwbegin</span>, <span id='on_preexe-instance_method'>on_preexe</span>, <span id='on_postexe-instance_method'>on_postexe</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_regular_node'>process_regular_node</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_updated'>updated</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_process_all'>process_all</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_var_asgn_node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>process_var_asgn_node</strong>(node) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='on_lvasgn-instance_method'>on_lvasgn</span>, <span id='on_ivasgn-instance_method'>on_ivasgn</span>, <span id='on_gvasgn-instance_method'>on_gvasgn</span>, <span id='on_cvasgn-instance_method'>on_cvasgn</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_var_asgn_node'>process_var_asgn_node</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_on_vasgn'>on_vasgn</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_variable_node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>process_variable_node</strong>(node) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='on_lvar-instance_method'>on_lvar</span>, <span id='on_ivar-instance_method'>on_ivar</span>, <span id='on_gvar-instance_method'>on_gvar</span>, <span id='on_cvar-instance_method'>on_cvar</span>, <span id='on_back_ref-instance_method'>on_back_ref</span>, <span id='on_nth_ref-instance_method'>on_nth_ref</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/ast/processor.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_variable_node'>process_variable_node</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_on_var'>on_var</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:13 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>

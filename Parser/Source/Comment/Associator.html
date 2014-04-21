@@ -1,0 +1,710 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Parser::Source::Comment::Associator
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Parser/Source/Comment/Associator.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Parser.html" title="Parser (module)">Parser</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Source.html" title="Parser::Source (module)">Source</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Comment.html" title="Parser::Source::Comment (class)">Comment</a></span></span>
+     &raquo; 
+    <span class="title">Associator</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Parser::Source::Comment::Associator
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Parser::Source::Comment::Associator</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/parser/source/comment/associator.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>A processor which associates AST nodes with comments based on their
+location in source code. It may be used, for example, to implement
+rdoc-style processing.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>parser/current</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_ast'>ast</span><span class='comma'>,</span> <span class='id identifier rubyid_comments'>comments</span> <span class='op'>=</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>CurrentRuby</span><span class='period'>.</span><span class='id identifier rubyid_parse_with_comments'>parse_with_comments</span><span class='lparen'>(</span><span class='heredoc_beg'>&lt;&lt;-CODE</span><span class='rparen'>)</span>
+<span class='tstring_content'># Class stuff
+class Foo
+  # Attr stuff
+  # @see bar
+  attr_accessor :foo
+end
+</span><span class='heredoc_end'>CODE
+</span>
+<span class='id identifier rubyid_p'>p</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>Source</span><span class='op'>::</span><span class='const'>Comment</span><span class='period'>.</span><span class='id identifier rubyid_associate'>associate</span><span class='lparen'>(</span><span class='id identifier rubyid_ast'>ast</span><span class='comma'>,</span> <span class='id identifier rubyid_comments'>comments</span><span class='rparen'>)</span>
+<span class='comment'># =&gt; {
+</span><span class='comment'>#   (class (const nil :Foo) ...) =&gt;
+</span><span class='comment'>#     [#&lt;Parser::Source::Comment (string):1:1 &quot;# Class stuff&quot;&gt;],
+</span><span class='comment'>#   (send nil :attr_accessor (sym :foo)) =&gt;
+</span><span class='comment'>#     [#&lt;Parser::Source::Comment (string):3:3 &quot;# Attr stuff&quot;&gt;,
+</span><span class='comment'>#      #&lt;Parser::Source::Comment (string):4:3 &quot;# @see bar&quot;&gt;]
+</span><span class='comment'># }</span></code></pre>
+    
+  </div>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#associate-instance_method" title="Parser::Source::Comment::Associator#associate (method)">#associate</a></span></li>
+    
+  </ul>
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip_directives-instance_method" title="#skip_directives (instance method)">- (Boolean) <strong>skip_directives</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Skip file processing directives disguised as comments.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#associate-instance_method" title="#associate (instance method)">- (Hash(Parser::AST::Node, Array(Parser::Source::Comment))) <strong>associate</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Compute a mapping between AST nodes and comments.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Associator) <strong>initialize</strong>(ast, comments) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Associator.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Parser::Source::Comment::Associator (class)">Associator</a></span></tt>) <strong>initialize</strong>(ast, comments) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of Associator</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>ast</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>comments</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'>Array</span>(<span class='object_link'><a href="../Comment.html" title="Parser::Source::Comment (class)">Parser::Source::Comment</a></span>)</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/comment/associator.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_ast'>ast</span><span class='comma'>,</span> <span class='id identifier rubyid_comments'>comments</span><span class='rparen'>)</span>
+  <span class='ivar'>@ast</span>         <span class='op'>=</span> <span class='id identifier rubyid_ast'>ast</span>
+  <span class='ivar'>@comments</span>    <span class='op'>=</span> <span class='id identifier rubyid_comments'>comments</span>
+
+  <span class='ivar'>@skip_directives</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="skip_directives=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="skip_directives-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>skip_directives</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Skip file processing directives disguised as comments.
+Namely:</p>
+
+<ul>
+  <li>Shebang line,</li>
+  <li>Magic encoding comment.</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/comment/associator.rb', line 43</span>
+
+<span class='kw'>class</span> <span class='const'>Comment</span><span class='op'>::</span><span class='const'>Associator</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:skip_directives</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Parser::AST::Node] ast
+</span>  <span class='comment'># @param [Array(Parser::Source::Comment)] comments
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_ast'>ast</span><span class='comma'>,</span> <span class='id identifier rubyid_comments'>comments</span><span class='rparen'>)</span>
+    <span class='ivar'>@ast</span>         <span class='op'>=</span> <span class='id identifier rubyid_ast'>ast</span>
+    <span class='ivar'>@comments</span>    <span class='op'>=</span> <span class='id identifier rubyid_comments'>comments</span>
+
+    <span class='ivar'>@skip_directives</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Compute a mapping between AST nodes and comments.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># A comment belongs to a certain node if it begins after end
+</span>  <span class='comment'># of the previous node (if one exists) and ends before beginning of
+</span>  <span class='comment'># the current node.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># This rule is unambiguous and produces the result
+</span>  <span class='comment'># one could reasonably expect; for example, this code
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#     # foo
+</span>  <span class='comment'>#     hoge # bar
+</span>  <span class='comment'>#       + fuga
+</span>  <span class='comment'>#
+</span>  <span class='comment'># will result in the following association:
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#     {
+</span>  <span class='comment'>#       (send (lvar :hoge) :+ (lvar :fuga)) =&gt;
+</span>  <span class='comment'>#         [#&lt;Parser::Source::Comment (string):2:1 &quot;# foo&quot;&gt;],
+</span>  <span class='comment'>#       (lvar :fuga) =&gt;
+</span>  <span class='comment'>#         [#&lt;Parser::Source::Comment (string):3:8 &quot;# bar&quot;&gt;]
+</span>  <span class='comment'>#     }
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Hash(Parser::AST::Node, Array(Parser::Source::Comment))]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_associate'>associate</span>
+    <span class='ivar'>@mapping</span>     <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_h'>h</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='op'>|</span> <span class='id identifier rubyid_h'>h</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+    <span class='ivar'>@comment_num</span> <span class='op'>=</span> <span class='int'>0</span>
+
+    <span class='id identifier rubyid_advance_through_directives'>advance_through_directives</span> <span class='kw'>if</span> <span class='ivar'>@skip_directives</span>
+
+    <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='ivar'>@ast</span><span class='rparen'>)</span>
+
+    <span class='ivar'>@mapping</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_private'>private</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_upper_node'>upper_node</span><span class='comma'>,</span> <span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='symbol'>:begin</span>
+      <span class='id identifier rubyid_prev_node'>prev_node</span><span class='comma'>,</span> <span class='id identifier rubyid_next_node'>next_node</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_upper_node'>upper_node</span>
+    <span class='kw'>else</span>
+      <span class='kw'>while</span> <span class='id identifier rubyid_current_comment_between?'>current_comment_between?</span><span class='lparen'>(</span><span class='id identifier rubyid_prev_node'>prev_node</span><span class='comma'>,</span> <span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_associate_and_advance_comment'>associate_and_advance_comment</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_prev_node'>prev_node</span><span class='comma'>,</span> <span class='id identifier rubyid_next_node'>next_node</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_upper_node'>upper_node</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_child'>child</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_child'>child</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>AST</span><span class='op'>::</span><span class='const'>Node</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_child'>child</span><span class='period'>.</span><span class='id identifier rubyid_loc'>loc</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_child'>child</span><span class='period'>.</span><span class='id identifier rubyid_loc'>loc</span><span class='period'>.</span><span class='id identifier rubyid_expression'>expression</span>
+        <span class='id identifier rubyid_prev_node'>prev_node</span><span class='comma'>,</span> <span class='id identifier rubyid_next_node'>next_node</span> <span class='op'>=</span> <span class='id identifier rubyid_next_node'>next_node</span><span class='comma'>,</span> <span class='id identifier rubyid_child'>child</span>
+
+        <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_prev_node'>prev_node</span><span class='comma'>,</span> <span class='id identifier rubyid_child'>child</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_current_comment'>current_comment</span>
+    <span class='ivar'>@comments</span><span class='lbracket'>[</span><span class='ivar'>@comment_num</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_advance_comment'>advance_comment</span>
+    <span class='ivar'>@comment_num</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_current_comment_between?'>current_comment_between?</span><span class='lparen'>(</span><span class='id identifier rubyid_prev_node'>prev_node</span><span class='comma'>,</span> <span class='id identifier rubyid_next_node'>next_node</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_current_comment'>current_comment</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+    <span class='id identifier rubyid_comment_loc'>comment_loc</span> <span class='op'>=</span> <span class='id identifier rubyid_current_comment'>current_comment</span><span class='period'>.</span><span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_expression'>expression</span>
+    <span class='id identifier rubyid_next_loc'>next_loc</span>    <span class='op'>=</span> <span class='id identifier rubyid_next_node'>next_node</span><span class='period'>.</span><span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_expression'>expression</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_prev_node'>prev_node</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_comment_loc'>comment_loc</span><span class='period'>.</span><span class='id identifier rubyid_end_pos'>end_pos</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_next_loc'>next_loc</span><span class='period'>.</span><span class='id identifier rubyid_begin_pos'>begin_pos</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_prev_loc'>prev_loc</span>  <span class='op'>=</span> <span class='id identifier rubyid_prev_node'>prev_node</span><span class='period'>.</span><span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_expression'>expression</span>
+
+      <span class='id identifier rubyid_comment_loc'>comment_loc</span><span class='period'>.</span><span class='id identifier rubyid_begin_pos'>begin_pos</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_prev_loc'>prev_loc</span><span class='period'>.</span><span class='id identifier rubyid_end_pos'>end_pos</span> <span class='op'>&amp;&amp;</span>
+            <span class='id identifier rubyid_comment_loc'>comment_loc</span><span class='period'>.</span><span class='id identifier rubyid_end_pos'>end_pos</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_next_loc'>next_loc</span><span class='period'>.</span><span class='id identifier rubyid_begin_pos'>begin_pos</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_associate_and_advance_comment'>associate_and_advance_comment</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+    <span class='ivar'>@mapping</span><span class='lbracket'>[</span><span class='id identifier rubyid_node'>node</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_current_comment'>current_comment</span>
+    <span class='id identifier rubyid_advance_comment'>advance_comment</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_advance_through_directives'>advance_through_directives</span>
+    <span class='comment'># Skip shebang.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_current_comment'>current_comment</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_current_comment'>current_comment</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^#!</span><span class='regexp_end'>/</span></span>
+      <span class='id identifier rubyid_advance_comment'>advance_comment</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Skip encoding line.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_current_comment'>current_comment</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_current_comment'>current_comment</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='op'>=~</span> <span class='const'>Buffer</span><span class='op'>::</span><span class='const'>ENCODING_RE</span>
+      <span class='id identifier rubyid_advance_comment'>advance_comment</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="associate-instance_method">
+  
+    - (<tt>Hash(<span class='object_link'><a href="../../AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span>, <span class='object_link'>Array</span>(<span class='object_link'><a href="../Comment.html" title="Parser::Source::Comment (class)">Parser::Source::Comment</a></span>))</tt>) <strong>associate</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Compute a mapping between AST nodes and comments.</p>
+
+<p>A comment belongs to a certain node if it begins after end
+of the previous node (if one exists) and ends before beginning of
+the current node.</p>
+
+<p>This rule is unambiguous and produces the result
+one could reasonably expect; for example, this code</p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># foo
+</span><span class='id identifier rubyid_hoge'>hoge</span> <span class='comment'># bar
+</span>  <span class='op'>+</span> <span class='id identifier rubyid_fuga'>fuga</span>
+</code></pre>
+
+<p>will result in the following association:</p>
+
+<pre class="code ruby"><code class="ruby">{
+  (send (lvar :hoge) :+ (lvar :fuga)) =&gt;
+    [#&lt;Parser::Source::Comment (string):2:1 &quot;# foo&quot;&gt;],
+  (lvar :fuga) =&gt;
+    [#&lt;Parser::Source::Comment (string):3:8 &quot;# bar&quot;&gt;]
+}
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash(<span class='object_link'><a href="../../AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span>, <span class='object_link'>Array</span>(<span class='object_link'><a href="../Comment.html" title="Parser::Source::Comment (class)">Parser::Source::Comment</a></span>))</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/comment/associator.rb', line 81</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_associate'>associate</span>
+  <span class='ivar'>@mapping</span>     <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_h'>h</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='op'>|</span> <span class='id identifier rubyid_h'>h</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='ivar'>@comment_num</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_advance_through_directives'>advance_through_directives</span> <span class='kw'>if</span> <span class='ivar'>@skip_directives</span>
+
+  <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='ivar'>@ast</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@mapping</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:13 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>

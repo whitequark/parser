@@ -1,0 +1,1021 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Parser::Diagnostic::Engine
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Parser/Diagnostic/Engine.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Parser.html" title="Parser (module)">Parser</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Diagnostic.html" title="Parser::Diagnostic (class)">Diagnostic</a></span></span>
+     &raquo; 
+    <span class="title">Engine</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Parser::Diagnostic::Engine
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Parser::Diagnostic::Engine</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/parser/diagnostic/engine.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p><span class='object_link'><a href="" title="Parser::Diagnostic::Engine (class)">Engine</a></span> provides a basic API for dealing with
+diagnostics by delegating them to registered consumers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_buffer'>buffer</span>      <span class='op'>=</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>Source</span><span class='op'>::</span><span class='const'>Buffer</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>foobar</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_consumer'>consumer</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='op'>|</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_engine'>engine</span>     <span class='op'>=</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>Diagnostic</span><span class='op'>::</span><span class='const'>Engine</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_consumer'>consumer</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_diagnostic'>diagnostic</span> <span class='op'>=</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>Diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:unexpected_token</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='symbol'>:token</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>abc</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='id identifier rubyid_buffer'>buffer</span><span class='comma'>,</span> <span class='int'>1</span><span class='op'>..</span><span class='int'>2</span><span class='rparen'>)</span>
+
+<span class='id identifier rubyid_engine'>engine</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span> <span class='comment'># =&gt; &quot;unexpected token abc&quot;</span></code></pre>
+    
+  </div>
+
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#all_errors_are_fatal-instance_method" title="#all_errors_are_fatal (instance method)">- (Boolean) <strong>all_errors_are_fatal</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>When set to <code>true</code> any error that is encountered will result in <span class='object_link'><a href="../SyntaxError.html" title="Parser::SyntaxError (class)">SyntaxError</a></span> being raised.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#consumer-instance_method" title="#consumer (instance method)">- (#call(Diagnostic)) <strong>consumer</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ignore_warnings-instance_method" title="#ignore_warnings (instance method)">- (Boolean) <strong>ignore_warnings</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>When set to <code>true</code> warnings will be ignored.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Engine) <strong>initialize</strong>(consumer = nil) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Engine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process-instance_method" title="#process (instance method)">- (Parser::Diagnostic::Engine) <strong>process</strong>(diagnostic) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Processes a <code>diagnostic</code>:   * Passes the diagnostic to the consumer, if it’s not a warning when     <code>ignore_warnings</code> is set.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Parser::Diagnostic::Engine (class)">Engine</a></span></tt>) <strong>initialize</strong>(consumer = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of Engine</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>consumer</span>
+      
+      
+        <span class='type'>(<tt>#call(<span class='object_link'><a href="../Diagnostic.html" title="Parser::Diagnostic (class)">Diagnostic</a></span>)</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic/engine.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_consumer'>consumer</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@consumer</span>             <span class='op'>=</span> <span class='id identifier rubyid_consumer'>consumer</span>
+
+  <span class='ivar'>@all_errors_are_fatal</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@ignore_warnings</span>      <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="all_errors_are_fatal=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="all_errors_are_fatal-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>all_errors_are_fatal</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>When set to <code>true</code> any error that is encountered will result in
+<span class='object_link'><a href="../SyntaxError.html" title="Parser::SyntaxError (class)">SyntaxError</a></span> being raised.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic/engine.rb', line 35</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span><span class='op'>::</span><span class='const'>Engine</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:consumer</span>
+
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:all_errors_are_fatal</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:ignore_warnings</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [#call(Diagnostic)] consumer
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_consumer'>consumer</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='ivar'>@consumer</span>             <span class='op'>=</span> <span class='id identifier rubyid_consumer'>consumer</span>
+
+    <span class='ivar'>@all_errors_are_fatal</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='ivar'>@ignore_warnings</span>      <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Processes a `diagnostic`:
+</span>  <span class='comment'>#   * Passes the diagnostic to the consumer, if it&#39;s not a warning when
+</span>  <span class='comment'>#     `ignore_warnings` is set.
+</span>  <span class='comment'>#   * After that, raises {Parser::SyntaxError} when `all_errors_are_fatal`
+</span>  <span class='comment'>#     is set to true.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Parser::Diagnostic::Engine]
+</span>  <span class='comment'># @see ignore?
+</span>  <span class='comment'># @see raise?
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+      <span class='comment'># do nothing
+</span>    <span class='kw'>elsif</span> <span class='ivar'>@consumer</span>
+      <span class='ivar'>@consumer</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>SyntaxError</span><span class='comma'>,</span> <span class='id identifier rubyid_diagnostic'>diagnostic</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>self</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_protected'>protected</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Checks whether `diagnostic` should be ignored.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='ivar'>@ignore_warnings</span> <span class='op'>&amp;&amp;</span>
+          <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:warning</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Checks whether `diagnostic` should be raised as an exception.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='lparen'>(</span><span class='ivar'>@all_errors_are_fatal</span> <span class='op'>&amp;&amp;</span>
+        <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:error</span><span class='rparen'>)</span> <span class='op'>||</span>
+      <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:fatal</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="consumer=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="consumer-instance_method">
+  
+    - (<tt>#call(<span class='object_link'><a href="../Diagnostic.html" title="Parser::Diagnostic (class)">Diagnostic</a></span>)</tt>) <strong>consumer</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>#call(<span class='object_link'><a href="../Diagnostic.html" title="Parser::Diagnostic (class)">Diagnostic</a></span>)</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic/engine.rb', line 35</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span><span class='op'>::</span><span class='const'>Engine</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:consumer</span>
+
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:all_errors_are_fatal</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:ignore_warnings</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [#call(Diagnostic)] consumer
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_consumer'>consumer</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='ivar'>@consumer</span>             <span class='op'>=</span> <span class='id identifier rubyid_consumer'>consumer</span>
+
+    <span class='ivar'>@all_errors_are_fatal</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='ivar'>@ignore_warnings</span>      <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Processes a `diagnostic`:
+</span>  <span class='comment'>#   * Passes the diagnostic to the consumer, if it&#39;s not a warning when
+</span>  <span class='comment'>#     `ignore_warnings` is set.
+</span>  <span class='comment'>#   * After that, raises {Parser::SyntaxError} when `all_errors_are_fatal`
+</span>  <span class='comment'>#     is set to true.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Parser::Diagnostic::Engine]
+</span>  <span class='comment'># @see ignore?
+</span>  <span class='comment'># @see raise?
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+      <span class='comment'># do nothing
+</span>    <span class='kw'>elsif</span> <span class='ivar'>@consumer</span>
+      <span class='ivar'>@consumer</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>SyntaxError</span><span class='comma'>,</span> <span class='id identifier rubyid_diagnostic'>diagnostic</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>self</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_protected'>protected</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Checks whether `diagnostic` should be ignored.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='ivar'>@ignore_warnings</span> <span class='op'>&amp;&amp;</span>
+          <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:warning</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Checks whether `diagnostic` should be raised as an exception.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='lparen'>(</span><span class='ivar'>@all_errors_are_fatal</span> <span class='op'>&amp;&amp;</span>
+        <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:error</span><span class='rparen'>)</span> <span class='op'>||</span>
+      <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:fatal</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ignore_warnings=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ignore_warnings-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>ignore_warnings</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>When set to <code>true</code> warnings will be ignored.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic/engine.rb', line 35</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span><span class='op'>::</span><span class='const'>Engine</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:consumer</span>
+
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:all_errors_are_fatal</span>
+  <span class='id identifier rubyid_attr_accessor'>attr_accessor</span> <span class='symbol'>:ignore_warnings</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [#call(Diagnostic)] consumer
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_consumer'>consumer</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='ivar'>@consumer</span>             <span class='op'>=</span> <span class='id identifier rubyid_consumer'>consumer</span>
+
+    <span class='ivar'>@all_errors_are_fatal</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='ivar'>@ignore_warnings</span>      <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Processes a `diagnostic`:
+</span>  <span class='comment'>#   * Passes the diagnostic to the consumer, if it&#39;s not a warning when
+</span>  <span class='comment'>#     `ignore_warnings` is set.
+</span>  <span class='comment'>#   * After that, raises {Parser::SyntaxError} when `all_errors_are_fatal`
+</span>  <span class='comment'>#     is set to true.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Parser::Diagnostic::Engine]
+</span>  <span class='comment'># @see ignore?
+</span>  <span class='comment'># @see raise?
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+      <span class='comment'># do nothing
+</span>    <span class='kw'>elsif</span> <span class='ivar'>@consumer</span>
+      <span class='ivar'>@consumer</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>SyntaxError</span><span class='comma'>,</span> <span class='id identifier rubyid_diagnostic'>diagnostic</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>self</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_protected'>protected</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Checks whether `diagnostic` should be ignored.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='ivar'>@ignore_warnings</span> <span class='op'>&amp;&amp;</span>
+          <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:warning</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Checks whether `diagnostic` should be raised as an exception.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @param [Parser::Diagnostic] diagnostic
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='lparen'>(</span><span class='ivar'>@all_errors_are_fatal</span> <span class='op'>&amp;&amp;</span>
+        <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:error</span><span class='rparen'>)</span> <span class='op'>||</span>
+      <span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>==</span> <span class='symbol'>:fatal</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="process-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Parser::Diagnostic::Engine (class)">Parser::Diagnostic::Engine</a></span></tt>) <strong>process</strong>(diagnostic) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Processes a <code>diagnostic</code>:
+  * Passes the diagnostic to the consumer, if it’s not a warning when
+    <code>ignore_warnings</code> is set.
+  * After that, raises <span class='object_link'><a href="../SyntaxError.html" title="Parser::SyntaxError (class)">SyntaxError</a></span> when <code>all_errors_are_fatal</code>
+    is set to true.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>diagnostic</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Diagnostic.html" title="Parser::Diagnostic (class)">Parser::Diagnostic</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Parser::Diagnostic::Engine (class)">Parser::Diagnostic::Engine</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>ignore?</li>
+    
+      <li>raise?</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic/engine.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_ignore?'>ignore?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='comment'># do nothing
+</span>  <span class='kw'>elsif</span> <span class='ivar'>@consumer</span>
+    <span class='ivar'>@consumer</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_raise?'>raise?</span><span class='lparen'>(</span><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>SyntaxError</span><span class='comma'>,</span> <span class='id identifier rubyid_diagnostic'>diagnostic</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:13 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>

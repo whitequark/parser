@@ -1,0 +1,756 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Parser::Rewriter
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Parser/Rewriter.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Parser.html" title="Parser (module)">Parser</a></span></span>
+     &raquo; 
+    <span class="title">Rewriter</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Parser::Rewriter
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="AST/Processor.html" title="Parser::AST::Processor (class)">AST::Processor</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">AST::Processor</li>
+          
+            <li class="next"><span class='object_link'><a href="AST/Processor.html" title="Parser::AST::Processor (class)">AST::Processor</a></span></li>
+          
+            <li class="next">Parser::Rewriter</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/parser/rewriter.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p><span class='object_link'><a href="" title="Parser::Rewriter (class)">Rewriter</a></span> offers a basic API that makes it easy to rewrite
+existing ASTs. It’s built on top of <span class='object_link'><a href="AST/Processor.html" title="Parser::AST::Processor (class)">AST::Processor</a></span> and
+<span class='object_link'><a href="Source/Rewriter.html" title="Parser::Source::Rewriter (class)">Source::Rewriter</a></span>.</p>
+
+<p>For example, assume you want to remove <code>do</code> tokens from a while statement.
+You can do this as following:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>parser/current</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='kw'>class</span> <span class='const'>RemoveDo</span> <span class='op'>&lt;</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>Rewriter</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_on_while'>on_while</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+    <span class='comment'># Check if the statement starts with &quot;do&quot;
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='period'>.</span><span class='id identifier rubyid_is?'>is?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>do</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_remove'>remove</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_code'>code</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOF</span>
+<span class='tstring_content'>while true do
+  puts &#39;hello&#39;
+end
+</span><span class='heredoc_end'>EOF
+</span>
+<span class='id identifier rubyid_buffer'>buffer</span>        <span class='op'>=</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>Source</span><span class='op'>::</span><span class='const'>Buffer</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>(example)</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_source'>source</span> <span class='op'>=</span> <span class='id identifier rubyid_code'>code</span>
+<span class='id identifier rubyid_parser'>parser</span>        <span class='op'>=</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>CurrentRuby</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_ast'>ast</span>           <span class='op'>=</span> <span class='id identifier rubyid_parser'>parser</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer'>buffer</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_rewriter'>rewriter</span>      <span class='op'>=</span> <span class='const'>RemoveDo</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+<span class='comment'># Rewrite the AST, returns a String with the new form.
+</span><span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_rewriter'>rewriter</span><span class='period'>.</span><span class='id identifier rubyid_rewrite'>rewrite</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer'>buffer</span><span class='comma'>,</span> <span class='id identifier rubyid_ast'>ast</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>This would result in the following Ruby code:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>while</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>Keep in mind that <span class='object_link'><a href="" title="Parser::Rewriter (class)">Rewriter</a></span> does not take care of indentation when
+inserting/replacing code so you’ll have to do this yourself.</p>
+
+<p>See also <a href="http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/">a blog entry</a>
+describing rewriters in greater detail.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#assignment%3F-instance_method" title="#assignment? (instance method)">- (Boolean) <strong>assignment?</strong>(node) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns <code>true</code> if the specified node is an assignment node, returns false otherwise.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#insert_after-instance_method" title="#insert_after (instance method)">- (Object) <strong>insert_after</strong>(range, content) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Inserts new code after the given source range.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#insert_before-instance_method" title="#insert_before (instance method)">- (Object) <strong>insert_before</strong>(range, content) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Inserts new code before the given source range.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove-instance_method" title="#remove (instance method)">- (Object) <strong>remove</strong>(range) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Removes the source range.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#replace-instance_method" title="#replace (instance method)">- (Object) <strong>replace</strong>(range, content) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Replaces the code of the source range <code>range</code> with <code>content</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rewrite-instance_method" title="#rewrite (instance method)">- (String) <strong>rewrite</strong>(source_buffer, ast) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Rewrites the AST/source buffer and returns a String containing the new version.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="AST/Processor.html" title="Parser::AST::Processor (class)">AST::Processor</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="AST/Processor.html#on_argument-instance_method" title="Parser::AST::Processor#on_argument (method)">#on_argument</a></span>, <span class='object_link'><a href="AST/Processor.html#on_casgn-instance_method" title="Parser::AST::Processor#on_casgn (method)">#on_casgn</a></span>, <span class='object_link'><a href="AST/Processor.html#on_const-instance_method" title="Parser::AST::Processor#on_const (method)">#on_const</a></span>, <span class='object_link'><a href="AST/Processor.html#on_def-instance_method" title="Parser::AST::Processor#on_def (method)">#on_def</a></span>, <span class='object_link'><a href="AST/Processor.html#on_defs-instance_method" title="Parser::AST::Processor#on_defs (method)">#on_defs</a></span>, <span class='object_link'><a href="AST/Processor.html#on_op_asgn-instance_method" title="Parser::AST::Processor#on_op_asgn (method)">#on_op_asgn</a></span>, <span class='object_link'><a href="AST/Processor.html#on_send-instance_method" title="Parser::AST::Processor#on_send (method)">#on_send</a></span>, <span class='object_link'><a href="AST/Processor.html#on_var-instance_method" title="Parser::AST::Processor#on_var (method)">#on_var</a></span>, <span class='object_link'><a href="AST/Processor.html#on_vasgn-instance_method" title="Parser::AST::Processor#on_vasgn (method)">#on_vasgn</a></span>, <span class='object_link'><a href="AST/Processor.html#process_argument_node-instance_method" title="Parser::AST::Processor#process_argument_node (method)">#process_argument_node</a></span>, <span class='object_link'><a href="AST/Processor.html#process_regular_node-instance_method" title="Parser::AST::Processor#process_regular_node (method)">#process_regular_node</a></span>, <span class='object_link'><a href="AST/Processor.html#process_var_asgn_node-instance_method" title="Parser::AST::Processor#process_var_asgn_node (method)">#process_var_asgn_node</a></span>, <span class='object_link'><a href="AST/Processor.html#process_variable_node-instance_method" title="Parser::AST::Processor#process_variable_node (method)">#process_variable_node</a></span></p>
+
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="assignment?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>assignment?</strong>(node) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns <code>true</code> if the specified node is an assignment node, returns false
+otherwise.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>node</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/rewriter.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assignment?'>assignment?</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='symbol'>:lvasgn</span><span class='comma'>,</span> <span class='symbol'>:ivasgn</span><span class='comma'>,</span> <span class='symbol'>:gvasgn</span><span class='comma'>,</span> <span class='symbol'>:cvasgn</span><span class='comma'>,</span> <span class='symbol'>:casgn</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="insert_after-instance_method">
+  
+    - (<tt>Object</tt>) <strong>insert_after</strong>(range, content) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Inserts new code after the given source range.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>range</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>content</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/rewriter.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_insert_after'>insert_after</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='ivar'>@source_rewriter</span><span class='period'>.</span><span class='id identifier rubyid_insert_after'>insert_after</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="insert_before-instance_method">
+  
+    - (<tt>Object</tt>) <strong>insert_before</strong>(range, content) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Inserts new code before the given source range.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>range</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>content</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/rewriter.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_insert_before'>insert_before</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='ivar'>@source_rewriter</span><span class='period'>.</span><span class='id identifier rubyid_insert_before'>insert_before</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove-instance_method">
+  
+    - (<tt>Object</tt>) <strong>remove</strong>(range) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Removes the source range.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>range</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/rewriter.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove'>remove</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='rparen'>)</span>
+  <span class='ivar'>@source_rewriter</span><span class='period'>.</span><span class='id identifier rubyid_remove'>remove</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="replace-instance_method">
+  
+    - (<tt>Object</tt>) <strong>replace</strong>(range, content) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Replaces the code of the source range <code>range</code> with <code>content</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>range</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>content</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/rewriter.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_replace'>replace</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='ivar'>@source_rewriter</span><span class='period'>.</span><span class='id identifier rubyid_replace'>replace</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rewrite-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>) <strong>rewrite</strong>(source_buffer, ast) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Rewrites the AST/source buffer and returns a String containing the new
+version.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source_buffer</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Buffer.html" title="Parser::Source::Buffer (class)">Parser::Source::Buffer</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ast</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/rewriter.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rewrite'>rewrite</span><span class='lparen'>(</span><span class='id identifier rubyid_source_buffer'>source_buffer</span><span class='comma'>,</span> <span class='id identifier rubyid_ast'>ast</span><span class='rparen'>)</span>
+  <span class='ivar'>@source_rewriter</span> <span class='op'>=</span> <span class='const'>Source</span><span class='op'>::</span><span class='const'>Rewriter</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_source_buffer'>source_buffer</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_ast'>ast</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@source_rewriter</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>

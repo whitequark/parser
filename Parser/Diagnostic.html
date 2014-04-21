@@ -1,0 +1,1864 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Parser::Diagnostic
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Parser/Diagnostic.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Parser.html" title="Parser (module)">Parser</a></span></span>
+     &raquo; 
+    <span class="title">Diagnostic</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Parser::Diagnostic
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Parser::Diagnostic</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/parser/diagnostic.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Diagnostic/Engine.html" title="Parser::Diagnostic::Engine (class)">Engine</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="LEVELS-constant" class="">LEVELS =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Collection of the available diagnostic levels.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'>Array</span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arguments-instance_method" title="#arguments (instance method)">- (Symbol) <strong>arguments</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Extended arguments that describe the error.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#highlights-instance_method" title="#highlights (instance method)">- (Array&lt;Parser::Source::Range&gt;) <strong>highlights</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Supplementary error-related source ranges.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#level-instance_method" title="#level (instance method)">- (Symbol) <strong>level</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Diagnostic level.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#location-instance_method" title="#location (instance method)">- (Parser::Source::Range) <strong>location</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Main error-related source range.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#message-instance_method" title="#message (instance method)">- (String) <strong>message</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The rendered message.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reason-instance_method" title="#reason (instance method)">- (Symbol) <strong>reason</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Reason for error.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Diagnostic) <strong>initialize</strong>(level, reason, arguments, location, highlights = []) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Diagnostic.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#render-instance_method" title="#render (instance method)">- (Array&lt;String&gt;) <strong>render</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Renders the diagnostic message as a clang-like diagnostic.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Parser::Diagnostic (class)">Diagnostic</a></span></tt>) <strong>initialize</strong>(level, reason, arguments, location, highlights = []) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of Diagnostic</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>level</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>reason</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>arguments</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>location</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>highlights</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'>Array</span>&lt;<span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span>&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+  <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+  <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+  <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+  <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_freeze'>freeze</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="arguments-instance_method">
+  
+    - (<tt>Symbol</tt>) <strong>arguments</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns extended arguments that describe the error</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>extended arguments that describe the error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../Parser.html#MESSAGES-constant" title="Parser::MESSAGES (constant)">MESSAGES</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 29</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span>
+  <span class='comment'>##
+</span>  <span class='comment'># Collection of the available diagnostic levels.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array]
+</span>  <span class='comment'>#
+</span>  <span class='const'>LEVELS</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:level</span><span class='comma'>,</span> <span class='symbol'>:reason</span><span class='comma'>,</span> <span class='symbol'>:arguments</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:location</span><span class='comma'>,</span> <span class='symbol'>:highlights</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Symbol] level
+</span>  <span class='comment'># @param [Symbol] reason
+</span>  <span class='comment'># @param [Hash] arguments
+</span>  <span class='comment'># @param [Parser::Source::Range] location
+</span>  <span class='comment'># @param [Array&lt;Parser::Source::Range&gt;] highlights
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+    <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+    <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+    <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+    <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @return [String] the rendered message.
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='const'>MESSAGES</span><span class='lbracket'>[</span><span class='ivar'>@reason</span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='ivar'>@arguments</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Renders the diagnostic message as a clang-like diagnostic.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  diagnostic.render # =&gt;
+</span>  <span class='comment'>#  # [
+</span>  <span class='comment'>#  #   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span>  <span class='comment'>#  #   &quot;foo +&quot;,
+</span>  <span class='comment'>#  #   &quot;    ^&quot;
+</span>  <span class='comment'>#  # ]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array&lt;String&gt;]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+    <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+      <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+    <span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="highlights-instance_method">
+  
+    - (<tt><span class='object_link'>Array</span>&lt;<span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span>&gt;</tt>) <strong>highlights</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Supplementary error-related source ranges.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'>Array</span>&lt;<span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span>&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 29</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span>
+  <span class='comment'>##
+</span>  <span class='comment'># Collection of the available diagnostic levels.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array]
+</span>  <span class='comment'>#
+</span>  <span class='const'>LEVELS</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:level</span><span class='comma'>,</span> <span class='symbol'>:reason</span><span class='comma'>,</span> <span class='symbol'>:arguments</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:location</span><span class='comma'>,</span> <span class='symbol'>:highlights</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Symbol] level
+</span>  <span class='comment'># @param [Symbol] reason
+</span>  <span class='comment'># @param [Hash] arguments
+</span>  <span class='comment'># @param [Parser::Source::Range] location
+</span>  <span class='comment'># @param [Array&lt;Parser::Source::Range&gt;] highlights
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+    <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+    <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+    <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+    <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @return [String] the rendered message.
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='const'>MESSAGES</span><span class='lbracket'>[</span><span class='ivar'>@reason</span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='ivar'>@arguments</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Renders the diagnostic message as a clang-like diagnostic.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  diagnostic.render # =&gt;
+</span>  <span class='comment'>#  # [
+</span>  <span class='comment'>#  #   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span>  <span class='comment'>#  #   &quot;foo +&quot;,
+</span>  <span class='comment'>#  #   &quot;    ^&quot;
+</span>  <span class='comment'>#  # ]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array&lt;String&gt;]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+    <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+      <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+    <span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="level-instance_method">
+  
+    - (<tt>Symbol</tt>) <strong>level</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns diagnostic level</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>diagnostic level</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#LEVELS-constant" title="Parser::Diagnostic::LEVELS (constant)">LEVELS</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 29</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span>
+  <span class='comment'>##
+</span>  <span class='comment'># Collection of the available diagnostic levels.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array]
+</span>  <span class='comment'>#
+</span>  <span class='const'>LEVELS</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:level</span><span class='comma'>,</span> <span class='symbol'>:reason</span><span class='comma'>,</span> <span class='symbol'>:arguments</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:location</span><span class='comma'>,</span> <span class='symbol'>:highlights</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Symbol] level
+</span>  <span class='comment'># @param [Symbol] reason
+</span>  <span class='comment'># @param [Hash] arguments
+</span>  <span class='comment'># @param [Parser::Source::Range] location
+</span>  <span class='comment'># @param [Array&lt;Parser::Source::Range&gt;] highlights
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+    <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+    <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+    <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+    <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @return [String] the rendered message.
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='const'>MESSAGES</span><span class='lbracket'>[</span><span class='ivar'>@reason</span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='ivar'>@arguments</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Renders the diagnostic message as a clang-like diagnostic.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  diagnostic.render # =&gt;
+</span>  <span class='comment'>#  # [
+</span>  <span class='comment'>#  #   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span>  <span class='comment'>#  #   &quot;foo +&quot;,
+</span>  <span class='comment'>#  #   &quot;    ^&quot;
+</span>  <span class='comment'>#  # ]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array&lt;String&gt;]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+    <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+      <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+    <span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="location-instance_method">
+  
+    - (<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>) <strong>location</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Main error-related source range.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Source/Range.html" title="Parser::Source::Range (class)">Parser::Source::Range</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 29</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span>
+  <span class='comment'>##
+</span>  <span class='comment'># Collection of the available diagnostic levels.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array]
+</span>  <span class='comment'>#
+</span>  <span class='const'>LEVELS</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:level</span><span class='comma'>,</span> <span class='symbol'>:reason</span><span class='comma'>,</span> <span class='symbol'>:arguments</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:location</span><span class='comma'>,</span> <span class='symbol'>:highlights</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Symbol] level
+</span>  <span class='comment'># @param [Symbol] reason
+</span>  <span class='comment'># @param [Hash] arguments
+</span>  <span class='comment'># @param [Parser::Source::Range] location
+</span>  <span class='comment'># @param [Array&lt;Parser::Source::Range&gt;] highlights
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+    <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+    <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+    <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+    <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @return [String] the rendered message.
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='const'>MESSAGES</span><span class='lbracket'>[</span><span class='ivar'>@reason</span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='ivar'>@arguments</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Renders the diagnostic message as a clang-like diagnostic.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  diagnostic.render # =&gt;
+</span>  <span class='comment'>#  # [
+</span>  <span class='comment'>#  #   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span>  <span class='comment'>#  #   &quot;foo +&quot;,
+</span>  <span class='comment'>#  #   &quot;    ^&quot;
+</span>  <span class='comment'>#  # ]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array&lt;String&gt;]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+    <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+      <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+    <span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="message-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>) <strong>message</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the rendered message.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../String.html" title="String (class)">String</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the rendered message.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 29</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span>
+  <span class='comment'>##
+</span>  <span class='comment'># Collection of the available diagnostic levels.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array]
+</span>  <span class='comment'>#
+</span>  <span class='const'>LEVELS</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:level</span><span class='comma'>,</span> <span class='symbol'>:reason</span><span class='comma'>,</span> <span class='symbol'>:arguments</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:location</span><span class='comma'>,</span> <span class='symbol'>:highlights</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Symbol] level
+</span>  <span class='comment'># @param [Symbol] reason
+</span>  <span class='comment'># @param [Hash] arguments
+</span>  <span class='comment'># @param [Parser::Source::Range] location
+</span>  <span class='comment'># @param [Array&lt;Parser::Source::Range&gt;] highlights
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+    <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+    <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+    <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+    <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @return [String] the rendered message.
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='const'>MESSAGES</span><span class='lbracket'>[</span><span class='ivar'>@reason</span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='ivar'>@arguments</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Renders the diagnostic message as a clang-like diagnostic.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  diagnostic.render # =&gt;
+</span>  <span class='comment'>#  # [
+</span>  <span class='comment'>#  #   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span>  <span class='comment'>#  #   &quot;foo +&quot;,
+</span>  <span class='comment'>#  #   &quot;    ^&quot;
+</span>  <span class='comment'>#  # ]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array&lt;String&gt;]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+    <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+      <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+    <span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="reason-instance_method">
+  
+    - (<tt>Symbol</tt>) <strong>reason</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns reason for error</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>reason for error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../Parser.html#MESSAGES-constant" title="Parser::MESSAGES (constant)">MESSAGES</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 29</span>
+
+<span class='kw'>class</span> <span class='const'>Diagnostic</span>
+  <span class='comment'>##
+</span>  <span class='comment'># Collection of the available diagnostic levels.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array]
+</span>  <span class='comment'>#
+</span>  <span class='const'>LEVELS</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='symbol'>:note</span><span class='comma'>,</span> <span class='symbol'>:warning</span><span class='comma'>,</span> <span class='symbol'>:error</span><span class='comma'>,</span> <span class='symbol'>:fatal</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:level</span><span class='comma'>,</span> <span class='symbol'>:reason</span><span class='comma'>,</span> <span class='symbol'>:arguments</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:location</span><span class='comma'>,</span> <span class='symbol'>:highlights</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Symbol] level
+</span>  <span class='comment'># @param [Symbol] reason
+</span>  <span class='comment'># @param [Hash] arguments
+</span>  <span class='comment'># @param [Parser::Source::Range] location
+</span>  <span class='comment'># @param [Array&lt;Parser::Source::Range&gt;] highlights
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Diagnostic#level must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>LEVELS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> provided.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expected a location</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_location'>location</span>
+
+    <span class='ivar'>@level</span>       <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+    <span class='ivar'>@reason</span>      <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
+    <span class='ivar'>@arguments</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@location</span>    <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
+    <span class='ivar'>@highlights</span>  <span class='op'>=</span> <span class='id identifier rubyid_highlights'>highlights</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+    <span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @return [String] the rendered message.
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='const'>MESSAGES</span><span class='lbracket'>[</span><span class='ivar'>@reason</span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='ivar'>@arguments</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Renders the diagnostic message as a clang-like diagnostic.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  diagnostic.render # =&gt;
+</span>  <span class='comment'>#  # [
+</span>  <span class='comment'>#  #   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span>  <span class='comment'>#  #   &quot;foo +&quot;,
+</span>  <span class='comment'>#  #   &quot;    ^&quot;
+</span>  <span class='comment'>#  # ]
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Array&lt;String&gt;]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+    <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+      <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+    <span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="render-instance_method">
+  
+    - (<tt><span class='object_link'>Array</span>&lt;<span class='object_link'><a href="../String.html" title="String (class)">String</a></span>&gt;</tt>) <strong>render</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Renders the diagnostic message as a clang-like diagnostic.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_diagnostic'>diagnostic</span><span class='period'>.</span><span class='id identifier rubyid_render'>render</span> <span class='comment'># =&gt;
+</span><span class='comment'># [
+</span><span class='comment'>#   &quot;(fragment:0):1:5: error: unexpected token $end&quot;,
+</span><span class='comment'>#   &quot;foo +&quot;,
+</span><span class='comment'>#   &quot;    ^&quot;
+</span><span class='comment'># ]</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'>Array</span>&lt;<span class='object_link'><a href="../String.html" title="String (class)">String</a></span>&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/diagnostic.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_render'>render</span>
+  <span class='id identifier rubyid_source_line'>source_line</span>    <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_source_line'>source_line</span>
+  <span class='id identifier rubyid_highlight_line'>highlight_line</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='ivar'>@highlights</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hilight'>hilight</span><span class='op'>|</span>
+    <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_hilight'>hilight</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_column_range'>column_range</span>
+  <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='lbracket'>[</span><span class='id identifier rubyid_range'>range</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>^</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+  <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@location</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@level</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='id identifier rubyid_source_line'>source_line</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_highlight_line'>highlight_line</span><span class='comma'>,</span>
+  <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Mon Apr 21 19:54:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.1).
+</div>
+
+  </body>
+</html>
