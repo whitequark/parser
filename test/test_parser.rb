@@ -4799,6 +4799,19 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
   end
 
+  def test_bug_do_block_in_cmdarg
+    # [ruby-core:61950] [Bug #9726]
+    assert_parses(
+      s(:send, nil, :tap,
+        s(:begin,
+          s(:block,
+            s(:send, nil, :proc),
+            s(:args), nil))),
+      %q{tap (proc do end)},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+  end
+
   def test_bug_interp_single
     assert_parses(
       s(:dstr, s(:begin, s(:int, 1))),
