@@ -2095,7 +2095,12 @@ keyword_variable: kNIL
                       result = val[0]
                     }
 
-      f_arg_item: f_norm_arg
+      f_arg_asgn: f_norm_arg
+                    {
+                      result = val[0]
+                    }
+
+      f_arg_item: f_arg_asgn
                     {
                       result = @builder.arg(val[0])
                     }
@@ -2171,12 +2176,12 @@ keyword_variable: kNIL
                       result = [ @builder.kwrestarg(val[0]) ]
                     }
 
-           f_opt: f_norm_arg tEQL arg_value
+           f_opt: f_arg_asgn tEQL arg_value
                     {
                       result = @builder.optarg(val[0], val[1], val[2])
                     }
 
-     f_block_opt: f_norm_arg tEQL primary_value
+     f_block_opt: f_arg_asgn tEQL primary_value
                     {
                       result = @builder.optarg(val[0], val[1], val[2])
                     }

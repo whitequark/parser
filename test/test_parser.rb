@@ -1769,6 +1769,25 @@ class TestParser < Minitest::Test
         |      ~~~~~~ expression (args.blockarg)})
   end
 
+  def test_arg_scope
+    # [ruby-core:61299] [Bug #9593]
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:optarg, :var, s(:defined?, s(:lvar, :var)))),
+        s(:lvar, :var)),
+      %q{def f(var = defined?(var)) var end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:kwoptarg, :var, s(:defined?, s(:lvar, :var)))),
+        s(:lvar, :var)),
+      %q{def f(var: defined?(var)) var end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
   def assert_parses_args(ast, code, versions=ALL_VERSIONS)
     assert_parses(
       s(:def, :f, ast, nil),
