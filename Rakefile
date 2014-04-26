@@ -81,7 +81,7 @@ task :changelog do
     end
   end
 
-  IO.popen("git log --pretty='#{format}' 2.0 2.1 master", 'r') do |io|
+  IO.popen("git log --pretty='#{format}' remotes/origin/2.0 remotes/origin/2.1 master", 'r') do |io|
     current_version = nil
 
     io.each_line do |line|
