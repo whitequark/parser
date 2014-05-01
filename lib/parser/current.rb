@@ -39,6 +39,7 @@ module Parser
   else # :nocov:
     # Keep this in sync with released Ruby.
     warn_syntax_deviation 'parser/ruby21', '2.1'
+    require 'parser/ruby21'
     CurrentRuby = Ruby21
   end
 end
