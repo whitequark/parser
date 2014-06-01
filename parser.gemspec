@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
                           lib/parser/ruby21.rb
                        )
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.test_files    = spec.files.grep(%r{^test/})
   spec.require_paths = ['lib']
 
   spec.add_dependency             'ast',       ['>= 1.1', '< 3.0']
