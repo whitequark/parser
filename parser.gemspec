@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency             'slop',      ['~> 3.4', '>= 3.4.5']
 
   spec.add_development_dependency 'bundler',   '~> 1.2'
-  spec.add_development_dependency 'rake',      '~> 0.9'
+  spec.add_development_dependency 'rake',      ['>= 0.9', '< 11.0']
   spec.add_development_dependency 'racc',      '= 1.4.9' # update to 1.4.11 when it's done
   spec.add_development_dependency 'cliver',    '~> 0.3.0'
 
