@@ -327,9 +327,9 @@ Format:
 Format:
 
 ~~~
-(cvar :$foo)
-"$foo"
- ~~~~ expression
+(cvar :@@foo)
+"@@foo"
+ ~~~~~ expression
 ~~~
 
 ### Global variable
