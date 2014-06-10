@@ -74,7 +74,7 @@ class TestSourceRewriter < Minitest::Test
       diagnostics << diag
     end
 
-    assert_raises RuntimeError, /clobber/ do
+    assert_raises Parser::ClobberingError do
       @rewriter.
         replace(range(3, 1), '---').
         remove(range(3, 1))
@@ -91,5 +91,23 @@ class TestSourceRewriter < Minitest::Test
     assert_equal "clobbered by: replace 1 character(s) with \"---\"",
                  diagnostics.last.message
     assert_equal range(3, 1), diagnostics.last.location
+  end
+
+  def test_clobbering_error_backward_compatibility
+    @rewriter.diagnostics.consumer = proc {}
+
+    rescued = false
+
+    # We use normal begin..rescue..end here rather than #assert_raises
+    # since #assert_raises expects exact error class.
+    begin
+      @rewriter.
+        replace(range(3, 1), '---').
+        remove(range(3, 1))
+    rescue RuntimeError => error
+      rescued = true if error.message.include?('clobber')
+    end
+
+    assert rescued
   end
 end

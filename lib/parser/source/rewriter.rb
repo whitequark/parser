@@ -44,7 +44,7 @@ module Parser
       #
       # @param [Range] range
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def remove(range)
         append Rewriter::Action.new(range, '')
@@ -56,7 +56,7 @@ module Parser
       # @param [Range] range
       # @param [String] content
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def insert_before(range, content)
         append Rewriter::Action.new(range.begin, content)
@@ -68,7 +68,7 @@ module Parser
       # @param [Range] range
       # @param [String] content
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def insert_after(range, content)
         append Rewriter::Action.new(range.end, content)
@@ -80,7 +80,7 @@ module Parser
       # @param [Range] range
       # @param [String] content
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def replace(range, content)
         append Rewriter::Action.new(range, content)
@@ -130,7 +130,7 @@ module Parser
                                       clobber_action.range)
           @diagnostics.process(diagnostic)
 
-          raise RuntimeError, "Parser::Source::Rewriter detected clobbering"
+          raise ClobberingError, "Parser::Source::Rewriter detected clobbering"
         else
           clobber(action.range)
 
