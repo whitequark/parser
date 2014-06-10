@@ -44,7 +44,7 @@ module Parser
       #
       # @param [Range] range
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def remove(range)
         append Rewriter::Action.new(range, '')
@@ -56,7 +56,7 @@ module Parser
       # @param [Range] range
       # @param [String] content
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def insert_before(range, content)
         append Rewriter::Action.new(range.begin, content)
@@ -68,7 +68,7 @@ module Parser
       # @param [Range] range
       # @param [String] content
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def insert_after(range, content)
         append Rewriter::Action.new(range.end, content)
@@ -80,7 +80,7 @@ module Parser
       # @param [Range] range
       # @param [String] content
       # @return [Rewriter] self
-      # @raise [RuntimeError] when clobbering is detected
+      # @raise [ClobberingError] when clobbering is detected
       #
       def replace(range, content)
         append Rewriter::Action.new(range, content)
@@ -93,6 +93,10 @@ module Parser
       # @return [String]
       #
       def process
+        if in_transaction?
+          raise "Do not call #{self.class}##{__method__} inside a transaction"
+        end
+
         adjustment = 0
         source     = @source_buffer.source.dup
 
@@ -110,6 +114,46 @@ module Parser
         end
 
         source
+      end
+
+      ##
+      # Provides a protected block where a sequence of multiple rewrite actions
+      # are handled atomic. If any of the action failed by clobbering,
+      # all the actions are rolled back.
+      #
+      # @example
+      #  begin
+      #    rewriter.transaction do
+      #      rewriter.insert_before(range_of_something, '(')
+      #      rewriter.insert_after(range_of_something, ')')
+      #    end
+      #  rescue Parser::ClobberingError
+      #  end
+      #
+      # @raise [RuntimeError] when no block is passed
+      # @raise [RuntimeError] when already in a transaction
+      #
+      def transaction
+        unless block_given?
+          raise "#{self.class}##{__method__} requires block"
+        end
+
+        if in_transaction?
+          raise 'Nested transaction is not supported'
+        end
+
+        @pending_queue = @queue.dup
+        @pending_clobber = @clobber
+
+        yield
+
+        @queue = @pending_queue
+        @clobber = @pending_clobber
+
+        self
+      ensure
+        @pending_queue = nil
+        @pending_clobber = nil
       end
 
       private
@@ -130,25 +174,45 @@ module Parser
                                       clobber_action.range)
           @diagnostics.process(diagnostic)
 
-          raise RuntimeError, "Parser::Source::Rewriter detected clobbering"
+          raise ClobberingError, "Parser::Source::Rewriter detected clobbering"
         else
           clobber(action.range)
 
-          @queue << action
+          active_queue << action
         end
 
         self
       end
 
       def clobber(range)
-        @clobber |= (2 ** range.size - 1) << range.begin_pos
+        self.active_clobber = active_clobber | (2 ** range.size - 1) << range.begin_pos
       end
 
       def clobbered?(range)
-        if @clobber & ((2 ** range.size - 1) << range.begin_pos) != 0
-          @queue.find do |action|
+        if active_clobber & ((2 ** range.size - 1) << range.begin_pos) != 0
+          active_queue.find do |action|
             action.range.to_a & range.to_a
           end
+        end
+      end
+
+      def in_transaction?
+        !@pending_queue.nil?
+      end
+
+      def active_queue
+        @pending_queue || @queue
+      end
+
+      def active_clobber
+        @pending_clobber || @clobber
+      end
+
+      def active_clobber=(value)
+        if @pending_clobber
+          @pending_clobber = value
+        else
+          @clobber = value
         end
       end
     end

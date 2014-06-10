@@ -50,6 +50,7 @@ module Parser
   end
 
   require 'parser/syntax_error'
+  require 'parser/clobbering_error'
   require 'parser/diagnostic'
   require 'parser/diagnostic/engine'
 
