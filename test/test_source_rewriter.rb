@@ -94,11 +94,11 @@ class TestSourceRewriter < Minitest::Test
   end
 
   def test_clobbering_error_backward_compatibility
-    @rewriter.diagnostics.consumer = proc {}
+    silence_diagnostics
 
     rescued = false
 
-    # We use normal begin..rescue..end here rather than #assert_raises
+    # We use begin..rescue..end here rather than #assert_raises
     # since #assert_raises expects exact error class.
     begin
       @rewriter.
@@ -109,5 +109,71 @@ class TestSourceRewriter < Minitest::Test
     end
 
     assert rescued
+  end
+
+  def test_transaction_returns_self
+    assert_equal @rewriter, @rewriter.transaction {}
+  end
+
+  def test_transaction_commit
+    silence_diagnostics
+
+    # Original: 'foo bar baz'
+
+    # Rewrite as 'foo BAR baz'
+    @rewriter.replace(range(4, 3), 'BAR')
+
+    # Rewrite as '( bar )'
+    @rewriter.transaction do
+      @rewriter.replace(range(0, 3), '(')
+      @rewriter.replace(range(8, 3), ')')
+    end
+
+    @rewriter.replace(range(3, 1), '_')
+    @rewriter.replace(range(7, 1), '_')
+
+    assert_equal '(_BAR_)', @rewriter.process
+  end
+
+  def test_transaction_rollback
+    silence_diagnostics
+
+    # Original: 'foo bar baz'
+
+    # Rewrite as 'foo bar BAZ'
+    @rewriter.replace(range(8, 3), 'BAZ')
+
+    assert_raises Parser::ClobberingError do
+      # Trying to rewrite as '( bar )', but it fails
+      @rewriter.transaction do
+        @rewriter.replace(range(0, 3), '(')
+        @rewriter.replace(range(8, 3), ')')
+      end
+    end
+
+    @rewriter.replace(range(0, 3), 'FOO')
+
+    assert_equal 'FOO bar BAZ', @rewriter.process
+  end
+
+  def test_nested_transaction_raises_error
+    assert_raises RuntimeError, /nested/ do
+      @rewriter.transaction do
+        @rewriter.transaction do
+        end
+      end
+    end
+  end
+
+  def test_process_in_transaction_raises_error
+    assert_raises RuntimeError, /transaction/ do
+      @rewriter.transaction do
+        @rewriter.process
+      end
+    end
+  end
+
+  def silence_diagnostics
+    @rewriter.diagnostics.consumer = proc {}
   end
 end
