@@ -1,6 +1,58 @@
 Changelog
 =========
 
+v2.2.0.pre.1 (2014-06-12)
+-------------------------
+
+Features implemented:
+ * Add Source::Rewriter#transaction for atomic rewrite actions (Yuji Nakayama)
+ * Raise Parser::ClobberingError for clobbering rewrite error (Yuji Nakayama)
+
+Bugs fixed:
+ * parser/current: fix the fallback case (refs #146). (Peter Zotov)
+ * ruby22.y: "tap (proc do end)": allow parenthesed do-block in cmdarg. (Peter Zotov)
+
+v2.1.9 (2014-04-21)
+-------------------
+
+API modifications:
+ * Extend ast dependency to >= 1.1 \< 3.0. (Peter Zotov)
+ * parser/current: fallback to latest released Ruby instead of raising (fixes #140). (Peter Zotov)
+
+Features implemented:
+ * ruby-rewrite: add a --modify switch for rewriters that modify AST (fixes #143). (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl: don't fail to parse string literals in huge files (fixes #142). (Peter Zotov)
+
+v2.1.7 (2014-03-05)
+-------------------
+
+Bugs fixed:
+ * lexer.rl: make sure all invalid escapes lead to fatal errors (fixes #136). (Peter Zotov)
+
+v2.1.6 (2014-03-04)
+-------------------
+
+Features implemented:
+ * Add the list of all node types within Parser::Meta. (Markus Schirp)
+
+v2.1.5 (2014-02-24)
+-------------------
+
+Bugs fixed:
+ * Parser::Base, ruby18.y: don't try to lookup Encoding on 1.8 (fixes #133). (Peter Zotov)
+
+v2.1.4 (2014-01-11)
+-------------------
+
+Features implemented:
+ * ruby22.y: "x def y; z do end end": save cmdarg stack to isolate command argument state from outer scope. (Peter Zotov)
+ * Add Ruby 2.2 syntax. (Peter Zotov)
+
+Bugs fixed:
+ * Builders::Default: "super do end": super and zsuper are like send (fixes #131). (Peter Zotov)
+
 v2.1.3 (2014-01-10)
 -------------------
 
