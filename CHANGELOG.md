@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.2.0.pre.2 (2014-06-14)
+-------------------------
+
+Bugs fixed:
+ * ruby22.rb: include in gemspec. (Peter Zotov)
+
 v2.2.0.pre.1 (2014-06-12)
 -------------------------
 
