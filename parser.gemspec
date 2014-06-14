@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
                           lib/parser/ruby19.rb
                           lib/parser/ruby20.rb
                           lib/parser/ruby21.rb
+                          lib/parser/ruby22.rb
                        )
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^test/})
