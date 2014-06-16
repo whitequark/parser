@@ -80,7 +80,7 @@
   
     <dt class="r1 last">Defined in:</dt>
     <dd class="r1 last">lib/parser.rb<span class="defines">,<br />
-  lib/parser/base.rb,<br /> lib/parser/meta.rb,<br /> lib/parser/runner.rb,<br /> lib/parser/current.rb,<br /> lib/parser/version.rb,<br /> lib/parser/messages.rb,<br /> lib/parser/rewriter.rb,<br /> lib/parser/ast/node.rb,<br /> lib/parser/source/map.rb,<br /> lib/parser/diagnostic.rb,<br /> lib/parser/syntax_error.rb,<br /> lib/parser/source/range.rb,<br /> lib/parser/ast/processor.rb,<br /> lib/parser/lexer/literal.rb,<br /> lib/parser/source/buffer.rb,<br /> lib/parser/source/comment.rb,<br /> lib/parser/source/map/for.rb,<br /> lib/parser/source/map/send.rb,<br /> lib/parser/source/rewriter.rb,<br /> lib/parser/builders/default.rb,<br /> lib/parser/diagnostic/engine.rb,<br /> lib/parser/runner/ruby_parse.rb,<br /> lib/parser/lexer/explanation.rb,<br /> lib/parser/lexer/stack_state.rb,<br /> lib/parser/source/map/ternary.rb,<br /> lib/parser/static_environment.rb,<br /> lib/parser/source/map/heredoc.rb,<br /> lib/parser/source/map/keyword.rb,<br /> lib/parser/source/map/variable.rb,<br /> lib/parser/source/map/constant.rb,<br /> lib/parser/runner/ruby_rewrite.rb,<br /> lib/parser/source/map/operator.rb,<br /> lib/parser/source/map/condition.rb,<br /> lib/parser/source/map/definition.rb,<br /> lib/parser/source/map/collection.rb,<br /> lib/parser/source/map/rescue_body.rb,<br /> lib/parser/source/rewriter/action.rb,<br /> lib/parser/source/comment/associator.rb</span>
+  lib/parser/base.rb,<br /> lib/parser/meta.rb,<br /> lib/parser/runner.rb,<br /> lib/parser/ruby22.rb,<br /> lib/parser/version.rb,<br /> lib/parser/current.rb,<br /> lib/parser/messages.rb,<br /> lib/parser/rewriter.rb,<br /> lib/parser/ast/node.rb,<br /> lib/parser/diagnostic.rb,<br /> lib/parser/source/map.rb,<br /> lib/parser/syntax_error.rb,<br /> lib/parser/source/range.rb,<br /> lib/parser/source/buffer.rb,<br /> lib/parser/lexer/literal.rb,<br /> lib/parser/ast/processor.rb,<br /> lib/parser/source/comment.rb,<br /> lib/parser/source/map/for.rb,<br /> lib/parser/source/map/send.rb,<br /> lib/parser/source/rewriter.rb,<br /> lib/parser/clobbering_error.rb,<br /> lib/parser/builders/default.rb,<br /> lib/parser/runner/ruby_parse.rb,<br /> lib/parser/diagnostic/engine.rb,<br /> lib/parser/lexer/stack_state.rb,<br /> lib/parser/lexer/explanation.rb,<br /> lib/parser/source/map/ternary.rb,<br /> lib/parser/static_environment.rb,<br /> lib/parser/source/map/keyword.rb,<br /> lib/parser/source/map/heredoc.rb,<br /> lib/parser/runner/ruby_rewrite.rb,<br /> lib/parser/source/map/operator.rb,<br /> lib/parser/source/map/constant.rb,<br /> lib/parser/source/map/variable.rb,<br /> lib/parser/source/map/condition.rb,<br /> lib/parser/source/map/definition.rb,<br /> lib/parser/source/map/collection.rb,<br /> lib/parser/source/map/rescue_body.rb,<br /> lib/parser/source/rewriter/action.rb,<br /> lib/parser/source/comment/associator.rb</span>
 </dd>
   
 </dl>
@@ -104,7 +104,7 @@
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Parser/Base.html" title="Parser::Base (class)">Base</a></span>, <span class='object_link'><a href="Parser/Diagnostic.html" title="Parser::Diagnostic (class)">Diagnostic</a></span>, <span class='object_link'><a href="Parser/Rewriter.html" title="Parser::Rewriter (class)">Rewriter</a></span>, <span class='object_link'><a href="Parser/SyntaxError.html" title="Parser::SyntaxError (class)">SyntaxError</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Parser/Base.html" title="Parser::Base (class)">Base</a></span>, <span class='object_link'><a href="Parser/ClobberingError.html" title="Parser::ClobberingError (class)">ClobberingError</a></span>, <span class='object_link'><a href="Parser/Diagnostic.html" title="Parser::Diagnostic (class)">Diagnostic</a></span>, <span class='object_link'><a href="Parser/Rewriter.html" title="Parser::Rewriter (class)">Rewriter</a></span>, <span class='object_link'><a href="Parser/SyntaxError.html" title="Parser::SyntaxError (class)">SyntaxError</a></span>
     
   
 </p>
@@ -277,14 +277,14 @@
       <pre class="lines">
 
 
-73
 74
 75
 76
-77</pre>
+77
+78</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser.rb', line 73</span>
+      <pre class="code"><span class="info file"># File 'lib/parser.rb', line 74</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_check_for_encoding_support'>check_for_encoding_support</span>
   <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='const'>Encoding</span><span class='rparen'>)</span>
@@ -301,7 +301,7 @@
 </div>
 
     <div id="footer">
-  Generated on Mon Apr 21 19:54:12 2014 by
+  Generated on Mon Jun 16 19:42:15 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>
