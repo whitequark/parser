@@ -157,20 +157,24 @@ class TestSourceRewriter < Minitest::Test
   end
 
   def test_nested_transaction_raises_error
-    assert_raises RuntimeError, /nested/ do
+    error = assert_raises RuntimeError do
       @rewriter.transaction do
         @rewriter.transaction do
         end
       end
     end
+
+    assert_match /nested/i, error.message
   end
 
   def test_process_in_transaction_raises_error
-    assert_raises RuntimeError, /transaction/ do
+    error = assert_raises RuntimeError do
       @rewriter.transaction do
         @rewriter.process
       end
     end
+
+    assert_match /transaction/, error.message
   end
 
   def silence_diagnostics
