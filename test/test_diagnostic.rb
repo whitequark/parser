@@ -10,9 +10,11 @@ class TestDiagnostic < Minitest::Test
   end
 
   def test_verifies_levels
-    assert_raises ArgumentError, /level/ do
-      Parser::Diagnostic.new(:foobar, :escape_eof, @range1)
+    error = assert_raises ArgumentError do
+      Parser::Diagnostic.new(:foobar, :escape_eof, {}, @range1)
     end
+
+    assert_match /level/, error.message
   end
 
   def test_freezes

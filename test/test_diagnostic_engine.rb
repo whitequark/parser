@@ -32,7 +32,7 @@ class TestDiagnosticEngine < Minitest::Test
 
     error = Parser::Diagnostic.new(:error, :invalid_escape, @buffer, 1..2)
 
-    err = assert_raises Parser::SyntaxError, error.message do
+    err = assert_raises Parser::SyntaxError do
       @engine.process(error)
     end
 
