@@ -145,12 +145,17 @@ module Parser
       #
       # @param [String] input
       # @raise [ArgumentError] if already populated
+      # @raise [EncodingError] if `input` includes invalid byte sequence for the encoding
       # @return [String]
       #
       def source=(input)
         if defined?(Encoding)
           input = input.dup if input.frozen?
           input = self.class.reencode_string(input)
+
+          unless input.valid_encoding?
+            raise EncodingError, "invalid byte sequence in #{input.encoding.name}"
+          end
         end
 
         self.raw_source = input
