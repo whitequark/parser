@@ -951,13 +951,20 @@ rule
 
                       result = @builder.begin_keyword(val[0], val[2], val[3])
                     }
-                | tLPAREN_ARG expr
+                | tLPAREN_ARG
+                    {
+                      result = @lexer.cmdarg.dup
+                      @lexer.cmdarg.clear
+                    }
+                    expr
                     {
                       @lexer.state = :expr_endarg
                     }
                     opt_nl tRPAREN
                     {
-                      result = @builder.begin(val[0], val[1], val[4])
+                      @lexer.cmdarg = val[1]
+
+                      result = @builder.begin(val[0], val[2], val[5])
                     }
                 | tLPAREN_ARG
                     {

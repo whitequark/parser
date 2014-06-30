@@ -4796,7 +4796,7 @@ class TestParser < Minitest::Test
             nil))),
       %q{bar def foo; self.each do end end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_bug_do_block_in_cmdarg
