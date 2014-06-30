@@ -4809,7 +4809,7 @@ class TestParser < Minitest::Test
             s(:args), nil))),
       %q{tap (proc do end)},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_bug_interp_single
