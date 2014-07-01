@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v2.2.0.pre.3 (2014-06-30)
+-------------------------
+
+Features implemented:
+ * Raise EncodingError when source includes invalid byte sequence (Yuji Nakayama)
+
+Bugs fixed:
+ * ruby{19,20,21}.y: "x def y; z do end end": save cmdarg stack to isolate command argument state from outer scope. (Peter Zotov)
+ * ruby{19,20,21}.y: "tap (proc do end)": allow parenthesed do-block in cmdarg. (Peter Zotov)
+
 v2.2.0.pre.2 (2014-06-14)
 -------------------------
 
