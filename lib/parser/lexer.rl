@@ -913,7 +913,7 @@ class Parser::Lexer
         #     foo
         #     2"
         #
-        # which, incidentally, evaluates to "bar\n12".
+        # which, incidentally, evaluates to "bar\n1\n2".
         p = @herebody_s - 1
         @herebody_s = nil
       end
