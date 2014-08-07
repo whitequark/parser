@@ -41,6 +41,8 @@ Access the AST's source map:
     p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
     # "+"
 
+Traverse the AST: see the documentation for [gem ast](http://whitequark.github.io/ast/).
+
 Parse a chunk of code and display all diagnostics:
 
     parser = Parser::CurrentRuby.new
