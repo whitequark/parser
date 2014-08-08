@@ -760,7 +760,7 @@ module Parser
           ], send_unary_op_map(not_t, nil_node))
         else
           n(:send, [ receiver, :'!' ],
-            send_unary_op_map(not_t, receiver))
+            send_map(nil, nil, not_t, begin_t, [receiver], end_t))
         end
       end
     end

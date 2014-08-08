@@ -2907,13 +2907,13 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, s(:lvar, :foo), :'!'),
       %q{not(foo)},
-      %{},
+      %q{~~~~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
 
     assert_parses(
       s(:send, s(:begin), :'!'),
       %q{not()},
-      %{},
+      %q{~~~~~ expression},
       ALL_VERSIONS - %w(1.8))
   end
 
