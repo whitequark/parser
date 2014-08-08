@@ -1,7 +1,13 @@
 Changelog
 =========
 
-v2.2.0.pre.3 (2014-06-30)
+v2.2.0.pre.4 (2014-08-09)
+-------------------------
+
+Bugs fixed:
+ * builders/default: "not(x)": fix source map (fixes #158). (Peter Zotov)
+
+v2.2.0.pre.3 (2014-07-02)
 -------------------------
 
 Features implemented:
