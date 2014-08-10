@@ -118,8 +118,7 @@ with Parser:
 
 ## Documentation
 
-Documentation for parser is available online on
-[rdoc.info](http://rdoc.info/github/whitequark/parser).
+Documentation for parser is available [online](http://whitequark.github.io/parser/).
 
 ### Node names
 
