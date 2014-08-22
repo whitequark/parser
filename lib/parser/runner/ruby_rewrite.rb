@@ -43,6 +43,7 @@ module Parser
 
     def process(initial_buffer)
       buffer = initial_buffer
+      original_name = buffer.name
 
       @rewriters.each do |rewriter_class|
         @parser.reset
@@ -81,8 +82,8 @@ module Parser
         buffer = new_buffer
       end
 
-      if File.exist?(buffer.name)
-        File.open(buffer.name, 'w') do |file|
+      if File.exist?(original_name)
+        File.open(original_name, 'w') do |file|
           file.write buffer.source
         end
       else
