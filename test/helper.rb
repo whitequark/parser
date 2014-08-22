@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'minitest/test'
 
 require 'simplecov'
 require 'coveralls'
