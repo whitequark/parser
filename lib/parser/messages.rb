@@ -29,7 +29,7 @@ module Parser
 
     # Lexer warnings
     :invalid_escape_use      => 'invalid character syntax; use ?%{escape}',
-    :ambiguous_literal       => 'ambiguous first argument; parenthesize arguments or add whitespace to the right',
+    :ambiguous_literal       => 'ambiguous first argument; put parentheses or a space even after the operator',
     :ambiguous_prefix        => "`%{prefix}' interpreted as argument prefix",
 
     # Parser errors
