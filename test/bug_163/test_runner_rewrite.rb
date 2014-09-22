@@ -13,7 +13,7 @@ class TestRunnerRewrite < Minitest::Test
   end
 
   def test_rewriter
-    Dir.mktmpdir(nil, BASE_DIR.expand_path.to_s) do |tmp_dir|
+    Dir.mktmpdir("parser", BASE_DIR.expand_path.to_s) do |tmp_dir|
       tmp_dir = Pathname.new(tmp_dir)
       sample_file = tmp_dir + 'bug_163.rb'
       sample_file_expanded = sample_file.expand_path
