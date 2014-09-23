@@ -198,7 +198,7 @@ $ ruby-parse -e '(foo) while cond'
 
 ## Compatibility with Ruby MRI
 
-Unfortunately, Ruby MRI often changes syntax in minor or patchlevel versions. This has happened, at least, for every release since 1.9; for example, commits [c5013452](https://github.com/ruby/ruby/commit/c501345218dc5fb0fae90d56a0c6fd19d38df5bb) and [04bb9d6b](https://github.com/ruby/ruby/commit/04bb9d6b75a55d4000700769eead5a5cb942c25b) were backported all the way from HEAD to 1.9. Moreover, there is no simple way to track these changes.
+Unfortunately, Ruby MRI often changes syntax in patchlevel versions. This has happened, at least, for every release since 1.9; for example, commits [c5013452](https://github.com/ruby/ruby/commit/c501345218dc5fb0fae90d56a0c6fd19d38df5bb) and [04bb9d6b](https://github.com/ruby/ruby/commit/04bb9d6b75a55d4000700769eead5a5cb942c25b) were backported all the way from HEAD to 1.9. Moreover, there is no simple way to track these changes.
 
 This policy makes it all but impossible to make Parser precisely compatible with the Ruby MRI parser. Indeed, at September 2014, it would be necessary to maintain and update ten different parsers together with their lexer quirks in order to be able to emulate any given released Ruby MRI version.
 
