@@ -251,6 +251,14 @@ module Parser
       n(:pair, [ key, value ], pair_map)
     end
 
+    def pair_quoted(begin_t, parts, end_t, value)
+      end_t, pair_map = pair_quoted_map(begin_t, end_t, value)
+
+      key = symbol_compose(begin_t, parts, end_t)
+
+      n(:pair, [ key, value ], pair_map)
+    end
+
     def kwsplat(dstar_t, arg)
       n(:kwsplat, [ arg ],
         unary_op_map(dstar_t, arg))
@@ -1091,12 +1099,30 @@ module Parser
                                   key_range.end_pos - 1,
                                   key_range.end_pos)
 
-        # key map
-      [ Source::Map::Collection.new(nil, nil,
+      [ # key map
+        Source::Map::Collection.new(nil, nil,
                                     key_l),
         # pair map
         Source::Map::Operator.new(colon_l,
                                   key_range.join(value_e.loc.expression)) ]
+    end
+
+    def pair_quoted_map(begin_t, end_t, value_e)
+      end_l = loc(end_t)
+
+      quote_l = Source::Range.new(end_l.source_buffer,
+                                  end_l.end_pos - 2,
+                                  end_l.end_pos - 1)
+
+      colon_l = Source::Range.new(end_l.source_buffer,
+                                  end_l.end_pos - 1,
+                                  end_l.end_pos)
+
+      [ # modified end token
+        [ value(end_t), quote_l ],
+        # pair map
+        Source::Map::Operator.new(colon_l,
+                                  loc(begin_t).join(value_e.loc.expression)) ]
     end
 
     def expr_map(loc)

@@ -273,6 +273,26 @@ class TestLexer < Minitest::Test
                    :kTRUE,       'true')
   end
 
+  def test_label__22
+    setup_lexer 22
+
+    assert_scanned("{'a':",
+                   :tLBRACE,          '{',
+                   :tSTRING_BEG,      "'",
+                   :tSTRING_CONTENT,  'a',
+                   :tLABEL_END,       "'")
+  end
+
+  def test_label_nested__22
+    setup_lexer 22
+
+    assert_scanned("{'a\":':",
+                   :tLBRACE,          '{',
+                   :tSTRING_BEG,      "'",
+                   :tSTRING_CONTENT,  'a":',
+                   :tLABEL_END,       "'")
+  end
+
   def test_command_start__19
     setup_lexer 19
 
@@ -2817,9 +2837,10 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_end_colon
     assert_scanned("'foo':'bar'",
-                   :tSTRING, 'foo',
-                   :tCOLON,  ':',
-                   :tSTRING, 'bar')
+                   :tSTRING_BEG,      "'",
+                   :tSTRING_CONTENT,  'foo',
+                   :tLABEL_END,       "'",
+                   :tSTRING,          'bar')
   end
 
   def test_bug_expr_value_rescue_colon2

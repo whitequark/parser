@@ -116,6 +116,7 @@ class Parser::Lexer
 
       @cond   = StackState.new('cond')
       @cmdarg = StackState.new('cmdarg')
+      @cond_stack   = []
       @cmdarg_stack = []
     end
 
@@ -247,6 +248,15 @@ class Parser::Lexer
 
   def pop_cmdarg
     @cmdarg = @cmdarg_stack.pop
+  end
+
+  def push_cond
+    @cond_stack.push(@cond)
+    @cond = StackState.new("cond.#{@cond_stack.count}")
+  end
+
+  def pop_cond
+    @cond = @cond_stack.pop
   end
 
   # Return next token: [type, value].
@@ -816,7 +826,13 @@ class Parser::Lexer
     string = @source[@ts...@te]
     string = string.encode(@encoding) if string.respond_to?(:encode)
 
-    if !literal.heredoc? && literal.nest_and_try_closing(string, @ts, @te)
+    if !@cond.active? # tLABEL_END is only possible in non-cond context
+      lookahead = @source[@te...@te+1]
+      lookahead = lookahead.encode(@encoding) if lookahead.respond_to?(:encode)
+    end
+
+    if !literal.heredoc? && (token = literal.nest_and_try_closing(string, @ts, @te, lookahead))
+      p += 1 if token[0] == :tLABEL_END
       fnext *pop_literal; fbreak;
     else
       literal.extend_string(string, @ts, @te)

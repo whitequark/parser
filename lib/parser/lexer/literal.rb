@@ -114,7 +114,7 @@ module Parser
       end
     end
 
-    def nest_and_try_closing(delimiter, ts, te)
+    def nest_and_try_closing(delimiter, ts, te, lookahead=nil)
       delimiter = coerce_encoding(delimiter)
 
       if @start_delim && @start_delim == delimiter
@@ -130,7 +130,10 @@ module Parser
         end
 
         # Emit the string as a single token if it's applicable.
-        if @monolithic
+        if lookahead == ':' && %w(' ").include?(delimiter) && @start_tok == :tSTRING_BEG
+          flush_string
+          emit(:tLABEL_END, @end_delim, ts, te + 1)
+        elsif @monolithic
           emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
         else
           # If this is a heredoc, @buffer contains the sentinel now.

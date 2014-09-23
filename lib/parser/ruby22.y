@@ -17,7 +17,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
-      tRATIONAL tIMAGINARY
+      tRATIONAL tIMAGINARY tLABEL_END
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -785,10 +785,19 @@ rule
                       result = @builder.keyword_cmd(:defined?, val[0], nil, [ val[2] ], nil)
                     }
 
-                | arg tEH arg opt_nl tCOLON arg
+                | arg tEH
+                    {
+                      @lexer.push_cond
+                      @lexer.cond.push(true)
+                    }
+                  arg opt_nl tCOLON
+                    {
+                      @lexer.pop_cond
+                    }
+                  arg
                     {
                       result = @builder.ternary(val[0], val[1],
-                                                val[2], val[4], val[5])
+                                                val[3], val[5], val[7])
                     }
                 | primary
 
@@ -2270,6 +2279,10 @@ keyword_variable: kNIL
                 | tLABEL arg_value
                     {
                       result = @builder.pair_keyword(val[0], val[1])
+                    }
+                | tSTRING_BEG string_contents tLABEL_END arg_value
+                    {
+                      result = @builder.pair_quoted(val[0], val[1], val[2], val[3])
                     }
                 | tDSTAR arg_value
                     {

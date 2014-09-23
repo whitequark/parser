@@ -559,7 +559,31 @@ class TestParser < Minitest::Test
         |  ~~~ expression (pair.sym)
         |  ~~~~~~ expression (pair)
         |~~~~~~~~~~ expression},
-        ALL_VERSIONS - %w(1.8))
+      ALL_VERSIONS - %w(1.8))
+  end
+
+  def test_hash_label_end
+    assert_parses(
+      s(:hash, s(:pair, s(:sym, :foo), s(:int, 2))),
+      %q[{ 'foo': 2 }],
+      %q{^ begin
+        |           ^ end
+        |       ^ operator (pair)
+        |  ^ begin (pair.sym)
+        |      ^ end (pair.sym)
+        |  ~~~~~ expression (pair.sym)
+        |  ~~~~~~~~ expression (pair)
+        |~~~~~~~~~~~~ expression},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+
+    assert_parses(
+      s(:send, nil, :f,
+        s(:if, s(:send, nil, :a),
+          s(:str, "a"),
+          s(:int, 1))),
+      %q{f(a ? "a":1)},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
   end
 
   def test_hash_kwsplat
@@ -570,7 +594,7 @@ class TestParser < Minitest::Test
       %q[{ foo: 2, **bar }],
       %q{          ^^ operator (kwsplat)
         |          ~~~~~ expression (kwsplat)},
-        %w(2.0))
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   def test_hash_no_hashrocket
