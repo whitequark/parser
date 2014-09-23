@@ -2837,10 +2837,9 @@ class TestLexer < Minitest::Test
 
   def test_bug_expr_end_colon
     assert_scanned("'foo':'bar'",
-                   :tSTRING_BEG,      "'",
-                   :tSTRING_CONTENT,  'foo',
-                   :tLABEL_END,       "'",
-                   :tSTRING,          'bar')
+                   :tSTRING, 'foo',
+                   :tCOLON,  ':',
+                   :tSTRING, 'bar')
   end
 
   def test_bug_expr_value_rescue_colon2

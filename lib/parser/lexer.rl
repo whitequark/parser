@@ -826,7 +826,8 @@ class Parser::Lexer
     string = @source[@ts...@te]
     string = string.encode(@encoding) if string.respond_to?(:encode)
 
-    if !@cond.active? # tLABEL_END is only possible in non-cond context
+    # tLABEL_END is only possible in non-cond context on >= 2.2
+    if @version >= 22 && !@cond.active?
       lookahead = @source[@te...@te+1]
       lookahead = lookahead.encode(@encoding) if lookahead.respond_to?(:encode)
     end
