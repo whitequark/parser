@@ -94,7 +94,7 @@ class Parser::Lexer
   attr_accessor :static_env
   attr_accessor :force_utf32
 
-  attr_accessor :cond, :cmdarg
+  attr_accessor :cond, :cmdarg, :in_kwarg
 
   attr_accessor :tokens, :comments
 
@@ -164,6 +164,9 @@ class Parser::Lexer
     # at the entry to #advance, it will transition to expr_cmdarg
     # instead of expr_arg at certain points.
     @command_state = false
+
+    # True at the end of "def foo a:"
+    @in_kwarg      = false
   end
 
   def source_buffer=(source_buffer)
@@ -215,17 +218,18 @@ class Parser::Lexer
   end
 
   LEX_STATES = {
-    :line_begin  => lex_en_line_begin,
-    :expr_dot    => lex_en_expr_dot,
-    :expr_fname  => lex_en_expr_fname,
-    :expr_value  => lex_en_expr_value,
-    :expr_beg    => lex_en_expr_beg,
-    :expr_mid    => lex_en_expr_mid,
-    :expr_arg    => lex_en_expr_arg,
-    :expr_cmdarg => lex_en_expr_cmdarg,
-    :expr_end    => lex_en_expr_end,
-    :expr_endarg => lex_en_expr_endarg,
-    :expr_endfn  => lex_en_expr_endfn,
+    :line_begin    => lex_en_line_begin,
+    :expr_dot      => lex_en_expr_dot,
+    :expr_fname    => lex_en_expr_fname,
+    :expr_value    => lex_en_expr_value,
+    :expr_beg      => lex_en_expr_beg,
+    :expr_mid      => lex_en_expr_mid,
+    :expr_arg      => lex_en_expr_arg,
+    :expr_cmdarg   => lex_en_expr_cmdarg,
+    :expr_end      => lex_en_expr_end,
+    :expr_endarg   => lex_en_expr_endarg,
+    :expr_endfn    => lex_en_expr_endfn,
+    :expr_labelarg => lex_en_expr_labelarg,
 
     :interp_string => lex_en_interp_string,
     :interp_words  => lex_en_interp_words,
@@ -1293,7 +1297,7 @@ class Parser::Lexer
   expr_endfn := |*
       label
       => { emit(:tLABEL, tok(@ts, @te - 1))
-           fnext expr_beg; fbreak; };
+           fnext expr_labelarg; fbreak; };
 
       w_space_comment;
 
@@ -1770,6 +1774,7 @@ class Parser::Lexer
           end
         else
           emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
+          fnext expr_labelarg;
         end
 
         fbreak;
@@ -1814,6 +1819,26 @@ class Parser::Lexer
       => { p = @ts - 1; fgoto expr_end; };
 
       c_eof => do_eof;
+  *|;
+
+  # Special newline handling for "def a b:"
+  #
+  expr_labelarg := |*
+    w_space_comment;
+
+    w_newline
+    => {
+      if @in_kwarg
+        fhold; fgoto expr_end;
+      else
+        fgoto line_begin;
+      end
+    };
+
+    c_any
+    => { fhold; fgoto expr_beg; };
+
+    c_eof => do_eof;
   *|;
 
   # Like expr_beg, but no 1.9 label possible.

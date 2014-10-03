@@ -4881,6 +4881,32 @@ class TestParser < Minitest::Test
       %Q{f <<-TABLE do\nTABLE\nend})
   end
 
+  def test_ruby_bug_9669
+    assert_parses(
+      s(:def, :a, s(:args, s(:kwarg, :b)), s(:return)),
+      %Q{def a b:\nreturn\nend},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+
+    assert_parses(
+      s(:lvasgn, :o,
+        s(:hash,
+          s(:pair, s(:sym, :a), s(:int, 1)))),
+      %Q{o = {\na:\n1\n}},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
+  def test_ruby_bug_10279
+    assert_parses(
+      s(:hash,
+        s(:pair, s(:sym, :a),
+        s(:if, s(:true), s(:int, 42), nil))),
+      %q{{a: if true then 42 end}},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0))
+  end
+
   def test_bug_lambda_leakage
     assert_parses(
       s(:begin,

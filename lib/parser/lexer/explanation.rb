@@ -16,9 +16,11 @@ module Parser
     def advance
       type, (val, range) = advance_before_explanation
 
+      more = "(in-kwarg)" if @in_kwarg
+
       puts decorate(range,
                     "\e[0;32m#{type} #{val.inspect}\e[0m",
-                    "#{state.to_s.ljust(12)} #{@cond} #{@cmdarg}\e[0m")
+                    "#{state.to_s.ljust(12)} #{@cond} #{@cmdarg} #{more}\e[0m")
 
       [ type, [val, range] ]
     end
