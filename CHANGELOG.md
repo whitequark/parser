@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v2.2.0.pre.5 (2014-10-03)
+-------------------------
+
+Features implemented:
+ * parser/current: add syntax deviation warning for 2.1.2. (Peter Zotov)
+ * lexer.rl, ruby22.y: "{'x':1}": add tLABEL_END. (Peter Zotov)
+
+Bugs fixed:
+ * lexer.rl, ruby{21,22}.y: "def a b:\nreturn": fix #164. (Peter Zotov)
+ * Fix for `ruby-rewrite` not rewriting files if any rewriter was loaded, due to it getting confused about the filename. (Jon Frisby)
+
 v2.2.0.pre.4 (2014-08-09)
 -------------------------
 
