@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.2.0.pre.6 (2014-10-28)
+-------------------------
+
+API modifications:
+ * parser/current: latest stable 2.1.x is 2.1.4, update warning. (hirocaster)
+
 v2.2.0.pre.5 (2014-10-03)
 -------------------------
 
