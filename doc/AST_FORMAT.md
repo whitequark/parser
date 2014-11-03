@@ -34,6 +34,10 @@ Format:
 "-123"
  ^ operator
  ~~~ expression
+
+(int 1)
+"__LINE__"
+ ~~~~~~~~ expression
 ~~~
 
 ### Float
@@ -51,6 +55,30 @@ Format:
  ~~~~ expression
 ~~~
 
+### Complex
+
+Format:
+
+~~~
+(complex (0+1i))
+"1i"
+ ~~ expression
+
+(complex (0+(1/1)*i))
+"1ri"
+ ~~~ expression
+~~~
+
+### Rational
+
+Format:
+
+~~~
+(rational (2/1))
+"2.0r"
+ ~~~~ expression
+~~~
+
 ### String
 
 #### Plain
@@ -63,6 +91,10 @@ Format:
  ^ begin
      ^ end
  ~~~~~ expresion
+
+(string "foo.rb")
+"__FILE__"
+ ~~~~~~~~ expression
 ~~~
 
 #### With interpolation
