@@ -2,7 +2,8 @@ module Parser
   # Parser metadata
   module Meta
 
-    # Nodes parser produces combined for 1.8 1.9 and 2.0 state of 2.1 specific nodes is unknown.
+    # All node types that parser can produce. Not all parser versions
+    # will be able to produce every possible node.
     NODE_TYPES =
       %w(
         true false nil int float str dstr str
@@ -19,7 +20,7 @@ module Parser
         and not or if when case while until while_post
         until_post for break next redo return resbody
         kwbegin begin retry preexe postexe iflipflop eflipflop
-        shadowarg
+        shadowarg complex rational __FILE__ __LINE__
       ).map(&:to_sym).to_set.freeze
 
   end # Meta
