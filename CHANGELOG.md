@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.2.0.pre.7 (2014-11-03)
+-------------------------
+
+Bugs fixed:
+ * parser/meta: add missing nodes (fixes #171). (Peter Zotov)
+
 v2.2.0.pre.6 (2014-10-28)
 -------------------------
 
