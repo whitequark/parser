@@ -837,8 +837,14 @@ class Parser::Lexer
     end
 
     if !literal.heredoc? && (token = literal.nest_and_try_closing(string, @ts, @te, lookahead))
-      p += 1 if token[0] == :tLABEL_END
-      fnext *pop_literal; fbreak;
+      if token[0] == :tLABEL_END
+        p += 1
+        pop_literal
+        fnext expr_labelarg;
+      else
+        fnext *pop_literal;
+      end
+       fbreak;
     else
       literal.extend_string(string, @ts, @te)
     end

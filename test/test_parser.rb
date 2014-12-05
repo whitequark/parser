@@ -577,6 +577,14 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
 
     assert_parses(
+      s(:hash,
+        s(:pair, s(:sym, :foo), s(:int, 2)),
+        s(:pair, s(:sym, :bar), s(:hash))),
+      %q[{ 'foo': 2, 'bar': {}}],
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+
+    assert_parses(
       s(:send, nil, :f,
         s(:if, s(:send, nil, :a),
           s(:str, "a"),
