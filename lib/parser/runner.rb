@@ -2,7 +2,11 @@ require 'benchmark'
 require 'find'
 require 'slop'
 
-require 'parser'
+if respond_to? :require_relative
+  require_relative './../parser'
+else
+  require 'parser'
+end
 
 module Parser
 
