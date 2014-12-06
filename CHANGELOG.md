@@ -7,7 +7,7 @@ v2.2.0.pre.8 (2014-11-19)
 API modifications:
  * parser/current: update 2.1 to 2.1.5 (fixes #174). (Peter Zotov)
 
-v2.2.0.pre.7 (2014-11-03)
+v2.2.0.pre.8 (2014-11-03)
 -------------------------
 
 Bugs fixed:

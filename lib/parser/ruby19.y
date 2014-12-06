@@ -2133,7 +2133,11 @@ end
 
 ---- header
 
-require_relative './../parser'
+if respond_to? :require_relative
+  require_relative './../parser'
+else
+  require 'parser'
+end
 
 Parser.check_for_encoding_support
 
