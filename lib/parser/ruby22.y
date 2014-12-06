@@ -2327,7 +2327,7 @@ end
 
 ---- header
 
-require 'parser'
+require_relative './../parser'
 
 warn "warning: you are loading parser/ruby22 from #{caller[0]}."
 warn "warning: Ruby 2.2 is not released yet and parser support may be incomplete."

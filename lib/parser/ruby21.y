@@ -2310,7 +2310,7 @@ end
 
 ---- header
 
-require 'parser'
+require_relative './../parser'
 
 Parser.check_for_encoding_support
 

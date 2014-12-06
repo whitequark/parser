@@ -2,7 +2,7 @@ require 'benchmark'
 require 'find'
 require 'slop'
 
-require 'parser'
+require_relative './../parser'
 
 module Parser
 
