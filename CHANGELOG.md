@@ -1,13 +1,19 @@
 Changelog
 =========
 
+v2.2.0 (2014-12-05)
+-------------------
+
+Bugs fixed:
+ * lexer.rl: "{'x':1,'y':{}}": fix lex_state after tLABEL_END. (Peter Zotov)
+
 v2.2.0.pre.8 (2014-11-19)
 -------------------------
 
 API modifications:
  * parser/current: update 2.1 to 2.1.5 (fixes #174). (Peter Zotov)
 
-v2.2.0.pre.8 (2014-11-03)
+v2.2.0.pre.7 (2014-11-03)
 -------------------------
 
 Bugs fixed:
