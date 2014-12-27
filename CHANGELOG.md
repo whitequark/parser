@@ -1,7 +1,14 @@
 Changelog
 =========
 
-v2.2.0 (2014-12-05)
+v2.2.0.1 (2014-12-27)
+---------------------
+
+Bugs fixed:
+ * lexer.rl, lexer/literal: "{'a'::": don't parse as quoted label. (Peter Zotov)
+ * Update syntax deviation warning to reflect 2.2 release. (Peter Zotov)
+
+v2.2.0 (2014-12-25)
 -------------------
 
 Bugs fixed:
