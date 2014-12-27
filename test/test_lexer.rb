@@ -293,6 +293,15 @@ class TestLexer < Minitest::Test
                    :tLABEL_END,       "'")
   end
 
+  def test_label_colon2__22
+    setup_lexer 22
+
+    assert_scanned("{'a'::",
+                   :tLBRACE, '{',
+                   :tSTRING, "a",
+                   :tCOLON2, '::')
+  end
+
   def test_command_start__19
     setup_lexer 19
 

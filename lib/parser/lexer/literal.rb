@@ -129,11 +129,13 @@ module Parser
           extend_space(ts, ts)
         end
 
-        # Emit the string as a single token if it's applicable.
-        if lookahead == ':' && %w(' ").include?(delimiter) && @start_tok == :tSTRING_BEG
+        if lookahead && lookahead[0] == ?: && lookahead[1] != ?: &&
+           %w(' ").include?(delimiter) && @start_tok == :tSTRING_BEG
+          # This is a quoted label.
           flush_string
           emit(:tLABEL_END, @end_delim, ts, te + 1)
         elsif @monolithic
+          # Emit the string as a single token.
           emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
         else
           # If this is a heredoc, @buffer contains the sentinel now.
