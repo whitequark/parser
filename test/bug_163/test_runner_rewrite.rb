@@ -32,4 +32,4 @@ class TestRunnerRewrite < Minitest::Test
         "#{sample_file} should be identical to #{expected_file}"
     end
   end
-end
+end if RUBY_VERSION >= '2.0.0'
