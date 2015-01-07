@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['whitequark@whitequark.org']
   spec.description   = 'A Ruby parser written in pure Ruby.'
   spec.summary       = spec.description
-  spec.homepage      = 'http://github.com/whitequark/parser'
+  spec.homepage      = 'https://github.com/whitequark/parser'
   spec.license       = 'MIT'
   spec.has_rdoc      = 'yard'
 
