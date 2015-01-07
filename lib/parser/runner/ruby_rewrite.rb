@@ -20,11 +20,11 @@ module Parser
     def setup_option_parsing
       super
 
-      @slop.on 'l=', 'load=', 'Load a rewriter' do |file|
+      @options.string '-l', '--load', 'Load a rewriter' do |file|
         load_and_discover(file)
       end
 
-      @slop.on 'm', 'modify', 'Assume rewriters normally modify AST' do
+      @options.boolean '-m', '--modify', 'Assume rewriters normally modify AST' do
         @modify = true
       end
     end
