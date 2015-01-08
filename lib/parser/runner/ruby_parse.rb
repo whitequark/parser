@@ -89,18 +89,26 @@ module Parser
       end
     end
 
+    def initialize
+      super
+
+      @locate = false
+    end
+
     private
 
     def runner_name
       'ruby-parse'
     end
 
-    def setup_option_parsing
-      super
+    def setup_option_parsing(opts)
+      super(opts)
 
-      @slop.on 'L', 'locate',  'Explain how source maps for AST nodes are laid out'
+      opts.on '-L', '--locate', 'Explain how source maps for AST nodes are laid out' do |v|
+        @locate = v
+      end
 
-      @slop.on 'E', 'explain', 'Explain how the source is tokenized' do
+      opts.on '-E', '--explain', 'Explain how the source is tokenized' do
         ENV['RACC_DEBUG'] = '1'
 
         Lexer.send :include, Lexer::Explanation
@@ -118,9 +126,9 @@ module Parser
     def process(buffer)
       ast = @parser.parse(buffer)
 
-      if @slop.locate?
+      if @locate
         LocationProcessor.new.process(ast)
-      elsif !@slop.benchmark?
+      elsif !@benchmark
         p ast
       end
     end
