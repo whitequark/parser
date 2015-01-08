@@ -1,6 +1,6 @@
 require 'benchmark'
 require 'find'
-require 'slop'
+require 'optparse'
 
 require 'parser'
 
@@ -12,16 +12,16 @@ module Parser
     end
 
     def initialize
-      @slop         = Slop.new(:strict => true)
-      @parser_class = nil
-      @parser       = nil
-      @files        = []
-      @fragments    = []
+      @option_parser = OptionParser.new { |opts| setup_option_parsing(opts) }
+      @parser_class  = nil
+      @parser        = nil
+      @files         = []
+      @fragments     = []
+      @warnings      = false
+      @benchmark     = false
 
       @source_count = 0
       @source_size  = 0
-
-      setup_option_parsing
     end
 
     def execute(options)
@@ -37,11 +37,11 @@ module Parser
       raise NotImplementedError, "implement #{self.class}##{__callee__}"
     end
 
-    def setup_option_parsing
-      @slop.banner "Usage: #{runner_name} [options] FILE|DIRECTORY..."
+    def setup_option_parsing(opts)
+      opts.banner = "Usage: #{runner_name} [options] FILE|DIRECTORY..."
 
-      @slop.on 'h', 'help', 'Display this help message and exit', :tail => true do
-        puts @slop.help
+      opts.on_tail '-h', '--help', 'Display this help message and exit' do
+        puts opts.help
         puts <<-HELP
 
   If you specify a DIRECTORY, then all *.rb files are fetched
@@ -52,47 +52,51 @@ module Parser
         exit
       end
 
-      @slop.on 'V', 'version', 'Output version information and exit', :tail => true do
+      opts.on_tail '-V', '--version', 'Output version information and exit' do
         puts "#{runner_name} based on parser version #{Parser::VERSION}"
         exit
       end
 
-      @slop.on '18', 'Parse as Ruby 1.8.7 would' do
+      opts.on '--18', 'Parse as Ruby 1.8.7 would' do
         require 'parser/ruby18'
         @parser_class = Parser::Ruby18
       end
 
-      @slop.on '19', 'Parse as Ruby 1.9.3 would' do
+      opts.on '--19', 'Parse as Ruby 1.9.3 would' do
         require 'parser/ruby19'
         @parser_class = Parser::Ruby19
       end
 
-      @slop.on '20', 'Parse as Ruby 2.0 would' do
+      opts.on '--20', 'Parse as Ruby 2.0 would' do
         require 'parser/ruby20'
         @parser_class = Parser::Ruby20
       end
 
-      @slop.on '21', 'Parse as Ruby 2.1 would' do
+      opts.on '--21', 'Parse as Ruby 2.1 would' do
         require 'parser/ruby21'
         @parser_class = Parser::Ruby21
       end
 
-      @slop.on '22', 'Parse as Ruby 2.2 would' do
+      opts.on '--22', 'Parse as Ruby 2.2 would' do
         require 'parser/ruby22'
         @parser_class = Parser::Ruby22
       end
 
-      @slop.on 'w',  'warnings',  'Enable warnings'
+      opts.on '-w', '--warnings', 'Enable warnings' do |w|
+        @warnings = w
+      end
 
-      @slop.on 'B',  'benchmark', 'Benchmark the processor'
+      opts.on '-B',  '--benchmark', 'Benchmark the processor' do |b|
+        @benchmark = b
+      end
 
-      @slop.on 'e=', 'Process a fragment of Ruby code' do |fragment|
+      opts.on '-e fragment', 'Process a fragment of Ruby code' do |fragment|
         @fragments << fragment
       end
     end
 
     def parse_options(options)
-      @slop.parse!(options)
+      @option_parser.parse!(options)
 
       # Slop has just removed recognized options from `options`.
       options.each do |file_or_dir|
@@ -120,7 +124,7 @@ module Parser
       @parser = @parser_class.new
 
       @parser.diagnostics.all_errors_are_fatal = true
-      @parser.diagnostics.ignore_warnings      = !@slop.warnings?
+      @parser.diagnostics.ignore_warnings      = !@warnings
 
       @parser.diagnostics.consumer = lambda do |diagnostic|
         puts(diagnostic.render)
@@ -138,7 +142,7 @@ module Parser
           process_files
         end
 
-      if @slop.benchmark?
+      if @benchmark
         report_with_time(parsing_time)
       end
     end

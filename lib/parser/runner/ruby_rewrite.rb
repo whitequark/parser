@@ -17,14 +17,14 @@ module Parser
       'ruby-rewrite'
     end
 
-    def setup_option_parsing
-      super
+    def setup_option_parsing(opts)
+      super(opts)
 
-      @slop.on 'l=', 'load=', 'Load a rewriter' do |file|
+      opts.on '-l file', '--load', 'Load a rewriter' do |file|
         load_and_discover(file)
       end
 
-      @slop.on 'm', 'modify', 'Assume rewriters normally modify AST' do
+      opts.on '-m', '--modify', 'Assume rewriters normally modify AST' do
         @modify = true
       end
     end

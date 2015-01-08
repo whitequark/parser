@@ -105,14 +105,13 @@ with Parser:
 * Improved [clang-like][] diagnostic messages with location information.
 * Written in pure Ruby, runs on MRI 1.8.7 or >=1.9.2, JRuby and Rubinius in 1.8
   and 1.9 mode.
-* Only two runtime dependencies: the gems [ast][] and [slop][].
+* Only one runtime dependency: the [ast][] gem.
 * [Insane][insane-lexer] Ruby lexer rewritten from scratch in Ragel.
 * 100% test coverage for Bison grammars (except error recovery).
 * Readable, commented source code.
 
 [clang-like]: http://clang.llvm.org/diagnostics.html
 [ast]: https://rubygems.org/gems/ast
-[slop]: https://rubygems.org/gems/slop
 [insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 [rewriting]: http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/
 
