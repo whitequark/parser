@@ -1031,7 +1031,7 @@ module Parser
           this_name == that_name
       else
         # Ignore everything beginning with underscore.
-        this_name[0] != '_' &&
+        this_name && this_name[0] != '_' &&
           this_name == that_name
       end
     end
