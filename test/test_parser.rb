@@ -1980,6 +1980,13 @@ class TestParser < Minitest::Test
         s(:blockarg, :b)),
       %q{**baz, &b},
       ALL_VERSIONS - %w(1.8 1.9))
+
+    assert_parses_args(
+      s(:args,
+        s(:restarg),
+        s(:kwrestarg)),
+      %q{*, **},
+      ALL_VERSIONS - %w(1.8 1.9))
   end
 
   def test_kwarg_no_paren
