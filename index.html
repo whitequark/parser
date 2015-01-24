@@ -63,7 +63,7 @@
 
     <div id="content"><div id='filecontents'><h1 id="parser">Parser</h1>
 
-<p><a href="http://badge.fury.io/rb/parser"><img src="https://badge.fury.io/rb/parser.png" alt="Gem Version" /></a>
+<p><a href="https://badge.fury.io/rb/parser"><img src="https://badge.fury.io/rb/parser.png" alt="Gem Version" /></a>
 <a href="https://travis-ci.org/whitequark/parser"><img src="https://travis-ci.org/whitequark/parser.png?branch=master" alt="Build Status" /></a>
 <a href="https://codeclimate.com/github/whitequark/parser"><img src="https://codeclimate.com/github/whitequark/parser.png" alt="Code Climate" /></a>
 <a href="https://coveralls.io/r/whitequark/parser"><img src="https://coveralls.io/repos/whitequark/parser/badge.png?branch=master" alt="Coverage Status" /></a></p>
@@ -106,6 +106,8 @@ equivalent source code from Parser’s ASTs.</p>
 <span class='id identifier rubyid_p'>p</span> <span class='const'>Parser</span><span class='op'>::</span><span class='const'>CurrentRuby</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2 + 2</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_loc'>loc</span><span class='period'>.</span><span class='id identifier rubyid_selector'>selector</span><span class='period'>.</span><span class='id identifier rubyid_source'>source</span>
 <span class='comment'># &quot;+&quot;
 </span></code></pre>
+
+<p>Traverse the AST: see the documentation for <a href="https://whitequark.github.io/ast/">gem ast</a>.</p>
 
 <p>Parse a chunk of code and display all diagnostics:</p>
 
@@ -165,14 +167,14 @@ $ ruby-parse -E -e &quot;2+2&quot;
   <li>Precise source location reporting.</li>
   <li><a href="doc/AST_FORMAT.md">Documented</a> AST format which is convenient to work with.</li>
   <li>A simple interface and a powerful, tweakable one.</li>
-  <li>Parses 1.8, 1.9, 2.0, 2.1 and 2.2 (preliminary) syntax with backwards-compatible
+  <li>Parses 1.8, 1.9, 2.0, 2.1 and 2.2 syntax with backwards-compatible
 AST formats.</li>
   <li><a href="http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/">Rewriting</a> support.</li>
   <li>Parsing error recovery.</li>
   <li>Improved <a href="http://clang.llvm.org/diagnostics.html">clang-like</a> diagnostic messages with location information.</li>
   <li>Written in pure Ruby, runs on MRI 1.8.7 or &gt;=1.9.2, JRuby and Rubinius in 1.8
 and 1.9 mode.</li>
-  <li>Only two runtime dependencies: the gems <a href="http://rubygems.org/gems/ast">ast</a> and <a href="http://rubygems.org/gems/slop">slop</a>.</li>
+  <li>Only one runtime dependency: the <a href="https://rubygems.org/gems/ast">ast</a> gem.</li>
   <li><a href="http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/">Insane</a> Ruby lexer rewritten from scratch in Ragel.</li>
   <li>100% test coverage for Bison grammars (except error recovery).</li>
   <li>Readable, commented source code.</li>
@@ -180,8 +182,7 @@ and 1.9 mode.</li>
 
 <h2 id="documentation">Documentation</h2>
 
-<p>Documentation for parser is available online on
-<a href="http://rdoc.info/github/whitequark/parser">rdoc.info</a>.</p>
+<p>Documentation for parser is available <a href="https://whitequark.github.io/parser/">online</a>.</p>
 
 <h3 id="node-names">Node names</h3>
 
@@ -259,11 +260,19 @@ $ ruby-parse -e '(foo) while cond'
 
 <p>(Parser also needs the <code>(kwbegin)</code> node type internally, and it is highly problematic to map it back to <code>(begin)</code>.)</p>
 
+<h2 id="compatibility-with-ruby-mri">Compatibility with Ruby MRI</h2>
+
+<p>Unfortunately, Ruby MRI often changes syntax in patchlevel versions. This has happened, at least, for every release since 1.9; for example, commits <a href="https://github.com/ruby/ruby/commit/c501345218dc5fb0fae90d56a0c6fd19d38df5bb">c5013452</a> and <a href="https://github.com/ruby/ruby/commit/04bb9d6b75a55d4000700769eead5a5cb942c25b">04bb9d6b</a> were backported all the way from HEAD to 1.9. Moreover, there is no simple way to track these changes.</p>
+
+<p>This policy makes it all but impossible to make Parser precisely compatible with the Ruby MRI parser. Indeed, at September 2014, it would be necessary to maintain and update ten different parsers together with their lexer quirks in order to be able to emulate any given released Ruby MRI version.</p>
+
+<p>As a result, Parser chooses a different path: the <code>parser/rubyXY</code> parsers recognize the syntax of the latest minor version of Ruby MRI X.Y at the time of the gem release.</p>
+
 <h2 id="known-issues">Known issues</h2>
 
 <p>Adding support for the following Ruby MRI features in Parser would needlessly complicate it, and as they all are very specific and rarely occuring corner cases, this is not done.</p>
 
-<p>Parser has been extensively tested; in particular, it parses almost entire <a href="http://rubygems.org">Rubygems</a> corpus. For every issue, a breakdown of affected gems is offered.</p>
+<p>Parser has been extensively tested; in particular, it parses almost entire <a href="https://rubygems.org">Rubygems</a> corpus. For every issue, a breakdown of affected gems is offered.</p>
 
 <h3 id="void-value-expressions">Void value expressions</h3>
 
@@ -313,9 +322,9 @@ follows 2.1 behavior.</p>
 <h2 id="acknowledgements">Acknowledgements</h2>
 
 <p>The lexer testsuite is derived from
-<a href="http://github.com/seattlerb/ruby_parser">ruby_parser</a>.</p>
+<a href="https://github.com/seattlerb/ruby_parser">ruby_parser</a>.</p>
 
-<p>The Bison parser rules are derived from <a href="http://github.com/ruby/ruby">Ruby MRI</a>
+<p>The Bison parser rules are derived from <a href="https://github.com/ruby/ruby">Ruby MRI</a>
 parse.y.</p>
 
 <h2 id="contributing">Contributing</h2>
@@ -331,7 +340,7 @@ parse.y.</p>
 </div></div>
 
     <div id="footer">
-  Generated on Mon Jun 16 19:42:15 2014 by
+  Generated on Sat Jan 24 16:50:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>

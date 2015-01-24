@@ -728,7 +728,12 @@ of encoding.</p>
 234
 235
 236
-237</pre>
+237
+238
+239
+240
+241
+242</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 24</span>
@@ -857,12 +862,17 @@ of encoding.</p>
 </span>  <span class='comment'>#
 </span>  <span class='comment'># @param [String] input
 </span>  <span class='comment'># @raise [ArgumentError] if already populated
+</span>  <span class='comment'># @raise [EncodingError] if `input` includes invalid byte sequence for the encoding
 </span>  <span class='comment'># @return [String]
 </span>  <span class='comment'>#
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_source='>source=</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
     <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='const'>Encoding</span><span class='rparen'>)</span>
       <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='kw'>if</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_frozen?'>frozen?</span>
       <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_reencode_string'>reencode_string</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+
+      <span class='kw'>unless</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_valid_encoding?'>valid_encoding?</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>EncodingError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid byte sequence in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_encoding'>encoding</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
     <span class='kw'>end</span>
 
     <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_source'>raw_source</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span>
@@ -1210,7 +1220,12 @@ to relative path to the file.</p>
 234
 235
 236
-237</pre>
+237
+238
+239
+240
+241
+242</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 24</span>
@@ -1339,12 +1354,17 @@ to relative path to the file.</p>
 </span>  <span class='comment'>#
 </span>  <span class='comment'># @param [String] input
 </span>  <span class='comment'># @raise [ArgumentError] if already populated
+</span>  <span class='comment'># @raise [EncodingError] if `input` includes invalid byte sequence for the encoding
 </span>  <span class='comment'># @return [String]
 </span>  <span class='comment'>#
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_source='>source=</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
     <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='const'>Encoding</span><span class='rparen'>)</span>
       <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='kw'>if</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_frozen?'>frozen?</span>
       <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_reencode_string'>reencode_string</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+
+      <span class='kw'>unless</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_valid_encoding?'>valid_encoding?</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>EncodingError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid byte sequence in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_encoding'>encoding</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
     <span class='kw'>end</span>
 
     <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_source'>raw_source</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span>
@@ -1726,14 +1746,14 @@ new string.</li>
       <pre class="lines">
 
 
-180
-181
-182
-183
-184</pre>
+185
+186
+187
+188
+189</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 180</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 185</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_decompose_position'>decompose_position</span><span class='lparen'>(</span><span class='id identifier rubyid_position'>position</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_line_no'>line_no</span><span class='comma'>,</span> <span class='id identifier rubyid_line_begin'>line_begin</span> <span class='op'>=</span> <span class='id identifier rubyid_line_for'>line_for</span><span class='lparen'>(</span><span class='id identifier rubyid_position'>position</span><span class='rparen'>)</span>
@@ -1815,16 +1835,16 @@ new string.</li>
       <pre class="lines">
 
 
-166
-167
-168
-169
-170
 171
-172</pre>
+172
+173
+174
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 171</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_raw_source='>raw_source=</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='ivar'>@source</span>
@@ -2073,6 +2093,19 @@ new string.</li>
       
     </li>
   
+    <li>
+      
+      
+        <span class='type'>(<tt>EncodingError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if <code>input</code> includes invalid byte sequence for the encoding</p>
+</div>
+      
+    </li>
+  
 </ul>
 
 </div><table class="source_code">
@@ -2081,22 +2114,30 @@ new string.</li>
       <pre class="lines">
 
 
-150
 151
 152
 153
 154
 155
 156
-157</pre>
+157
+158
+159
+160
+161
+162</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 150</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 151</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_source='>source=</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='const'>Encoding</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='kw'>if</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_frozen?'>frozen?</span>
     <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_reencode_string'>reencode_string</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_valid_encoding?'>valid_encoding?</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>EncodingError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid byte sequence in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_encoding'>encoding</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
   <span class='kw'>end</span>
 
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_source'>raw_source</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span>
@@ -2176,21 +2217,21 @@ new string.</li>
       <pre class="lines">
 
 
-193
-194
-195
-196
-197
 198
 199
 200
 201
 202
 203
-204</pre>
+204
+205
+206
+207
+208
+209</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 193</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/buffer.rb', line 198</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_source_line'>source_line</span><span class='lparen'>(</span><span class='id identifier rubyid_lineno'>lineno</span><span class='rparen'>)</span>
   <span class='kw'>unless</span> <span class='ivar'>@lines</span>
@@ -2214,7 +2255,7 @@ new string.</li>
 </div>
 
     <div id="footer">
-  Generated on Mon Jun 16 19:42:16 2014 by
+  Generated on Sat Jan 24 16:50:21 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>
