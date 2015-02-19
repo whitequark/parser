@@ -361,15 +361,18 @@ class TestParser < Minitest::Test
   end
 
   def test_regex_error
+    # The tests work on 1.8, but with a different message.
     assert_diagnoses(
       [:error, :invalid_regexp, {:message => 'target of repeat operator is not specified: /?/'}],
       %q[/?/],
-      %q(~~~ location))
+      %q(~~~ location),
+      ALL_VERSIONS - %w(1.8))
 
     assert_diagnoses(
       [:error, :invalid_regexp, {:message => 'target of repeat operator is not specified: /?/'}],
       %q[/#{""}?/],
-      %q(~~~~~~~~ location))
+      %q(~~~~~~~~ location),
+      ALL_VERSIONS - %w(1.8))
   end
 
   # Arrays
