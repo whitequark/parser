@@ -19,17 +19,31 @@ module Parser
       alias_method :loc, :location
 
       ##
+      # Associate `comments` with `ast` nodes by their corresponding node.
+      #
+      # @param [Parser::AST::Node] ast
+      # @param [Array(Comment)]    comments
+      # @return [Hash(Parser::AST::Node, Array(Comment))]
+      # @see Parser::Source::Comment::Associator#associate
+      # @deprecated Use {associate_locations}.
+      #
+      def self.associate(ast, comments)
+        associator = Associator.new(ast, comments)
+        associator.associate
+      end
+
+      ##
       # Associate `comments` with `ast` nodes by their location in the
       # source.
       #
       # @param [Parser::AST::Node] ast
       # @param [Array(Comment)]    comments
-      # @return [Hash(Parser::AST::Node, Array(Comment))]
-      # @see Parser::Source::Comment::Associator
+      # @return [Hash(Parser::Source::Map, Array(Comment))]
+      # @see Parser::Source::Comment::Associator#associate_locations
       #
-      def self.associate(ast, comments)
+      def self.associate_locations(ast, comments)
         associator = Associator.new(ast, comments)
-        associator.associate
+        associator.associate_locations
       end
 
       ##
