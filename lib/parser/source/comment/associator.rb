@@ -80,74 +80,93 @@ module Parser
       #
       def associate
         @mapping     = Hash.new { |h, k| h[k] = [] }
-        @comment_num = 0
+        @decorative_comment = {}
+        @comment_num = -1
+        advance_comment
 
         advance_through_directives if @skip_directives
 
         process(nil, @ast)
 
-        @mapping
+        return @mapping, @decorative_comment
       end
 
       private
 
-      def process(upper_node, node)
-        if node.type == :begin
-          prev_node, next_node = nil, upper_node
-        else
+      def process(prev_node, node)
+        if node.type != :begin
           while current_comment_between?(prev_node, node)
-            associate_and_advance_comment(node)
+            associate_and_advance_comment(prev_node, node)
           end
-
-          prev_node, next_node = nil, upper_node
-        end
-
-        node.children.each do |child|
-          if child.is_a?(AST::Node) && child.loc && child.loc.expression
-            prev_node, next_node = next_node, child
-
-            process(prev_node, child)
+          if current_comment_decorates?(node)
+            associate_and_advance_comment(node, nil)
           end
         end
-      end
 
-      def current_comment
-        @comments[@comment_num]
+        if node.children.length > 0
+          node.children.each do |child|
+            if child.is_a?(AST::Node) && child.loc && child.loc.expression
+              process(prev_node, child)
+              prev_node = child
+            end
+          end
+          while current_comment_at_end?(node, nil)
+            associate_and_advance_comment(prev_node, nil)
+          end
+        end
       end
 
       def advance_comment
         @comment_num += 1
+        @current_comment = @comments[@comment_num]
       end
 
       def current_comment_between?(prev_node, next_node)
-        return false if current_comment.nil?
+        return false if !@current_comment
+        comment_loc = @current_comment.location.expression
 
-        comment_loc = current_comment.location.expression
-        next_loc    = next_node.location.expression
-
-        if prev_node.nil?
-          comment_loc.end_pos <= next_loc.begin_pos
-        else
-          prev_loc  = prev_node.location.expression
-
-          comment_loc.begin_pos >= prev_loc.end_pos &&
-                comment_loc.end_pos <= next_loc.begin_pos
+        if next_node
+          next_loc = next_node.location.expression
+          return false if comment_loc.end_pos > next_loc.begin_pos
         end
+        if prev_node
+          prev_loc = prev_node.location.expression
+          return false if comment_loc.begin_pos < prev_loc.end_pos
+        end
+        return true
       end
 
-      def associate_and_advance_comment(node)
-        @mapping[node] << current_comment
+      def current_comment_decorates?(prev_node)
+        return false if !@current_comment
+        return @current_comment.location.line == prev_node.location.line
+      end
+
+      def current_comment_at_end?(parent, last_node)
+        return false if !@current_comment
+        comment_loc = @current_comment.location.expression
+        parent_loc = parent.location.expression
+        return comment_loc.end_pos <= parent_loc.end_pos
+      end
+
+      def associate_and_advance_comment(prev_node, node)
+        if prev_node and node
+          n = (@current_comment.location.line == prev_node.location.line) ? prev_node : node
+        else
+          n = prev_node ? prev_node : node
+        end
+        @mapping[n.location] << @current_comment
+        @decorative_comment[@current_comment] = (n == prev_node)
         advance_comment
       end
 
       def advance_through_directives
         # Skip shebang.
-        if current_comment && current_comment.text =~ /^#!/
+        if @current_comment && @current_comment.text =~ /^#!/
           advance_comment
         end
 
         # Skip encoding line.
-        if current_comment && current_comment.text =~ Buffer::ENCODING_RE
+        if @current_comment && @current_comment.text =~ Buffer::ENCODING_RE
           advance_comment
         end
       end
