@@ -51,6 +51,7 @@ module Parser
         @comments    = comments
 
         @skip_directives = true
+        @map_using_node = true
       end
 
       ##
@@ -80,7 +81,6 @@ module Parser
       #
       def associate
         @mapping     = Hash.new { |h, k| h[k] = [] }
-        @decorative_comment = {}
         @comment_num = -1
         advance_comment
 
@@ -88,7 +88,16 @@ module Parser
 
         process(nil, @ast)
 
-        return @mapping, @decorative_comment
+        return @mapping
+      end
+
+      # #associate is broken for nodes which have the same content.
+      # e.g. 2 identical lines in the code will see their comments "merged".
+      # Using #associate_locations prevents this. The returned hash uses
+      # node.location as a key to retrieve the comments for this node.
+      def associate_locations
+        @map_using_node = false
+        return associate
       end
 
       private
@@ -154,8 +163,8 @@ module Parser
         else
           n = prev_node ? prev_node : node
         end
-        @mapping[n.location] << @current_comment
-        @decorative_comment[@current_comment] = (n == prev_node)
+        key = @map_using_node ? n : n.location
+        @mapping[key] << @current_comment
         advance_comment
       end
 
