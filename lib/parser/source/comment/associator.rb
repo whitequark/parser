@@ -51,7 +51,6 @@ module Parser
         @comments    = comments
 
         @skip_directives = true
-        @map_using_node = true
       end
 
       ##
@@ -80,15 +79,8 @@ module Parser
       # @return [Hash(Parser::AST::Node, Array(Parser::Source::Comment))]
       #
       def associate
-        @mapping     = Hash.new { |h, k| h[k] = [] }
-        @comment_num = -1
-        advance_comment
-
-        advance_through_directives if @skip_directives
-
-        process(nil, @ast)
-
-        return @mapping
+        @map_using_node = true
+        associate_comments
       end
 
       # #associate is broken for nodes which have the same content.
@@ -97,10 +89,22 @@ module Parser
       # node.location as a key to retrieve the comments for this node.
       def associate_locations
         @map_using_node = false
-        return associate
+        associate_comments
       end
 
       private
+
+      def associate_comments
+        @mapping     = Hash.new { |h, k| h[k] = [] }
+        @comment_num = -1
+        advance_comment
+
+        advance_through_directives if @skip_directives
+
+        process(nil, @ast)
+
+        @mapping
+      end
 
       def process(prev_node, node)
         if node.type != :begin
@@ -142,28 +146,28 @@ module Parser
           prev_loc = prev_node.location.expression
           return false if comment_loc.begin_pos < prev_loc.end_pos
         end
-        return true
+        true
       end
 
       def current_comment_decorates?(prev_node)
         return false if !@current_comment
-        return @current_comment.location.line == prev_node.location.line
+        @current_comment.location.line == prev_node.location.line
       end
 
       def current_comment_at_end?(parent, last_node)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
         parent_loc = parent.location.expression
-        return comment_loc.end_pos <= parent_loc.end_pos
+        comment_loc.end_pos <= parent_loc.end_pos
       end
 
       def associate_and_advance_comment(prev_node, node)
-        if prev_node and node
-          n = (@current_comment.location.line == prev_node.location.line) ? prev_node : node
+        if prev_node && node
+          owner_node = (@current_comment.location.line == prev_node.location.line) ? prev_node : node
         else
-          n = prev_node ? prev_node : node
+          owner_node = prev_node ? prev_node : node
         end
-        key = @map_using_node ? n : n.location
+        key = @map_using_node ? owner_node : owner_node.location
         @mapping[key] << @current_comment
         advance_comment
       end
