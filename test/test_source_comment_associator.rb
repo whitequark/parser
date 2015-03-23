@@ -1,4 +1,4 @@
-require './helper'
+require 'helper'
 require 'parser/ruby18'
 
 class TestSourceCommentAssociator < Minitest::Test
