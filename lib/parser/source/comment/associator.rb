@@ -101,31 +101,39 @@ module Parser
 
         advance_through_directives if @skip_directives
 
-        process(nil, @ast)
+        @prev_node = nil
+        visit(@ast)
 
         @mapping
       end
 
-      def process(prev_node, node)
-        if node.type != :begin
-          while current_comment_between?(prev_node, node)
-            associate_and_advance_comment(prev_node, node)
-          end
-          if current_comment_decorates?(node)
-            associate_and_advance_comment(node, nil)
-          end
-        end
-
+      def visit(node)
+        processNode(node)
+        
         if node.children.length > 0
           node.children.each do |child|
-            if child.is_a?(AST::Node) && child.loc && child.loc.expression
-              process(prev_node, child)
-              prev_node = child
-            end
+            next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
+            visit(child)
           end
-          while current_comment_at_end?(node, nil)
-            associate_and_advance_comment(prev_node, nil)
-          end
+          processTrailingComments(node)
+          @prev_node = node
+        end
+      end
+
+      def processNode(node)
+        return unless node.type != :begin
+        while current_comment_between?(@prev_node, node)
+          associate_and_advance_comment(@prev_node, node)
+        end
+        @prev_node = node
+      end
+
+      def processTrailingComments(parent)
+        while current_comment_decorates?(@prev_node)
+            associate_and_advance_comment(@prev_node, nil)
+        end
+        while current_comment_before_end?(parent)
+          associate_and_advance_comment(@prev_node, nil)
         end
       end
 
@@ -144,7 +152,7 @@ module Parser
         end
         if prev_node
           prev_loc = prev_node.location.expression
-          return false if comment_loc.begin_pos < prev_loc.end_pos
+          return false if comment_loc.begin_pos < prev_loc.begin_pos
         end
         true
       end
@@ -154,7 +162,7 @@ module Parser
         @current_comment.location.line == prev_node.location.line
       end
 
-      def current_comment_at_end?(parent, last_node)
+      def current_comment_before_end?(parent)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
         parent_loc = parent.location.expression
