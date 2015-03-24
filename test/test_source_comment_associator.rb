@@ -9,11 +9,7 @@ class TestSourceCommentAssociator < Minitest::Test
     buffer.source = code
 
     ast, comments = parser.parse_with_comments(buffer)
-    if map_using_location
-      associations  = Parser::Source::Comment::Associator.new(ast, comments).associate_locations
-    else
-      associations  = Parser::Source::Comment.associate(ast, comments)
-    end
+    associations  = Parser::Source::Comment.associate(ast, comments, map_using_location)
 
     [ ast, associations ]
   end
@@ -188,6 +184,8 @@ end
     END
 
     assert_equal 1, associations.size
+    assert_equal ['# foo'],
+                 associations[ast].map(&:text)
   end
 
   def test_associate___ENCODING__

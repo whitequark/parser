@@ -24,12 +24,13 @@ module Parser
       #
       # @param [Parser::AST::Node] ast
       # @param [Array(Comment)]    comments
-      # @return [Hash(Parser::AST::Node, Array(Comment))]
+      # @param [Boolean] map_using_locations if true the returned map uses node.loc as key
+      # @return [Hash(Parser::AST::Node, Array(Comment))] or [Hash(Parser::Source::Map, Array(Comment))]
       # @see Parser::Source::Comment::Associator
       #
-      def self.associate(ast, comments)
+      def self.associate(ast, comments, map_using_locations = false)
         associator = Associator.new(ast, comments)
-        associator.associate
+        associator.associate(map_using_locations)
       end
 
       ##

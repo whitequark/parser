@@ -76,25 +76,16 @@ module Parser
       #         [#<Parser::Source::Comment (string):3:8 "# bar">]
       #     }
       #
-      # @return [Hash(Parser::AST::Node, Array(Parser::Source::Comment))]
-      #
-      def associate
-        @map_using_node = true
-        associate_comments
-      end
-
-      # #associate is broken for nodes which have the same content.
+      # NB: #associate is broken for nodes which have the same content.
       # e.g. 2 identical lines in the code will see their comments "merged".
-      # Using #associate_locations prevents this. The returned hash uses
+      # Using map_using_locations=true prevents this. The returned hash uses
       # node.location as a key to retrieve the comments for this node.
-      def associate_locations
-        @map_using_node = false
-        associate_comments
-      end
-
-      private
-
-      def associate_comments
+      #
+      # @return [Hash(Parser::AST::Node, Array(Parser::Source::Comment))]
+      #      or [Hash(Parser::Source::Map, Array(Parser::Source::Comment))]
+      #
+      def associate(map_using_locations = false)
+        @map_using_locations = map_using_locations
         @mapping     = Hash.new { |h, k| h[k] = [] }
         @comment_num = -1
         advance_comment
@@ -107,20 +98,22 @@ module Parser
         @mapping
       end
 
+      private
+
       def visit(node)
-        processNode(node)
+        process_node(node)
         
         if node.children.length > 0
           node.children.each do |child|
             next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
             visit(child)
           end
-          processTrailingComments(node)
+          process_trailing_comments(node)
           @prev_node = node
         end
       end
 
-      def processNode(node)
+      def process_node(node)
         return unless node.type != :begin
         while current_comment_between?(@prev_node, node)
           associate_and_advance_comment(@prev_node, node)
@@ -128,9 +121,9 @@ module Parser
         @prev_node = node
       end
 
-      def processTrailingComments(parent)
+      def process_trailing_comments(parent)
         while current_comment_decorates?(@prev_node)
-            associate_and_advance_comment(@prev_node, nil)
+          associate_and_advance_comment(@prev_node, nil)
         end
         while current_comment_before_end?(parent)
           associate_and_advance_comment(@prev_node, nil)
@@ -175,7 +168,7 @@ module Parser
         else
           owner_node = prev_node ? prev_node : node
         end
-        key = @map_using_node ? owner_node : owner_node.location
+        key = @map_using_locations ? owner_node.location : owner_node
         @mapping[key] << @current_comment
         advance_comment
       end
