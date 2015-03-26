@@ -95,6 +95,8 @@ module ParseHelper
           raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
         end
 
+        assert astlet.frozen?
+
         assert astlet.location.respond_to?(map_field),
                "(#{version}) #{astlet.location.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
 

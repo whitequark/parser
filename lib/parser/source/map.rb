@@ -62,14 +62,21 @@ module Parser
     # @api public
     #
     class Map
+      attr_reader :node
       attr_reader :expression
 
       ##
       # @param [Range] expression
       def initialize(expression)
         @expression = expression
+      end
 
+      ##
+      # @api private
+      def node=(node)
+        @node = node
         freeze
+        @node
       end
 
       ##
@@ -134,7 +141,7 @@ module Parser
       protected
 
       def with(&block)
-        dup.tap(&block).freeze
+        dup.tap(&block)
       end
 
       def update_expression(expression_l)

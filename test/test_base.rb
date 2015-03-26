@@ -15,4 +15,9 @@ class TestBase < Minitest::Test
     assert_equal 1, comments.size
     assert_equal '# foo', comments.first.text
   end
+
+  def test_loc_to_node
+    ast = Parser::CurrentRuby.parse('1')
+    assert_equal ast.loc.node, ast
+  end
 end

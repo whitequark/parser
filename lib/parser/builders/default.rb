@@ -332,7 +332,7 @@ module Parser
       when :__FILE__
         if @emit_file_line_as_literals
           n(:str, [ node.loc.expression.source_buffer.name ],
-            node.loc)
+            node.loc.dup)
         else
           node
         end
@@ -340,14 +340,14 @@ module Parser
       when :__LINE__
         if @emit_file_line_as_literals
           n(:int, [ node.loc.expression.line ],
-            node.loc)
+            node.loc.dup)
         else
           node
         end
 
       when :__ENCODING__
         n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
-          node.loc)
+          node.loc.dup)
 
       when :ident
         name, = *node
@@ -594,7 +594,7 @@ module Parser
         expr.updated(:arg)
       else
         n(:arg_expr, [ expr ],
-          expr.loc)
+          expr.loc.dup)
       end
     end
 
@@ -605,7 +605,7 @@ module Parser
         expr.updated(:restarg)
       else
         n(:restarg_expr, [ expr ],
-          expr.loc)
+          expr.loc.dup)
       end
     end
 
@@ -614,7 +614,7 @@ module Parser
         expr.updated(:blockarg)
       else
         n(:blockarg_expr, [ expr ],
-          expr.loc)
+          expr.loc.dup)
       end
     end
 
