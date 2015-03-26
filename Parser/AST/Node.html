@@ -256,7 +256,8 @@ class provided by gem <a href="http://rdoc.info/gems/ast">ast</a>.</p>
 30
 31
 32
-33</pre>
+33
+34</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/parser/ast/node.rb', line 15</span>
@@ -276,6 +277,7 @@ class provided by gem <a href="http://rdoc.info/gems/ast">ast</a>.</p>
 </span>  <span class='comment'>#
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_assign_properties'>assign_properties</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
     <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span> <span class='op'>=</span> <span class='id identifier rubyid_properties'>properties</span><span class='lbracket'>[</span><span class='symbol'>:location</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='kw'>self</span>
       <span class='ivar'>@location</span> <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
@@ -359,13 +361,15 @@ of the node.</p>
 29
 30
 31
-32</pre>
+32
+33</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/parser/ast/node.rb', line 28</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_assign_properties'>assign_properties</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span> <span class='op'>=</span> <span class='id identifier rubyid_properties'>properties</span><span class='lbracket'>[</span><span class='symbol'>:location</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='kw'>self</span>
     <span class='ivar'>@location</span> <span class='op'>=</span> <span class='id identifier rubyid_location'>location</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -379,7 +383,7 @@ of the node.</p>
 </div>
 
     <div id="footer">
-  Generated on Sat Jan 24 16:50:21 2015 by
+  Generated on Thu Mar 26 20:19:33 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>

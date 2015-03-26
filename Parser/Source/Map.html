@@ -219,6 +219,34 @@ will be kept compatible.</p>
 </li>
 
     
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#node-instance_method" title="#node (instance method)">- (Object) <strong>node</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+</div></span>
+  
+</li>
+
+    
   </ul>
 
 
@@ -395,19 +423,15 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-69
 70
 71
-72
-73</pre>
+72</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 70</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
   <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
-
-  <span class='id identifier rubyid_freeze'>freeze</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -538,20 +562,34 @@ will be kept compatible.</p>
 140
 141
 142
-143</pre>
+143
+144
+145
+146
+147
+148
+149
+150</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 64</span>
 
 <span class='kw'>class</span> <span class='const'>Map</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:node</span>
   <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:expression</span>
 
   <span class='comment'>##
 </span>  <span class='comment'># @param [Range] expression
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
     <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
+  <span class='kw'>end</span>
 
+  <span class='comment'>##
+</span>  <span class='comment'># @api private
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_node='>node=</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+    <span class='ivar'>@node</span> <span class='op'>=</span> <span class='id identifier rubyid_node'>node</span>
     <span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@node</span>
   <span class='kw'>end</span>
 
   <span class='comment'>##
@@ -616,12 +654,54 @@ will be kept compatible.</p>
   <span class='id identifier rubyid_protected'>protected</span>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_with'>with</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_update_expression'>update_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span>
     <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression_l'>expression_l</span>
   <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="node=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="node-instance_method">
+  
+    - (<tt>Object</tt>) <strong>node</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_node'>node</span>
+  <span class='ivar'>@node</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -673,16 +753,16 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-102
-103
-104
-105
-106
-107
-108</pre>
+109
+110
+111
+112
+113
+114
+115</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 102</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 109</span>
 
 <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&amp;&amp;</span>
@@ -734,12 +814,12 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-87
-88
-89</pre>
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 94</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_column'>column</span>
   <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_column'>column</span>
@@ -787,12 +867,12 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-79
-80
-81</pre>
+86
+87
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 79</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 86</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_line'>line</span>
   <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_line'>line</span>
@@ -858,14 +938,14 @@ will contain keys <code>:expression</code>, <code>:begin</code> and <code>:end</
       <pre class="lines">
 
 
-128
-129
-130
-131
-132</pre>
+135
+136
+137
+138
+139</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 128</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 135</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
   <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
@@ -882,7 +962,7 @@ will contain keys <code>:expression</code>, <code>:begin</code> and <code>:end</
 </div>
 
     <div id="footer">
-  Generated on Sat Jan 24 16:50:21 2015 by
+  Generated on Thu Mar 26 20:19:33 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>
