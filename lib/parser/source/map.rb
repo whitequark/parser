@@ -56,6 +56,10 @@ module Parser
     #  #  @begin=#<Source::Range (string) 0...1>,
     #  #  @expression=#<Source::Range (string) 0...6>>
     #
+    # @!attribute [r] node
+    #  The node that is described by this map. Nodes and maps have 1:1 correspondence.
+    #  @return [Parser::AST::Node]
+    #
     # @!attribute [r] expression
     #  @return [Range]
     #
