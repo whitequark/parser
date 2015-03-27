@@ -77,6 +77,13 @@ module Parser
 
       ##
       # @api private
+      def initialize_copy(other)
+        super
+        @node = nil
+      end
+
+      ##
+      # @api private
       def node=(node)
         @node = node
         freeze
