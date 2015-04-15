@@ -1,3 +1,3 @@
 module Parser
-  VERSION = '2.2.0.4'
+  VERSION = '2.2.2.0'
 end
