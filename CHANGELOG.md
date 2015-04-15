@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2.2.0.4 (2015-04-14)
+---------------------
+
+Features implemented:
+ * Add Parser::Source::Map#node. (whitequark)
+ * Add Parser::Source::Comment.associate_locations. (kubicle)
+
 v2.2.0.1 (2014-12-27)
 ---------------------
 
