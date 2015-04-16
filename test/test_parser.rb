@@ -4950,4 +4950,10 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS - %w(1.8))
   end
+
+  def test_bug_regex_verification
+    assert_parses(
+      s(:regexp, s(:str, "#)"), s(:regopt, :x)),
+      %Q{/#)/x})
+  end
 end

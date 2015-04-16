@@ -1406,7 +1406,7 @@ module Parser
         end
       end
 
-      Regexp.new(source)
+      Regexp.new(source, (Regexp::EXTENDED if options.children.include?(:x)))
     end
 
     def static_regexp_node(node)
