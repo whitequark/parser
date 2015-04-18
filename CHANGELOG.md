@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.2.2.1 (2015-04-17)
+---------------------
+
+Bugs fixed:
+ * builders/default: don't falsely diagnose multiline regexps (fixes #190). (whitequark)
+
 v2.2.0.4 (2015-04-15)
 ---------------------
 
