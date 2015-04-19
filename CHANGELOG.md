@@ -1,11 +1,17 @@
 Changelog
 =========
 
-v2.2.2.1 (2015-04-17)
+v2.2.2.1 (2015-04-19)
+---------------------
+
+v2.2.2.1 (2015-04-18)
 ---------------------
 
 Bugs fixed:
  * builders/default: don't falsely diagnose multiline regexps (fixes #190). (whitequark)
+
+v2.2.2.0 (2015-04-15)
+---------------------
 
 v2.2.0.4 (2015-04-15)
 ---------------------
@@ -13,6 +19,12 @@ v2.2.0.4 (2015-04-15)
 Features implemented:
  * Add Parser::Source::Map#node. (whitequark)
  * Add Parser::Source::Comment.associate_locations. (kubicle)
+
+v2.2.0.3 (2015-02-13)
+---------------------
+
+v2.2.0.2 (2015-01-09)
+---------------------
 
 v2.2.0.1 (2014-12-27)
 ---------------------
@@ -205,6 +217,9 @@ Bugs fixed:
  * lexer.rl: "->*{}": tLAMBEG at expr_beg (fixes #103). (Peter Zotov)
  * Source::Rewriter: apply actions in the insertion order. (Josh Cheek)
 
+v2.0.0.pre6 (2013-08-02)
+------------------------
+
 v2.0.0.pre5 (2013-07-31)
 ------------------------
 
@@ -289,6 +304,9 @@ Features implemented:
 
 Bugs fixed:
  * Don't treat byte order mark as an identifier (closes #91). (Peter Zotov)
+
+v2.0.0.pre1 (2013-07-04)
+------------------------
 
 v2.0.0.beta10 (2013-07-02)
 --------------------------
@@ -494,6 +512,9 @@ Bugs fixed:
  * lexer.rl: parse "foo=1; foo / bar #/" as method call on 1.8, division on 1.9. (Peter Zotov)
  * ruby18.y, ruby19.y: BEGIN{} does not introduce a scope. (Peter Zotov)
  * lexer.rl: improve whitespace handling. (Peter Zotov)
+
+v0.9.1 (2013-04-15)
+-------------------
 
 v0.9.0 (2013-04-15)
 -------------------

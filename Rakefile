@@ -92,8 +92,10 @@ task :changelog do
       current_version = "#{$1} (#{date})" if version =~ /(v[\d\w.]+)/
       current_version = "v#{Parser::VERSION} (#{date})" if version =~ /HEAD/
 
-      next if current_version.nil? || message !~ /^[+*-]/
+      next if current_version.nil?
+      changelog[current_version] # add a hash
 
+      next if message !~ /^[+*-]/
       changelog[current_version][message[0]] << "#{message[1..-1]} (#{author})"
     end
   end
