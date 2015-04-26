@@ -865,9 +865,15 @@ class Parser::Lexer
         # or closing delimiter, it is an escape sequence for that
         # particular character. Write it without the backslash.
 
-        if literal.regexp? && escaped_char == '\\'
-          # Regular expressions should include backslashes in their escaped
-          # form.
+        if literal.regexp? && "\\$()*+.<>?[]^{|}".include?(escaped_char)
+          # Regular expressions should include escaped delimiters in their
+          # escaped form, except when the escaped character is
+          # a closing delimiter but not a regexp metacharacter.
+          #
+          # The backslash itself cannot be used as a closing delimiter
+          # at the same time as an escape symbol, but it is always munged,
+          # so this branch also executes for the non-closing-delimiter case
+          # for the backslash.
           literal.extend_string(tok, @ts, @te)
         else
           literal.extend_string(escaped_char, @ts, @te)

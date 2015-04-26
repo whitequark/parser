@@ -1597,7 +1597,7 @@ class TestLexer < Minitest::Test
   def test_regexp_escape_backslash_terminator_meta1
     assert_scanned('%r{blah\\}blah}',
                    :tREGEXP_BEG,     "%r{",
-                   :tSTRING_CONTENT, "blah}blah",
+                   :tSTRING_CONTENT, "blah\\}blah",
                    :tSTRING_END,     "}",
                    :tREGEXP_OPT,     "")
   end
@@ -1711,6 +1711,22 @@ class TestLexer < Minitest::Test
                    :tREGEXP_BEG,     "/",
                    :tSTRING_CONTENT, "regexregex",
                    :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+  end
+
+  def test_regexp_escape_delimiter_meta
+    assert_scanned("%r(\\))",
+                   :tREGEXP_BEG,     "%r(",
+                   :tSTRING_CONTENT, "\\)",
+                   :tSTRING_END,     ")",
+                   :tREGEXP_OPT,     "")
+  end
+
+  def test_regexp_escape_delimiter_nonmeta
+    assert_scanned("%r'\\''",
+                   :tREGEXP_BEG,     "%r'",
+                   :tSTRING_CONTENT, "'",
+                   :tSTRING_END,     "'",
                    :tREGEXP_OPT,     "")
   end
 
