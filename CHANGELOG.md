@@ -1,8 +1,11 @@
 Changelog
 =========
 
-v2.2.2.1 (2015-04-19)
+v2.2.2.2 (2015-04-28)
 ---------------------
+
+Bugs fixed:
+ * lexer.rl: "%r.\..", "%r'\''": leave regexp metacharacters escaped (fixes #192). (whitequark)
 
 v2.2.2.1 (2015-04-18)
 ---------------------
