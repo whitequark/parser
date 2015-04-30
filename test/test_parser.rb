@@ -4938,6 +4938,18 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 2.0))
   end
 
+  def test_ruby_bug_11107
+    assert_parses(
+      s(:send, nil, :p,
+        s(:block,
+          s(:send, nil, :lambda),
+          s(:args),
+          s(:block, s(:send, nil, :a), s(:args), nil))),
+      %q{p ->() do a() do end end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9)) # no 1.9 backport
+  end
+
   def test_bug_lambda_leakage
     assert_parses(
       s(:begin,
