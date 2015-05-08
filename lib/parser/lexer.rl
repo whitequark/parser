@@ -1401,8 +1401,17 @@ class Parser::Lexer
       # AMBIGUOUS TOKENS RESOLVED VIA EXPR_BEG
       #
 
-      # a ?b
-      # Character literal.
+      # a??
+      # Ternary operator
+      '?' c_space_nl
+      => {
+        # Unlike expr_beg as invoked in the next rule, do not warn
+        p = @ts - 1
+        fgoto expr_end;
+      };
+
+      # a ?b, a? ?
+      # Character literal or ternary operator
       w_space* '?'
       => { fhold; fgoto expr_beg; };
 
