@@ -144,9 +144,11 @@ module Parser
       # @return [Hash(Symbol, Parser::Source::Range)]
       #
       def to_hash
-        Hash[instance_variables.map do |ivar|
-          [ ivar[1..-1].to_sym, instance_variable_get(ivar) ]
-        end]
+        instance_variables.inject({}) do |hash, ivar|
+          next hash if ivar == :@node
+          hash[ivar[1..-1].to_sym] = instance_variable_get(ivar)
+          hash
+        end
       end
 
       protected
