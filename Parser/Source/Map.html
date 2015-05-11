@@ -222,7 +222,7 @@ will be kept compatible.</p>
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#node-instance_method" title="#node (instance method)">- (Object) <strong>node</strong> </a>
+      <a href="#node-instance_method" title="#node (instance method)">- (Parser::AST::Node) <strong>node</strong> </a>
     
 
     
@@ -241,7 +241,7 @@ will be kept compatible.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'>
+    <span class="summary_desc"><div class='inline'><p>The node that is described by this map.</p>
 </div></span>
   
 </li>
@@ -423,12 +423,12 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-70
-71
-72</pre>
+74
+75
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 74</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
   <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
@@ -483,10 +483,6 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-64
-65
-66
-67
 68
 69
 70
@@ -569,10 +565,23 @@ will be kept compatible.</p>
 147
 148
 149
-150</pre>
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 68</span>
 
 <span class='kw'>class</span> <span class='const'>Map</span>
   <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:node</span>
@@ -582,6 +591,13 @@ will be kept compatible.</p>
 </span>  <span class='comment'># @param [Range] expression
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
     <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @api private
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+    <span class='kw'>super</span>
+    <span class='ivar'>@node</span> <span class='op'>=</span> <span class='kw'>nil</span>
   <span class='kw'>end</span>
 
   <span class='comment'>##
@@ -646,9 +662,11 @@ will be kept compatible.</p>
 </span>  <span class='comment'># @return [Hash(Symbol, Parser::Source::Range)]
 </span>  <span class='comment'>#
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
-    <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
-      <span class='lbracket'>[</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
-    <span class='kw'>end</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='comma'>,</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='id identifier rubyid_hash'>hash</span> <span class='kw'>if</span> <span class='id identifier rubyid_ivar'>ivar</span> <span class='op'>==</span> <span class='symbol'>:@node</span>
+      <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_hash'>hash</span>
+    <span class='kw'>end</span>
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_protected'>protected</span>
@@ -671,7 +689,7 @@ will be kept compatible.</p>
       <div class="method_details ">
   <h3 class="signature " id="node-instance_method">
   
-    - (<tt>Object</tt>) <strong>node</strong> 
+    - (<tt><span class='object_link'><a href="../AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span></tt>) <strong>node</strong> 
   
 
   
@@ -679,13 +697,26 @@ will be kept compatible.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>The node that is described by this map. Nodes and maps have 1:1 correspondence.</p>
 
 
   </div>
 </div>
 <div class="tags">
   
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../AST/Node.html" title="Parser::AST::Node (class)">Parser::AST::Node</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -693,15 +724,201 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-65
-66
-67</pre>
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 68</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_node'>node</span>
-  <span class='ivar'>@node</span>
+<span class='kw'>class</span> <span class='const'>Map</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:node</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:expression</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @param [Range] expression
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='rparen'>)</span>
+    <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression'>expression</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @api private
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+    <span class='kw'>super</span>
+    <span class='ivar'>@node</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @api private
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_node='>node=</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+    <span class='ivar'>@node</span> <span class='op'>=</span> <span class='id identifier rubyid_node'>node</span>
+    <span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='ivar'>@node</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># A shortcut for `self.expression.line`.
+</span>  <span class='comment'># @return [Integer]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_line'>line</span>
+    <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_line'>line</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># A shortcut for `self.expression.column`.
+</span>  <span class='comment'># @return [Integer]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_column'>column</span>
+    <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_column'>column</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># @api private
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_with_expression'>with_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_with'>with</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_map'>map</span><span class='op'>|</span> <span class='id identifier rubyid_map'>map</span><span class='period'>.</span><span class='id identifier rubyid_update_expression'>update_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Compares source maps.
+</span>  <span class='comment'># @return [Boolean]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&amp;&amp;</span>
+      <span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+        <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='op'>==</span>
+          <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:instance_variable_get</span><span class='comma'>,</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span>
+      <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_reduce'>reduce</span><span class='lparen'>(</span><span class='symbol'>:&amp;</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Converts this source map to a hash with keys corresponding to
+</span>  <span class='comment'># ranges. For example, if called on an instance of {Collection},
+</span>  <span class='comment'># which adds the `begin` and `end` ranges, the resulting hash
+</span>  <span class='comment'># will contain keys `:expression`, `:begin` and `:end`.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @example
+</span>  <span class='comment'>#  require &#39;parser/current&#39;
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#  p Parser::CurrentRuby.parse(&#39;[1, 2]&#39;).loc.to_hash
+</span>  <span class='comment'>#  # =&gt; {
+</span>  <span class='comment'>#  #   :begin =&gt; #&lt;Source::Range (string) 0...1&gt;,
+</span>  <span class='comment'>#  #   :end =&gt; #&lt;Source::Range (string) 5...6&gt;,
+</span>  <span class='comment'>#  #   :expression =&gt; #&lt;Source::Range (string) 0...6&gt;
+</span>  <span class='comment'>#  # }
+</span>  <span class='comment'>#
+</span>  <span class='comment'># @return [Hash(Symbol, Parser::Source::Range)]
+</span>  <span class='comment'>#
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
+    <span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='comma'>,</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='id identifier rubyid_hash'>hash</span> <span class='kw'>if</span> <span class='id identifier rubyid_ivar'>ivar</span> <span class='op'>==</span> <span class='symbol'>:@node</span>
+      <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_hash'>hash</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_protected'>protected</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_with'>with</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_update_expression'>update_expression</span><span class='lparen'>(</span><span class='id identifier rubyid_expression_l'>expression_l</span><span class='rparen'>)</span>
+    <span class='ivar'>@expression</span> <span class='op'>=</span> <span class='id identifier rubyid_expression_l'>expression_l</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -753,16 +970,16 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-109
-110
-111
-112
-113
-114
-115</pre>
+120
+121
+122
+123
+124
+125
+126</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 109</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 120</span>
 
 <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&amp;&amp;</span>
@@ -814,12 +1031,12 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-94
-95
-96</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 94</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_column'>column</span>
   <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_column'>column</span>
@@ -867,12 +1084,12 @@ will be kept compatible.</p>
       <pre class="lines">
 
 
-86
-87
-88</pre>
+97
+98
+99</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 86</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 97</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_line'>line</span>
   <span class='ivar'>@expression</span><span class='period'>.</span><span class='id identifier rubyid_line'>line</span>
@@ -938,19 +1155,23 @@ will contain keys <code>:expression</code>, <code>:begin</code> and <code>:end</
       <pre class="lines">
 
 
-135
-136
-137
-138
-139</pre>
+146
+147
+148
+149
+150
+151
+152</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 135</span>
+      <pre class="code"><span class="info file"># File 'lib/parser/source/map.rb', line 146</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span>
-  <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
-    <span class='lbracket'>[</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
-  <span class='kw'>end</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_instance_variables'>instance_variables</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='comma'>,</span> <span class='id identifier rubyid_ivar'>ivar</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='id identifier rubyid_hash'>hash</span> <span class='kw'>if</span> <span class='id identifier rubyid_ivar'>ivar</span> <span class='op'>==</span> <span class='symbol'>:@node</span>
+    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_ivar'>ivar</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_instance_variable_get'>instance_variable_get</span><span class='lparen'>(</span><span class='id identifier rubyid_ivar'>ivar</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hash'>hash</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -962,7 +1183,7 @@ will contain keys <code>:expression</code>, <code>:begin</code> and <code>:end</
 </div>
 
     <div id="footer">
-  Generated on Thu Mar 26 20:19:33 2015 by
+  Generated on Mon May 11 12:22:52 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>
