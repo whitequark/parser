@@ -8,6 +8,6 @@ class TestSourceComment < Minitest::Test
     buf = Parser::Source::Buffer.new("<input>")
     buf.source = "1"
     ast = parser_for_ruby_version('1.8').parse(buf)
-    assert_equal [:operator, :expression], ast.loc.to_hash.keys
+    assert_equal [:expression, :operator], ast.loc.to_hash.keys.sort_by(&:to_s)
   end
 end

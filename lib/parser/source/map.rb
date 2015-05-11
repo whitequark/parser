@@ -145,7 +145,7 @@ module Parser
       #
       def to_hash
         instance_variables.inject({}) do |hash, ivar|
-          next hash if ivar == :@node
+          next hash if ivar.to_sym == :@node
           hash[ivar[1..-1].to_sym] = instance_variable_get(ivar)
           hash
         end
