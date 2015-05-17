@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v2.2.2.3 (2015-05-17)
+---------------------
+
+API modifications:
+ * lexer.rl: "a?? 1 : 0": squelch "invalid character syntax" warning. (whitequark)
+
+Bugs fixed:
+ * Source::Map: do not include :node in to_hash. (whitequark)
+
 v2.2.2.2 (2015-04-28)
 ---------------------
 
