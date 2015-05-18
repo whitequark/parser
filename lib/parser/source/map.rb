@@ -107,6 +107,22 @@ module Parser
       end
 
       ##
+      # A shortcut for `self.expression.line`.
+      # @return [Integer]
+      #
+      def end_line
+        @expression.end_line
+      end
+
+      ##
+      # A shortcut for `self.expression.column`.
+      # @return [Integer]
+      #
+      def end_column
+        @expression.end_column
+      end
+
+      ##
       # @api private
       #
       def with_expression(expression_l)
