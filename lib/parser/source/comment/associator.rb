@@ -117,30 +117,28 @@ module Parser
       def visit(node)
         process_node(node)
 
-        if node.children.length > 0
-          node.children.each do |child|
-            next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
-            visit(child)
-          end
-          process_trailing_comments(node)
-          @prev_node = node
+        node.children.each do |child|
+          next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
+          visit(child)
         end
+        process_trailing_comments(node)
+        @prev_node = node
       end
 
       def process_node(node)
         return unless node.type != :begin
-        while current_comment_between?(@prev_node, node)
+        while current_comment_between?(@prev_node, node) # preceding comment
           associate_and_advance_comment(@prev_node, node)
         end
         @prev_node = node
       end
 
       def process_trailing_comments(parent)
-        while current_comment_decorates?(@prev_node)
-          associate_and_advance_comment(@prev_node, nil)
-        end
         while current_comment_before_end?(parent)
-          associate_and_advance_comment(@prev_node, nil)
+          associate_and_advance_comment(nil, parent) # sparse comment
+        end
+        while current_comment_decorates?(parent)
+          associate_and_advance_comment(nil, parent) # decorating comment
         end
       end
 
@@ -166,7 +164,7 @@ module Parser
 
       def current_comment_decorates?(prev_node)
         return false if !@current_comment
-        @current_comment.location.line == prev_node.location.line
+        @current_comment.location.line == prev_node.location.end_line
       end
 
       def current_comment_before_end?(parent)
