@@ -75,6 +75,8 @@ module Parser
         line
       end
 
+      alias_method :first_line, :line
+
       ##
       # @return [Integer] zero-based column number of the beginning of this range.
       #
@@ -87,7 +89,7 @@ module Parser
       ##
       # @return [Integer] line number of the end of this range.
       #
-      def end_line
+      def last_line
         line, _ = @source_buffer.decompose_position(@end_pos)
 
         line
@@ -96,7 +98,7 @@ module Parser
       ##
       # @return [Integer] zero-based column number of the end of this range.
       #
-      def end_column
+      def last_column
         _, column = @source_buffer.decompose_position(@end_pos)
 
         column
