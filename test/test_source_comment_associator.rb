@@ -29,39 +29,56 @@ class TestSourceCommentAssociator < Minitest::Test
     ast, associations = associate(<<-END)
 #!/usr/bin/env ruby
 # coding: utf-8
-# Class comment
-# another class comment
-class Foo
-  # attr_accessor comment
-  attr_accessor :foo
-
-  # method comment
+# class preceeding
+# another class preceeding
+class Foo # class keyword line
+  # method foo preceeding
+  def foo
+    puts 'foo'
+  end # method foo decorating
+  # method bar preceeding
   def bar
-    # expr comment
-    1 + # intermediate comment
+    # expression preceeding
+    1 + # 1 decorating
       2
-    # stray comment
-  end
-end
+    # method bar sparse
+  end # method bar decorating
+  # class sparse
+end # class decorating
     END
 
-    klass_node         = ast
-    attr_accessor_node = ast.children[2].children[0]
-    method_node        = ast.children[2].children[1] # def bar
-    expr_node          = method_node.children[2] # 1 + 2
-    intermediate_node  = expr_node.children[0] # 1
+    klass_node      = ast
+    klass_name_node = klass_node.children[0]
+    foo_node        = klass_node.children[2].children[0] # def foo
+    bar_node        = klass_node.children[2].children[1] # def bar
+    expr_node       = bar_node.children[2] # 1 + 2
+    one_node        = expr_node.children[0] # 1
 
-    assert_equal 5, associations.size
-    assert_equal ['# Class comment', '# another class comment'],
-                 associations[klass_node].map(&:text)
-    assert_equal ['# attr_accessor comment'],
-                 associations[attr_accessor_node].map(&:text)
-    assert_equal ['# method comment'],
-                 associations[method_node].map(&:text)
-    assert_equal ['# expr comment', "# stray comment"],
-                 associations[expr_node].map(&:text)
-    assert_equal ['# intermediate comment'],
-                 associations[intermediate_node].map(&:text)
+    assert_equal 6, associations.size
+    assert_equal [
+      '# class preceeding',
+      '# another class preceeding',
+      '# class sparse',
+      '# class decorating'
+    ], associations[klass_node].map(&:text)
+    assert_equal [
+      '# class keyword line'
+    ], associations[klass_name_node].map(&:text)
+    assert_equal [
+      '# method foo preceeding',
+      '# method foo decorating'
+    ], associations[foo_node].map(&:text)
+    assert_equal [
+      '# method bar preceeding',
+      '# method bar sparse',
+      '# method bar decorating'
+    ], associations[bar_node].map(&:text)
+    assert_equal [
+      '# expression preceeding'
+    ], associations[expr_node].map(&:text)
+    assert_equal [
+      '# 1 decorating'
+    ], associations[one_node].map(&:text)
   end
 
   # The bug below is fixed by using associate_locations
@@ -93,39 +110,56 @@ end
     ast, associations = associate_locations(<<-END)
 #!/usr/bin/env ruby
 # coding: utf-8
-# Class comment
-# another class comment
-class Foo
-  # attr_accessor comment
-  attr_accessor :foo
-
-  # method comment
+# class preceeding
+# another class preceeding
+class Foo # class keyword line
+  # method foo preceeding
+  def foo
+    puts 'foo'
+  end # method foo decorating
+  # method bar preceeding
   def bar
-    # expr comment
-    1 + # intermediate comment
+    # expression preceeding
+    1 + # 1 decorating
       2
-    # stray comment
-  end
-end
+    # method bar sparse
+  end # method bar decorating
+  # class sparse
+end # class decorating
     END
 
-    klass_node         = ast
-    attr_accessor_node = ast.children[2].children[0]
-    method_node        = ast.children[2].children[1]
-    expr_node          = method_node.children[2]
-    intermediate_node  = expr_node.children[0]
+    klass_node      = ast
+    klass_name_node = klass_node.children[0]
+    foo_node        = klass_node.children[2].children[0] # def foo
+    bar_node        = klass_node.children[2].children[1] # def bar
+    expr_node       = bar_node.children[2] # 1 + 2
+    one_node        = expr_node.children[0] # 1
 
-    assert_equal 5, associations.size
-    assert_equal ['# Class comment', '# another class comment'],
-                 associations[klass_node.loc].map(&:text)
-    assert_equal ['# attr_accessor comment'],
-                 associations[attr_accessor_node.loc].map(&:text)
-    assert_equal ['# method comment'],
-                 associations[method_node.loc].map(&:text)
-    assert_equal ['# expr comment', '# stray comment'],
-                 associations[expr_node.loc].map(&:text)
-    assert_equal ['# intermediate comment'],
-                 associations[intermediate_node.loc].map(&:text)
+    assert_equal 6, associations.size
+    assert_equal [
+      '# class preceeding',
+      '# another class preceeding',
+      '# class sparse',
+      '# class decorating'
+    ], associations[klass_node.loc].map(&:text)
+    assert_equal [
+      '# class keyword line'
+    ], associations[klass_name_node.loc].map(&:text)
+    assert_equal [
+      '# method foo preceeding',
+      '# method foo decorating'
+    ], associations[foo_node.loc].map(&:text)
+    assert_equal [
+      '# method bar preceeding',
+      '# method bar sparse',
+      '# method bar decorating'
+    ], associations[bar_node.loc].map(&:text)
+    assert_equal [
+      '# expression preceeding'
+    ], associations[expr_node.loc].map(&:text)
+    assert_equal [
+      '# 1 decorating'
+    ], associations[one_node.loc].map(&:text)
   end
 
   def test_associate_locations_dupe_statement
@@ -164,6 +198,11 @@ end
                  associations[ast].map(&:text)
   end
 
+  def test_associate_empty_tree
+    ast, associations = associate("")
+    assert_equal 0, associations.size
+  end
+
   def test_associate_shebang_only
     ast, associations = associate(<<-END)
 #!ruby
@@ -182,6 +221,17 @@ end
 
     assert_equal 0, associations.size
   end
+
+  def test_associate_comments_after_root_node
+    ast, associations = associate(<<-END)
+class Foo
+end
+# not associated
+    END
+
+    assert_equal 0, associations.size
+  end
+
 
   def test_associate_stray_comment
     ast, associations = associate(<<-END)
