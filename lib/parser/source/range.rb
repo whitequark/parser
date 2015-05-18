@@ -85,6 +85,24 @@ module Parser
       end
 
       ##
+      # @return [Integer] line number of the end of this range.
+      #
+      def end_line
+        line, _ = @source_buffer.decompose_position(@end_pos)
+
+        line
+      end
+
+      ##
+      # @return [Integer] zero-based column number of the end of this range.
+      #
+      def end_column
+        _, column = @source_buffer.decompose_position(@end_pos)
+
+        column
+      end
+
+      ##
       # @return [::Range] a range of columns spanned by this range.
       # @raise RangeError
       #
