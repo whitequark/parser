@@ -164,7 +164,7 @@ module Parser
 
       def current_comment_decorates?(prev_node)
         return false if !@current_comment
-        @current_comment.location.line == prev_node.location.end_line
+        @current_comment.location.line == prev_node.location.last_line
       end
 
       def current_comment_before_end?(parent)
