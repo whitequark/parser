@@ -98,12 +98,30 @@ module Parser
         @expression.line
       end
 
+      alias_method :first_line, :line
+
       ##
       # A shortcut for `self.expression.column`.
       # @return [Integer]
       #
       def column
         @expression.column
+      end
+
+      ##
+      # A shortcut for `self.expression.last_line`.
+      # @return [Integer]
+      #
+      def last_line
+        @expression.last_line
+      end
+
+      ##
+      # A shortcut for `self.expression.last_column`.
+      # @return [Integer]
+      #
+      def last_column
+        @expression.last_column
       end
 
       ##
