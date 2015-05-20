@@ -54,11 +54,12 @@ module Parser
       end
 
       ##
-      # Compute a mapping between AST nodes and comments.
+      # Compute a mapping between AST nodes and comments.  Comment is
+      # associated with the node, if it is one of the following types:
       #
-      # A comment belongs to a certain node if it begins after end
-      # of the previous node (if one exists) and ends before beginning of
-      # the current node.
+      # - preceding comment, it ends before the node start
+      # - sparse comment, it is located inside the node, after all child nodes
+      # - decorating comment, it starts at the same line, where the node ends
       #
       # This rule is unambiguous and produces the result
       # one could reasonably expect; for example, this code
@@ -75,6 +76,9 @@ module Parser
       #       (lvar :fuga) =>
       #         [#<Parser::Source::Comment (string):3:8 "# bar">]
       #     }
+      #
+      # Note that comments after the end of the end of a passed tree range are
+      # ignored (except root decorating comment).
       #
       # Note that {associate} produces unexpected result for nodes which are
       # equal but have distinct locations; comments for these nodes are merged.
@@ -108,37 +112,35 @@ module Parser
 
         advance_through_directives if @skip_directives
 
-        @prev_node = nil
-        visit(@ast)
+        visit(@ast) if @ast
 
         @mapping
       end
 
       def visit(node)
-        process_node(node)
+        process_leading_comments(node)
 
         node.children.each do |child|
           next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
           visit(child)
         end
+
         process_trailing_comments(node)
-        @prev_node = node
       end
 
-      def process_node(node)
-        return unless node.type != :begin
-        while current_comment_between?(@prev_node, node) # preceding comment
-          associate_and_advance_comment(@prev_node, node)
+      def process_leading_comments(node)
+        return if node.type == :begin
+        while current_comment_before?(node) # preceding comment
+          associate_and_advance_comment(node)
         end
-        @prev_node = node
       end
 
-      def process_trailing_comments(parent)
-        while current_comment_before_end?(parent)
-          associate_and_advance_comment(nil, parent) # sparse comment
+      def process_trailing_comments(node)
+        while current_comment_before_end?(node)
+          associate_and_advance_comment(node) # sparse comment
         end
-        while current_comment_decorates?(parent)
-          associate_and_advance_comment(nil, parent) # decorating comment
+        while current_comment_decorates?(node)
+          associate_and_advance_comment(node) # decorating comment
         end
       end
 
@@ -147,40 +149,31 @@ module Parser
         @current_comment = @comments[@comment_num]
       end
 
-      def current_comment_between?(prev_node, next_node)
+      def current_comment_before?(node)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
 
-        if next_node
-          next_loc = next_node.location.expression
-          return false if comment_loc.end_pos > next_loc.begin_pos
-        end
-        if prev_node
-          prev_loc = prev_node.location.expression
-          return false if comment_loc.begin_pos < prev_loc.begin_pos
+        if node
+          node_loc = node.location.expression
+          return false if comment_loc.end_pos > node_loc.begin_pos
         end
         true
       end
 
-      def current_comment_decorates?(prev_node)
-        return false if !@current_comment
-        @current_comment.location.line == prev_node.location.last_line
-      end
-
-      def current_comment_before_end?(parent)
+      def current_comment_before_end?(node)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
-        parent_loc = parent.location.expression
-        comment_loc.end_pos <= parent_loc.end_pos
+        node_loc = node.location.expression
+        comment_loc.end_pos <= node_loc.end_pos
       end
 
-      def associate_and_advance_comment(prev_node, node)
-        if prev_node && node
-          owner_node = (@current_comment.location.line == prev_node.location.line) ? prev_node : node
-        else
-          owner_node = prev_node ? prev_node : node
-        end
-        key = @map_using_locations ? owner_node.location : owner_node
+      def current_comment_decorates?(node)
+        return false if !@current_comment
+        @current_comment.location.line == node.location.last_line
+      end
+
+      def associate_and_advance_comment(node)
+        key = @map_using_locations ? node.location : node
         @mapping[key] << @current_comment
         advance_comment
       end
