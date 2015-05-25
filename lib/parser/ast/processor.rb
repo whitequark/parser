@@ -108,6 +108,7 @@ module Parser
       alias on_arg_expr       process_regular_node
       alias on_restarg_expr   process_regular_node
       alias on_blockarg_expr  process_regular_node
+      alias on_block_pass     process_regular_node
 
       alias on_module         process_regular_node
       alias on_class          process_regular_node
