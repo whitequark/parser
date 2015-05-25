@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v2.2.2.5 (2015-05-25)
+---------------------
+
+API modifications:
+ * Source::Comment::Associator: rework entirely; fixes #194 (Oleg Zubchenko)
+
+Features implemented:
+ * Source::Map: add last_line, last_column delegation (Oleg Zubchenko)
+ * Source::Range: add last_line, last_column methods (Oleg Zubchenko)
+
+Bugs fixed:
+ * AST::Processor: add missing on_block_pass (fixes #196) (whitequark)
+
 v2.2.2.3 (2015-05-17)
 ---------------------
 
