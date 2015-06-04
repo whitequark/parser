@@ -1694,7 +1694,7 @@ class Parser::Lexer
       #
 
       '?' ( e_bs escape
-          | c_any - c_space_nl - e_bs % { @escape = nil }
+          | (c_any - c_space_nl - e_bs) % { @escape = nil }
           )
       => {
         # Show an error if memorized.
