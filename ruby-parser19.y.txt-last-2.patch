@@ -41,12 +41,3 @@
  args:
    arg_value
  | tSTAR arg_value
-@@ -570,6 +578,8 @@
- f_norm_arg:
-   f_bad_arg
- | tIDENTIFIER
-+| tIDENTIFIER tASSOC tIDENTIFIER
-+| tLABEL tIDENTIFIER
- f_arg_item:
-   f_norm_arg
- | tLPAREN f_margs rparen

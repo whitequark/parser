@@ -1212,11 +1212,6 @@ rule
                 | mlhs
 
           f_marg: f_norm_arg
-                    {
-                      @static_env.declare val[0][0]
-
-                      result = @builder.arg(val[0])
-                    }
                 | tLPAREN f_margs rparen
                     {
                       result = @builder.multi_lhs(val[0], val[1], val[2])
@@ -1234,50 +1229,42 @@ rule
          f_margs: f_marg_list
                 | f_marg_list tCOMMA tSTAR f_norm_arg
                     {
-                      @static_env.declare val[3][0]
-
                       result = val[0].
-                                  push(@builder.restarg(val[2], val[3]))
+                                  push(@builder.objc_restarg(val[2], val[3]))
                     }
                 | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
                     {
-                      @static_env.declare val[3][0]
-
                       result = val[0].
-                                  push(@builder.restarg(val[2], val[3])).
+                                  push(@builder.objc_restarg(val[2], val[3])).
                                   concat(val[5])
                     }
                 | f_marg_list tCOMMA tSTAR
                     {
                       result = val[0].
-                                  push(@builder.restarg(val[2]))
+                                  push(@builder.objc_restarg(val[2]))
                     }
                 | f_marg_list tCOMMA tSTAR            tCOMMA f_marg_list
                     {
                       result = val[0].
-                                  push(@builder.restarg(val[2])).
+                                  push(@builder.objc_restarg(val[2])).
                                   concat(val[4])
                     }
                 |                    tSTAR f_norm_arg
                     {
-                      @static_env.declare val[1][0]
-
-                      result = [ @builder.restarg(val[0], val[1]) ]
+                      result = [ @builder.objc_restarg(val[0], val[1]) ]
                     }
                 |                    tSTAR f_norm_arg tCOMMA f_marg_list
                     {
-                      @static_env.declare val[1][0]
-
-                      result = [ @builder.restarg(val[0], val[1]),
+                      result = [ @builder.objc_restarg(val[0], val[1]),
                                  *val[3] ]
                     }
                 |                    tSTAR
                     {
-                      result = [ @builder.restarg(val[0]) ]
+                      result = [ @builder.objc_restarg(val[0]) ]
                     }
                 |                    tSTAR tCOMMA f_marg_list
                     {
-                      result = [ @builder.restarg(val[0]),
+                      result = [ @builder.objc_restarg(val[0]),
                                  *val[2] ]
                     }
 
@@ -1963,13 +1950,25 @@ regexp_contents: # nothing
 
       f_norm_arg: f_bad_arg
                 | tIDENTIFIER
-
-      f_arg_item: f_norm_arg
                     {
                       @static_env.declare val[0][0]
 
                       result = @builder.arg(val[0])
                     }
+                | tIDENTIFIER tASSOC tIDENTIFIER
+                    {
+                      @static_env.declare val[2][0]
+
+                      result = @builder.objc_kwarg(val[0], val[1], val[2])
+                    }
+                | tLABEL tIDENTIFIER
+                    {
+                      @static_env.declare val[1][0]
+
+                      result = @builder.objc_kwarg(val[0], nil, val[1])
+                    }
+
+      f_arg_item: f_norm_arg
                 | tLPAREN f_margs rparen
                     {
                       result = @builder.multi_lhs(val[0], val[1], val[2])

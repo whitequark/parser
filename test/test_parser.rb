@@ -1816,6 +1816,30 @@ class TestParser < Minitest::Test
         |      ~~~~~~ expression (args.blockarg)})
   end
 
+  def test_objc_arg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:arg, :a), s(:objc_kwarg, :b, :c)),
+        nil),
+      %q{def f(a, b: c); end},
+      %q{         ~ keyword (args.objc_kwarg)
+        |          ~ operator (args.objc_kwarg)
+        |            ~ argument (args.objc_kwarg)
+        |         ~~~~ expression (args.objc_kwarg)},
+      %w(mac))
+
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:arg, :a), s(:objc_kwarg, :b, :c)),
+        nil),
+      %q{def f(a, b => c); end},
+      %q{         ~ keyword (args.objc_kwarg)
+        |           ~~ operator (args.objc_kwarg)
+        |              ~ argument (args.objc_kwarg)
+        |         ~~~~~~ expression (args.objc_kwarg)},
+      %w(mac))
+  end
+
   def test_arg_scope
     # [ruby-core:61299] [Bug #9593]
     assert_parses(
@@ -2076,6 +2100,20 @@ class TestParser < Minitest::Test
     assert_parses_margs(
       s(:mlhs, s(:restarg), s(:arg, :p)),
       %q{(*, p)})
+  end
+
+  def test_marg_objc_restarg
+    assert_parses(
+      s(:def, :f,
+        s(:args,
+          s(:arg, :a),
+          s(:mlhs,
+            s(:objc_restarg, s(:objc_kwarg, :b, :c)))),
+        nil),
+      %Q{def f(a, (*b: c)); end},
+      %q{          ~ operator (args.mlhs.objc_restarg)
+        |          ~~~~~ expression (args.mlhs.objc_restarg)},
+      %w(mac))
   end
 
   def assert_parses_blockargs(ast, code, versions=ALL_VERSIONS)

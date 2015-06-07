@@ -972,6 +972,65 @@ Format:
  ~~ expression
 ~~~
 
+### Objective-C arguments
+
+MacRuby includes a few more syntactic "arguments" whose name becomes
+the part of the Objective-C method name, despite looking like Ruby 2.0
+keyword arguments, and are thus treated differently.
+
+#### Objective-C label-like keyword argument
+
+Format:
+
+~~~
+(objc_kwarg :a :b)
+"a: b"
+ ~ keyword
+  ~ operator
+    ~ argument
+ ~~~~ expression
+~~~
+
+#### Objective-C pair-like keyword argument
+
+Format:
+
+~~~
+(objc_kwarg :a :b)
+"a => b"
+ ~ keyword
+   ~~ operator
+      ~ argument
+ ~~~~~~ expression
+~~~
+
+#### Objective-C keyword splat argument
+
+Format:
+
+~~~
+(objc_restarg (objc_kwarg :foo))
+"(*a: b)"
+   ~ arg.keyword
+    ~ arg.operator
+      ~ arg.argument
+  ~ operator
+  ~~~~~ expression
+~~~
+
+Note that these splat arguments will only be parsed inside parentheses,
+e.g. in the following code:
+
+~~~
+def f((*a: b)); end
+~~~
+
+However, the following code results in a parse error:
+
+~~~
+def f(*a: b); end
+~~~
+
 ## Send
 
 ### To self

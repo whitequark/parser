@@ -618,6 +618,34 @@ module Parser
       end
     end
 
+    # MacRuby Objective-C arguments
+
+    def objc_kwarg(kwname_t, assoc_t, name_t)
+      kwname_l = loc(kwname_t)
+      if assoc_t.nil? # a: b, not a => b
+        kwname_l   = kwname_l.resize(kwname_l.size - 1)
+        operator_l = kwname_l.end.resize(1)
+      else
+        operator_l = loc(assoc_t)
+      end
+
+      n(:objc_kwarg, [ value(kwname_t).to_sym, value(name_t).to_sym ],
+        Source::Map::ObjcKwarg.new(kwname_l, operator_l, loc(name_t),
+                                   kwname_l.join(loc(name_t))))
+    end
+
+    def objc_restarg(star_t, name=nil)
+      if name.nil?
+        n0(:restarg, arg_prefix_map(star_t))
+      elsif name.type == :arg # regular restarg
+        name.updated(:restarg, nil,
+          { :location => name.loc.with_operator(loc(star_t)) })
+      else # restarg with objc_kwarg inside
+        n(:objc_restarg, [ name ],
+          unary_op_map(star_t, name))
+      end
+    end
+
     #
     # Method calls
     #
