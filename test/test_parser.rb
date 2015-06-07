@@ -3422,6 +3422,14 @@ class TestParser < Minitest::Test
       %q{fun (1)})
   end
 
+  def test_space_args_arg_newline
+    assert_parses(
+      s(:send, nil, :fun, s(:begin, s(:int, 1))),
+      %Q{fun (1\n)},
+      %q{},
+      ALL_VERSIONS - %w(mac))
+  end
+
   def test_space_args_arg_block
     assert_parses(
       s(:block,

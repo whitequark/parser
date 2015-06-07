@@ -934,11 +934,11 @@ rule
                     {
                       @lexer.state = :expr_endarg
                     }
-                    opt_nl tRPAREN
+                    tRPAREN
                     {
                       @lexer.cmdarg = val[1]
 
-                      result = @builder.begin(val[0], val[2], val[5])
+                      result = @builder.begin(val[0], val[2], val[4])
                     }
                 | tLPAREN compstmt tRPAREN
                     {

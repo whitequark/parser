@@ -61,15 +61,6 @@
  args:
    arg_value
  | tSTAR arg_value
-@@ -315,7 +320,7 @@
- | backref
- | tFID
- | kBEGIN bodystmt kEND
--| tLPAREN_ARG expr opt_nl tRPAREN
-+| tLPAREN_ARG expr rparen
- | tLPAREN compstmt tRPAREN
- | primary_value tCOLON2 tCONSTANT
- | tCOLON3 tCONSTANT
 @@ -326,8 +331,8 @@
  | kYIELD tLPAREN2 rparen
  | kYIELD
