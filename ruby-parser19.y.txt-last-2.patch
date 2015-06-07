@@ -61,17 +61,6 @@
  args:
    arg_value
  | tSTAR arg_value
-@@ -326,8 +331,8 @@
- | kYIELD tLPAREN2 rparen
- | kYIELD
- | kDEFINED opt_nl tLPAREN2 expr rparen
--| kNOT tLPAREN2 expr rparen
--| kNOT tLPAREN2 rparen
-+| kNOT tLPAREN expr rparen
-+| kNOT tLPAREN rparen
- | operation brace_block
- | method_call
- | method_call brace_block
 @@ -516,14 +527,13 @@
  | tFLOAT
  | tUMINUS_NUM tINTEGER =tLOWEST
