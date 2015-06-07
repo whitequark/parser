@@ -11,6 +11,8 @@
 --exclude lib/parser/ruby19.rb
 --exclude lib/parser/ruby20.rb
 --exclude lib/parser/ruby21.rb
+--exclude lib/parser/ruby22.rb
+--exclude lib/parser/macruby.rb
 -
 ./doc/*.md
 LICENSE.txt

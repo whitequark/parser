@@ -121,13 +121,13 @@ class TestParser < Minitest::Test
       s(:rational, Rational(42)),
       %q{42r},
       %q{~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses(
       s(:rational, Rational(421, 10)),
       %q{42.1r},
       %q{~~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_complex
@@ -135,25 +135,25 @@ class TestParser < Minitest::Test
       s(:complex, Complex(0, 42)),
       %q{42i},
       %q{~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses(
       s(:complex, Complex(0, Rational(42))),
       %q{42ri},
       %q{~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses(
       s(:complex, Complex(0, 42.1)),
       %q{42.1i},
       %q{~~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses(
       s(:complex, Complex(0, Rational(421, 10))),
       %q{42.1ri},
       %q{~~~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   # Strings
@@ -491,7 +491,7 @@ class TestParser < Minitest::Test
         |          ^ end
         |   ~~~ expression (sym)
         |~~~~~~~~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_array_symbols_interp
@@ -508,7 +508,7 @@ class TestParser < Minitest::Test
         |       ~~~~~~ expression (dsym.begin)
         |         ~~~ expression (dsym.begin.lvar)
         |~~~~~~~~~~~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:array,
@@ -517,7 +517,7 @@ class TestParser < Minitest::Test
           s(:begin, s(:lvar, :bar)))),
       %q{%I[foo#{bar}]},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_array_symbols_empty
@@ -527,13 +527,13 @@ class TestParser < Minitest::Test
       %q{^^^ begin
         |   ^ end
         |~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:array),
       %q{%I()},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   # Hashes
@@ -589,7 +589,7 @@ class TestParser < Minitest::Test
         |  ~~~~~ expression (pair.sym)
         |  ~~~~~~~~ expression (pair)
         |~~~~~~~~~~~~ expression},
-      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0 2.1))
 
     assert_parses(
       s(:hash,
@@ -597,7 +597,7 @@ class TestParser < Minitest::Test
         s(:pair, s(:sym, :bar), s(:hash))),
       %q[{ 'foo': 2, 'bar': {}}],
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0 2.1))
 
     assert_parses(
       s(:send, nil, :f,
@@ -606,7 +606,7 @@ class TestParser < Minitest::Test
           s(:int, 1))),
       %q{f(a ? "a":1)},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0 2.1))
   end
 
   def test_hash_kwsplat
@@ -617,7 +617,7 @@ class TestParser < Minitest::Test
       %q[{ foo: 2, **bar }],
       %q{          ^^ operator (kwsplat)
         |          ~~~~~ expression (kwsplat)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_hash_no_hashrocket
@@ -1233,7 +1233,7 @@ class TestParser < Minitest::Test
         s(:int, 1)),
       %q{::A += 1},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:op_asgn,
@@ -1241,7 +1241,7 @@ class TestParser < Minitest::Test
         s(:int, 1)),
       %q{B::A += 1},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:def, :x, s(:args),
@@ -1250,7 +1250,7 @@ class TestParser < Minitest::Test
           s(:int, 1))),
       %q{def x; self::A ||= 1; end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:def, :x, s(:args),
@@ -1259,7 +1259,7 @@ class TestParser < Minitest::Test
           s(:int, 1))),
       %q{def x; ::A ||= 1; end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_const_op_asgn_invalid
@@ -1267,25 +1267,25 @@ class TestParser < Minitest::Test
       [:error, :dynamic_const],
       %q{Foo::Bar += 1},
       %q{     ~~~ location},
-      %w(1.8 1.9))
+      %w(1.8 1.9 mac))
 
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{::Bar += 1},
       %q{  ~~~ location},
-      %w(1.8 1.9))
+      %w(1.8 1.9 mac))
 
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def foo; Foo::Bar += 1; end},
       %q{              ~~~ location},
-      %w(1.8 1.9))
+      %w(1.8 1.9 mac))
 
     assert_diagnoses(
       [:error, :dynamic_const],
       %q{def foo; ::Bar += 1; end},
       %q{           ~~~ location},
-      %w(1.8 1.9))
+      %w(1.8 1.9 mac))
   end
 
   # Method binary operator-assignment
@@ -1535,7 +1535,7 @@ class TestParser < Minitest::Test
         nil),
       %q{class Foo < a:b; end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_class_invalid
@@ -1771,7 +1771,7 @@ class TestParser < Minitest::Test
       %q{def f(foo:); end},
       %q{      ~~~ name (args.kwarg)
         |      ~~~~ expression (args.kwarg)},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_kwoptarg
@@ -1782,7 +1782,7 @@ class TestParser < Minitest::Test
       %q{def f(foo: 1); end},
       %q{      ~~~ name (args.kwoptarg)
         |      ~~~~~~ expression (args.kwoptarg)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_kwrestarg_named
@@ -1793,7 +1793,7 @@ class TestParser < Minitest::Test
       %q{def f(**foo); end},
       %q{        ~~~ name (args.kwrestarg)
         |      ~~~~~ expression (args.kwrestarg)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_kwrestarg_unnamed
@@ -1803,7 +1803,7 @@ class TestParser < Minitest::Test
         nil),
       %q{def f(**); end},
       %q{      ~~ expression (args.kwrestarg)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_blockarg
@@ -1824,7 +1824,7 @@ class TestParser < Minitest::Test
         s(:lvar, :var)),
       %q{def f(var = defined?(var)) var end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses(
       s(:def, :f,
@@ -1832,7 +1832,7 @@ class TestParser < Minitest::Test
         s(:lvar, :var)),
       %q{def f(var: defined?(var)) var end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def assert_parses_args(ast, code, versions=ALL_VERSIONS)
@@ -1978,7 +1978,7 @@ class TestParser < Minitest::Test
         s(:kwrestarg, :baz),
         s(:blockarg, :b)),
       %q{(foo: 1, bar: 2, **baz, &b)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     # f_kwarg opt_f_block_arg
     assert_parses_args(
@@ -1986,7 +1986,7 @@ class TestParser < Minitest::Test
         s(:kwoptarg, :foo, s(:int, 1)),
         s(:blockarg, :b)),
       %q{(foo: 1, &b)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     # f_kwrest opt_f_block_arg
     assert_parses_args(
@@ -1994,14 +1994,14 @@ class TestParser < Minitest::Test
         s(:kwrestarg, :baz),
         s(:blockarg, :b)),
       %q{**baz, &b},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses_args(
       s(:args,
         s(:restarg),
         s(:kwrestarg)),
       %q{*, **},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_kwarg_no_paren
@@ -2009,13 +2009,13 @@ class TestParser < Minitest::Test
       s(:args,
         s(:kwarg, :foo)),
       %Q{foo:\n},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses_args(
       s(:args,
         s(:kwoptarg, :foo, s(:int, -1))),
       %Q{foo: -1\n},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def assert_parses_margs(ast, code, versions=ALL_VERSIONS - %w(1.8))
@@ -2108,7 +2108,7 @@ class TestParser < Minitest::Test
     assert_parses_blockargs(
       s(:args, s(:shadowarg, :a)),
       %Q{|;\na\n|},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     # tOROP
     assert_parses_blockargs(
@@ -2346,7 +2346,7 @@ class TestParser < Minitest::Test
         s(:kwrestarg, :baz),
         s(:blockarg, :b)),
       %q{|foo: 1, bar: 2, **baz, &b|},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     # f_block_kwarg opt_f_block_arg
     assert_parses_blockargs(
@@ -2354,7 +2354,7 @@ class TestParser < Minitest::Test
         s(:kwoptarg, :foo, s(:int, 1)),
         s(:blockarg, :b)),
       %q{|foo: 1, &b|},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     # f_kwrest opt_f_block_arg
     assert_parses_blockargs(
@@ -2362,7 +2362,7 @@ class TestParser < Minitest::Test
         s(:kwrestarg, :baz),
         s(:blockarg, :b)),
       %q{|**baz, &b|},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_block_kwarg
@@ -2370,7 +2370,7 @@ class TestParser < Minitest::Test
       s(:args,
         s(:kwarg, :foo)),
       %q{|foo:|},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_arg_invalid
@@ -2447,21 +2447,21 @@ class TestParser < Minitest::Test
       %q{def foo(aa, aa: 1); end},
       %q{            ^^ location
         |        ~~ highlights (0)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, **aa); end},
       %q{              ^^ location
         |        ~~ highlights (0)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_diagnoses(
       [:error, :duplicate_argument],
       %q{def foo(aa, aa:); end},
       %q{            ^^ location
         |        ~~ highlights (0)},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_arg_duplicate_ignored
@@ -2483,7 +2483,7 @@ class TestParser < Minitest::Test
       [:error, :duplicate_argument],
       %q{def foo(_a, _a); end},
       %q{},
-      %w(1.8 1.9))
+      %w(1.8 1.9 mac))
 
     assert_parses(
       s(:def, :foo,
@@ -2491,7 +2491,7 @@ class TestParser < Minitest::Test
         nil),
       %q{def foo(_a, _a); end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_arg_duplicate_proc
@@ -2515,13 +2515,13 @@ class TestParser < Minitest::Test
       [:error, :argument_const],
       %q{def foo(Abc: 1); end},
       %q{        ~~~~ location},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_diagnoses(
       [:error, :argument_const],
       %q{def foo(Abc:); end},
       %q{        ~~~~ location},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_arg_label
@@ -2687,7 +2687,7 @@ class TestParser < Minitest::Test
       [:warning, :ambiguous_prefix, { :prefix => '**' }],
       %q{m **foo},
       %q{  ^^ location},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_send_block_chain_cmd
@@ -2749,7 +2749,7 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{meth 1 do end.fun bar do end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:block,
@@ -2761,7 +2761,7 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{meth 1 do end.fun(bar) {}},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
 
     assert_parses(
       s(:block,
@@ -2773,7 +2773,7 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{meth 1 do end.fun {}},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_send_paren_block_cmd
@@ -3110,7 +3110,7 @@ class TestParser < Minitest::Test
         nil),
       %q{-> (a) { }},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_send_lambda_args_shadow
@@ -3702,7 +3702,7 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{fun () {}},
       %q{    ~~ expression (send.begin)},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   #
@@ -4580,7 +4580,7 @@ class TestParser < Minitest::Test
       %q{def f; BEGIN{}; end},
       %q{       ~~~~~ location},
       # Yes. *Exclude 1.9*. Sigh.
-      ALL_VERSIONS - %w(1.9))
+      ALL_VERSIONS - %w(1.9 mac))
   end
 
   def test_postexe
@@ -4634,7 +4634,7 @@ class TestParser < Minitest::Test
             s(:int, 1)))),
       %q{p begin 1.times do 1 end end},
       %{},
-      ALL_VERSIONS - %w(1.8 1.9))
+      ALL_VERSIONS - %w(1.8 1.9 mac))
   end
 
   def test_bug_cmdarg
@@ -4917,7 +4917,7 @@ class TestParser < Minitest::Test
       s(:def, :a, s(:args, s(:kwarg, :b)), s(:return)),
       %Q{def a b:\nreturn\nend},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
 
     assert_parses(
       s(:lvasgn, :o,
@@ -4925,7 +4925,7 @@ class TestParser < Minitest::Test
           s(:pair, s(:sym, :a), s(:int, 1)))),
       %Q{o = {\na:\n1\n}},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_ruby_bug_10279
@@ -4935,7 +4935,7 @@ class TestParser < Minitest::Test
         s(:if, s(:true), s(:int, 42), nil))),
       %q{{a: if true then 42 end}},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 2.0))
+      ALL_VERSIONS - %w(1.8 1.9 mac 2.0))
   end
 
   def test_ruby_bug_11107
@@ -4947,7 +4947,7 @@ class TestParser < Minitest::Test
           s(:block, s(:send, nil, :a), s(:args), nil))),
       %q{p ->() do a() do end end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9)) # no 1.9 backport
+      ALL_VERSIONS - %w(1.8 1.9 mac)) # no 1.9 mac backport
   end
 
   def test_parser_bug_198
