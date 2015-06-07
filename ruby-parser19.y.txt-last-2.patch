@@ -1,24 +1,5 @@
 --- ruby-parser19.y.txt	2015-06-07 20:06:35.041607857 +0300
 +++ macruby-last-parse.y-2.txt	2015-06-07 20:16:11.002897718 +0300
-@@ -32,7 +32,7 @@
- | stmt kUNTIL_MOD expr_value
- | stmt kRESCUE_MOD stmt
- | klEND tLCURLY compstmt tRCURLY
--| command_asgn
-+| lhs tEQL command_call
- | mlhs tEQL command_call
- | var_lhs tOP_ASGN command_call
- | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN command_call
-@@ -45,9 +45,6 @@
- | mlhs tEQL arg_value
- | mlhs tEQL mrhs
- | expr
--command_asgn:
--  lhs tEQL command_call
--| lhs tEQL command_asgn
- expr:
-   command_call
- | expr kAND expr
 @@ -105,8 +102,7 @@
    mlhs_item
  | mlhs_post tCOMMA mlhs_item

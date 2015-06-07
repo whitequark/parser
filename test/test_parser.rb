@@ -837,7 +837,7 @@ class TestParser < Minitest::Test
           s(:send, nil, :m, s(:lvar, :foo)))),
       %q{foo = bar = m foo},
       %q{},
-      ALL_VERSIONS - %w(1.8))
+      ALL_VERSIONS - %w(1.8 mac))
   end
 
   def test_asgn_keyword_invalid

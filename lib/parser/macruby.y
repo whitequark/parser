@@ -171,7 +171,10 @@ rule
                     {
                       result = @builder.postexe(val[0], val[1], val[2], val[3])
                     }
-                | command_asgn
+                | lhs tEQL command_call
+                    {
+                      result = @builder.assign(val[0], val[1], val[2])
+                    }
                 | mlhs tEQL command_call
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
@@ -234,15 +237,6 @@ rule
                                   @builder.array(nil, val[2], nil))
                     }
                 | expr
-
-    command_asgn: lhs tEQL command_call
-                    {
-                      result = @builder.assign(val[0], val[1], val[2])
-                    }
-                | lhs tEQL command_asgn
-                    {
-                      result = @builder.assign(val[0], val[1], val[2])
-                    }
 
             expr: command_call
                 | expr kAND expr
