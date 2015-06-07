@@ -1,0 +1,252 @@
+--- ruby-parser19.y.txt	2015-06-07 20:06:35.041607857 +0300
++++ macruby-last-parse.y-2.txt	2015-06-07 20:16:11.002897718 +0300
+@@ -4,7 +4,7 @@
+ top_compstmt:
+   top_stmts opt_terms
+ top_stmts:
+-
++  none
+ | top_stmt
+ | top_stmts terms top_stmt
+ | error top_stmt
+@@ -16,7 +16,7 @@
+ compstmt:
+   stmts opt_terms
+ stmts:
+-
++  none
+ | stmt
+ | stmts terms stmt
+ | error stmt
+@@ -32,7 +32,7 @@
+ | stmt kUNTIL_MOD expr_value
+ | stmt kRESCUE_MOD stmt
+ | klEND tLCURLY compstmt tRCURLY
+-| command_asgn
++| lhs tEQL command_call
+ | mlhs tEQL command_call
+ | var_lhs tOP_ASGN command_call
+ | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN command_call
+@@ -45,9 +45,6 @@
+ | mlhs tEQL arg_value
+ | mlhs tEQL mrhs
+ | expr
+-command_asgn:
+-  lhs tEQL command_call
+-| lhs tEQL command_asgn
+ expr:
+   command_call
+ | expr kAND expr
+@@ -105,8 +102,7 @@
+   mlhs_item
+ | mlhs_post tCOMMA mlhs_item
+ mlhs_node:
+-  user_variable
+-| keyword_variable
++  variable
+ | primary_value tLBRACK2 opt_call_args rbracket
+ | primary_value tDOT tIDENTIFIER
+ | primary_value tCOLON2 tIDENTIFIER
+@@ -115,8 +111,7 @@
+ | tCOLON3 tCONSTANT
+ | backref
+ lhs:
+-  user_variable
+-| keyword_variable
++  variable
+ | primary_value tLBRACK2 opt_call_args rbracket
+ | primary_value tDOT tIDENTIFIER
+ | primary_value tCOLON2 tIDENTIFIER
+@@ -274,27 +269,37 @@
+ paren_args:
+   tLPAREN2 opt_call_args rparen
+ opt_paren_args:
+-
++  none
+ | paren_args
+ opt_call_args:
+-
++  none
+ | call_args
+-| args tCOMMA
+-| args tCOMMA assocs tCOMMA
+-| assocs tCOMMA
+ call_args:
+   command
+ | args opt_block_arg
+ | assocs opt_block_arg
+ | args tCOMMA assocs opt_block_arg
++| args tCOMMA assocs tCOMMA args opt_block_arg
++| block_arg
++call_args2:
++  arg_value tCOMMA args opt_block_arg
++| arg_value tCOMMA block_arg
++| assocs opt_block_arg
++| arg_value tCOMMA assocs opt_block_arg
++| arg_value tCOMMA args tCOMMA assocs opt_block_arg
+ | block_arg
+ command_args:
++  open_args
++open_args:
+   call_args
++| tLPAREN_ARG rparen
++| tLPAREN_ARG call_args2 rparen
+ block_arg:
+   tAMPER arg_value
+ opt_block_arg:
+   tCOMMA block_arg
+-|
++| tCOMMA
++| none
+ args:
+   arg_value
+ | tSTAR arg_value
+@@ -315,7 +320,7 @@
+ | backref
+ | tFID
+ | kBEGIN bodystmt kEND
+-| tLPAREN_ARG expr opt_nl tRPAREN
++| tLPAREN_ARG expr rparen
+ | tLPAREN compstmt tRPAREN
+ | primary_value tCOLON2 tCONSTANT
+ | tCOLON3 tCONSTANT
+@@ -326,8 +331,8 @@
+ | kYIELD tLPAREN2 rparen
+ | kYIELD
+ | kDEFINED opt_nl tLPAREN2 expr rparen
+-| kNOT tLPAREN2 expr rparen
+-| kNOT tLPAREN2 rparen
++| kNOT tLPAREN expr rparen
++| kNOT tLPAREN rparen
+ | operation brace_block
+ | method_call
+ | method_call brace_block
+@@ -399,14 +404,14 @@
+ | f_rest_arg tCOMMA f_arg opt_f_block_arg
+ | f_block_arg
+ opt_block_param:
+-
++  none
+ | block_param_def
+ block_param_def:
+   tPIPE opt_bv_decl tPIPE
+ | tOROP
+ | tPIPE block_param opt_bv_decl tPIPE
+ opt_bv_decl:
+-
++  none
+ | tSEMI bv_decls
+ bv_decls:
+   bvar
+@@ -448,7 +453,7 @@
+ | case_body
+ opt_rescue:
+   kRESCUE exc_list exc_var then compstmt opt_rescue
+-|
++| none
+ exc_list:
+   arg_value
+ | mrhs
+@@ -466,18 +471,18 @@
+ strings:
+   string
+ string:
+-  string1
++  tCHAR
++| string1
+ | string string1
+ string1:
+   tSTRING_BEG string_contents tSTRING_END
+-| tSTRING
+-| tCHARACTER
+ xstring:
+   tXSTRING_BEG xstring_contents tSTRING_END
+ regexp:
+-  tREGEXP_BEG regexp_contents tSTRING_END tREGEXP_OPT
++  tREGEXP_BEG regexp_contents tREGEXP_END
+ words:
+-  tWORDS_BEG word_list tSTRING_END
++  tWORDS_BEG tSPACE tSTRING_END
++| tWORDS_BEG word_list tSTRING_END
+ word_list:
+ 
+ | word_list word tSPACE
+@@ -485,7 +490,8 @@
+   string_content
+ | word string_content
+ qwords:
+-  tQWORDS_BEG qword_list tSTRING_END
++  tQWORDS_BEG tSPACE tSTRING_END
++| tQWORDS_BEG qword_list tSTRING_END
+ qword_list:
+ 
+ | qword_list tSTRING_CONTENT tSPACE
+@@ -508,7 +514,12 @@
+ | tCVAR
+ | backref
+ symbol:
+-  tSYMBOL
++  tSYMBEG sym
++sym:
++  fname
++| tIVAR
++| tGVAR
++| tCVAR
+ dsym:
+   tSYMBEG xstring_contents tSTRING_END
+ numeric:
+@@ -516,14 +527,13 @@
+ | tFLOAT
+ | tUMINUS_NUM tINTEGER =tLOWEST
+ | tUMINUS_NUM tFLOAT =tLOWEST
+-user_variable:
++variable:
+   tIDENTIFIER
+ | tIVAR
+ | tGVAR
+ | tCONSTANT
+ | tCVAR
+-keyword_variable:
+-  kNIL
++| kNIL
+ | kSELF
+ | kTRUE
+ | kFALSE
+@@ -531,11 +541,9 @@
+ | k__LINE__
+ | k__ENCODING__
+ var_ref:
+-  user_variable
+-| keyword_variable
++  variable
+ var_lhs:
+-  user_variable
+-| keyword_variable
++  variable
+ backref:
+   tNTH_REF
+ | tBACK_REF
+@@ -570,6 +578,8 @@
+ f_norm_arg:
+   f_bad_arg
+ | tIDENTIFIER
++| tIDENTIFIER tASSOC tIDENTIFIER
++| tLABEL tIDENTIFIER
+ f_arg_item:
+   f_norm_arg
+ | tLPAREN f_margs rparen
+@@ -599,12 +609,12 @@
+   blkarg_mark tIDENTIFIER
+ opt_f_block_arg:
+   tCOMMA f_block_arg
+-|
++| none
+ singleton:
+   var_ref
+ | tLPAREN2 expr rparen
+ assoc_list:
+-
++  none
+ | assocs trailer
+ assocs:
+   assoc
