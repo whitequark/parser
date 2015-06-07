@@ -1,23 +1,5 @@
 --- ruby-parser19.y.txt	2015-06-07 20:06:35.041607857 +0300
 +++ macruby-last-parse.y-2.txt	2015-06-07 20:16:11.002897718 +0300
-@@ -4,7 +4,7 @@
- top_compstmt:
-   top_stmts opt_terms
- top_stmts:
--
-+  none
- | top_stmt
- | top_stmts terms top_stmt
- | error top_stmt
-@@ -16,7 +16,7 @@
- compstmt:
-   stmts opt_terms
- stmts:
--
-+  none
- | stmt
- | stmts terms stmt
- | error stmt
 @@ -32,7 +32,7 @@
  | stmt kUNTIL_MOD expr_value
  | stmt kRESCUE_MOD stmt
@@ -61,12 +43,10 @@
  paren_args:
    tLPAREN2 opt_call_args rparen
  opt_paren_args:
--
-+  none
+   none
  | paren_args
  opt_call_args:
--
-+  none
+   none
  | call_args
 -| args tCOMMA
 -| args tCOMMA assocs tCOMMA
@@ -95,9 +75,8 @@
    tAMPER arg_value
  opt_block_arg:
    tCOMMA block_arg
--|
 +| tCOMMA
-+| none
+ | none
  args:
    arg_value
  | tSTAR arg_value
@@ -121,80 +100,6 @@
  | operation brace_block
  | method_call
  | method_call brace_block
-@@ -399,14 +404,14 @@
- | f_rest_arg tCOMMA f_arg opt_f_block_arg
- | f_block_arg
- opt_block_param:
--
-+  none
- | block_param_def
- block_param_def:
-   tPIPE opt_bv_decl tPIPE
- | tOROP
- | tPIPE block_param opt_bv_decl tPIPE
- opt_bv_decl:
--
-+  none
- | tSEMI bv_decls
- bv_decls:
-   bvar
-@@ -448,7 +453,7 @@
- | case_body
- opt_rescue:
-   kRESCUE exc_list exc_var then compstmt opt_rescue
--|
-+| none
- exc_list:
-   arg_value
- | mrhs
-@@ -466,18 +471,18 @@
- strings:
-   string
- string:
--  string1
-+  tCHAR
-+| string1
- | string string1
- string1:
-   tSTRING_BEG string_contents tSTRING_END
--| tSTRING
--| tCHARACTER
- xstring:
-   tXSTRING_BEG xstring_contents tSTRING_END
- regexp:
--  tREGEXP_BEG regexp_contents tSTRING_END tREGEXP_OPT
-+  tREGEXP_BEG regexp_contents tREGEXP_END
- words:
--  tWORDS_BEG word_list tSTRING_END
-+  tWORDS_BEG tSPACE tSTRING_END
-+| tWORDS_BEG word_list tSTRING_END
- word_list:
- 
- | word_list word tSPACE
-@@ -485,7 +490,8 @@
-   string_content
- | word string_content
- qwords:
--  tQWORDS_BEG qword_list tSTRING_END
-+  tQWORDS_BEG tSPACE tSTRING_END
-+| tQWORDS_BEG qword_list tSTRING_END
- qword_list:
- 
- | qword_list tSTRING_CONTENT tSPACE
-@@ -508,7 +514,12 @@
- | tCVAR
- | backref
- symbol:
--  tSYMBOL
-+  tSYMBEG sym
-+sym:
-+  fname
-+| tIVAR
-+| tGVAR
-+| tCVAR
- dsym:
-   tSYMBEG xstring_contents tSTRING_END
- numeric:
 @@ -516,14 +527,13 @@
  | tFLOAT
  | tUMINUS_NUM tINTEGER =tLOWEST
@@ -235,18 +140,3 @@
  f_arg_item:
    f_norm_arg
  | tLPAREN f_margs rparen
-@@ -599,12 +609,12 @@
-   blkarg_mark tIDENTIFIER
- opt_f_block_arg:
-   tCOMMA f_block_arg
--|
-+| none
- singleton:
-   var_ref
- | tLPAREN2 expr rparen
- assoc_list:
--
-+  none
- | assocs trailer
- assocs:
-   assoc
