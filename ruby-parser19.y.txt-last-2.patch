@@ -1,25 +1,5 @@
 --- ruby-parser19.y.txt	2015-06-07 20:06:35.041607857 +0300
 +++ macruby-last-parse.y-2.txt	2015-06-07 20:16:11.002897718 +0300
-@@ -105,8 +102,7 @@
-   mlhs_item
- | mlhs_post tCOMMA mlhs_item
- mlhs_node:
--  user_variable
--| keyword_variable
-+  variable
- | primary_value tLBRACK2 opt_call_args rbracket
- | primary_value tDOT tIDENTIFIER
- | primary_value tCOLON2 tIDENTIFIER
-@@ -115,8 +111,7 @@
- | tCOLON3 tCONSTANT
- | backref
- lhs:
--  user_variable
--| keyword_variable
-+  variable
- | primary_value tLBRACK2 opt_call_args rbracket
- | primary_value tDOT tIDENTIFIER
- | primary_value tCOLON2 tIDENTIFIER
 @@ -274,27 +269,37 @@
  paren_args:
    tLPAREN2 opt_call_args rparen
@@ -61,37 +41,6 @@
  args:
    arg_value
  | tSTAR arg_value
-@@ -516,14 +527,13 @@
- | tFLOAT
- | tUMINUS_NUM tINTEGER =tLOWEST
- | tUMINUS_NUM tFLOAT =tLOWEST
--user_variable:
-+variable:
-   tIDENTIFIER
- | tIVAR
- | tGVAR
- | tCONSTANT
- | tCVAR
--keyword_variable:
--  kNIL
-+| kNIL
- | kSELF
- | kTRUE
- | kFALSE
-@@ -531,11 +541,9 @@
- | k__LINE__
- | k__ENCODING__
- var_ref:
--  user_variable
--| keyword_variable
-+  variable
- var_lhs:
--  user_variable
--| keyword_variable
-+  variable
- backref:
-   tNTH_REF
- | tBACK_REF
 @@ -570,6 +578,8 @@
  f_norm_arg:
    f_bad_arg

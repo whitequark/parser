@@ -442,11 +442,7 @@ rule
                       result = val[0] << val[2]
                     }
 
-       mlhs_node: user_variable
-                    {
-                      result = @builder.assignable(val[0])
-                    }
-                | keyword_variable
+       mlhs_node: variable
                     {
                       result = @builder.assignable(val[0])
                     }
@@ -481,11 +477,7 @@ rule
                       result = @builder.assignable(val[0])
                     }
 
-             lhs: user_variable
-                    {
-                      result = @builder.assignable(val[0])
-                    }
-                | keyword_variable
+             lhs: variable
                     {
                       result = @builder.assignable(val[0])
                     }
@@ -1769,7 +1761,7 @@ regexp_contents: # nothing
                                   @builder.float(val[1]))
                     }
 
-   user_variable: tIDENTIFIER
+        variable: tIDENTIFIER
                     {
                       result = @builder.ident(val[0])
                     }
@@ -1789,8 +1781,7 @@ regexp_contents: # nothing
                     {
                       result = @builder.cvar(val[0])
                     }
-
-keyword_variable: kNIL
+                | kNIL
                     {
                       result = @builder.nil(val[0])
                     }
@@ -1819,20 +1810,12 @@ keyword_variable: kNIL
                       result = @builder.__ENCODING__(val[0])
                     }
 
-         var_ref: user_variable
-                    {
-                      result = @builder.accessible(val[0])
-                    }
-                | keyword_variable
+         var_ref: variable
                     {
                       result = @builder.accessible(val[0])
                     }
 
-         var_lhs: user_variable
-                    {
-                      result = @builder.assignable(val[0])
-                    }
-                | keyword_variable
+         var_lhs: variable
                     {
                       result = @builder.assignable(val[0])
                     }
