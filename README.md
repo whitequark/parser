@@ -12,7 +12,7 @@ You can also use [unparser](https://github.com/mbj/unparser) to produce
 equivalent source code from Parser's ASTs.
 
 Sponsored by [Evil Martians](http://evilmartians.com).
-MacRuby support sponsored by [CodeClimate](http://codeclimate.com).
+MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com).
 
 ## Installation
 
@@ -101,7 +101,7 @@ with Parser:
 * A simple interface and a powerful, tweakable one.
 * Parses 1.8, 1.9, 2.0, 2.1 and 2.2 syntax with backwards-compatible
   AST formats.
-* Parses MacRuby syntax extensions.
+* Parses MacRuby and RubyMotion syntax extensions.
 * [Rewriting][rewriting] support.
 * Parsing error recovery.
 * Improved [clang-like][] diagnostic messages with location information.
@@ -204,6 +204,10 @@ Unfortunately, Ruby MRI often changes syntax in patchlevel versions. This has ha
 This policy makes it all but impossible to make Parser precisely compatible with the Ruby MRI parser. Indeed, at September 2014, it would be necessary to maintain and update ten different parsers together with their lexer quirks in order to be able to emulate any given released Ruby MRI version.
 
 As a result, Parser chooses a different path: the `parser/rubyXY` parsers recognize the syntax of the latest minor version of Ruby MRI X.Y at the time of the gem release.
+
+## Compatibility with MacRuby and RubyMotion
+
+Parser implements the MacRuby 0.12 and RubyMotion mid-2015 parsers precisely. However, the lexers of these have been forked off Ruby MRI and independently maintained for some time, and because of that, Parser may accept some code that these upstream implementations are unable to parse.
 
 ## Known issues
 
