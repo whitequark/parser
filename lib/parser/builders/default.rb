@@ -699,6 +699,15 @@ module Parser
         unary_op_map(amper_t, arg))
     end
 
+    def objc_varargs(pair, rest_of_varargs)
+      value, first_vararg = *pair
+      vararg_array = array(nil, [ first_vararg, *rest_of_varargs ], nil).
+        updated(:objc_varargs)
+      pair.updated(nil, [ value, vararg_array ],
+        { :location => pair.loc.with_expression(
+              pair.loc.expression.join(vararg_array.loc.expression)) })
+    end
+
     def attr_asgn(receiver, dot_t, selector_t)
       method_name = (value(selector_t) + '=').to_sym
 

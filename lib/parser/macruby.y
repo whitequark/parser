@@ -266,12 +266,12 @@ rule
                 | block_call tDOT operation2 command_args
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
+                                  *val[3])
                     }
                 | block_call tCOLON2 operation2 command_args
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
+                                  *val[3])
                     }
 
  cmd_brace_block: tLBRACE_ARG
@@ -288,12 +288,12 @@ rule
          command: operation command_args =tLOWEST
                     {
                       result = @builder.call_method(nil, nil, val[0],
-                                  nil, val[1], nil)
+                                  *val[1])
                     }
                 | operation command_args cmd_brace_block
                     {
                       method_call = @builder.call_method(nil, nil, val[0],
-                                        nil, val[1], nil)
+                                        *val[1])
 
                       begin_t, args, body, end_t = val[2]
                       result      = @builder.block(method_call,
@@ -302,12 +302,12 @@ rule
                 | primary_value tDOT operation2 command_args =tLOWEST
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
+                                  *val[3])
                     }
                 | primary_value tDOT operation2 command_args cmd_brace_block
                     {
                       method_call = @builder.call_method(val[0], val[1], val[2],
-                                        nil, val[3], nil)
+                                        *val[3])
 
                       begin_t, args, body, end_t = val[4]
                       result      = @builder.block(method_call,
@@ -316,12 +316,12 @@ rule
                 | primary_value tCOLON2 operation2 command_args =tLOWEST
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
+                                  *val[3])
                     }
                 | primary_value tCOLON2 operation2 command_args cmd_brace_block
                     {
                       method_call = @builder.call_method(val[0], val[1], val[2],
-                                        nil, val[3], nil)
+                                        *val[3])
 
                       begin_t, args, body, end_t = val[4]
                       result      = @builder.block(method_call,
@@ -330,12 +330,12 @@ rule
                 | kSUPER command_args
                     {
                       result = @builder.keyword_cmd(:super, val[0],
-                                  nil, val[1], nil)
+                                  *val[1])
                     }
                 | kYIELD command_args
                     {
                       result = @builder.keyword_cmd(:yield, val[0],
-                                  nil, val[1], nil)
+                                  *val[1])
                     }
                 | kRETURN call_args
                     {
@@ -812,15 +812,6 @@ rule
                       result = []
                     }
                 | call_args
-                | args tCOMMA
-                | args tCOMMA assocs tCOMMA
-                    {
-                      result = val[0] << @builder.associate(nil, val[2], nil)
-                    }
-                | assocs tCOMMA
-                    {
-                      result = [ @builder.associate(nil, val[0], nil) ]
-                    }
 
        call_args: command
                     {
@@ -841,20 +832,79 @@ rule
                       result = val[0] << assocs
                       result.concat(val[3])
                     }
+                | args tCOMMA assocs tCOMMA args opt_block_arg
+                    {
+                      val[2][-1] = @builder.objc_varargs(val[2][-1], val[4])
+                      assocs = @builder.associate(nil, val[2], nil)
+                      result = val[0] << assocs
+                      result.concat(val[5])
+                    }
                 | block_arg
                     {
                       result =  [ val[0] ]
+                    }
+
+      call_args2: arg_value tCOMMA args opt_block_arg
+                    {
+                      result = [ val[0], *val[2].concat(val[3]) ]
+                    }
+                | arg_value tCOMMA block_arg
+                    {
+                      result = [ val[0], val[2] ]
+                    }
+                | assocs opt_block_arg
+                    {
+                      result =  [ @builder.associate(nil, val[0], nil),
+                                  *val[1] ]
+                    }
+                | arg_value tCOMMA assocs opt_block_arg
+                    {
+                      result =  [ val[0],
+                                  @builder.associate(nil, val[2], nil),
+                                  *val[3] ]
+                    }
+                | arg_value tCOMMA args tCOMMA assocs opt_block_arg
+                    {
+                      result =  [ val[0],
+                                  *val[2].
+                                    push(@builder.associate(nil, val[4], nil)).
+                                    concat(val[5]) ]
+                    }
+                | block_arg
+                    {
+                      result = [ val[0] ]
                     }
 
     command_args:   {
                       result = @lexer.cmdarg.dup
                       @lexer.cmdarg.push(true)
                     }
-                    call_args
+                    open_args
                     {
                       @lexer.cmdarg = val[0]
 
                       result = val[1]
+                    }
+
+       open_args: call_args
+                    {
+                      result = [ nil, val[0], nil ]
+                    }
+                | tLPAREN_ARG
+                    {
+                      @lexer.state = :expr_endarg
+                    }
+                    rparen
+                    {
+                      result = [ val[0], [], val[2] ]
+                    }
+                | tLPAREN_ARG call_args2
+                    {
+                      @lexer.state = :expr_endarg
+                    }
+                    rparen
+                    {
+                      result = [ val[0], val[1], val[3] ]
                     }
 
        block_arg: tAMPER arg_value
@@ -865,6 +915,10 @@ rule
    opt_block_arg: tCOMMA block_arg
                     {
                       result = [ val[1] ]
+                    }
+                | tCOMMA
+                    {
+                      result = []
                     }
                 | # nothing
                     {
@@ -917,20 +971,13 @@ rule
                     {
                       result = @builder.begin_keyword(val[0], val[1], val[2])
                     }
-                | tLPAREN_ARG
-                    {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
-                    }
-                    expr
+                | tLPAREN_ARG expr
                     {
                       @lexer.state = :expr_endarg
                     }
-                    tRPAREN
+                    rparen
                     {
-                      @lexer.cmdarg = val[1]
-
-                      result = @builder.begin(val[0], val[2], val[4])
+                      result = @builder.begin(val[0], val[1], val[3])
                     }
                 | tLPAREN compstmt tRPAREN
                     {

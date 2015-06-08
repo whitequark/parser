@@ -2642,6 +2642,17 @@ class TestParser < Minitest::Test
         |          ~~ highlights (0)})
   end
 
+  def test_send_objc_vararg
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:int, 1),
+        s(:hash,
+          s(:pair, s(:sym, :bar), s(:objc_varargs, s(:int, 2), s(:int, 3), s(:nil))))),
+      %q{fun(1, bar: 2, 3, nil)},
+      %q{            ~~~~~~~~~ expression (hash.pair.objc_varargs)},
+      %w(mac))
+    end
+
   # To receiver
 
   def test_send_plain
@@ -4910,7 +4921,7 @@ class TestParser < Minitest::Test
             s(:args), nil))),
       %q{tap (proc do end)},
       %q{},
-      ALL_VERSIONS - %w(1.8))
+      ALL_VERSIONS - %w(1.8 mac))
   end
 
   def test_bug_interp_single

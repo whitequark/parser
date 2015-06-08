@@ -983,7 +983,7 @@ keyword arguments, and are thus treated differently.
 Format:
 
 ~~~
-(objc_kwarg :a :b)
+(objc-kwarg :a :b)
 "a: b"
  ~ keyword
   ~ operator
@@ -996,7 +996,7 @@ Format:
 Format:
 
 ~~~
-(objc_kwarg :a :b)
+(objc-kwarg :a :b)
 "a => b"
  ~ keyword
    ~~ operator
@@ -1009,7 +1009,7 @@ Format:
 Format:
 
 ~~~
-(objc_restarg (objc_kwarg :foo))
+(objc-restarg (objc-kwarg :foo))
 "(*a: b)"
    ~ arg.keyword
     ~ arg.operator
@@ -1144,6 +1144,21 @@ Used when passing expression as block `foo(&bar)`
 "foo(1, &foo)"
         ^ operator
         ~~~~ expression
+~~~
+
+### Objective-C variadic send
+
+MacRuby allows to pass a variadic amount of arguments via the last
+keyword "argument". Semantically, these, together with the pair value
+of the last pair in the hash implicitly passed as the last argument,
+form an array, which replaces the pair value. Despite that, the node
+is called `objc-varargs` to distinguish it from a literal array passed
+as a value.
+
+~~~
+(send nil :foo (int 1) (hash (pair (sym :bar) (objc-varargs (int 1) (int 2) (nil)))))
+"foo(1, bar: 2, 3, nil)"
+             ~~~~~~~~~ expression (array)
 ~~~
 
 ## Control flow
