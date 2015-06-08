@@ -1482,16 +1482,9 @@ opt_block_args_tail:
           lambda:   {
                       @static_env.extend_dynamic
                     }
-                  f_larglist
+                  f_larglist lambda_body
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
-                    }
-                  lambda_body
-                    {
-                      @lexer.cmdarg = val[2]
-
-                      result = [ val[1], val[3] ]
+                      result = [ val[1], val[2] ]
 
                       @static_env.unextend
                     }
