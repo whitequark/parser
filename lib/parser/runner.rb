@@ -82,6 +82,11 @@ module Parser
         @parser_class = Parser::Ruby22
       end
 
+      opts.on '--mac', 'Parse as mid-2015 MacRuby would' do
+        require 'parser/macruby'
+        @parser_class = Parser::MacRuby
+      end
+
       opts.on '-w', '--warnings', 'Enable warnings' do |w|
         @warnings = w
       end
