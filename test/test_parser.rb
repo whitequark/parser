@@ -5004,7 +5004,7 @@ class TestParser < Minitest::Test
           s(:block, s(:send, nil, :a), s(:args), nil))),
       %q{p ->() do a() do end end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 mac ios)) # no 1.9 mac ios backport
+      ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0)) # no 1.9 mac ios backport
   end
 
   def test_parser_bug_198
