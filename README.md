@@ -12,6 +12,7 @@ You can also use [unparser](https://github.com/mbj/unparser) to produce
 equivalent source code from Parser's ASTs.
 
 Sponsored by [Evil Martians](http://evilmartians.com).
+MacRuby support sponsored by [CodeClimate](http://codeclimate.com).
 
 ## Installation
 
