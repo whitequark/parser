@@ -100,6 +100,7 @@ with Parser:
 * A simple interface and a powerful, tweakable one.
 * Parses 1.8, 1.9, 2.0, 2.1 and 2.2 syntax with backwards-compatible
   AST formats.
+* Parses MacRuby syntax extensions.
 * [Rewriting][rewriting] support.
 * Parsing error recovery.
 * Improved [clang-like][] diagnostic messages with location information.
