@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.3.0.pre.2 (2015-06-15)
+-------------------------
+
+Bugs fixed:
+ * {macruby,rubymotion}.rb: add to gemspec. (whitequark)
+
 v2.3.0.pre.1 (2015-06-13)
 -------------------------
 
