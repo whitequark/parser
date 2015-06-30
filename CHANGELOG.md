@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v2.2.2.6 (2015-06-30)
+---------------------
+
+API modifications:
+ * parser/current: link to README from syntax deviation warning. (whitequark)
+
+Bugs fixed:
+ * lexer.rl: "[/()\\1/, ?#]": fixes #198. (whitequark)
+
 v2.2.2.5 (2015-05-25)
 ---------------------
 
