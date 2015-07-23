@@ -5004,7 +5004,24 @@ class TestParser < Minitest::Test
           s(:block, s(:send, nil, :a), s(:args), nil))),
       %q{p ->() do a() do end end},
       %q{},
-      ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0)) # no 1.9 mac ios backport
+      ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0)) # no 1.9 backport
+  end
+
+  def test_ruby_bug_11380
+    assert_parses(
+      s(:block,
+        s(:send, nil, :p,
+          s(:block,
+            s(:send, nil, :lambda),
+            s(:args),
+            s(:sym, :hello)),
+          s(:hash,
+            s(:pair, s(:sym, :a), s(:int, 1)))),
+        s(:args),
+        nil),
+      %q{p -> { :hello }, a: 1 do end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0)) # no 1.9 backport
   end
 
   def test_parser_bug_198

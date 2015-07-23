@@ -1479,6 +1479,7 @@ opt_block_args_tail:
                   lambda_body
                     {
                       @lexer.cmdarg = val[2]
+                      @lexer.cmdarg.lexpop
 
                       result = [ val[1], val[3] ]
 
