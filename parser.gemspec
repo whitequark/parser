@@ -5,7 +5,7 @@ require File.expand_path('../lib/parser/version', __FILE__)
 Gem::Specification.new do |spec|
   spec.name          = 'parser'
   spec.version       = Parser::VERSION
-  spec.authors       = ['Peter Zotov']
+  spec.authors       = ['whitequark']
   spec.email         = ['whitequark@whitequark.org']
   spec.description   = 'A Ruby parser written in pure Ruby.'
   spec.summary       = spec.description
