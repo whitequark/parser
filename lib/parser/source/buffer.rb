@@ -40,6 +40,8 @@ module Parser
           )
         /x
 
+      NEW_LINE = "\n".freeze
+
       ##
       # Try to recognize encoding of `string` as Ruby would, i.e. by looking for
       # magic encoding comment or UTF-8 BOM. `string` can be in any encoding.
@@ -173,7 +175,7 @@ module Parser
           raise ArgumentError, 'Source::Buffer is immutable'
         end
 
-        @source = input.gsub("\r\n", "\n").freeze
+        @source = input.gsub("\r\n", NEW_LINE).freeze
       end
 
       ##
@@ -198,7 +200,7 @@ module Parser
       def source_line(lineno)
         unless @lines
           @lines = @source.lines.to_a
-          @lines.each { |line| line.chomp!("\n") }
+          @lines.each { |line| line.chomp!(NEW_LINE) }
 
           # If a file ends with a newline, the EOF token will appear
           # to be one line further than the end of file.
@@ -215,7 +217,7 @@ module Parser
           @line_begins, index = [ [ 0, 0 ] ], 1
 
           @source.each_char do |char|
-            if char == "\n"
+            if char == NEW_LINE
               @line_begins.unshift [ @line_begins.length, index ]
             end
 
