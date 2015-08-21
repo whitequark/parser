@@ -3175,6 +3175,26 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_send_lambda_args_noparen
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args,
+          s(:kwoptarg, :a, s(:int, 1))),
+        nil),
+      %q{-> a: 1 { }},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 mac ios))
+
+    assert_parses(
+      s(:block, s(:send, nil, :lambda),
+        s(:args,
+          s(:kwarg, :a)),
+        nil),
+      %q{-> a: { }},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0))
+  end
+
   def test_send_call
     assert_parses(
       s(:send, s(:lvar, :foo), :call,

@@ -1891,7 +1891,7 @@ class Parser::Lexer
         emit_table(PUNCTUATION, @ts, @ts + 2)
 
         @lambda_stack.push @paren_nest
-        fbreak;
+        fnext expr_endfn; fbreak;
       };
 
       e_lbrace | 'do'
