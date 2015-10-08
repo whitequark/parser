@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v2.2.3.0 (2015-10-08)
+---------------------
+
+Bugs fixed:
+ * lexer.rl: "-> a: {}": state after -> is ENDFN, not END (fixes #203). (whitequark)
+ * ruby{21,22}.y: "p -> { :hello }, a: 1 do end": lexpop cmdarg. (whitequark)
+
+v2.2.2.6 (2015-06-30)
+---------------------
+
+API modifications:
+ * parser/current: link to README from syntax deviation warning. (whitequark)
+
 v2.3.0.pre.2 (2015-06-15)
 -------------------------
 
