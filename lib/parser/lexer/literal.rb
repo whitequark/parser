@@ -7,7 +7,7 @@ module Parser
     MONOLITHIC = { :tSTRING_BEG => :tSTRING }
 
     TYPES = {
-    # type      start token     interpolate?
+    # type       start token     interpolate?
       "'"   => [ :tSTRING_BEG,   false ],
       "<<'" => [ :tSTRING_BEG,   false ],
       '%q'  => [ :tSTRING_BEG,   false ],

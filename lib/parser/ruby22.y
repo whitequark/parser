@@ -785,6 +785,11 @@ rule
                       result = @builder.keyword_cmd(:defined?, val[0], nil, [ val[2] ], nil)
                     }
 
+                # Note: MRI eventually came to rely on disambiguation based on
+                # the lexer state, but it is too contrived with the Ragel lexer,
+                # so we kept this approach. See ruby/ruby@b0c03f63e5 for
+                # the initial commit, and ruby/ruby@23352f62a for MRI revert,
+                # which we decided not to track.
                 | arg tEH
                     {
                       @lexer.push_cond

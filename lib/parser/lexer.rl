@@ -845,7 +845,7 @@ class Parser::Lexer
       else
         fnext *pop_literal;
       end
-       fbreak;
+      fbreak;
     else
       literal.extend_string(string, @ts, @te)
     end
