@@ -24,6 +24,7 @@ module Parser
         node
       end
 
+      # @private
       def process_variable_node(node)
         on_var(node)
       end
@@ -43,6 +44,7 @@ module Parser
         ])
       end
 
+      # @private
       def process_var_asgn_node(node)
         on_vasgn(node)
       end
@@ -92,6 +94,7 @@ module Parser
         ])
       end
 
+      # @private
       def process_argument_node(node)
         on_argument(node)
       end
@@ -185,7 +188,30 @@ module Parser
 
       alias on_preexe   process_regular_node
       alias on_postexe  process_regular_node
-    end
 
+      # @private
+      def process_variable_node(node)
+        warn 'Parser::AST::Processor#process_variable_node is deprecated as a' \
+          ' public API and will be removed. Please use ' \
+          'Parser::AST::Processor#on_var instead.'
+        on_var(node)
+      end
+
+      # @private
+      def process_var_asgn_node(node)
+        warn 'Parser::AST::Processor#process_var_asgn_node is deprecated as a' \
+          ' public API and will be removed. Please use ' \
+          'Parser::AST::Processor#on_vasgn instead.'
+        on_vasgn(node)
+      end
+
+      # @private
+      def process_argument_node(node)
+        warn 'Parser::AST::Processor#process_argument_node is deprecated as a' \
+          ' public API and will be removed. Please use ' \
+          'Parser::AST::Processor#on_argument instead.'
+        on_argument(node)
+      end
+    end
   end
 end
