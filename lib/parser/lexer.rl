@@ -89,6 +89,8 @@ class Parser::Lexer
 
   BLANK_STRING = ''.freeze
   ESCAPED_NEXT_LINE = "\\\n".freeze
+  REGEXP_META_CHARACTERS = "\\$()*+.<>?[]^{|}".freeze
+  UNDERSCORE_STRING = '_'.freeze
 
   attr_reader   :source_buffer
   attr_reader   :encoding
@@ -873,7 +875,7 @@ class Parser::Lexer
         # or closing delimiter, it is an escape sequence for that
         # particular character. Write it without the backslash.
 
-        if literal.regexp? && "\\$()*+.<>?[]^{|}".include?(escaped_char)
+        if literal.regexp? && REGEXP_META_CHARACTERS.include?(escaped_char)
           # Regular expressions should include escaped delimiters in their
           # escaped form, except when the escaped character is
           # a closing delimiter but not a regexp metacharacter.
@@ -1995,8 +1997,8 @@ class Parser::Lexer
       => {
         digits = tok(@num_digits_s, @num_suffix_s)
 
-        if digits.end_with? '_'
-          diagnostic :error, :trailing_in_number, { :character => '_' },
+        if digits.end_with? UNDERSCORE_STRING
+          diagnostic :error, :trailing_in_number, { :character => UNDERSCORE_STRING },
                      range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
