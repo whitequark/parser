@@ -105,6 +105,8 @@ class Parser::Lexer
     @tokens     = nil
     @comments   = nil
 
+    @has_encode = ''.respond_to?(:encode)
+
     reset
   end
 
@@ -191,7 +193,7 @@ class Parser::Lexer
         @source_pts = @source.unpack('C*')
       end
 
-      if (@source_pts.size > 1_000_000 && @source.respond_to?(:encode)) ||
+      if (@source_pts.size > 1_000_000 && @has_encode) ||
          @force_utf32
         # A heuristic: if the buffer is larger than 1M, then
         # store it in UTF-32 and convert the tokens as they're
@@ -829,12 +831,12 @@ class Parser::Lexer
 
   action extend_string {
     string = @source[@ts...@te]
-    string = string.encode(@encoding) if string.respond_to?(:encode)
+    string = string.encode(@encoding) if @has_encode
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
       lookahead = @source[@te...@te+2]
-      lookahead = lookahead.encode(@encoding) if lookahead.respond_to?(:encode)
+      lookahead = lookahead.encode(@encoding) if @has_encode
     end
 
     if !literal.heredoc? && (token = literal.nest_and_try_closing(string, @ts, @te, lookahead))
