@@ -89,7 +89,7 @@ class Parser::Lexer
 
   BLANK_STRING = ''.freeze
   ESCAPED_NEXT_LINE = "\\\n".freeze
-  REGEXP_META_CHARACTERS = "\\$()*+.<>?[]^{|}".freeze
+  REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
   UNDERSCORE_STRING = '_'.freeze
 
   attr_reader   :source_buffer
@@ -875,7 +875,7 @@ class Parser::Lexer
         # or closing delimiter, it is an escape sequence for that
         # particular character. Write it without the backslash.
 
-        if literal.regexp? && REGEXP_META_CHARACTERS.include?(escaped_char)
+        if literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
           # Regular expressions should include escaped delimiters in their
           # escaped form, except when the escaped character is
           # a closing delimiter but not a regexp metacharacter.
