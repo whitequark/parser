@@ -281,7 +281,8 @@ class Parser::Lexer
     _lex_from_state_actions = klass.send :_lex_from_state_actions
     _lex_eof_trans          = klass.send :_lex_eof_trans
 
-    p, pe, eof = @p, @source.length + 1, @source.length + 1
+    pe = @source.length + 1
+    p, eof = @p, pe
 
     @command_state = (@cs == klass.lex_en_expr_value ||
                       @cs == klass.lex_en_line_begin)
