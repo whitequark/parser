@@ -270,20 +270,21 @@ class Parser::Lexer
     end
 
     # Ugly, but dependent on Ragel output. Consider refactoring it somehow.
-    _lex_trans_keys         = self.class.send :_lex_trans_keys
-    _lex_key_spans          = self.class.send :_lex_key_spans
-    _lex_index_offsets      = self.class.send :_lex_index_offsets
-    _lex_indicies           = self.class.send :_lex_indicies
-    _lex_trans_targs        = self.class.send :_lex_trans_targs
-    _lex_trans_actions      = self.class.send :_lex_trans_actions
-    _lex_to_state_actions   = self.class.send :_lex_to_state_actions
-    _lex_from_state_actions = self.class.send :_lex_from_state_actions
-    _lex_eof_trans          = self.class.send :_lex_eof_trans
+    klass = self.class
+    _lex_trans_keys         = klass.send :_lex_trans_keys
+    _lex_key_spans          = klass.send :_lex_key_spans
+    _lex_index_offsets      = klass.send :_lex_index_offsets
+    _lex_indicies           = klass.send :_lex_indicies
+    _lex_trans_targs        = klass.send :_lex_trans_targs
+    _lex_trans_actions      = klass.send :_lex_trans_actions
+    _lex_to_state_actions   = klass.send :_lex_to_state_actions
+    _lex_from_state_actions = klass.send :_lex_from_state_actions
+    _lex_eof_trans          = klass.send :_lex_eof_trans
 
     p, pe, eof = @p, @source.length + 1, @source.length + 1
 
-    @command_state = (@cs == self.class.lex_en_expr_value ||
-                      @cs == self.class.lex_en_line_begin)
+    @command_state = (@cs == klass.lex_en_expr_value ||
+                      @cs == klass.lex_en_line_begin)
 
     %% write exec;
     # %
@@ -292,7 +293,7 @@ class Parser::Lexer
 
     if @token_queue.any?
       @token_queue.shift
-    elsif @cs == self.class.lex_error
+    elsif @cs == klass.lex_error
       [ false, [ '$error', range(p - 1, p) ] ]
     else
       eof = @source.length
