@@ -87,6 +87,11 @@ class Parser::Lexer
     'v' => "\v", '\\' => "\\"
   }
 
+  BLANK_STRING = ''.freeze
+  ESCAPED_NEXT_LINE = "\\\n".freeze
+  REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
+  UNDERSCORE_STRING = '_'.freeze
+
   attr_reader   :source_buffer
   attr_reader   :encoding
 
@@ -870,7 +875,7 @@ class Parser::Lexer
         # or closing delimiter, it is an escape sequence for that
         # particular character. Write it without the backslash.
 
-        if literal.regexp? && "\\$()*+.<>?[]^{|}".include?(escaped_char)
+        if literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
           # Regular expressions should include escaped delimiters in their
           # escaped form, except when the escaped character is
           # a closing delimiter but not a regexp metacharacter.
@@ -899,7 +904,7 @@ class Parser::Lexer
         if literal.regexp?
           # Regular expressions should include escape sequences in their
           # escaped form. On the other hand, escaped newlines are removed.
-          literal.extend_string(tok.gsub("\\\n", ''), @ts, @te)
+          literal.extend_string(tok.gsub(ESCAPED_NEXT_LINE, BLANK_STRING), @ts, @te)
         else
           literal.extend_string(@escape || tok, @ts, @te)
         end
@@ -917,11 +922,11 @@ class Parser::Lexer
     end
 
     if literal.heredoc?
-      line = tok(@herebody_s, @ts).gsub(/\r+$/, '')
+      line = tok(@herebody_s, @ts).gsub(/\r+$/, BLANK_STRING)
 
       if version?(18, 19, 20)
         # See ruby:c48b4209c
-        line = line.gsub(/\r.*$/, '')
+        line = line.gsub(/\r.*$/, BLANK_STRING)
       end
 
       # Try ending the heredoc with the complete most recently
@@ -1992,8 +1997,8 @@ class Parser::Lexer
       => {
         digits = tok(@num_digits_s, @num_suffix_s)
 
-        if digits.end_with? '_'
-          diagnostic :error, :trailing_in_number, { :character => '_' },
+        if digits.end_with? UNDERSCORE_STRING
+          diagnostic :error, :trailing_in_number, { :character => UNDERSCORE_STRING },
                      range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
