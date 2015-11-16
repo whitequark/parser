@@ -335,9 +335,9 @@ class Parser::Lexer
     end
 
     def tok(s = @ts, e = @te)
-      s = @source[s...e]
-      return s unless @need_encode
-      s.encode(@encoding)
+      source = @source[s...e]
+      return source unless @need_encode
+      source.encode(@encoding)
     end
   else
     def encode_escape(ord)
