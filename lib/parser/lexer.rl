@@ -853,7 +853,8 @@ class Parser::Lexer
       lookahead = lookahead.encode(@encoding) if @need_encode
     end
 
-    if !literal.heredoc? && (token = literal.nest_and_try_closing(string, @ts, @te, lookahead))
+    current_literal = literal
+    if !current_literal.heredoc? && (token = current_literal.nest_and_try_closing(string, @ts, @te, lookahead))
       if token[0] == :tLABEL_END
         p += 1
         pop_literal
@@ -863,12 +864,13 @@ class Parser::Lexer
       end
       fbreak;
     else
-      literal.extend_string(string, @ts, @te)
+      current_literal.extend_string(string, @ts, @te)
     end
   }
 
   action extend_string_escaped {
-    if literal.nest_and_try_closing('\\', @ts, @ts + 1)
+    current_literal = literal
+    if current_literal.nest_and_try_closing('\\', @ts, @ts + 1)
       # If the literal is actually closed by the backslash,
       # rewind the input prior to consuming the escape sequence.
       p = @escape_s - 1
@@ -877,12 +879,12 @@ class Parser::Lexer
       # Get the first character after the backslash.
       escaped_char = @source[@escape_s].chr
 
-      if literal.munge_escape? escaped_char
+      if current_literal.munge_escape? escaped_char
         # If this particular literal uses this character as an opening
         # or closing delimiter, it is an escape sequence for that
         # particular character. Write it without the backslash.
 
-        if literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
+        if current_literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
           # Regular expressions should include escaped delimiters in their
           # escaped form, except when the escaped character is
           # a closing delimiter but not a regexp metacharacter.
@@ -891,9 +893,9 @@ class Parser::Lexer
           # at the same time as an escape symbol, but it is always munged,
           # so this branch also executes for the non-closing-delimiter case
           # for the backslash.
-          literal.extend_string(tok, @ts, @te)
+          current_literal.extend_string(tok, @ts, @te)
         else
-          literal.extend_string(escaped_char, @ts, @te)
+          current_literal.extend_string(escaped_char, @ts, @te)
         end
       else
         # It does not. So this is an actual escape sequence, yay!
@@ -908,12 +910,12 @@ class Parser::Lexer
 
         @escape.call if @escape.respond_to? :call
 
-        if literal.regexp?
+        if current_literal.regexp?
           # Regular expressions should include escape sequences in their
           # escaped form. On the other hand, escaped newlines are removed.
-          literal.extend_string(tok.gsub(ESCAPED_NEXT_LINE, BLANK_STRING), @ts, @te)
+          current_literal.extend_string(tok.gsub(ESCAPED_NEXT_LINE, BLANK_STRING), @ts, @te)
         else
-          literal.extend_string(@escape || tok, @ts, @te)
+          current_literal.extend_string(@escape || tok, @ts, @te)
         end
       end
     end
@@ -923,12 +925,13 @@ class Parser::Lexer
   # As heredoc closing line can immediately precede EOF, this action
   # has to handle such case specially.
   action extend_string_eol {
+    current_literal = literal
     if @te == pe
       diagnostic :fatal, :string_eof, nil,
-                 range(literal.str_s, literal.str_s + 1)
+                 range(current_literal.str_s, current_literal.str_s + 1)
     end
 
-    if literal.heredoc?
+    if current_literal.heredoc?
       line = tok(@herebody_s, @ts).gsub(/\r+$/, BLANK_STRING)
 
       if version?(18, 19, 20)
@@ -938,12 +941,12 @@ class Parser::Lexer
 
       # Try ending the heredoc with the complete most recently
       # scanned line. @herebody_s always refers to the start of such line.
-      if literal.nest_and_try_closing(line, @herebody_s, @ts)
+      if current_literal.nest_and_try_closing(line, @herebody_s, @ts)
         # Adjust @herebody_s to point to the next line.
         @herebody_s = @te
 
         # Continue regular lexing after the heredoc reference (<<END).
-        p = literal.heredoc_e - 1
+        p = current_literal.heredoc_e - 1
         fnext *pop_literal; fbreak;
       else
         # Ditto.
@@ -951,7 +954,7 @@ class Parser::Lexer
       end
     else
       # Try ending the literal with a newline.
-      if literal.nest_and_try_closing(tok, @ts, @te)
+      if current_literal.nest_and_try_closing(tok, @ts, @te)
         fnext *pop_literal; fbreak;
       end
 
@@ -969,14 +972,14 @@ class Parser::Lexer
       end
     end
 
-    if literal.words? && !eof_codepoint?(@source_pts[p])
-      literal.extend_space @ts, @te
+    if current_literal.words? && !eof_codepoint?(@source_pts[p])
+      current_literal.extend_space @ts, @te
     else
       # A literal newline is appended if the heredoc was _not_ closed
       # this time (see fbreak above). See also Literal#nest_and_try_closing
       # for rationale of calling #flush_string here.
-      literal.extend_string tok, @ts, @te
-      literal.flush_string
+      current_literal.extend_string tok, @ts, @te
+      current_literal.flush_string
     end
   }
 
@@ -994,8 +997,9 @@ class Parser::Lexer
   interp_var = '#' ( global_var | class_var_v | instance_var_v );
 
   action extend_interp_var {
-    literal.flush_string
-    literal.extend_content
+    current_literal = literal
+    current_literal.flush_string
+    current_literal.extend_content
 
     emit(:tSTRING_DVAR, nil, @ts, @ts + 1)
 
@@ -1020,22 +1024,24 @@ class Parser::Lexer
   e_lbrace = '{' % {
     @cond.push(false); @cmdarg.push(false)
 
-    if literal
-      literal.start_interp_brace
+    current_literal = literal
+    if current_literal
+      current_literal.start_interp_brace
     end
   };
 
   e_rbrace = '}' % {
-    if literal
-      if literal.end_interp_brace_and_try_closing
+    current_literal = literal
+    if current_literal
+      if current_literal.end_interp_brace_and_try_closing
         if version?(18, 19)
           emit(:tRCURLY, '}', p - 1, p)
         else
           emit(:tSTRING_DEND, '}', p - 1, p)
         end
 
-        if literal.saved_herebody_s
-          @herebody_s = literal.saved_herebody_s
+        if current_literal.saved_herebody_s
+          @herebody_s = current_literal.saved_herebody_s
         end
 
         fhold;
@@ -1046,17 +1052,18 @@ class Parser::Lexer
   };
 
   action extend_interp_code {
-    literal.flush_string
-    literal.extend_content
+    current_literal = literal
+    current_literal.flush_string
+    current_literal.extend_content
 
     emit(:tSTRING_DBEG, '#{')
 
-    if literal.heredoc?
-      literal.saved_herebody_s = @herebody_s
+    if current_literal.heredoc?
+      current_literal.saved_herebody_s = @herebody_s
       @herebody_s = nil
     end
 
-    literal.start_interp_brace
+    current_literal.start_interp_brace
     fcall expr_value;
   }
 
