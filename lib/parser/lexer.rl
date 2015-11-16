@@ -134,6 +134,7 @@ class Parser::Lexer
     @source        = nil # source string
     @source_pts    = nil # @source as a codepoint array
     @encoding      = nil # target encoding for output strings
+    @need_encode = nil
 
     @p             = 0   # stream position (saved manually in #advance)
     @ts            = nil # token start
@@ -196,6 +197,7 @@ class Parser::Lexer
 
       if defined?(Encoding) && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
+        @need_encode = @has_encode && @encoding != Encoding::UTF_8
       else
         @source_pts = @source.unpack('C*')
       end
@@ -214,6 +216,7 @@ class Parser::Lexer
         #
         # Patches accepted.
         @source = @source.encode(Encoding::UTF_32LE)
+        @need_encode = @has_encode && @encoding != Encoding::UTF_32LE
       end
 
       if @source_pts[0] == 0xfeff
@@ -332,7 +335,9 @@ class Parser::Lexer
     end
 
     def tok(s = @ts, e = @te)
-      @source[s...e].encode(@encoding)
+      source = @source[s...e]
+      return source unless @need_encode
+      source.encode(@encoding)
     end
   else
     def encode_escape(ord)
@@ -840,12 +845,12 @@ class Parser::Lexer
 
   action extend_string {
     string = @source[@ts...@te]
-    string = string.encode(@encoding) if @has_encode
+    string = string.encode(@encoding) if @need_encode
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
       lookahead = @source[@te...@te+2]
-      lookahead = lookahead.encode(@encoding) if @has_encode
+      lookahead = lookahead.encode(@encoding) if @need_encode
     end
 
     if !literal.heredoc? && (token = literal.nest_and_try_closing(string, @ts, @te, lookahead))
