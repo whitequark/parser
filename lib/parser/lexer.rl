@@ -2200,9 +2200,8 @@ class Parser::Lexer
       # Insane leading dots:
       # a #comment
       #  .b: a.b
-      c_space* '.' ( c_any - '.' )
-      => { fhold; fhold;
-           fgoto expr_end; };
+      c_space* '.'
+      => { fhold; fgoto expr_end; };
 
       any
       => { emit(:tNL, nil, @newline_s, @newline_s + 1)
