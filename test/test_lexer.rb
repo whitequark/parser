@@ -2297,6 +2297,27 @@ class TestLexer < Minitest::Test
   end
 
   #
+  # Test for 'fluent interface'
+  #
+
+  def test_fluent_dot
+    assert_scanned("x\n.y",
+                   :tIDENTIFIER, 'x',
+                   :tDOT,        '.',
+                   :tIDENTIFIER, 'y')
+
+    assert_scanned("x\n  .y",
+                   :tIDENTIFIER, 'x',
+                   :tDOT,        '.',
+                   :tIDENTIFIER, 'y')
+
+    assert_scanned("x # comment\n  .y",
+                   :tIDENTIFIER, 'x',
+                   :tDOT,        '.',
+                   :tIDENTIFIER, 'y')
+  end
+
+  #
   # Tests for whitespace.
   #
 
