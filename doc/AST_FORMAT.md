@@ -1011,9 +1011,9 @@ Format:
 ~~~
 (objc-restarg (objc-kwarg :foo))
 "(*a: b)"
-   ~ arg.keyword
-    ~ arg.operator
-      ~ arg.argument
+   ~ objc-kwarg.keyword
+    ~ objc-kwarg.operator
+      ~ objc-kwarg.argument
   ~ operator
   ~~~~~ expression
 ~~~
