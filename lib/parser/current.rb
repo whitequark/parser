@@ -49,6 +49,14 @@ module Parser
     require 'parser/ruby22'
     CurrentRuby = Ruby22
 
+  when /^2\.3\./
+    if RUBY_VERSION != '2.3.0'
+      warn_syntax_deviation 'parser/ruby23', '2.3.0'
+    end
+
+    require 'parser/ruby23'
+    CurrentRuby = Ruby23
+
   else # :nocov:
     # Keep this in sync with released Ruby.
     warn_syntax_deviation 'parser/ruby22', '2.2.x'
