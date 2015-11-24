@@ -461,7 +461,7 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
-    '!@'  => :tBANG,
+    '!@'  => :tBANG,    '&.'  => :tANDDOT,
   }
 
   PUNCTUATION_BEGIN = {
@@ -2109,7 +2109,7 @@ class Parser::Lexer
       # METHOD CALLS
       #
 
-      '.' | '::'
+      '.' | '&.' | '::'
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
 
@@ -2200,8 +2200,8 @@ class Parser::Lexer
       # Insane leading dots:
       # a #comment
       #  .b: a.b
-      c_space* '.'
-      => { fhold; fgoto expr_end; };
+      c_space* %{ tm = p } ('.' | '&.')
+      => { p = tm - 1; fgoto expr_end; };
 
       any
       => { emit(:tNL, nil, @newline_s, @newline_s + 1)

@@ -676,13 +676,30 @@ module Parser
     # Method calls
     #
 
+    def call_type_for_dot(dot_t)
+      if !dot_t.nil? && value(dot_t) == :anddot
+        :csend
+      else
+        # This case is a bit tricky. ruby23.y returns the token tDOT with
+        # the value :dot, and the token :tANDDOT with the value :anddot.
+        #
+        # But, ruby{18..22}.y (which unconditionally expect tDOT) just
+        # return "." there, since they are to be kept close to the corresponding
+        # Ruby MRI grammars.
+        #
+        # Thankfully, we don't have to care.
+        :send
+      end
+    end
+
     def call_method(receiver, dot_t, selector_t,
                     lparen_t=nil, args=[], rparen_t=nil)
+      type = call_type_for_dot(dot_t)
       if selector_t.nil?
-        n(:send, [ receiver, :call, *args ],
+        n(type, [ receiver, :call, *args ],
           send_map(receiver, dot_t, nil, lparen_t, args, rparen_t))
       else
-        n(:send, [ receiver, value(selector_t).to_sym, *args ],
+        n(type, [ receiver, value(selector_t).to_sym, *args ],
           send_map(receiver, dot_t, selector_t, lparen_t, args, rparen_t))
       end
     end
@@ -740,9 +757,10 @@ module Parser
 
     def attr_asgn(receiver, dot_t, selector_t)
       method_name = (value(selector_t) + '=').to_sym
+      type = call_type_for_dot(dot_t)
 
       # Incomplete method call.
-      n(:send, [ receiver, method_name ],
+      n(type, [ receiver, method_name ],
         send_map(receiver, dot_t, selector_t))
     end
 

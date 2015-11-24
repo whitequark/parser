@@ -17,7 +17,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
-      tRATIONAL tIMAGINARY tLABEL_END
+      tRATIONAL tIMAGINARY tLABEL_END tANDDOT
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -194,14 +194,14 @@ rule
                                     val[0], val[1], val[2], val[3]),
                                   val[4], val[5])
                     }
-                | primary_value tDOT tIDENTIFIER tOP_ASGN command_call
+                | primary_value call_op tIDENTIFIER tOP_ASGN command_call
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value tDOT tCONSTANT tOP_ASGN command_call
+                | primary_value call_op tCONSTANT tOP_ASGN command_call
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
@@ -304,12 +304,12 @@ rule
                       result      = @builder.block(method_call,
                                       begin_t, args, body, end_t)
                     }
-                | primary_value tDOT operation2 command_args =tLOWEST
+                | primary_value call_op operation2 command_args =tLOWEST
                     {
                       result = @builder.call_method(val[0], val[1], val[2],
                                   nil, val[3], nil)
                     }
-                | primary_value tDOT operation2 command_args cmd_brace_block
+                | primary_value call_op operation2 command_args cmd_brace_block
                     {
                       method_call = @builder.call_method(val[0], val[1], val[2],
                                         nil, val[3], nil)
@@ -459,7 +459,7 @@ rule
                     {
                       result = @builder.index_asgn(val[0], val[1], val[2], val[3])
                     }
-                | primary_value tDOT tIDENTIFIER
+                | primary_value call_op tIDENTIFIER
                     {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
@@ -467,7 +467,7 @@ rule
                     {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
-                | primary_value tDOT tCONSTANT
+                | primary_value call_op tCONSTANT
                     {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
@@ -498,7 +498,7 @@ rule
                     {
                       result = @builder.index_asgn(val[0], val[1], val[2], val[3])
                     }
-                | primary_value tDOT tIDENTIFIER
+                | primary_value call_op tIDENTIFIER
                     {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
@@ -506,7 +506,7 @@ rule
                     {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
-                | primary_value tDOT tCONSTANT
+                | primary_value call_op tCONSTANT
                     {
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
@@ -621,14 +621,14 @@ rule
                                     val[0], val[1], val[2], val[3]),
                                   val[4], val[5])
                     }
-                | primary_value tDOT tIDENTIFIER tOP_ASGN arg
+                | primary_value call_op tIDENTIFIER tOP_ASGN arg
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value tDOT tCONSTANT tOP_ASGN arg
+                | primary_value call_op tCONSTANT tOP_ASGN arg
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
@@ -1558,7 +1558,7 @@ opt_block_args_tail:
                       result = @builder.call_method(nil, nil, val[0],
                                   lparen_t, args, rparen_t)
                     }
-                | primary_value tDOT operation2 opt_paren_args
+                | primary_value call_op operation2 opt_paren_args
                     {
                       lparen_t, args, rparen_t = val[3]
                       result = @builder.call_method(val[0], val[1], val[2],
@@ -1574,7 +1574,7 @@ opt_block_args_tail:
                     {
                       result = @builder.call_method(val[0], val[1], val[2])
                     }
-                | primary_value tDOT paren_args
+                | primary_value call_op paren_args
                     {
                       lparen_t, args, rparen_t = val[2]
                       result = @builder.call_method(val[0], val[1], nil,
@@ -2310,7 +2310,15 @@ keyword_variable: kNIL
        operation: tIDENTIFIER | tCONSTANT | tFID
       operation2: tIDENTIFIER | tCONSTANT | tFID | op
       operation3: tIDENTIFIER | tFID | op
-    dot_or_colon: tDOT | tCOLON2
+    dot_or_colon: call_op | tCOLON2
+         call_op: tDOT
+                    {
+                      result = [:dot, val[0][1]]
+                    }
+                | tANDDOT
+                    {
+                      result = [:anddot, val[0][1]]
+                    }
        opt_terms:  | terms
           opt_nl:  | tNL
           rparen: opt_nl tRPAREN

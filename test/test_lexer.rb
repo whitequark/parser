@@ -226,6 +226,12 @@ class TestLexer < Minitest::Test
     assert_lex_fname "&", :tAMPER2
   end
 
+  def test_and_dot
+    @lex.state = :expr_cmdarg
+
+    assert_scanned "&.", :tANDDOT, "&."
+  end
+
   def test_assoc
     assert_scanned "=>", :tASSOC, "=>"
   end
@@ -2314,6 +2320,13 @@ class TestLexer < Minitest::Test
     assert_scanned("x # comment\n  .y",
                    :tIDENTIFIER, 'x',
                    :tDOT,        '.',
+                   :tIDENTIFIER, 'y')
+  end
+
+  def test_fluent_and_dot
+    assert_scanned("x\n&.y",
+                   :tIDENTIFIER, 'x',
+                   :tANDDOT,     '&.',
                    :tIDENTIFIER, 'y')
   end
 

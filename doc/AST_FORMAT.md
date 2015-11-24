@@ -540,6 +540,31 @@ Format:
  ~~~~~~~ expression
 ~~~
 
+### To attribute
+
+Format:
+
+~~~
+(send (self) :foo= (int 1))
+"self.foo = 1"
+     ^ dot
+      ~~~ selector
+          ^ operator
+ ~~~~~~~~~~~~ expression
+~~~
+
+### To attribute, using "safe navigation operator"
+
+Format:
+
+~~~
+(csend (self) :foo= (int 1))
+"self&.foo = 1"
+     ^^ dot
+       ~~~ selector
+           ^ operator
+ ~~~~~~~~~~~~~ expression
+~~~
 
 ### Multiple assignment
 
@@ -1053,6 +1078,7 @@ Format:
 ~~~
 (send (lvar :foo) :bar (int 1))
 "foo.bar(1)"
+    ^ dot
      ~~~ selector
         ^ begin
           ^ end
@@ -1150,8 +1176,16 @@ Used when passing expression as block `foo(&bar)`
 
 ~~~
 (block (lambda) (args) nil)
--> {}
-~~ lambda.expression
+"-> {}"
+ ~~ lambda.expression
+~~~
+
+### "Safe navigation operator"
+
+~~~
+(csend (send nil :foo) :bar)
+"foo&.bar"
+    ~~ dot
 ~~~
 
 ### Objective-C variadic send
