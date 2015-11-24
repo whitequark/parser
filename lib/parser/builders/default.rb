@@ -4,6 +4,32 @@ module Parser
   # Default AST builder. Uses {AST::Node}s.
   #
   class Builders::Default
+    class << self
+      ##
+      # AST compatibility attribute; since `-> {}` is not semantically
+      # equivalent to `lambda {}`, all new code should set this attribute
+      # to true.
+      #
+      # If set to false (the default), `-> {}` is emitted as
+      # `s(:block, s(:send, nil, :lambda), s(:args), nil)`.
+      #
+      # If set to true, `-> {}` is emitted as
+      # `s(:block, s(:lambda), s(:args), nil)`.
+      #
+      # @return [Boolean]
+      attr_accessor :emit_lambda
+    end
+
+    @emit_lambda = false
+
+    class << self
+      ##
+      # @api private
+      def modernize
+        @emit_lambda = true
+      end
+    end
+
     ##
     # @api private
     attr_accessor :parser
@@ -662,8 +688,12 @@ module Parser
     end
 
     def call_lambda(lambda_t)
-      n(:send, [ nil, :lambda ],
-        send_map(nil, nil, lambda_t))
+      if self.class.emit_lambda
+        n0(:lambda, expr_map(loc(lambda_t)))
+      else
+        n(:send, [ nil, :lambda ],
+          send_map(nil, nil, lambda_t))
+      end
     end
 
     def block(method_call, begin_t, args, body, end_t)
@@ -678,7 +708,7 @@ module Parser
         diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
       end
 
-      if [:send, :super, :zsuper].include?(method_call.type)
+      if [:send, :super, :zsuper, :lambda].include?(method_call.type)
         n(:block, [ method_call, args, body ],
           block_map(method_call.loc.expression, begin_t, end_t))
       else

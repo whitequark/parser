@@ -12,6 +12,8 @@ module Parser
     end
 
     def initialize
+      Parser::Builders::Default.modernize
+
       @option_parser = OptionParser.new { |opts| setup_option_parsing(opts) }
       @parser_class  = nil
       @parser        = nil

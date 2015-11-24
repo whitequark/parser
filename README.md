@@ -24,6 +24,7 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 Parse a chunk of code:
 
     require 'parser/current'
+    Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
 
     p Parser::CurrentRuby.parse("2 + 2")
     # (send

@@ -1146,6 +1146,14 @@ Used when passing expression as block `foo(&bar)`
         ~~~~ expression
 ~~~
 
+### "Stabby lambda"
+
+~~~
+(block (lambda) (args) nil)
+-> {}
+~~ lambda.expression
+~~~
+
 ### Objective-C variadic send
 
 MacRuby allows to pass a variadic amount of arguments via the last
