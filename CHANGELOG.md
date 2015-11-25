@@ -1,6 +1,27 @@
 Changelog
 =========
 
+v2.3.0.pre.3 (2015-11-25)
+-------------------------
+
+API modifications:
+ * builders/default: introduce a (lambda) node (fixes #212). (whitequark)
+ * lexer.rl: do not override argument variable. (Keiji, Yoshimi)
+ * lexer.rl: rename variable names from lit to current_literal. (Keiji, Yoshimi)
+ * lexer.rl: use Regexp to match string. (Keiji, Yoshimi)
+ * lib/parser/source/buffer: reduce respond_to?(:bsearch) (Keiji, Yoshimi)
+ * lexer.rl: reduce String literal allocations (Keiji, Yoshimi)
+ * lexer.rl: reduce respond_to?(:encode) method call on #advance (Keiji, Yoshimi)
+ * lexer.rl: reduce Stirng.length method call on #advance (Keiji, Yoshimi)
+ * lexer.rl: reduce .class method call on #advance (Keiji, Yoshimi)
+
+Features implemented:
+ * lexer.rl, ruby23.y: "a&.b": implement "safe navigation operator" (fixes #209). (whitequark)
+ * ruby23.y: fork grammar. (whitequark)
+
+Bugs fixed:
+ * lexer.rl: never let EOF token location point past EOF. (whitequark)
+
 v2.2.3.0 (2015-10-08)
 ---------------------
 
