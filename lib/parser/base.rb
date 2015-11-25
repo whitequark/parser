@@ -115,23 +115,10 @@ module Parser
     attr_reader :source_buffer
 
     ##
-    # Create a new parser instance.
-    #
-    # Note that on JRuby and Rubinius the `diagnostics.all_errors_are_fatal`
-    # switch is always turned on as a workaround for a standard library bug.
-    # Do not set it to `false`.
-    #
     # @param [Parser::Builders::Default] builder The AST builder to use.
     #
     def initialize(builder=Parser::Builders::Default.new)
       @diagnostics = Diagnostic::Engine.new
-
-      if RUBY_PLATFORM != 'ruby'
-        # This is a workaround for a Racc bug. In the pure Ruby Racc runtime,
-        # which gets activated on JRuby/RBX, there is a bug in error token
-        # popping, which results in an infinite loop.
-        @diagnostics.all_errors_are_fatal = true
-      end
 
       @static_env  = StaticEnvironment.new
 
