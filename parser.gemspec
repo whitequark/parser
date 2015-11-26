@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
                           lib/parser/ruby20.rb
                           lib/parser/ruby21.rb
                           lib/parser/ruby22.rb
+                          lib/parser/ruby23.rb
                           lib/parser/macruby.rb
                           lib/parser/rubymotion.rb
                        )
