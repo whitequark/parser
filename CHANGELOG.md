@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.3.0.pre.4 (2015-11-26)
+-------------------------
+
+Bugs fixed:
+ * ruby23.y: add generated grammar to gemspec. (whitequark)
+
 v2.3.0.pre.3 (2015-11-25)
 -------------------------
 
