@@ -35,7 +35,7 @@ task :generate => GENERATED_FILES do
   Rake::Task[:ragel_check].invoke
   GENERATED_FILES.each do |filename|
     content = File.read(filename)
-    content = "# -*- encoding:utf-8; warn-indent:false -*-\n" + content
+    content = "# -*- encoding:utf-8; warn-indent:false; frozen_string_literal: true  -*-\n" + content
 
     File.open(filename, 'w') do |io|
       io.write content

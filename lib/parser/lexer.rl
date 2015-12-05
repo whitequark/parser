@@ -190,7 +190,7 @@ class Parser::Lexer
 
         # This is a workaround for 1.9.2, which (without force_encoding)
         # would convert the result to UTF-8 (source encoding of lexer.rl).
-        @source    += "\0".force_encoding(@encoding)
+        @source    += "\0".dup.force_encoding(@encoding)
       else
         @source    += "\0"
       end
