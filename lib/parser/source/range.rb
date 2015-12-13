@@ -189,6 +189,27 @@ module Parser
       end
 
       ##
+      # @param [Range] other
+      # @return [Range] overlapping region of this range and `other`, or `nil`
+      #   if they do not overlap
+      #
+      def intersect(other)
+        unless disjoint?(other)
+          Range.new(@source_buffer,
+            [@begin_pos, other.begin_pos].max,
+            [@end_pos,   other.end_pos].min)
+        end
+      end
+
+      ##
+      # @param [Range] other
+      # @return [Boolean] `true` if this range and `other` do not overlap
+      #
+      def disjoint?(other)
+        @begin_pos >= other.end_pos || other.begin_pos >= @end_pos
+      end
+
+      ##
       # Compares ranges.
       # @return [Boolean]
       #
