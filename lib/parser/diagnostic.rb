@@ -82,23 +82,74 @@ module Parser
     # @return [Array<String>]
     #
     def render
-      source_line    = @location.source_line
+      if @location.line != @location.last_line
+        # multi-line diagnostic
+        first_line = first_line_only(@location)
+        last_line  = last_line_only(@location)
+        buffer     = @location.source_buffer
+
+        first_lineno, first_column = buffer.decompose_position(@location.begin_pos)
+        last_lineno,  last_column  = buffer.decompose_position(@location.end_pos)
+
+        ["#{@location}-#{last_lineno}:#{last_column}: #{@level}: #{message}"] +
+          render_line(first_line).
+            map { |line| "#{buffer.name}:#{first_lineno}: #{line}" }.
+            tap { |array| array.last << '...' } +
+          render_line(last_line).map  { |line| "#{buffer.name}:#{last_lineno}: #{line}" }
+      else
+        ["#{@location}: #{@level}: #{message}"] + render_line(@location)
+      end
+    end
+
+    private
+
+    ##
+    # Renders one source line in clang diagnostic style, with highlights.
+    #
+    # @return [Array<String>]
+    #
+    def render_line(range)
+      source_line    = range.source_line
       highlight_line = ' ' * source_line.length
 
       @highlights.each do |hilight|
-        range = hilight.column_range
-        highlight_line[range] = '~' * hilight.size
+       line_range = range.source_buffer.line_range(range.line)
+        if hilight = hilight.intersect(line_range)
+          highlight_line[hilight.column_range] = '~' * hilight.size
+        end
       end
 
-      range = @location.column_range
-      highlight_line[range] = '^' * @location.size
+      highlight_line[range.column_range] = '^' * range.size
 
-      [
-        "#{@location.to_s}: #{@level}: #{message}",
-        source_line,
-        highlight_line,
-      ]
+      [source_line, highlight_line]
+    end
+
+    ##
+    # If necessary, shrink a `Range` so as to include only the first line.
+    #
+    # @return [Parser::Source::Range]
+    #
+    def first_line_only(range)
+      if range.line != range.last_line
+        range.resize(range.source =~ /\n/)
+      else
+        range
+      end
+    end
+
+    ##
+    # If necessary, shrink a `Range` so as to include only the last line.
+    #
+    # @return [Parser::Source::Range]
+    #
+    def last_line_only(range)
+      if range.line != range.last_line
+        Source::Range.new(range.source_buffer,
+                          range.begin_pos + (range.source =~ /[^\n]*\Z/),
+                          range.end_pos)
+      else
+        range
+      end
     end
   end
-
 end
