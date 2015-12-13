@@ -31,6 +31,10 @@ module Parser
       # @param [Integer] end_pos
       #
       def initialize(source_buffer, begin_pos, end_pos)
+        if end_pos < begin_pos
+          raise ArgumentError, 'Parser::Source::Range: end_pos must not be less than begin_pos'
+        end
+
         @source_buffer       = source_buffer
         @begin_pos, @end_pos = begin_pos, end_pos
 

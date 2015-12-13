@@ -18,6 +18,12 @@ class TestSourceRange < Minitest::Test
     assert_equal 2, sr.size
   end
 
+  def test_bad_size
+    assert_raises ArgumentError do
+      Parser::Source::Range.new(@buf, 2, 1)
+    end
+  end
+
   def test_join
     sr1 = Parser::Source::Range.new(@buf, 1, 2)
     sr2 = Parser::Source::Range.new(@buf, 5, 8)
