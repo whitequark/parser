@@ -33,7 +33,7 @@ if ENV.include?('COVERAGE') && SimpleCov.usable?
 
     # Exclude generated files.
     add_filter do |source_file|
-      source_file.filename =~ %r{/lib/parser/(lexer|ruby\d+)\.rb$}
+      source_file.filename =~ %r{/lib/parser/(lexer|ruby\d+|macruby|rubymotion)\.rb$}
     end
   end
 end
