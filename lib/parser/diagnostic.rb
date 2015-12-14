@@ -126,7 +126,7 @@ module Parser
       end
 
       [source_line, highlight_line].
-        map { |line| "#{range}: #{line}" }
+        map { |line| "#{range.source_buffer.name}:#{range.line}: #{line}" }
     end
 
     ##

@@ -42,8 +42,8 @@ class TestDiagnostic < Minitest::Test
                                    location, highlights)
     assert_equal([
       "(string):1:27: error: unexpected `+'",
-      'if (this is some bad code + bugs)',
-      '                     ~~~~ ^ ~~~~ '
+      '(string):1: if (this is some bad code + bugs)',
+      '(string):1:                      ~~~~ ^ ~~~~ '
     ], diag.render)
   end
 
