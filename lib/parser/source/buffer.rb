@@ -210,6 +210,26 @@ module Parser
         @lines.fetch(lineno - @first_line).dup
       end
 
+      ##
+      # Extract line `lineno` as a new `Range`, taking `first_line` into account.
+      #
+      # @param  [Integer] lineno
+      # @return [Range]
+      # @raise  [IndexError] if `lineno` is out of bounds
+      #
+      def line_range(lineno)
+        index = lineno - @first_line + 1
+        if index <= 0 || index > line_begins.size
+          raise IndexError, 'Parser::Source::Buffer: range for line ' \
+            "#{lineno} requested, valid line numbers are #{@first_line}.." \
+            "#{@first_line + line_begins.size - 1}"
+        elsif index == line_begins.size
+          Range.new(self, line_begins[-index][1], @source.size)
+        else
+          Range.new(self, line_begins[-index][1], line_begins[-index - 1][1] - 1)
+        end
+      end
+
       private
 
       def line_begins

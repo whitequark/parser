@@ -111,6 +111,42 @@ class TestSourceRewriter < Minitest::Test
     assert rescued
   end
 
+  def test_overlapping_delete
+    assert_equal 'faz',
+                 @rewriter.
+                   remove(range(1, 4)).
+                   remove(range(6, 3)).
+                   remove(range(4, 3)).
+                   process
+  end
+
+  def test_overlapping_replace
+    assert_equal 'flippin flyin flapjackz',
+                 @rewriter.
+                   replace(range(1, 4), 'lippin f').
+                   replace(range(4, 4), 'pin flyin flap').
+                   replace(range(7, 3), ' flyin flapjack').
+                   process
+  end
+
+  def test_subsuming_delete
+    assert_equal 'foo',
+                 @rewriter.
+                   remove(range(6, 3)).
+                   remove(range(7, 2)).
+                   remove(range(3, 8)).
+                   process
+  end
+
+  def test_subsuming_replace
+    assert_equal 'freebie',
+                 @rewriter.
+                   replace(range(3, 3), 'ebi').
+                   replace(range(1, 10), 'reebie').
+                   replace(range(5, 2), 'ie').
+                   process
+  end
+
   def test_transaction_returns_self
     assert_equal @rewriter, @rewriter.transaction {}
   end

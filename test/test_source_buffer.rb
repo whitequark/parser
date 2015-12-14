@@ -100,4 +100,20 @@ class TestSourceBuffer < Minitest::Test
     assert_equal '1', @buffer.source_line(5)
     assert_equal 'foo', @buffer.source_line(6)
   end
+
+  def test_line_range
+    @buffer = Parser::Source::Buffer.new('(string)', 5)
+    @buffer.source = "abc\ndef\nghi\n"
+
+    assert_raises IndexError do
+      @buffer.line_range(4)
+    end
+    assert_equal 'abc', @buffer.line_range(5).source
+    assert_equal 'def', @buffer.line_range(6).source
+    assert_equal 'ghi', @buffer.line_range(7).source
+    assert_equal '', @buffer.line_range(8).source
+    assert_raises IndexError do
+      @buffer.line_range(9)
+    end
+  end
 end

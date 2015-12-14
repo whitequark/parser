@@ -30,7 +30,7 @@ GENERATED_FILES = %w(lib/parser/lexer.rb
 
 CLEAN.include(GENERATED_FILES)
 
-desc 'Generate the Ragel lexer and Bison parser.'
+desc 'Generate the Ragel lexer and Racc parser.'
 task :generate => GENERATED_FILES do
   Rake::Task[:ragel_check].invoke
   GENERATED_FILES.each do |filename|
@@ -45,7 +45,7 @@ end
 
 task :regenerate => [:clean, :generate]
 
-desc 'Generate the Ragel lexer and Bison parser in release mode.'
+desc 'Generate the Ragel lexer and Racc parser in release mode.'
 task :generate_release => [:clean_env, :regenerate]
 
 task :clean_env do

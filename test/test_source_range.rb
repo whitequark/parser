@@ -18,6 +18,12 @@ class TestSourceRange < Minitest::Test
     assert_equal 2, sr.size
   end
 
+  def test_bad_size
+    assert_raises ArgumentError do
+      Parser::Source::Range.new(@buf, 2, 1)
+    end
+  end
+
   def test_join
     sr1 = Parser::Source::Range.new(@buf, 1, 2)
     sr2 = Parser::Source::Range.new(@buf, 5, 8)
@@ -25,6 +31,28 @@ class TestSourceRange < Minitest::Test
 
     assert_equal 1, sr.begin_pos
     assert_equal 8, sr.end_pos
+  end
+
+  def test_intersect
+    sr1 = Parser::Source::Range.new(@buf, 1, 3)
+    sr2 = Parser::Source::Range.new(@buf, 2, 6)
+    sr3 = Parser::Source::Range.new(@buf, 5, 8)
+
+    assert_equal 2, sr1.intersect(sr2).begin_pos
+    assert_equal 3, sr1.intersect(sr2).end_pos
+    assert_equal 5, sr2.intersect(sr3).begin_pos
+    assert_equal 6, sr2.intersect(sr3).end_pos
+    assert sr1.intersect(sr3) == nil
+  end
+
+  def test_disjoint
+    sr1 = Parser::Source::Range.new(@buf, 1, 3)
+    sr2 = Parser::Source::Range.new(@buf, 2, 6)
+    sr3 = Parser::Source::Range.new(@buf, 5, 8)
+
+    assert sr1.disjoint?(sr3)
+    assert !sr1.disjoint?(sr2)
+    assert !sr2.disjoint?(sr3)
   end
 
   def test_line
