@@ -88,14 +88,10 @@ module Parser
         last_line  = last_line_only(@location)
         buffer     = @location.source_buffer
 
-        first_lineno, first_column = buffer.decompose_position(@location.begin_pos)
-        last_lineno,  last_column  = buffer.decompose_position(@location.end_pos)
-
+        last_lineno, last_column = buffer.decompose_position(@location.end_pos)
         ["#{@location}-#{last_lineno}:#{last_column}: #{@level}: #{message}"] +
-          render_line(first_line, true, false).
-            map { |line| "#{buffer.name}:#{first_lineno}: #{line}" } +
-          render_line(last_line, false, true).
-            map { |line| "#{buffer.name}:#{last_lineno}: #{line}" }
+          render_line(first_line, true, false) +
+          render_line(last_line, false, true)
       else
         ["#{@location}: #{@level}: #{message}"] + render_line(@location)
       end
@@ -129,7 +125,8 @@ module Parser
         highlight_line += '...'
       end
 
-      [source_line, highlight_line]
+      [source_line, highlight_line].
+        map { |line| "#{range}: #{line}" }
     end
 
     ##
