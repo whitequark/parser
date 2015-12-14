@@ -64,9 +64,9 @@ class TestDiagnostic < Minitest::Test
     assert_equal([
       "(string):1:5-3:3: error: unexpected token ghi",
       '(string):1: abc abc abc',
-      '(string):1: ~~~ ^^^^^^^...',
+      '(string):1: ~~~ ^~~~~~~...',
       '(string):3: ghi ghi ghi',
-      '(string):3: ^^^ ~~~    '
+      '(string):3: ~~~ ~~~    '
     ], diag.render)
   end
 end

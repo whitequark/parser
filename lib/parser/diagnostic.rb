@@ -92,10 +92,10 @@ module Parser
         last_lineno,  last_column  = buffer.decompose_position(@location.end_pos)
 
         ["#{@location}-#{last_lineno}:#{last_column}: #{@level}: #{message}"] +
-          render_line(first_line).
-            map { |line| "#{buffer.name}:#{first_lineno}: #{line}" }.
-            tap { |array| array.last << '...' } +
-          render_line(last_line).map  { |line| "#{buffer.name}:#{last_lineno}: #{line}" }
+          render_line(first_line, true, false).
+            map { |line| "#{buffer.name}:#{first_lineno}: #{line}" } +
+          render_line(last_line, false, true).
+            map { |line| "#{buffer.name}:#{last_lineno}: #{line}" }
       else
         ["#{@location}: #{@level}: #{message}"] + render_line(@location)
       end
@@ -108,18 +108,26 @@ module Parser
     #
     # @return [Array<String>]
     #
-    def render_line(range)
+    def render_line(range, range_start=false, range_end=false)
       source_line    = range.source_line
       highlight_line = ' ' * source_line.length
 
-      @highlights.each do |hilight|
+      @highlights.each do |highlight|
        line_range = range.source_buffer.line_range(range.line)
-        if hilight = hilight.intersect(line_range)
-          highlight_line[hilight.column_range] = '~' * hilight.size
+        if highlight = highlight.intersect(line_range)
+          highlight_line[highlight.column_range] = '~' * highlight.size
         end
       end
 
-      highlight_line[range.column_range] = '^' * range.size
+      if !range_end && range.size >= 1
+        highlight_line[range.column_range] = '^' + '~' * (range.size - 1)
+      else
+        highlight_line[range.column_range] = '~' * range.size
+      end
+
+      if range_start
+        highlight_line += '...'
+      end
 
       [source_line, highlight_line]
     end
