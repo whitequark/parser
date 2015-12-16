@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.3.0.pre.5 (2015-12-16)
+-------------------------
+
+API modifications:
+ * Source::Diagnostic: output ^^^^^ instead of ^~~~~ (like clang). (whitequark)
+
 v2.3.0.pre.4 (2015-11-26)
 -------------------------
 
