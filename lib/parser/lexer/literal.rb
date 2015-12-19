@@ -37,7 +37,8 @@ module Parser
     attr_reader   :heredoc_e, :str_s
     attr_accessor :saved_herebody_s
 
-    def initialize(lexer, str_type, delimiter, str_s, heredoc_e = nil, indent = false)
+    def initialize(lexer, str_type, delimiter, str_s, heredoc_e = nil,
+                   indent = false, label_allowed = false)
       @lexer       = lexer
       @nesting     = 1
 
@@ -60,8 +61,9 @@ module Parser
       @start_delim = DELIMITERS.include?(delimiter) ? delimiter : nil
       @end_delim   = DELIMITERS.fetch(delimiter, delimiter)
 
-      @heredoc_e   = heredoc_e
-      @indent      = indent
+      @heredoc_e     = heredoc_e
+      @indent        = indent
+      @label_allowed = label_allowed
 
       @interp_braces = 0
 
@@ -130,7 +132,7 @@ module Parser
         end
 
         if lookahead && lookahead[0] == ?: && lookahead[1] != ?: &&
-           %w(' ").include?(@str_type) && @start_tok == :tSTRING_BEG
+           @label_allowed && @start_tok == :tSTRING_BEG
           # This is a quoted label.
           flush_string
           emit(:tLABEL_END, @end_delim, ts, te + 1)

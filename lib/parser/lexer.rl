@@ -854,7 +854,8 @@ class Parser::Lexer
     end
 
     current_literal = literal
-    if !current_literal.heredoc? && (token = current_literal.nest_and_try_closing(string, @ts, @te, lookahead))
+    if !current_literal.heredoc? &&
+          (token = current_literal.nest_and_try_closing(string, @ts, @te, lookahead))
       if token[0] == :tLABEL_END
         p += 1
         pop_literal
@@ -1886,13 +1887,19 @@ class Parser::Lexer
     c_eof => do_eof;
   *|;
 
-  # Like expr_beg, but no 1.9 label possible.
+  # Like expr_beg, but no 1.9 label or 2.2 quoted label possible.
   #
   expr_value := |*
       # a:b: a(:b), a::B, A::B
       label (any - ':')
       => { p = @ts - 1
            fgoto expr_end; };
+
+      # "bar", 'baz'
+      ['"] # '
+      => {
+        fgoto *push_literal(tok, tok, @ts, nil, false, false);
+      };
 
       w_space_comment;
 
@@ -2087,7 +2094,7 @@ class Parser::Lexer
       '`' | ['"] # '
       => {
         type, delimiter = tok, tok[-1].chr
-        fgoto *push_literal(type, delimiter, @ts);
+        fgoto *push_literal(type, delimiter, @ts, nil, false, true);
       };
 
       #
