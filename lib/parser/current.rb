@@ -35,7 +35,7 @@ module Parser
 
   when /^2\.1\./
     if RUBY_VERSION != '2.1.7'
-      warn_syntax_deviation 'parser/ruby21', '2.1.7'
+      warn_syntax_deviation 'parser/ruby21', '2.1.8'
     end
 
     require 'parser/ruby21'
