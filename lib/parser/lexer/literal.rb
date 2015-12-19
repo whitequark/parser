@@ -130,7 +130,7 @@ module Parser
         end
 
         if lookahead && lookahead[0] == ?: && lookahead[1] != ?: &&
-           %w(' ").include?(delimiter) && @start_tok == :tSTRING_BEG
+           %w(' ").include?(@str_type) && @start_tok == :tSTRING_BEG
           # This is a quoted label.
           flush_string
           emit(:tLABEL_END, @end_delim, ts, te + 1)

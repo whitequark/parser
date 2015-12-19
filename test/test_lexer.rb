@@ -308,6 +308,17 @@ class TestLexer < Minitest::Test
                    :tCOLON2, '::')
   end
 
+  def test_pct_string_colon__22
+    setup_lexer 22
+
+    assert_scanned("{%'a':",
+                   :tLBRACE,         '{',
+                   :tSTRING_BEG,     "%'",
+                   :tSTRING_CONTENT, 'a',
+                   :tSTRING_END,     "'",
+                   :tCOLON,          ':')
+  end
+
   def test_command_start__19
     setup_lexer 19
 
