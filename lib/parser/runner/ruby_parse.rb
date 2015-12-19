@@ -93,6 +93,7 @@ module Parser
       super
 
       @locate = false
+      @emit_ruby = false
     end
 
     private
@@ -113,6 +114,10 @@ module Parser
 
         Lexer.send :include, Lexer::Explanation
       end
+
+      opts.on '--emit-ruby', 'Emit S-expressions as valid Ruby code' do
+        @emit_ruby = true
+      end
     end
 
     def process_all_input
@@ -129,7 +134,11 @@ module Parser
       if @locate
         LocationProcessor.new.process(ast)
       elsif !@benchmark
-        p ast
+        if @emit_ruby
+          puts ast.inspect
+        else
+          puts ast.to_s
+        end
       end
     end
   end
