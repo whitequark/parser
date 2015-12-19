@@ -5052,6 +5052,49 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0))
   end
 
+  def test_ruby_bug_10653
+    assert_parses(
+      s(:if,
+        s(:true),
+        s(:block,
+          s(:send,
+            s(:int, 1), :tap),
+          s(:args,
+            s(:arg, :n)),
+          s(:send, nil, :p,
+            s(:lvar, :n))),
+        s(:int, 0)),
+      %q{true ? 1.tap do |n| p n end : 0},
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:if,
+        s(:false),
+        s(:block,
+          s(:send, nil, :raise),
+          s(:args), nil),
+        s(:block,
+          s(:send, nil, :tap),
+          s(:args), nil)),
+      %q{false ? raise {} : tap {}},
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:if,
+        s(:false),
+        s(:block,
+          s(:send, nil, :raise),
+          s(:args), nil),
+        s(:block,
+          s(:send, nil, :tap),
+          s(:args), nil)),
+      %q{false ? raise do end : tap do end},
+      %q{},
+      ALL_VERSIONS)
+  end
+
   def test_ruby_bug_11107
     assert_parses(
       s(:send, nil, :p,
