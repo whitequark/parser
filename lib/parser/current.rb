@@ -10,48 +10,54 @@ module Parser
 
   case RUBY_VERSION
   when /^1\.8\./
-    if RUBY_VERSION != '1.8.7'
-      warn_syntax_deviation 'parser/ruby18', '1.8.7'
+    current_version = '1.8.7'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby18', current_version
     end
 
     require 'parser/ruby18'
     CurrentRuby = Ruby18
 
   when /^1\.9\./
-    if RUBY_VERSION != '1.9.3'
-      warn_syntax_deviation 'parser/ruby19', '1.9.3'
+    current_version = '1.9.3'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby19', current_version
     end
 
     require 'parser/ruby19'
     CurrentRuby = Ruby19
 
   when /^2\.0\./
-    if RUBY_VERSION != '2.0.0'
-      warn_syntax_deviation 'parser/ruby20', '2.0.0'
+    current_version = '2.0.0'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby20', current_version
     end
 
     require 'parser/ruby20'
     CurrentRuby = Ruby20
 
   when /^2\.1\./
-    if RUBY_VERSION != '2.1.8'
-      warn_syntax_deviation 'parser/ruby21', '2.1.8'
+    current_version = '2.1.8'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby21', current_version
     end
 
     require 'parser/ruby21'
     CurrentRuby = Ruby21
 
   when /^2\.2\./
-    if RUBY_VERSION != '2.2.4'
-      warn_syntax_deviation 'parser/ruby22', '2.2.4'
+    current_version = '2.2.4'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby22', current_version
     end
 
     require 'parser/ruby22'
     CurrentRuby = Ruby22
 
   when /^2\.3\./
-    if RUBY_VERSION != '2.3.0'
-      warn_syntax_deviation 'parser/ruby23', '2.3.0'
+    current_version = '2.3.0'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby23', current_version
     end
 
     require 'parser/ruby23'
