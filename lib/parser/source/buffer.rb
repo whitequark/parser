@@ -230,6 +230,15 @@ module Parser
         end
       end
 
+      ##
+      # Number of last line in the buffer
+      #
+      # @return [Integer]
+      #
+      def last_line
+        line_begins.size + @first_line - 1
+      end
+
       private
 
       def line_begins
