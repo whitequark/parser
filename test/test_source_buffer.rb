@@ -116,4 +116,17 @@ class TestSourceBuffer < Minitest::Test
       @buffer.line_range(9)
     end
   end
+
+  def test_last_line
+    @buffer.source = "1\nfoo\nbar"
+    assert_equal 3, @buffer.last_line
+
+    @buffer = Parser::Source::Buffer.new('(string)', 5)
+    @buffer.source = ""
+    assert_equal 5, @buffer.last_line
+
+    @buffer = Parser::Source::Buffer.new('(string)', 5)
+    @buffer.source = "abc\n"
+    assert_equal 6, @buffer.last_line
+  end
 end
