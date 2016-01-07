@@ -136,5 +136,9 @@ class TestSourceBuffer < Minitest::Test
     assert_equal ['1', 'foo', 'bar', ''], @buffer.source_lines
     assert @buffer.source_lines.frozen?
     assert @buffer.source_lines.all?(&:frozen?)
+
+    @buffer = Parser::Source::Buffer.new('(string)', 5)
+    @buffer.source = "foo\nbar"
+    assert_equal ['foo', 'bar'], @buffer.source_lines
   end
 end

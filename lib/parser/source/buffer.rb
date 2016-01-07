@@ -197,9 +197,8 @@ module Parser
       #
       def source_lines
         @lines ||= begin
-          # If a file ends with a newline, the EOF token will appear
-          # to be one line further than the end of file.
-          lines = @source.lines.to_a.push('')
+          lines = @source.lines.to_a
+          lines << '' if @source.end_with?("\n")
 
           lines.each do |line|
             line.chomp!(NEW_LINE)
