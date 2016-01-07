@@ -191,6 +191,26 @@ module Parser
       end
 
       ##
+      # Return an `Array` of source code lines.
+      #
+      # @return [Array<String>]
+      #
+      def source_lines
+        @lines ||= begin
+          # If a file ends with a newline, the EOF token will appear
+          # to be one line further than the end of file.
+          lines = @source.lines.to_a.push('')
+
+          lines.each do |line|
+            line.chomp!(NEW_LINE)
+            line.freeze
+          end
+
+          lines.freeze
+        end
+      end
+
+      ##
       # Extract line `lineno` from source, taking `first_line` into account.
       #
       # @param  [Integer] lineno
@@ -198,16 +218,7 @@ module Parser
       # @raise  [IndexError] if `lineno` is out of bounds
       #
       def source_line(lineno)
-        unless @lines
-          @lines = @source.lines.to_a
-          @lines.each { |line| line.chomp!(NEW_LINE) }
-
-          # If a file ends with a newline, the EOF token will appear
-          # to be one line further than the end of file.
-          @lines << ""
-        end
-
-        @lines.fetch(lineno - @first_line).dup
+        source_lines.fetch(lineno - @first_line).dup
       end
 
       ##
