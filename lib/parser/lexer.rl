@@ -187,12 +187,6 @@ class Parser::Lexer
 
       if defined?(Encoding)
         @encoding   = @source.encoding
-
-        # This is a workaround for 1.9.2, which (without force_encoding)
-        # would convert the result to UTF-8 (source encoding of lexer.rl).
-        @source    += "\0".dup.force_encoding(@encoding)
-      else
-        @source    += "\0"
       end
 
       if defined?(Encoding) && @source.encoding == Encoding::UTF_8
@@ -293,7 +287,7 @@ class Parser::Lexer
     _lex_from_state_actions = klass.send :_lex_from_state_actions
     _lex_eof_trans          = klass.send :_lex_eof_trans
 
-    pe = @source.length + 1
+    pe = @source.length + 2
     p, eof = @p, pe
 
     @command_state = (@cs == klass.lex_en_expr_value ||
@@ -309,7 +303,7 @@ class Parser::Lexer
     elsif @cs == klass.lex_error
       [ false, [ '$error', range(p - 1, p) ] ]
     else
-      eof = @source.length
+      eof = @source.length + 1
       [ false, [ '$eof',   range(eof, eof) ] ]
     end
   end
