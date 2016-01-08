@@ -1763,7 +1763,7 @@ class Parser::Lexer
           @lambda_stack.pop
           emit(:tLAMBEG)
         else
-          emit_table(PUNCTUATION_BEGIN)
+          emit(:tLBRACE)
         end
         fbreak;
       };
@@ -1783,7 +1783,7 @@ class Parser::Lexer
       # rescue Exception => e: Block rescue.
       # Special because it should transition to expr_mid.
       'rescue' %{ tm = p } '=>'?
-      => { emit_table(KEYWORDS_BEGIN, @ts, tm)
+      => { emit(:kRESCUE, tok(@ts, tm), @ts, tm)
            p = tm - 1
            fnext expr_mid; fbreak; };
 
@@ -1913,7 +1913,7 @@ class Parser::Lexer
 
       '->'
       => {
-        emit_table(PUNCTUATION, @ts, @ts + 2)
+        emit(:tLAMBDA, tok(@ts, @ts + 2), @ts, @ts + 2)
 
         @lambda_stack.push @paren_nest
         fnext expr_endfn; fbreak;
@@ -1931,7 +1931,7 @@ class Parser::Lexer
           end
         else
           if tok == '{'
-            emit_table(PUNCTUATION)
+            emit(:tLCURLY)
           else # 'do'
             emit_do
           end
@@ -1989,7 +1989,7 @@ class Parser::Lexer
             fnext *arg_or_cmdarg;
           end
         else
-          emit_table(KEYWORDS)
+          emit(:k__ENCODING__)
         end
         fbreak;
       };
@@ -2160,11 +2160,11 @@ class Parser::Lexer
            fnext expr_beg; fbreak; };
 
       '?'
-      => { emit_table(PUNCTUATION)
+      => { emit(:tEH)
            fnext expr_value; fbreak; };
 
       e_lbrack
-      => { emit_table(PUNCTUATION)
+      => { emit(:tLBRACK2)
            fnext expr_beg; fbreak; };
 
       punctuation_end
@@ -2181,7 +2181,7 @@ class Parser::Lexer
       => { fgoto leading_dot; };
 
       ';'
-      => { emit_table(PUNCTUATION)
+      => { emit(:tSEMI)
            fnext expr_value; fbreak; };
 
       '\\' c_line {
