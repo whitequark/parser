@@ -578,7 +578,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_do_cond
-    @lex.cond.push true
+    @lex.push_cond_state true
 
     assert_scanned("x do 42 end",
                    :tIDENTIFIER, "x",

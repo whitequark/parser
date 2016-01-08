@@ -3,6 +3,7 @@
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'rake/clean'
+require 'rake/extensiontask'
 
 task :default => [:test]
 
@@ -138,8 +139,22 @@ task :changelog do
   sh('git commit CHANGELOG.md -m "Update changelog." || true')
 end
 
+Rake::ExtensionTask.new 'lexer' do |ext|
+  ext.lib_dir = 'lib/parser'
+end
+task :compile => 'ext/lexer/lexer.c'
+
 rule '.rb' => '.rl' do |t|
   sh "ragel -F1 -R #{t.source} -o #{t.name}"
+end
+
+rule '.c' => '.rl' do |t|
+  sh "ragel -F1 #{t.source} -o #{t.name}"
+
+  # Ragel likes to use int variables where a #define would do
+  src = File.read(t.name)
+  src.gsub!(/^static const int (\w+) = (\d+);/, '#define \1 \2')
+  File.open(t.name, 'w') { |f| f.write(src) }
 end
 
 rule '.rb' => '.y' do |t|
