@@ -6,7 +6,7 @@ module Parser
     # will be able to produce every possible node.
     NODE_TYPES =
       %w(
-        true false nil int float str dstr str
+        true false nil int float str dstr
         sym dsym xstr regopt regexp array splat
         array pair kwsplat hash irange erange self
         lvar ivar cvar gvar const defined? lvasgn
