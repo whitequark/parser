@@ -1986,9 +1986,7 @@ class Parser::Lexer
         if version?(18)
           emit(:tIDENTIFIER)
 
-          if !@static_env.nil? && @static_env.declared?(tok)
-            fnext expr_end;
-          else
+          unless !@static_env.nil? && @static_env.declared?(tok)
             fnext *arg_or_cmdarg;
           end
         else
