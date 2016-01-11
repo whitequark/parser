@@ -1282,7 +1282,7 @@ class Parser::Lexer
   #
   expr_fname := |*
       keyword
-      => { emit(KEYWORDS_BEGIN[tok]);
+      => { emit_table(KEYWORDS_BEGIN);
            fnext expr_endfn; fbreak; };
 
       constant
