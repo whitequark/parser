@@ -1769,10 +1769,13 @@ class Parser::Lexer
       };
 
       # a([1, 2])
-      e_lbrack    |
+      e_lbrack
+      => { emit(:tLBRACK)
+           fbreak; };
+
       # a()
       e_lparen
-      => { emit_table(PUNCTUATION_BEGIN)
+      => { emit(:tLPAREN)
            fbreak; };
 
       # a(+b)
