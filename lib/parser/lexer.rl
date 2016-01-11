@@ -1282,7 +1282,7 @@ class Parser::Lexer
   #
   expr_fname := |*
       keyword
-      => { emit(KEYWORDS_BEGIN[tok]);
+      => { emit_table(KEYWORDS_BEGIN);
            fnext expr_endfn; fbreak; };
 
       constant
@@ -1769,10 +1769,13 @@ class Parser::Lexer
       };
 
       # a([1, 2])
-      e_lbrack    |
+      e_lbrack
+      => { emit(:tLBRACK)
+           fbreak; };
+
       # a()
       e_lparen
-      => { emit_table(PUNCTUATION_BEGIN)
+      => { emit(:tLPAREN)
            fbreak; };
 
       # a(+b)
@@ -1983,9 +1986,7 @@ class Parser::Lexer
         if version?(18)
           emit(:tIDENTIFIER)
 
-          if !@static_env.nil? && @static_env.declared?(tok)
-            fnext expr_end;
-          else
+          unless !@static_env.nil? && @static_env.declared?(tok)
             fnext *arg_or_cmdarg;
           end
         else
