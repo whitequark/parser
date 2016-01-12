@@ -287,7 +287,7 @@ class Parser::Lexer
     _lex_from_state_actions = klass.send :_lex_from_state_actions
     _lex_eof_trans          = klass.send :_lex_eof_trans
 
-    pe = @source.length + 2
+    pe = @source_pts.size + 2
     p, eof = @p, pe
 
     @command_state = (@cs == klass.lex_en_expr_value ||
@@ -303,7 +303,7 @@ class Parser::Lexer
     elsif @cs == klass.lex_error
       [ false, [ '$error', range(p - 1, p) ] ]
     else
-      eof = @source.length + 1
+      eof = @source_pts.size + 1
       [ false, [ '$eof',   range(eof, eof) ] ]
     end
   end
