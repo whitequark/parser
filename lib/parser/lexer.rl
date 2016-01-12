@@ -184,6 +184,7 @@ class Parser::Lexer
 
     if @source_buffer
       @source = @source_buffer.source
+      @need_encode = false
 
       if defined?(Encoding)
         @encoding   = @source.encoding
@@ -191,7 +192,6 @@ class Parser::Lexer
 
       if defined?(Encoding) && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
-        @need_encode = false
       else
         @source_pts = @source.unpack('C*')
       end
