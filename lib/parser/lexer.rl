@@ -1636,21 +1636,21 @@ class Parser::Lexer
       # /=/ (disambiguation with /=)
       '/' c_any
       => {
-        type = delimiter = tok[0].chr
+        type = delimiter = @source[@ts].chr
         fhold; fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %<string>
       '%' ( any - [A-Za-z] )
       => {
-        type, delimiter = tok[0].chr, tok[-1].chr
+        type, delimiter = @source[@ts].chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %w(we are the people)
       '%' [A-Za-z]+ c_any
       => {
-        type, delimiter = tok[0..-2], tok[-1].chr
+        type, delimiter = tok[0..-2], @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1690,7 +1690,7 @@ class Parser::Lexer
       # :"bar", :'baz'
       ':' ['"] # '
       => {
-        type, delimiter = tok, tok[-1].chr
+        type, delimiter = tok, @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1733,7 +1733,7 @@ class Parser::Lexer
       '?' c_space_nl
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
-                   "\v" => '\v', "\f" => '\f' }[tok[1]]
+                   "\v" => '\v', "\f" => '\f' }[@source[@ts + 1]]
         diagnostic :warning, :invalid_escape_use, { :escape => escape }, range
 
         p = @ts - 1
@@ -1806,7 +1806,7 @@ class Parser::Lexer
         if version?(18)
           ident = tok(@ts, @te - 2)
 
-          emit((tok[0] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
+          emit((@source[@ts] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
                ident, @ts, @te - 2)
           fhold; # continue as a symbol
 
@@ -2088,7 +2088,7 @@ class Parser::Lexer
       # `echo foo`, "bar", 'baz'
       '`' | ['"] # '
       => {
-        type, delimiter = tok, tok[-1].chr
+        type, delimiter = tok, @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts, nil, false, true);
       };
 
