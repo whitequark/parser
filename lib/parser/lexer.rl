@@ -196,8 +196,7 @@ class Parser::Lexer
         @source_pts = @source.unpack('C*')
       end
 
-      if (@source_pts.size > 1_000_000 && @has_encode) ||
-         @force_utf32
+      if @has_encode && (@source_pts.size > 1_000_000 || @force_utf32)
         # A heuristic: if the buffer is larger than 1M, then
         # store it in UTF-32 and convert the tokens as they're
         # going out. If it's smaller, the conversion overhead
@@ -210,7 +209,7 @@ class Parser::Lexer
         #
         # Patches accepted.
         @source = @source.encode(Encoding::UTF_32LE)
-        @need_encode = @has_encode && @encoding != Encoding::UTF_32LE
+        @need_encode = @encoding != Encoding::UTF_32LE
       end
 
       if @source_pts[0] == 0xfeff
