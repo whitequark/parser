@@ -838,7 +838,7 @@ class Parser::Lexer
   };
 
   action extend_string {
-    string = @source[@ts...@te]
+    string = tok
     string = string.encode(@encoding) if @need_encode
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
