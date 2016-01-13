@@ -734,10 +734,10 @@ class Parser::Lexer
 
       # %q[\u123] %q[\u{12]
     | 'u' ( c_any{0,4}  -
-            xdigit{4}   -           # \u1234 is valid
-            ( '{' xdigit{1,3}       # \u{1 \u{12 \u{123 are valid
-            | '{' xdigit [ \t}] any # \u{1. \u{1} are valid
-            | '{' xdigit{2} [ \t}]  # \u{12. \u{12} are valid
+            xdigit{4}   -            # \u1234 is valid
+            ( '{' xdigit{1,3}        # \u{1 \u{12 \u{123 are valid
+            | '{' xdigit [ \t}] any? # \u{1. \u{1} are valid
+            | '{' xdigit{2} [ \t}]   # \u{12. \u{12} are valid
             )
           )
       % {
