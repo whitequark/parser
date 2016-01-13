@@ -1107,6 +1107,55 @@ class TestLexer < Minitest::Test
     assert_scanned '?\M-\C-a', :tCHARACTER, "\M-\C-a"
   end
 
+  def test_question_eh_escape_u_1_digit
+    setup_lexer 19
+
+    refute_scanned '?\\u1'
+  end
+
+  def test_question_eh_escape_u_2_digits
+    setup_lexer 19
+
+    refute_scanned '?\\u12'
+  end
+
+  def test_question_eh_escape_u_3_digits
+    setup_lexer 19
+
+    refute_scanned '?\\u123'
+  end
+
+  def test_question_eh_escape_u_4_digits
+    if RUBY_VERSION >= '1.9'
+      setup_lexer 19
+      assert_scanned '?\\u0001', :tCHARACTER, "\u0001"
+    end
+  end
+
+  def test_question_eh_single_unicode_point
+    if RUBY_VERSION >= '1.9'
+      setup_lexer 19
+      assert_scanned '?\\u{123}', :tCHARACTER, "\u0123"
+
+      setup_lexer 19
+      assert_scanned '?\\u{a}',  :tCHARACTER, "\n"
+    end
+  end
+
+  def test_question_eh_multiple_unicode_points
+    setup_lexer 19
+    refute_scanned '?\\u{1 2 3}'
+
+    setup_lexer 19
+    refute_scanned '?\\u{a b}'
+  end
+
+  def test_question_eh_escape_u_unclosed_bracket
+    setup_lexer 19
+
+    refute_scanned '?\\u{123'
+  end
+
   def test_integer_hex
     assert_scanned "0x2a", :tINTEGER, 42
   end

@@ -184,20 +184,21 @@ class Parser::Lexer
 
     if @source_buffer
       @source = @source_buffer.source
+      @need_encode = false
 
-      if defined?(Encoding)
+      if @has_encode
         @encoding   = @source.encoding
       end
 
-      if defined?(Encoding) && @source.encoding == Encoding::UTF_8
+      if @has_encode && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
-        @need_encode = @has_encode && @encoding != Encoding::UTF_8
       else
         @source_pts = @source.unpack('C*')
       end
 
-      if (@source_pts.size > 1_000_000 && @has_encode) ||
-         @force_utf32
+      if @has_encode &&
+        (@source_pts.size > 1_000_000 || @force_utf32) &&
+        @encoding != Encoding::UTF_32LE
         # A heuristic: if the buffer is larger than 1M, then
         # store it in UTF-32 and convert the tokens as they're
         # going out. If it's smaller, the conversion overhead
@@ -210,7 +211,7 @@ class Parser::Lexer
         #
         # Patches accepted.
         @source = @source.encode(Encoding::UTF_32LE)
-        @need_encode = @has_encode && @encoding != Encoding::UTF_32LE
+        @need_encode = true
       end
 
       if @source_pts[0] == 0xfeff
@@ -287,7 +288,7 @@ class Parser::Lexer
     _lex_from_state_actions = klass.send :_lex_from_state_actions
     _lex_eof_trans          = klass.send :_lex_eof_trans
 
-    pe = @source.length + 2
+    pe = @source_pts.size + 2
     p, eof = @p, pe
 
     @command_state = (@cs == klass.lex_en_expr_value ||
@@ -303,7 +304,7 @@ class Parser::Lexer
     elsif @cs == klass.lex_error
       [ false, [ '$error', range(p - 1, p) ] ]
     else
-      eof = @source.length + 1
+      eof = @source_pts.size + 1
       [ false, [ '$eof',   range(eof, eof) ] ]
     end
   end
@@ -733,10 +734,10 @@ class Parser::Lexer
 
       # %q[\u123] %q[\u{12]
     | 'u' ( c_any{0,4}  -
-            xdigit{4}   -           # \u1234 is valid
-            ( '{' xdigit{1,3}       # \u{1 \u{12 \u{123 are valid
-            | '{' xdigit [ \t}] any # \u{1. \u{1} are valid
-            | '{' xdigit{2} [ \t}]  # \u{12. \u{12} are valid
+            xdigit{4}   -            # \u1234 is valid
+            ( '{' xdigit{1,3}        # \u{1 \u{12 \u{123 are valid
+            | '{' xdigit [ \t}] any? # \u{1. \u{1} are valid
+            | '{' xdigit{2} [ \t}]   # \u{12. \u{12} are valid
             )
           )
       % {
@@ -838,7 +839,7 @@ class Parser::Lexer
   };
 
   action extend_string {
-    string = @source[@ts...@te]
+    string = tok
     string = string.encode(@encoding) if @need_encode
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
@@ -1636,21 +1637,21 @@ class Parser::Lexer
       # /=/ (disambiguation with /=)
       '/' c_any
       => {
-        type = delimiter = tok[0].chr
+        type = delimiter = @source[@ts].chr
         fhold; fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %<string>
       '%' ( any - [A-Za-z] )
       => {
-        type, delimiter = tok[0].chr, tok[-1].chr
+        type, delimiter = @source[@ts].chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %w(we are the people)
       '%' [A-Za-z]+ c_any
       => {
-        type, delimiter = tok[0..-2], tok[-1].chr
+        type, delimiter = tok[0..-2], @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1690,7 +1691,7 @@ class Parser::Lexer
       # :"bar", :'baz'
       ':' ['"] # '
       => {
-        type, delimiter = tok, tok[-1].chr
+        type, delimiter = tok, @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1712,7 +1713,9 @@ class Parser::Lexer
       # AMBIGUOUS TERNARY OPERATOR
       #
 
-      '?' ( e_bs escape
+      # Character constant, like ?a, ?\n, ?\u1000, and so on
+      # Don't accept \u escape with multiple codepoints, like \u{1 2 3}
+      '?' ( e_bs ( escape - ( '\u{' (xdigit+ [ \t]+)+ xdigit+ '}' ))
           | (c_any - c_space_nl - e_bs) % { @escape = nil }
           )
       => {
@@ -1733,7 +1736,7 @@ class Parser::Lexer
       '?' c_space_nl
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
-                   "\v" => '\v', "\f" => '\f' }[tok[1]]
+                   "\v" => '\v', "\f" => '\f' }[@source[@ts + 1]]
         diagnostic :warning, :invalid_escape_use, { :escape => escape }, range
 
         p = @ts - 1
@@ -1806,7 +1809,7 @@ class Parser::Lexer
         if version?(18)
           ident = tok(@ts, @te - 2)
 
-          emit((tok[0] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
+          emit((@source[@ts] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
                ident, @ts, @te - 2)
           fhold; # continue as a symbol
 
@@ -2088,7 +2091,7 @@ class Parser::Lexer
       # `echo foo`, "bar", 'baz'
       '`' | ['"] # '
       => {
-        type, delimiter = tok, tok[-1].chr
+        type, delimiter = tok, @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts, nil, false, true);
       };
 
