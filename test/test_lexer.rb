@@ -1142,6 +1142,14 @@ class TestLexer < Minitest::Test
     end
   end
 
+  def test_question_eh_multiple_unicode_points
+    setup_lexer 19
+    refute_scanned '?\\u{1 2 3}'
+
+    setup_lexer 19
+    refute_scanned '?\\u{a b}'
+  end
+
   def test_question_eh_escape_u_unclosed_bracket
     setup_lexer 19
 

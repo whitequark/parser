@@ -1713,7 +1713,9 @@ class Parser::Lexer
       # AMBIGUOUS TERNARY OPERATOR
       #
 
-      '?' ( e_bs escape
+      # Character constant, like ?a, ?\n, ?\u1000, and so on
+      # Don't accept \u escape with multiple codepoints, like \u{1 2 3}
+      '?' ( e_bs ( escape - ( '\u{' (xdigit+ [ \t]+)+ xdigit+ '}' ))
           | (c_any - c_space_nl - e_bs) % { @escape = nil }
           )
       => {
