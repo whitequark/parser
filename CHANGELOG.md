@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2.3.0.0 (2016-01-14)
+---------------------
+
+Features implemented:
+ * parser/current: update for released 2.3. (whitequark)
+ * parse.y: "\<\<~HEREDOC": implement dedenting heredocs (fixes #228). (whitequark)
+
 v2.3.0.pre.6 (2015-12-20)
 -------------------------
 
