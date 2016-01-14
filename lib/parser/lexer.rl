@@ -1898,7 +1898,7 @@ class Parser::Lexer
       # "bar", 'baz'
       ['"] # '
       => {
-        fgoto *push_literal(tok, tok, @ts, nil, false, false);
+        fgoto *push_literal(tok, tok, @ts);
       };
 
       w_space_comment;
