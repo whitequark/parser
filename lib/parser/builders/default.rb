@@ -186,6 +186,30 @@ module Parser
         string_map(begin_t, parts, end_t))
     end
 
+    # Indented (interpolated, noninterpolated, executable) strings
+
+    def dedent_string(node, dedent_level)
+      if !dedent_level.nil?
+        dedenter = Lexer::Dedenter.new(dedent_level)
+
+        if node.type == :str
+          str = node.children.first
+          dedenter.dedent(str)
+        elsif node.type == :dstr || node.type == :xstr
+          node.children.each do |str_node|
+            if str_node.type == :str
+              str = str_node.children.first
+              dedenter.dedent(str)
+            else
+              dedenter.interrupt
+            end
+          end
+        end
+      end
+
+      node
+    end
+
     # Regular expressions
 
     def regexp_options(regopt_t)

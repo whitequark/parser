@@ -1676,11 +1676,13 @@ opt_block_args_tail:
 
          string1: tSTRING_BEG string_contents tSTRING_END
                     {
-                      result = @builder.string_compose(val[0], val[1], val[2])
+                      string = @builder.string_compose(val[0], val[1], val[2])
+                      result = @builder.dedent_string(string, @lexer.dedent_level)
                     }
                 | tSTRING
                     {
-                      result = @builder.string(val[0])
+                      string = @builder.string(val[0])
+                      result = @builder.dedent_string(string, @lexer.dedent_level)
                     }
                 | tCHARACTER
                     {
@@ -1689,7 +1691,8 @@ opt_block_args_tail:
 
          xstring: tXSTRING_BEG xstring_contents tSTRING_END
                     {
-                      result = @builder.xstring_compose(val[0], val[1], val[2])
+                      string = @builder.xstring_compose(val[0], val[1], val[2])
+                      result = @builder.dedent_string(string, @lexer.dedent_level)
                     }
 
           regexp: tREGEXP_BEG regexp_contents tSTRING_END tREGEXP_OPT

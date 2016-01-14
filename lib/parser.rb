@@ -60,6 +60,7 @@ module Parser
   require 'parser/lexer'
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
+  require 'parser/lexer/dedenter'
 
   module Builders
     require 'parser/builders/default'

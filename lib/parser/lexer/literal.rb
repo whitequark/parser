@@ -34,11 +34,11 @@ module Parser
       '<<`' => [ :tXSTRING_BEG,  true  ],
     }
 
-    attr_reader   :heredoc_e, :str_s
+    attr_reader   :heredoc_e, :str_s, :dedent_level
     attr_accessor :saved_herebody_s
 
     def initialize(lexer, str_type, delimiter, str_s, heredoc_e = nil,
-                   indent = false, label_allowed = false)
+                   indent = false, dedent_body = false, label_allowed = false)
       @lexer       = lexer
       @nesting     = 1
 
@@ -64,6 +64,9 @@ module Parser
       @heredoc_e     = heredoc_e
       @indent        = indent
       @label_allowed = label_allowed
+
+      @dedent_body   = dedent_body
+      @dedent_level  = nil
 
       @interp_braces = 0
 
@@ -146,6 +149,25 @@ module Parser
           flush_string unless heredoc?
 
           emit(:tSTRING_END, @end_delim, ts, te)
+        end
+      end
+    end
+
+    def infer_indent_level(line)
+      return if !@dedent_body
+
+      indent_level = 0
+      line.each_char do |char|
+        case char
+        when ?\s
+          indent_level += 1
+        when ?\t
+          indent_level += (8 - indent_level % 8)
+        else
+          if @dedent_level.nil? || @dedent_level > indent_level
+            @dedent_level = indent_level
+          end
+          break
         end
       end
     end

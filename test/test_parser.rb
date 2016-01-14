@@ -262,6 +262,159 @@ class TestParser < Minitest::Test
         |                 ~~~~ heredoc_end})
   end
 
+  def test_dedenting_heredoc
+    assert_parses(
+      s(:begin,
+        s(:send,
+          s(:send, nil, :p), :<<,
+          s(:send,
+            s(:const, nil, :E), :~)),
+        s(:const, nil, :E)),
+      %Q{p <<~E\nE},
+      %q{},
+      %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr)),
+      %Q{p <<~E\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr)),
+      %Q{p <<~E\n  E},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:str, "x\n")),
+      %Q{p <<~E\n  x\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "x\n"),
+          s(:str, "  y\n"))),
+      %Q{p <<~E\n  x\n    y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "x\n"),
+          s(:str, "y\n"))),
+      %Q{p <<~E\n\tx\n    y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "x\n"),
+          s(:str, "y\n"))),
+      %Q{p <<~E\n\tx\n        y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "x\n"),
+          s(:str, "y\n"))),
+      %Q{p <<~E\n    \tx\n        y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "\tx\n"),
+          s(:str, "y\n"))),
+      %Q{p <<~E\n        \tx\n\ty\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "  x\n"),
+          s(:str, "\n"),
+          s(:str, "y\n"))),
+      %Q{p <<~E\n  x\n\ny\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "x\n"),
+          s(:str, "  \n"),
+          s(:str, "y\n"))),
+      %Q{p <<~E\n  x\n    \n  y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "  x\n"),
+          s(:str, "  y\n"))),
+      %Q{p <<~E\n    x\n  \\  y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "  x\n"),
+          s(:str, "\ty\n"))),
+      %Q{p <<~E\n    x\n  \\\ty\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "  x\n"),
+          s(:str, ""),
+          s(:begin,
+            s(:lvar, :foo)),
+          s(:str, "\n"))),
+      %Q{p <<~"E"\n    x\n  \#{foo}\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:xstr,
+          s(:str, "  x\n"),
+          s(:str, ""),
+          s(:begin,
+            s(:lvar, :foo)),
+          s(:str, "\n"))),
+      %Q{p <<~`E`\n    x\n  \#{foo}\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "  x\n"),
+          s(:str, ""),
+          s(:begin,
+            s(:str, "  y")),
+          s(:str, "\n"))),
+      %Q{p <<~"E"\n    x\n  \#{"  y"}\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+  end
+
   # Symbols
 
   def test_symbol_plain
@@ -5122,6 +5275,28 @@ class TestParser < Minitest::Test
       %q{p -> { :hello }, a: 1 do end},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0)) # no 1.9 backport
+  end
+
+  # We implement broken behavior, and Ruby is not fixed as of 2016-01-14.
+  def test_ruby_bug_11989
+    assert_parses(
+      s(:send, nil, :p,
+        s(:str, "x\n y\n")),
+      %Q{p <<~"E"\n  x\\n   y\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+  end
+
+  # We implement correct behavior, but Ruby is not fixed as of 2016-01-14.
+  def test_ruby_bug_11990
+    assert_parses(
+      s(:send, nil, :p,
+        s(:dstr,
+          s(:str, "x\n"),
+          s(:str, "  y"))),
+      %Q{p <<~E "  y"\n  x\nE},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
   end
 
   def test_parser_bug_198

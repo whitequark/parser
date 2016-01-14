@@ -134,7 +134,7 @@ class Parser::Lexer
     @source        = nil # source string
     @source_pts    = nil # @source as a codepoint array
     @encoding      = nil # target encoding for output strings
-    @need_encode = nil
+    @need_encode   = nil
 
     @p             = 0   # stream position (saved manually in #advance)
     @ts            = nil # token start
@@ -161,14 +161,20 @@ class Parser::Lexer
     @escape_s      = nil # starting position of current sequence
     @escape        = nil # last escaped sequence, as string
 
-    # See below the section on parsing heredocs.
-    @heredoc_e     = nil
-    @herebody_s    = nil
+    @herebody_s    = nil # starting position of current heredoc line
 
     # Ruby 1.9 ->() lambdas emit a distinct token if do/{ is
     # encountered after a matching closing parenthesis.
     @paren_nest    = 0
     @lambda_stack  = []
+
+    # After encountering the closing line of <<~SQUIGGLY_HEREDOC,
+    # we store the indentation level and give it out to the parser
+    # on request. It is not possible to infer indentation level just
+    # from the AST because escape sequences such as `\ ` or `\t` are
+    # expanded inside the lexer, but count as non-whitespace for
+    # indentation purposes.
+    @dedent_level  = nil
 
     # If the lexer is in `command state' (aka expr_value)
     # at the entry to #advance, it will transition to expr_cmdarg
@@ -268,6 +274,13 @@ class Parser::Lexer
 
   def pop_cond
     @cond = @cond_stack.pop
+  end
+
+  def dedent_level
+    # We erase @dedent_level as a precaution to avoid accidentally
+    # using a stale value.
+    dedent_level, @dedent_level = @dedent_level, nil
+    dedent_level
   end
 
   # Return next token: [type, value].
@@ -428,6 +441,8 @@ class Parser::Lexer
 
   def pop_literal
     old_literal = @literal_stack.pop
+
+    @dedent_level = old_literal.dedent_level
 
     if old_literal.type == :tREGEXP_BEG
       # Fetch modifiers.
@@ -813,10 +828,10 @@ class Parser::Lexer
   #     the result is: "  i am a heredoc\n"
   #
   # To parse them, lexer refers to two kinds (remember, nested heredocs)
-  # of positions in the input stream, namely @heredoc_e
+  # of positions in the input stream, namely heredoc_e
   # (HEREDOC declaration End) and @herebody_s (HEREdoc BODY line Start).
   #
-  # @heredoc_e is simply contained inside the corresponding Literal, and
+  # heredoc_e is simply contained inside the corresponding Literal, and
   # when the heredoc is closed, the lexing is restarted from that position.
   #
   # @herebody_s is quite more complex. First, @herebody_s changes after each
@@ -945,6 +960,9 @@ class Parser::Lexer
         p = current_literal.heredoc_e - 1
         fnext *pop_literal; fbreak;
       else
+        # Calculate indentation level for <<~HEREDOCs.
+        current_literal.infer_indent_level(line)
+
         # Ditto.
         @herebody_s = @te
       end
@@ -1661,27 +1679,36 @@ class Parser::Lexer
       };
 
       # Heredoc start.
-      # <<EOF | <<-END | <<"FOOBAR" | <<-`SMTH`
-      '<<' '-'?
+      # <<END  | <<'END'  | <<"END"  | <<`END`  |
+      # <<-END | <<-'END' | <<-"END" | <<-`END` |
+      # <<~END | <<~'END' | <<~"END" | <<~`END`
+      '<<' [~\-]?
         ( '"' ( c_line - '"' )* '"'
         | "'" ( c_line - "'" )* "'"
         | "`" ( c_line - "`" )* "`"
-        | bareword ) % { @heredoc_e     = p }
+        | bareword ) % { heredoc_e     = p }
         c_line* c_nl % { new_herebody_s = p }
       => {
-        tok(@ts, @heredoc_e) =~ /^<<(-?)(["'`]?)(.*)\2$/
+        tok(@ts, heredoc_e) =~ /^<<(-?)(~?)(["'`]?)(.*)\3$/
 
-        indent    = !$1.empty?
-        type      =  '<<' + ($2.empty? ? '"' : $2)
-        delimiter =  $3
+        indent      = !$1.empty? || !$2.empty?
+        dedent_body = !$2.empty?
+        type        =  '<<' + ($3.empty? ? '"' : $3)
+        delimiter   =  $4
 
-        fnext *push_literal(type, delimiter, @ts, @heredoc_e, indent);
+        if dedent_body && version?(18, 19, 20, 21, 22)
+          emit(:tLSHFT, '<<', @ts, @ts + 2)
+          p = @ts + 1
+          fnext expr_beg; fbreak;
+        else
+          fnext *push_literal(type, delimiter, @ts, heredoc_e, indent, dedent_body);
 
-        if @herebody_s.nil?
-          @herebody_s = new_herebody_s
+          if @herebody_s.nil?
+            @herebody_s = new_herebody_s
+          end
+
+          p = @herebody_s - 1
         end
-
-        p = @herebody_s - 1
       };
 
       #
@@ -1898,7 +1925,7 @@ class Parser::Lexer
       # "bar", 'baz'
       ['"] # '
       => {
-        fgoto *push_literal(tok, tok, @ts, nil, false, false);
+        fgoto *push_literal(tok, tok, @ts);
       };
 
       w_space_comment;
@@ -2092,7 +2119,7 @@ class Parser::Lexer
       '`' | ['"] # '
       => {
         type, delimiter = tok, @source[@te - 1].chr
-        fgoto *push_literal(type, delimiter, @ts, nil, false, true);
+        fgoto *push_literal(type, delimiter, @ts, nil, false, false, true);
       };
 
       #
