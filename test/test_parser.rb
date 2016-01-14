@@ -1672,6 +1672,15 @@ class TestParser < Minitest::Test
       %q{~~~~~ keyword
         |      ~~~ name
         |           ~~~ end})
+
+    assert_parses(
+      s(:class,
+        s(:const, nil, :Foo),
+        nil,
+        nil),
+      %q{class Foo end},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 mac ios))
   end
 
   def test_class_super
