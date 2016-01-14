@@ -255,7 +255,7 @@ No known code is affected by this issue.
 
 ## Contributors
 
-* Peter Zotov ([whitequark][])
+* [whitequark][]
 * Markus Schirp ([mbj][])
 * Yorick Peterse ([yorickpeterse][])
 * Magnus Holm ([judofyr][])
