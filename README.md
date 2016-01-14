@@ -130,7 +130,7 @@ $ ruby-parse -E -e "2+2"
 
 ## Documentation
 
-Documentation for parser is available [online](https://whitequark.github.io/parser/).
+Documentation for Parser is available [online](https://whitequark.github.io/parser/).
 
 ### Node names
 
