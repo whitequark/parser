@@ -24,7 +24,7 @@ $ gem install parser
 
 Parse a chunk of code:
 
-```ruby
+```
 require 'parser/current'
 Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
 
@@ -36,7 +36,7 @@ p Parser::CurrentRuby.parse("2 + 2")
 
 Access the AST's source map:
 
-```ruby
+```
 p Parser::CurrentRuby.parse("2 + 2").loc
 # #<Parser::Source::Map::Send:0x007fe5a1ac2388
 #   @dot=nil,
@@ -53,7 +53,7 @@ Traverse the AST: see the documentation for [gem ast](https://whitequark.github.
 
 Parse a chunk of code and display all diagnostics:
 
-```ruby
+```
 parser = Parser::CurrentRuby.new
 parser.diagnostics.consumer = lambda do |diag|
   puts diag.render
@@ -179,7 +179,7 @@ $ ruby-parse -e 'def x; foo; bar end'
 
 Note that, despite its name, `kwbegin` node only has tangential relation to the `begin` keyword. Normally, Parser AST is semantic, that is, if two constructs look differently but behave identically, they get parsed to the same node. However, there exists a peculiar construct called post-loop in Ruby:
 
-```ruby
+```
 begin
   body
 end while condition
