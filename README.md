@@ -16,60 +16,52 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 
 ## Installation
 
-```
-$ gem install parser
-```
+    $ gem install parser
 
 ## Usage
 
 Parse a chunk of code:
 
-```
-require 'parser/current'
-Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
+    require 'parser/current'
+    Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
 
-p Parser::CurrentRuby.parse("2 + 2")
-# (send
-#   (int 2) :+
-#   (int 2))
-```
+    p Parser::CurrentRuby.parse("2 + 2")
+    # (send
+    #   (int 2) :+
+    #   (int 2))
 
 Access the AST's source map:
 
-```
-p Parser::CurrentRuby.parse("2 + 2").loc
-# #<Parser::Source::Map::Send:0x007fe5a1ac2388
-#   @dot=nil,
-#   @begin=nil,
-#   @end=nil,
-#   @selector=#<Source::Range (string) 2...3>,
-#   @expression=#<Source::Range (string) 0...5>>
+    p Parser::CurrentRuby.parse("2 + 2").loc
+    # #<Parser::Source::Map::Send:0x007fe5a1ac2388
+    #   @dot=nil,
+    #   @begin=nil,
+    #   @end=nil,
+    #   @selector=#<Source::Range (string) 2...3>,
+    #   @expression=#<Source::Range (string) 0...5>>
 
-p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
-# "+"
-```
+    p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
+    # "+"
 
 Traverse the AST: see the documentation for [gem ast](https://whitequark.github.io/ast/).
 
 Parse a chunk of code and display all diagnostics:
 
-```
-parser = Parser::CurrentRuby.new
-parser.diagnostics.consumer = lambda do |diag|
-  puts diag.render
-end
+    parser = Parser::CurrentRuby.new
+    parser.diagnostics.consumer = lambda do |diag|
+      puts diag.render
+    end
 
-buffer = Parser::Source::Buffer.new('(string)')
-buffer.source = "foo *bar"
+    buffer = Parser::Source::Buffer.new('(string)')
+    buffer.source = "foo *bar"
 
-p parser.parse(buffer)
-# (string):1:5: warning: `*' interpreted as argument prefix
-# foo *bar
-#     ^
-# (send nil :foo
-#   (splat
-#     (send nil :bar)))
-```
+    p parser.parse(buffer)
+    # (string):1:5: warning: `*' interpreted as argument prefix
+    # foo *bar
+    #     ^
+    # (send nil :foo
+    #   (splat
+    #     (send nil :bar)))
 
 If you reuse the same parser object for multiple `#parse` runs, you need to
 `#reset` it.
@@ -77,33 +69,31 @@ If you reuse the same parser object for multiple `#parse` runs, you need to
 You can also use the `ruby-parse` utility (it's bundled with the gem) to play
 with Parser:
 
-```
-$ ruby-parse -L -e "2+2"
-(send
-  (int 2) :+
-  (int 2))
-2+2
- ~ selector
-~~~ expression
-(int 2)
-2+2
-~ expression
-(int 2)
-2+2
+    $ ruby-parse -L -e "2+2"
+    (send
+      (int 2) :+
+      (int 2))
+    2+2
+     ~ selector
+    ~~~ expression
+    (int 2)
+    2+2
+    ~ expression
+    (int 2)
+    2+2
 
-$ ruby-parse -E -e "2+2"
-2+2
-^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
-2+2
- ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
-2+2
-  ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
-2+2
-  ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
-(send
-  (int 2) :+
-  (int 2))
-```
+    $ ruby-parse -E -e "2+2"
+    2+2
+    ^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
+    2+2
+     ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
+    2+2
+      ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
+    2+2
+      ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
+    (send
+      (int 2) :+
+      (int 2))
 
 ## Features
 
