@@ -16,52 +16,60 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 
 ## Installation
 
-    $ gem install parser
+```
+$ gem install parser
+```
 
 ## Usage
 
 Parse a chunk of code:
 
-    require 'parser/current'
-    Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
+```ruby
+require 'parser/current'
+Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
 
-    p Parser::CurrentRuby.parse("2 + 2")
-    # (send
-    #   (int 2) :+
-    #   (int 2))
+p Parser::CurrentRuby.parse("2 + 2")
+# (send
+#   (int 2) :+
+#   (int 2))
+```
 
 Access the AST's source map:
 
-    p Parser::CurrentRuby.parse("2 + 2").loc
-    # #<Parser::Source::Map::Send:0x007fe5a1ac2388
-    #   @dot=nil,
-    #   @begin=nil,
-    #   @end=nil,
-    #   @selector=#<Source::Range (string) 2...3>,
-    #   @expression=#<Source::Range (string) 0...5>>
+```ruby
+p Parser::CurrentRuby.parse("2 + 2").loc
+# #<Parser::Source::Map::Send:0x007fe5a1ac2388
+#   @dot=nil,
+#   @begin=nil,
+#   @end=nil,
+#   @selector=#<Source::Range (string) 2...3>,
+#   @expression=#<Source::Range (string) 0...5>>
 
-    p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
-    # "+"
+p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
+# "+"
+```
 
 Traverse the AST: see the documentation for [gem ast](https://whitequark.github.io/ast/).
 
 Parse a chunk of code and display all diagnostics:
 
-    parser = Parser::CurrentRuby.new
-    parser.diagnostics.consumer = lambda do |diag|
-      puts diag.render
-    end
+```ruby
+parser = Parser::CurrentRuby.new
+parser.diagnostics.consumer = lambda do |diag|
+  puts diag.render
+end
 
-    buffer = Parser::Source::Buffer.new('(string)')
-    buffer.source = "foo *bar"
+buffer = Parser::Source::Buffer.new('(string)')
+buffer.source = "foo *bar"
 
-    p parser.parse(buffer)
-    # (string):1:5: warning: `*' interpreted as argument prefix
-    # foo *bar
-    #     ^
-    # (send nil :foo
-    #   (splat
-    #     (send nil :bar)))
+p parser.parse(buffer)
+# (string):1:5: warning: `*' interpreted as argument prefix
+# foo *bar
+#     ^
+# (send nil :foo
+#   (splat
+#     (send nil :bar)))
+```
 
 If you reuse the same parser object for multiple `#parse` runs, you need to
 `#reset` it.
@@ -69,38 +77,40 @@ If you reuse the same parser object for multiple `#parse` runs, you need to
 You can also use the `ruby-parse` utility (it's bundled with the gem) to play
 with Parser:
 
-    $ ruby-parse -L -e "2+2"
-    (send
-      (int 2) :+
-      (int 2))
-    2+2
-     ~ selector
-    ~~~ expression
-    (int 2)
-    2+2
-    ~ expression
-    (int 2)
-    2+2
+```
+$ ruby-parse -L -e "2+2"
+(send
+  (int 2) :+
+  (int 2))
+2+2
+ ~ selector
+~~~ expression
+(int 2)
+2+2
+~ expression
+(int 2)
+2+2
 
-    $ ruby-parse -E -e "2+2"
-    2+2
-    ^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
-    2+2
-     ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
-    2+2
-      ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
-    2+2
-      ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
-    (send
-      (int 2) :+
-      (int 2))
+$ ruby-parse -E -e "2+2"
+2+2
+^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
+2+2
+ ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
+2+2
+  ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
+2+2
+  ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
+(send
+  (int 2) :+
+  (int 2))
+```
 
 ## Features
 
 * Precise source location reporting.
 * [Documented](doc/AST_FORMAT.md) AST format which is convenient to work with.
 * A simple interface and a powerful, tweakable one.
-* Parses 1.8, 1.9, 2.0, 2.1 and 2.2 syntax with backwards-compatible
+* Parses 1.8, 1.9, 2.0, 2.1, 2.2 and 2.3 syntax with backwards-compatible
   AST formats.
 * Parses MacRuby and RubyMotion syntax extensions.
 * [Rewriting][rewriting] support.
@@ -120,7 +130,7 @@ with Parser:
 
 ## Documentation
 
-Documentation for parser is available [online](https://whitequark.github.io/parser/).
+Documentation for Parser is available [online](https://whitequark.github.io/parser/).
 
 ### Node names
 
@@ -169,7 +179,7 @@ $ ruby-parse -e 'def x; foo; bar end'
 
 Note that, despite its name, `kwbegin` node only has tangential relation to the `begin` keyword. Normally, Parser AST is semantic, that is, if two constructs look differently but behave identically, they get parsed to the same node. However, there exists a peculiar construct called post-loop in Ruby:
 
-```
+```ruby
 begin
   body
 end while condition
