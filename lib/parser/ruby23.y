@@ -1942,11 +1942,7 @@ keyword_variable: kNIL
                       result = @builder.back_ref(val[0])
                     }
 
-      superclass: term
-                    {
-                      result = nil
-                    }
-                | tLT
+      superclass: tLT
                     {
                       @lexer.state = :expr_value
                     }
@@ -1954,9 +1950,8 @@ keyword_variable: kNIL
                     {
                       result = [ val[0], val[2] ]
                     }
-                | error term
+                | # nothing
                     {
-                      yyerrok
                       result = nil
                     }
 
