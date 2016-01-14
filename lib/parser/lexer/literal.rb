@@ -4,7 +4,6 @@ module Parser
 
   class Lexer::Literal
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
-    MONOLITHIC = { :tSTRING_BEG => :tSTRING }
 
     TYPES = {
     # type       start token     interpolate?
@@ -138,7 +137,7 @@ module Parser
           emit(:tLABEL_END, @end_delim, ts, te + 1)
         elsif @monolithic
           # Emit the string as a single token.
-          emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
+          emit(:tSTRING, @buffer, @str_s, te)
         else
           # If this is a heredoc, @buffer contains the sentinel now.
           # Just throw it out. Lexer flushes the heredoc after each
