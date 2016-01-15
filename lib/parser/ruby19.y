@@ -933,8 +933,7 @@ rule
                     }
                 | tLPAREN_ARG
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.push_cmdarg
                     }
                     expr
                     {
@@ -942,7 +941,7 @@ rule
                     }
                     opt_nl tRPAREN
                     {
-                      @lexer.cmdarg = val[1]
+                      @lexer.pop_cmdarg
 
                       result = @builder.begin(val[0], val[2], val[5])
                     }
