@@ -92,7 +92,7 @@ class Parser::Lexer
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
   UNDERSCORE_STRING = '_'.freeze
 
-  RBRACE_OR_RPAREN = %w"} ]".freeze
+  RBRACE_OR_RBRACK = %w"} ]".freeze
 
   attr_reader   :source_buffer
   attr_reader   :encoding
@@ -2177,7 +2177,7 @@ class Parser::Lexer
         emit_table(PUNCTUATION)
         @cond.lexpop; @cmdarg.lexpop
 
-        if RBRACE_OR_RPAREN.include?(tok)
+        if RBRACE_OR_RBRACK.include?(tok)
           fnext expr_endarg;
         else # )
           # fnext expr_endfn; ?
