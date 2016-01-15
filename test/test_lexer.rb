@@ -2097,7 +2097,7 @@ class TestLexer < Minitest::Test
 
   def test_string_pct_pct
     assert_scanned("%%blah%",
-                   :tSTRING_BEG,     '%',
+                   :tSTRING_BEG,     '%%',
                    :tSTRING_CONTENT, "blah",
                    :tSTRING_END,     '%')
   end

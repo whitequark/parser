@@ -4,7 +4,6 @@ module Parser
 
   class Lexer::Literal
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
-    MONOLITHIC = { :tSTRING_BEG => :tSTRING }
 
     TYPES = {
     # type       start token     interpolate?
@@ -79,9 +78,7 @@ module Parser
                       !heredoc?)
 
       # Capture opening delimiter in percent-literals.
-      unless @heredoc_e || @str_type.end_with?(delimiter)
-        @str_type << delimiter
-      end
+      @str_type << delimiter if @str_type.start_with?('%')
 
       clear_buffer
 
@@ -141,7 +138,7 @@ module Parser
           emit(:tLABEL_END, @end_delim, ts, te + 1)
         elsif @monolithic
           # Emit the string as a single token.
-          emit(MONOLITHIC[@start_tok], @buffer, @str_s, te)
+          emit(:tSTRING, @buffer, @str_s, te)
         else
           # If this is a heredoc, @buffer contains the sentinel now.
           # Just throw it out. Lexer flushes the heredoc after each
@@ -183,10 +180,7 @@ module Parser
     end
 
     def extend_string(string, ts, te)
-      if @buffer_s.nil?
-        @buffer_s = ts
-      end
-
+      @buffer_s ||= ts
       @buffer_e = te
 
       @buffer << string

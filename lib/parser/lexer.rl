@@ -1669,7 +1669,7 @@ class Parser::Lexer
       # %w(we are the people)
       '%' [A-Za-z]+ c_any
       => {
-        type, delimiter = tok[0..-2], @source[@te - 1].chr
+        type, delimiter = @source[@ts...(@te - 1)], @source[@te - 1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
