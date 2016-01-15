@@ -890,12 +890,11 @@ rule
                     }
 
     command_args:   {
-                      result = @lexer.cmdarg.dup
                       @lexer.cmdarg.push(true)
                     }
                     open_args
                     {
-                      @lexer.cmdarg = val[0]
+                      @lexer.cmdarg.pop
 
                       result = val[1]
                     }
