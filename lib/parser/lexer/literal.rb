@@ -75,9 +75,7 @@ module Parser
                       !heredoc?)
 
       # Capture opening delimiter in percent-literals.
-      unless @heredoc_e || @str_type.end_with?(delimiter)
-        @str_type << delimiter
-      end
+      @str_type << delimiter if @str_type.start_with?('%')
 
       clear_buffer
 
