@@ -57,9 +57,14 @@ module Parser
 
   require 'parser/static_environment'
 
-  require 'parser/lexer'
-  require 'parser/lexer/literal'
-  require 'parser/lexer/stack_state'
+  begin
+    require 'parser/lexer.so'
+  rescue LoadError
+    # Fall back on pure-Ruby lexer
+    require 'parser/lexer'
+    require 'parser/lexer/literal'
+    require 'parser/lexer/stack_state'
+  end
   require 'parser/lexer/dedenter'
 
   module Builders
