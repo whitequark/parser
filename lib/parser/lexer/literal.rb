@@ -158,10 +158,7 @@ module Parser
     end
 
     def extend_string(string, ts, te)
-      if @buffer_s.nil?
-        @buffer_s = ts
-      end
-
+      @buffer_s ||= ts
       @buffer_e = te
 
       @buffer << string
