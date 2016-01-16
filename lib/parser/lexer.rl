@@ -731,12 +731,12 @@ class Parser::Lexer
       % { @escape = encode_escape(tok(@escape_s, p).to_i(8) % 0x100) }
 
       # \xff
-    | ( 'x' xdigit{1,2}
+    | 'x' xdigit{1,2}
         % { @escape = encode_escape(tok(@escape_s + 1, p).to_i(16)) }
+
       # \u263a
-      | 'u' xdigit{4}
-        % { @escape = tok(@escape_s + 1, p).to_i(16).chr(Encoding::UTF_8) }
-      )
+    | 'u' xdigit{4}
+      % { @escape = tok(@escape_s + 1, p).to_i(16).chr(Encoding::UTF_8) }
 
       # %q[\x]
     | 'x' ( c_any - xdigit )
