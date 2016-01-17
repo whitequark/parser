@@ -426,6 +426,12 @@ class Parser::Lexer
       else
         self.class.lex_en_plain_words
       end
+    elsif new_literal.backslash_delimited?
+      if new_literal.interpolate?
+        self.class.lex_en_interp_backslash_delimited
+      else
+        self.class.lex_en_plain_backslash_delimited
+      end
     else
       if new_literal.interpolate?
         self.class.lex_en_interp_string
@@ -881,53 +887,46 @@ class Parser::Lexer
 
   action extend_string_escaped {
     current_literal = literal
-    if current_literal.nest_and_try_closing('\\', @ts, @ts + 1)
-      # If the literal is actually closed by the backslash,
-      # rewind the input prior to consuming the escape sequence.
-      p = @escape_s - 1
-      fnext *pop_literal; fbreak;
-    else
-      # Get the first character after the backslash.
-      escaped_char = @source[@escape_s].chr
+    # Get the first character after the backslash.
+    escaped_char = @source[@escape_s].chr
 
-      if current_literal.munge_escape? escaped_char
-        # If this particular literal uses this character as an opening
-        # or closing delimiter, it is an escape sequence for that
-        # particular character. Write it without the backslash.
+    if current_literal.munge_escape? escaped_char
+      # If this particular literal uses this character as an opening
+      # or closing delimiter, it is an escape sequence for that
+      # particular character. Write it without the backslash.
 
-        if current_literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
-          # Regular expressions should include escaped delimiters in their
-          # escaped form, except when the escaped character is
-          # a closing delimiter but not a regexp metacharacter.
-          #
-          # The backslash itself cannot be used as a closing delimiter
-          # at the same time as an escape symbol, but it is always munged,
-          # so this branch also executes for the non-closing-delimiter case
-          # for the backslash.
-          current_literal.extend_string(tok, @ts, @te)
-        else
-          current_literal.extend_string(escaped_char, @ts, @te)
-        end
+      if current_literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
+        # Regular expressions should include escaped delimiters in their
+        # escaped form, except when the escaped character is
+        # a closing delimiter but not a regexp metacharacter.
+        #
+        # The backslash itself cannot be used as a closing delimiter
+        # at the same time as an escape symbol, but it is always munged,
+        # so this branch also executes for the non-closing-delimiter case
+        # for the backslash.
+        current_literal.extend_string(tok, @ts, @te)
       else
-        # It does not. So this is an actual escape sequence, yay!
-        # Two things to consider here.
-        #
-        # 1. The `escape' rule should be pure and so won't raise any
-        #    errors by itself. Instead, it stores them in lambdas.
-        #
-        # 2. Non-interpolated literals do not go through the aforementioned
-        #    rule. As \\ and \' (and variants) are munged, the full token
-        #    should always be written for such literals.
+        current_literal.extend_string(escaped_char, @ts, @te)
+      end
+    else
+      # It does not. So this is an actual escape sequence, yay!
+      # Two things to consider here.
+      #
+      # 1. The `escape' rule should be pure and so won't raise any
+      #    errors by itself. Instead, it stores them in lambdas.
+      #
+      # 2. Non-interpolated literals do not go through the aforementioned
+      #    rule. As \\ and \' (and variants) are munged, the full token
+      #    should always be written for such literals.
 
-        @escape.call if @escape.respond_to? :call
+      @escape.call if @escape.respond_to? :call
 
-        if current_literal.regexp?
-          # Regular expressions should include escape sequences in their
-          # escaped form. On the other hand, escaped newlines are removed.
-          current_literal.extend_string(tok.gsub(ESCAPED_NEXT_LINE, BLANK_STRING), @ts, @te)
-        else
-          current_literal.extend_string(@escape || tok, @ts, @te)
-        end
+      if current_literal.regexp?
+        # Regular expressions should include escape sequences in their
+        # escaped form. On the other hand, escaped newlines are removed.
+        current_literal.extend_string(tok.gsub(ESCAPED_NEXT_LINE, BLANK_STRING), @ts, @te)
+      else
+        current_literal.extend_string(@escape || tok, @ts, @te)
       end
     end
   }
@@ -1111,6 +1110,18 @@ class Parser::Lexer
   plain_string := |*
       '\\' c_nl   => extend_string_eol;
       e_bs c_any  => extend_string_escaped;
+      c_eol       => extend_string_eol;
+      c_any       => extend_string;
+  *|;
+
+  interp_backslash_delimited := |*
+      interp_code => extend_interp_code;
+      interp_var  => extend_interp_var;
+      c_eol       => extend_string_eol;
+      c_any       => extend_string;
+  *|;
+
+  plain_backslash_delimited := |*
       c_eol       => extend_string_eol;
       c_any       => extend_string;
   *|;

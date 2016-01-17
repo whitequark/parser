@@ -2159,6 +2159,48 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     ')')
   end
 
+  def test_string_pct_backslash
+    assert_scanned("%\\a\\",
+                   :tSTRING_BEG, "%\\",
+                   :tSTRING_CONTENT, "a",
+                   :tSTRING_END, "\\")
+  end
+
+  def test_string_pct_backslash_with_bad_escape
+    # No escapes are allowed in a backslash-delimited string
+    refute_scanned("%\\a\\n\\",
+                   :tSTRING_BEG, "%\\",
+                   :tSTRING_CONTENT, "a",
+                   :tSTRING_END, "\\",
+                   :tIDENTIFIER, "n")
+  end
+
+  def test_string_pct_intertwined_with_heredoc
+    assert_scanned("<<-foo + %\\a\nbar\nfoo\nb\\",
+                   :tSTRING_BEG, "<<\"",
+                   :tSTRING_CONTENT, "bar\n",
+                   :tSTRING_END, "foo",
+                   :tPLUS, "+",
+                   :tSTRING_BEG, "%\\",
+                   :tSTRING_CONTENT, "a\n",
+                   :tSTRING_CONTENT, "b",
+                   :tSTRING_END, "\\")
+  end
+
+  def test_string_pct_q_backslash
+    assert_scanned("%q\\a\\",
+                   :tSTRING_BEG, "%q\\",
+                   :tSTRING_CONTENT, "a",
+                   :tSTRING_END, "\\")
+  end
+
+  def test_string_pct_Q_backslash
+    assert_scanned("%Q\\a\\",
+                   :tSTRING_BEG, "%Q\\",
+                   :tSTRING_CONTENT, "a",
+                   :tSTRING_END, "\\")
+  end
+
   def test_string_single
     assert_scanned("'string'",
                    :tSTRING, "string")
