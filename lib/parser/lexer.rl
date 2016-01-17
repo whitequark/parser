@@ -651,10 +651,10 @@ class Parser::Lexer
   flo_pow  = [eE] [+\-]? ( digit+ '_' )* digit+;
 
   int_suffix =
-    ''   % { @num_xfrm = lambda { |chars|  emit(:tINTEGER,   chars) } }
-  | 'r'  % { @num_xfrm = lambda { |chars|  emit(:tRATIONAL,  Rational(chars)) } }
-  | 'i'  % { @num_xfrm = lambda { |chars|  emit(:tIMAGINARY, Complex(0, chars)) } }
-  | 'ri' % { @num_xfrm = lambda { |chars|  emit(:tIMAGINARY, Complex(0, Rational(chars))) } };
+    ''   % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars) } }
+  | 'r'  % { @num_xfrm = lambda { |chars| emit(:tRATIONAL,  Rational(chars)) } }
+  | 'i'  % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, chars)) } }
+  | 'ri' % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Rational(chars))) } };
 
   flo_pow_suffix =
     ''   % { @num_xfrm = lambda { |chars| emit(:tFLOAT,     Float(chars)) } }
