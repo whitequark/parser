@@ -688,11 +688,8 @@ class Parser::Lexer
       codepoint = codepoint_str.to_i(16)
 
       if codepoint >= 0x110000
-        @escape = lambda do
-          diagnostic :error, :unicode_point_too_large, nil,
-                     range(codepoint_s, codepoint_s + codepoint_str.length)
-        end
-
+        diagnostic :error, :unicode_point_too_large, nil,
+                   range(codepoint_s, codepoint_s + codepoint_str.length)
         break
       end
 
@@ -707,9 +704,7 @@ class Parser::Lexer
   }
 
   action invalid_complex_escape {
-    @escape = lambda do
-      diagnostic :fatal, :invalid_escape
-    end
+    diagnostic :fatal, :invalid_escape
   }
 
   action slash_c_char {
@@ -747,10 +742,7 @@ class Parser::Lexer
       # %q[\x]
     | 'x' ( c_any - xdigit )
       % {
-        @escape = lambda do
-          diagnostic :fatal, :invalid_hex_escape, nil,
-                     range(@escape_s - 1, p + 2)
-        end
+        diagnostic :fatal, :invalid_hex_escape, nil, range(@escape_s - 1, p + 2)
       }
 
       # %q[\u123] %q[\u{12]
@@ -762,10 +754,7 @@ class Parser::Lexer
             )
           )
       % {
-        @escape = lambda do
-          diagnostic :fatal, :invalid_unicode_escape, nil,
-                     range(@escape_s - 1, p)
-        end
+        diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
       }
 
       # \u{123 456}
@@ -776,10 +765,7 @@ class Parser::Lexer
         | ( c_any - '}' )* c_eof
         | xdigit{7,}
         ) % {
-          @escape = lambda do
-            diagnostic :fatal, :unterminated_unicode, nil,
-                       range(p - 1, p)
-          end
+          diagnostic :fatal, :unterminated_unicode, nil, range(p - 1, p)
         }
       )
 
@@ -910,17 +896,6 @@ class Parser::Lexer
       end
     else
       # It does not. So this is an actual escape sequence, yay!
-      # Two things to consider here.
-      #
-      # 1. The `escape' rule should be pure and so won't raise any
-      #    errors by itself. Instead, it stores them in lambdas.
-      #
-      # 2. Non-interpolated literals do not go through the aforementioned
-      #    rule. As \\ and \' (and variants) are munged, the full token
-      #    should always be written for such literals.
-
-      @escape.call if @escape.respond_to? :call
-
       if current_literal.regexp?
         # Regular expressions should include escape sequences in their
         # escaped form. On the other hand, escaped newlines are removed.
@@ -1757,9 +1732,6 @@ class Parser::Lexer
           | (c_any - c_space_nl - e_bs) % { @escape = nil }
           )
       => {
-        # Show an error if memorized.
-        @escape.call if @escape.respond_to? :call
-
         value = @escape || tok(@ts + 1)
 
         if version?(18)
