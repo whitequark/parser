@@ -58,6 +58,9 @@ module Parser
   require 'parser/static_environment'
 
   begin
+    if ENV['PARSER_PURE_RUBY']
+      raise LoadError, 'using pure Ruby lexer'
+    end
     require 'parser/lexer.so'
   rescue LoadError
     # Fall back on pure-Ruby lexer
