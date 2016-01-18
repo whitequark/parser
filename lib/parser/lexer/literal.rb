@@ -102,6 +102,10 @@ module Parser
       !!@heredoc_e
     end
 
+    def backslash_delimited?
+      @end_delim == '\\'
+    end
+
     def type
       @start_tok
     end
