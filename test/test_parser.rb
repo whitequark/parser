@@ -5286,17 +5286,15 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0)) # no 1.9 backport
   end
 
-  # We implement broken behavior, and Ruby is not fixed as of 2016-01-14.
   def test_ruby_bug_11989
     assert_parses(
       s(:send, nil, :p,
-        s(:str, "x\n y\n")),
+        s(:str, "x\n   y\n")),
       %Q{p <<~"E"\n  x\\n   y\nE},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
   end
 
-  # We implement correct behavior, but Ruby is not fixed as of 2016-01-14.
   def test_ruby_bug_11990
     assert_parses(
       s(:send, nil, :p,

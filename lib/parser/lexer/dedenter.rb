@@ -9,6 +9,7 @@ module Parser
 
     def dedent(string)
       space_begin = space_end = offset = 0
+      last_index  = string.length - 1
       string.chars.each_with_index do |char, index|
         if @at_line_begin
           if char == ?\n || @indent_level >= @dedent_level
@@ -26,7 +27,7 @@ module Parser
             @indent_level += 8 - @indent_level % 8
             space_end += 1
           end
-        elsif char == ?\n
+        elsif char == ?\n && index == last_index
           @at_line_begin = true
           @indent_level  = 0
           space_begin = space_end = index - offset + 1
