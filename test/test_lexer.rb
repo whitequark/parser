@@ -1796,6 +1796,14 @@ class TestLexer < Minitest::Test
                    :tREGEXP_OPT,     "")
   end
 
+  def test_regexp_escape_other_meta
+    assert_scanned("/\\.\\$\\*\\+\\.\\?\\|/",
+                   :tREGEXP_BEG,     "/",
+                   :tSTRING_CONTENT, "\\.\\$\\*\\+\\.\\?\\|",
+                   :tSTRING_END,     "/",
+                   :tREGEXP_OPT,     "")
+  end
+
   def test_regexp_nm
     assert_scanned("/.*/nm",
                    :tREGEXP_BEG,     "/",
