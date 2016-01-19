@@ -327,11 +327,6 @@ class Parser::Lexer
     versions.include?(@version)
   end
 
-  def stack_pop
-    @top -= 1
-    @stack[@top]
-  end
-
   if "".respond_to?(:encode)
     def encode_escape(ord)
       ord.chr.force_encoding(@encoding)
@@ -1028,7 +1023,7 @@ class Parser::Lexer
         end
 
         fhold;
-        fnext *stack_pop;
+        fret;
         fbreak;
       end
     end
@@ -1247,7 +1242,7 @@ class Parser::Lexer
           emit(:tGVAR)
         end
 
-        fnext *stack_pop; fbreak;
+        fret; fbreak;
       };
 
       class_var_v
@@ -1257,7 +1252,7 @@ class Parser::Lexer
         end
 
         emit(:tCVAR)
-        fnext *stack_pop; fbreak;
+        fret; fbreak;
       };
 
       instance_var_v
@@ -1267,7 +1262,7 @@ class Parser::Lexer
         end
 
         emit(:tIVAR)
-        fnext *stack_pop; fbreak;
+        fret; fbreak;
       };
   *|;
 
