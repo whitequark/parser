@@ -2699,6 +2699,26 @@ class TestLexer < Minitest::Test
   end
 
   #
+  # Handling of encoding-related issues.
+  #
+
+  if defined?(Encoding)
+    def test_transcoded_source_is_converted_back_to_original_encoding
+      setup_lexer(19)
+      @lex.force_utf32 = true
+      @lex.tokens = []
+      assert_scanned(utf('"a" + "b"'),
+                     :tSTRING, "a",
+                     :tPLUS,   "+",
+                     :tSTRING, "b")
+
+      @lex.tokens.each do |_type, (str, _range)|
+        assert_equal Encoding::UTF_8, str.encoding
+      end
+    end
+  end
+
+  #
   # Tests for bugs.
   #
   # These tests should be moved from nursery and properly
