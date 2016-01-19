@@ -189,9 +189,7 @@ class Parser::Lexer
       @source = @source_buffer.source
       @need_encode = false
 
-      if @has_encode
-        @encoding   = @source.encoding
-      end
+      @encoding = @source.encoding if @has_encode
 
       if @has_encode && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
