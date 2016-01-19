@@ -3738,6 +3738,18 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_space_args_hash_literal_then_block
+    # This code only parses if the lexer enters expr_endarg state correctly
+    assert_parses(
+      s(:block,
+        s(:send, nil, :f, s(:int, 1), s(:hash, s(:pair, s(:int, 1), s(:int, 2)))),
+        s(:args),
+        s(:int, 1)),
+      %q{f 1, {1 => 2} {1}},
+      %q{},
+      ALL_VERSIONS)
+  end
+
   def test_space_args_arg_call
     assert_parses(
       s(:send, nil, :fun,
