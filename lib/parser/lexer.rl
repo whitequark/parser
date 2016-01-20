@@ -837,7 +837,6 @@ class Parser::Lexer
 
   action extend_string {
     string = tok
-    string = string.encode(@encoding) if @need_encode
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
