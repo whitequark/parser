@@ -795,7 +795,7 @@ Format:
 Format:
 
 ~~~
-(defs (self) (args) nil)
+(defs (self) :foo (args) nil)
 "def self.foo; end"
  ~~~ keyword
           ~~~ name
