@@ -135,8 +135,8 @@ module Parser
           extend_space(ts, ts)
         end
 
-        if lookahead && lookahead[0] == ?: && lookahead[1] != ?: &&
-           @label_allowed && @start_tok == :tSTRING_BEG
+        if lookahead && @label_allowed && lookahead[0] == ?: &&
+           lookahead[1] != ?: && @start_tok == :tSTRING_BEG
           # This is a quoted label.
           flush_string
           emit(:tLABEL_END, @end_delim, ts, te + 1)
