@@ -5,7 +5,8 @@ module Parser
     # {Rewriter} performs the heavy lifting in the source rewriting process.
     # It schedules code updates to be performed in the correct order and
     # verifies that no two updates _clobber_ each other, that is, attempt to
-    # modify the same part of code.
+    # modify the same section of code. (However, if two updates modify the
+    # same section in exactly the same way, they are merged.)
     #
     # If it is detected that one update clobbers another one, an `:error` and
     # a `:note` diagnostics describing both updates are generated and passed to
@@ -37,6 +38,7 @@ module Parser
         @source_buffer = source_buffer
         @queue         = []
         @clobber       = 0
+        @insertions    = 0 # clobbered zero-length positions; index 0 is the far left
       end
 
       ##
@@ -100,9 +102,7 @@ module Parser
         adjustment = 0
         source     = @source_buffer.source.dup
 
-        sorted_queue = @queue.sort_by.with_index do |action, index|
-          [action.range.begin_pos, index]
-        end
+        sorted_queue = @queue.sort_by { |action| action.range.begin_pos }
 
         sorted_queue.each do |action|
           begin_pos = action.range.begin_pos + adjustment
@@ -144,89 +144,224 @@ module Parser
 
         @pending_queue = @queue.dup
         @pending_clobber = @clobber
+        @pending_insertions = @insertions
 
         yield
 
         @queue = @pending_queue
         @clobber = @pending_clobber
+        @insertions = @pending_insertions
 
         self
       ensure
         @pending_queue = nil
         @pending_clobber = nil
+        @pending_insertions = nil
       end
 
       private
 
+      # Schedule a code update. If it overlaps with another update, check
+      # whether they conflict, and raise a clobbering error if they do.
+      # (As a special case, zero-length ranges at the same position are
+      # considered to "overlap".) Otherwise, merge them.
+      #
+      # Updates which are adjacent to each other, but do not overlap, are also
+      # merged.
+      #
+      # RULES:
+      #
+      # - Insertion ("replacing" a zero-length range):
+      #   - Two insertions at the same point conflict. This is true even
+      #     if the earlier insertion has already been merged with an adjacent
+      #     update, and even if they are both inserting the same text.
+      #   - An insertion never conflicts with a replace or remove operation
+      #     on its right or left side, which does not overlap it (in other
+      #     words, which does not update BOTH its right and left sides).
+      #   - An insertion always conflicts with a remove operation which spans
+      #     both its sides.
+      #   - An insertion conflicts with a replace operation which spans both its
+      #     sides, unless the replacement text is longer than the replaced text
+      #     by the size of the insertion (or more), and the portion of
+      #     replacement text immediately after the insertion position is
+      #     identical to the inserted text.
+      #
+      # - Removal operations never conflict with each other.
+      #
+      # - Replacement operations:
+      #   - Take the portion of each replacement text which falls within:
+      #     - The other operation's replaced region
+      #     - The other operation's replacement text, if it extends past the
+      #       end of its own replaced region (in other words, if the replacement
+      #       text is longer than the text it replaces)
+      #   - If and only if the taken texts are identical for both operations,
+      #     they do not conflict.
+      #
       def append(action)
-        if (clobber_actions = clobbered?(action.range))
-          handle_clobber(action, clobber_actions)
+        range = action.range
+
+        # Is this an insertion?
+        if range.empty?
+          # Replacing nothing with... nothing?
+          return self if action.replacement.empty?
+
+          if (conflicting = clobbered_insertion?(range))
+            raise_clobber_error(action, [conflicting])
+          end
+
+          record_insertion(range)
+
+          if (adjacent = adjacent_updates?(range))
+            conflicting = adjacent.find do |a|
+              a.range.overlaps?(range) &&
+                !replace_compatible_with_insertion?(a, action)
+            end
+            raise_clobber_error(action, [conflicting]) if conflicting
+
+            merge_actions!(action, adjacent)
+          else
+            active_queue << action
+          end
         else
-          clobber(action.range)
-          active_queue << action
+          # It's a replace or remove operation.
+          if (insertions = adjacent_insertions?(range))
+            insertions.each do |insertion|
+              if range.overlaps?(insertion.range) &&
+                 !replace_compatible_with_insertion?(action, insertion)
+                raise_clobber_error(action, [insertion])
+              else
+                action = merge_actions(action, [insertion])
+                active_queue.delete(insertion)
+              end
+            end
+          end
+
+          if (adjacent = adjacent_updates?(range))
+            if can_merge?(action, adjacent)
+              record_replace(range)
+              merge_actions!(action, adjacent)
+            else
+              raise_clobber_error(action, adjacent)
+            end
+          else
+            record_replace(range)
+            active_queue << action
+          end
         end
 
         self
       end
 
-      def clobber(range)
-        self.active_clobber = active_clobber | (2 ** range.size - 1) << range.begin_pos
+      def record_insertion(range)
+        self.active_insertions = active_insertions | (1 << range.begin_pos)
       end
 
-      def clobbered?(range)
-        if active_clobber & ((2 ** range.size - 1) << range.begin_pos) != 0
-          active_queue.select do |action|
-            action.range.end_pos > range.begin_pos &&
-              range.end_pos > action.range.begin_pos
+      def record_replace(range)
+        self.active_clobber = active_clobber | clobbered_position_mask(range)
+      end
+
+      def clobbered_position_mask(range)
+        ((1 << range.size) - 1) << range.begin_pos
+      end
+
+      def adjacent_position_mask(range)
+        ((1 << (range.size + 2)) - 1) << (range.begin_pos - 1)
+      end
+
+      def adjacent_insertion_mask(range)
+        ((1 << (range.size + 1)) - 1) << range.begin_pos
+      end
+
+      def clobbered_insertion?(insertion)
+        insertion_pos = insertion.begin_pos
+        if active_insertions & (1 << insertion_pos) != 0
+          # The clobbered insertion may have already been merged with other
+          # updates, so it won't necessarily have the same begin_pos.
+          active_queue.find do |a|
+            a.range.begin_pos <= insertion_pos && insertion_pos <= a.range.end_pos
           end
         end
       end
 
-      def handle_clobber(action, existing)
-        if can_merge?(action, existing)
-          merge_actions!(action, existing)
-        else
-          # cannot replace 3 characters with "foobar"
-          diagnostic = Diagnostic.new(:error,
-                                      :invalid_action,
-                                      { :action => action },
-                                      action.range)
-          @diagnostics.process(diagnostic)
-
-          # clobbered by: remove 3 characters
-          diagnostic = Diagnostic.new(:note,
-                                      :clobbered,
-                                      { :action => existing[0] },
-                                      existing[0].range)
-          @diagnostics.process(diagnostic)
-
-          raise ClobberingError, "Parser::Source::Rewriter detected clobbering"
+      def adjacent_insertions?(range)
+        # Just retrieve insertions which have not been merged with an adjacent
+        # remove or replace.
+        if active_insertions & adjacent_insertion_mask(range) != 0
+          result = active_queue.select do |a|
+            a.range.empty? && adjacent?(range, a.range)
+          end
+          result.empty? ? nil : result
         end
       end
 
-      def can_merge?(action, existing)
-        existing.all? do |other|
-          overlap       = action.range.intersect(other.range)
-          action_offset = overlap.begin_pos - action.range.begin_pos
-          other_offset  = overlap.begin_pos - other.range.begin_pos
+      def adjacent_updates?(range)
+        if active_clobber & adjacent_position_mask(range) != 0
+          active_queue.select { |a| adjacent?(range, a.range) }
+        end
+      end
 
-          replacement1 = action.replacement[action_offset, overlap.size] || ''.freeze
-          replacement2 = other.replacement[other_offset, overlap.size] || ''.freeze
+      def replace_compatible_with_insertion?(replace, insertion)
+        (replace.replacement.length - replace.range.size) >= insertion.range.size &&
+          (offset = insertion.range.begin_pos - replace.range.begin_pos) &&
+          replace.replacement[offset, insertion.replacement.length] == insertion.replacement
+      end
+
+      def can_merge?(action, existing)
+        # Compare 2 replace/remove operations (neither is an insertion)
+        range = action.range
+
+        existing.all? do |other|
+          overlap = range.intersect(other.range)
+          next true if overlap.nil? # adjacent, not overlapping
+
+          repl1_offset = overlap.begin_pos - range.begin_pos
+          repl2_offset = overlap.begin_pos - other.range.begin_pos
+          repl1_length = [other.range.length - repl2_offset,
+                          other.replacement.length  - repl2_offset].max
+          repl2_length = [range.length - repl1_offset,
+                          action.replacement.length - repl1_offset].max
+
+          replacement1 = action.replacement[repl1_offset, repl1_length] || ''.freeze
+          replacement2 = other.replacement[repl2_offset, repl2_length] || ''.freeze
           replacement1 == replacement2
         end
       end
 
-      def merge_actions!(action, existing)
-        actions      = existing.push(action).sort_by { |a| a.range.begin_pos }
-        merged_begin = actions.map { |act| act.range.begin_pos }.min
-        merged_end   = actions.map { |act| act.range.end_pos }.max
-        range        = Source::Range.new(@source_buffer,
-                                         merged_begin,
-                                         merged_end)
-        clobber(range)
+      def merge_actions(action, existing)
+        actions = existing.push(action).sort_by do |a|
+          [a.range.begin_pos, a.range.end_pos]
+        end
+        range = actions.first.range.join(actions.last.range)
 
-        replacement = merge_replacements(actions)
-        replace_actions(actions, Rewriter::Action.new(range, replacement))
+        Rewriter::Action.new(range, merge_replacements(actions))
+      end
+
+      def merge_actions!(action, existing)
+        new_action = merge_actions(action, existing)
+        active_queue.delete(action)
+        replace_actions(existing, new_action)
+      end
+
+      def merge_replacements(actions)
+        # `actions` must be sorted by beginning position
+        begin_pos = actions.first.range.begin_pos
+        result    = ''
+        prev_act  = nil
+
+        actions.each do |act|
+          if !prev_act || act.range.disjoint?(prev_act.range)
+            result << act.replacement
+          else
+            prev_end = [prev_act.range.begin_pos + prev_act.replacement.length,
+                        prev_act.range.end_pos].max
+            offset   = prev_end - act.range.begin_pos
+            result << act.replacement[offset..-1] if offset < act.replacement.size
+          end
+
+          prev_act = act
+        end
+
+        result
       end
 
       def replace_actions(old, updated)
@@ -234,18 +369,22 @@ module Parser
         active_queue << updated
       end
 
-      def merge_replacements(actions)
-        # `actions` must be sorted by beginning position
-        begin_pos = actions.first.range.begin_pos
-        result    = ''
+      def raise_clobber_error(action, existing)
+        # cannot replace 3 characters with "foobar"
+        diagnostic = Diagnostic.new(:error,
+                                    :invalid_action,
+                                    { :action => action },
+                                    action.range)
+        @diagnostics.process(diagnostic)
 
-        actions.each do |act|
-          offset = result.size - act.range.begin_pos + begin_pos
-          next if offset < 0 || offset >= act.replacement.size
-          result << act.replacement[offset..-1]
-        end
+        # clobbered by: remove 3 characters
+        diagnostic = Diagnostic.new(:note,
+                                    :clobbered,
+                                    { :action => existing[0] },
+                                    existing[0].range)
+        @diagnostics.process(diagnostic)
 
-        result
+        raise ClobberingError, "Parser::Source::Rewriter detected clobbering"
       end
 
       def in_transaction?
@@ -260,12 +399,28 @@ module Parser
         @pending_clobber || @clobber
       end
 
+      def active_insertions
+        @pending_insertions || @insertions
+      end
+
       def active_clobber=(value)
         if @pending_clobber
           @pending_clobber = value
         else
           @clobber = value
         end
+      end
+
+      def active_insertions=(value)
+        if @pending_insertions
+          @pending_insertions = value
+        else
+          @insertions = value
+        end
+      end
+
+      def adjacent?(range1, range2)
+        range1.begin_pos <= range2.end_pos && range2.begin_pos <= range1.end_pos
       end
     end
 
