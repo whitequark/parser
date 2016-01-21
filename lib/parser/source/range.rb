@@ -221,6 +221,13 @@ module Parser
       end
 
       ##
+      # Checks if a range is empty; if it contains no characters
+      # @return [Boolean]
+      def empty?
+        @begin_pos == @end_pos
+      end
+
+      ##
       # Compares ranges.
       # @return [Boolean]
       #

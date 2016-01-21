@@ -65,6 +65,16 @@ class TestSourceRange < Minitest::Test
     assert sr2.overlaps?(sr3)
   end
 
+  def test_empty
+    sr1 = Parser::Source::Range.new(@buf, 1, 3)
+    sr2 = Parser::Source::Range.new(@buf, 2, 2)
+    sr3 = Parser::Source::Range.new(@buf, 7, 8)
+
+    assert !sr1.empty?
+    assert sr2.empty?
+    assert !sr3.empty?
+  end
+
   def test_line
     sr = Parser::Source::Range.new(@buf, 7, 8)
     assert_equal 2, sr.line
