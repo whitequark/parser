@@ -34,6 +34,9 @@ module Parser
         if end_pos < begin_pos
           raise ArgumentError, 'Parser::Source::Range: end_pos must not be less than begin_pos'
         end
+        if source_buffer.nil?
+          raise ArgumentError, 'Parser::Source::Range: source_buffer must not be nil'
+        end
 
         @source_buffer       = source_buffer
         @begin_pos, @end_pos = begin_pos, end_pos
