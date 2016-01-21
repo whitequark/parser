@@ -213,6 +213,14 @@ module Parser
       end
 
       ##
+      # @param [Range] other
+      # @return [Boolean] `true` if this range and `other` overlap
+      #
+      def overlaps?(other)
+        @begin_pos < other.end_pos && other.begin_pos < @end_pos
+      end
+
+      ##
       # Compares ranges.
       # @return [Boolean]
       #
