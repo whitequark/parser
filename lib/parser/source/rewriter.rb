@@ -118,7 +118,7 @@ module Parser
 
       ##
       # Provides a protected block where a sequence of multiple rewrite actions
-      # are handled atomic. If any of the action failed by clobbering,
+      # are handled atomically. If any of the actions failed by clobbering,
       # all the actions are rolled back.
       #
       # @example
