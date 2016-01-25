@@ -95,9 +95,7 @@ module Parser
         elsif detected_encoding == Encoding::BINARY
           input
         else
-          input.
-            force_encoding(detected_encoding).
-            encode(Encoding::UTF_8)
+          input.force_encoding(detected_encoding)
         end
       end
 
