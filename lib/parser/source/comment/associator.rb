@@ -152,12 +152,8 @@ module Parser
       def current_comment_before?(node)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
-
-        if node
-          node_loc = node.location.expression
-          return false if comment_loc.end_pos > node_loc.begin_pos
-        end
-        true
+        node_loc = node.location.expression
+        comment_loc.end_pos <= node_loc.begin_pos
       end
 
       def current_comment_before_end?(node)
