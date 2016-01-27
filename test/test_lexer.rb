@@ -950,6 +950,15 @@ class TestLexer < Minitest::Test
                    :tNEQ,        "!=")
   end
 
+  def test_identifier_eh
+    assert_scanned("identifier?",
+                   :tFID,        "identifier?")
+
+    assert_scanned("identifier?=",
+                   :tIDENTIFIER, "identifier",
+                   :tNEQ,        "?=")
+  end
+
   def test_identifier_cmp
     assert_lex_fname "<=>", :tCMP
   end
