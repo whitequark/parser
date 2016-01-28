@@ -120,12 +120,18 @@ module Parser
       def visit(node)
         process_leading_comments(node)
 
-        node.children.each do |child|
-          next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
-          visit(child)
-        end
+        return unless @current_comment
 
-        process_trailing_comments(node)
+        node_loc = node.location
+        if @current_comment.location.line <= node_loc.last_line ||
+           node_loc.is_a?(Map::Heredoc)
+          node.children.each do |child|
+            next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
+            visit(child)
+          end
+
+          process_trailing_comments(node)
+        end
       end
 
       def process_leading_comments(node)
@@ -152,12 +158,8 @@ module Parser
       def current_comment_before?(node)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
-
-        if node
-          node_loc = node.location.expression
-          return false if comment_loc.end_pos > node_loc.begin_pos
-        end
-        true
+        node_loc = node.location.expression
+        comment_loc.end_pos <= node_loc.begin_pos
       end
 
       def current_comment_before_end?(node)

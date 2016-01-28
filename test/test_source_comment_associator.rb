@@ -255,4 +255,21 @@ __ENCODING__
     assert_equal ['# foo'],
                  associations[ast].map(&:text)
   end
+
+  def test_associate_inside_heredoc
+    ast, associations = associate(<<-END)
+<<x
+\#{
+  foo # bar
+}
+x
+    END
+
+    begin_node = ast.children[0]
+    send_node  = begin_node.children[0]
+
+    assert_equal 1, associations.size
+    assert_equal ['# bar'],
+                 associations[send_node].map(&:text)
+  end
 end

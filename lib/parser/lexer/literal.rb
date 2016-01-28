@@ -78,7 +78,7 @@ module Parser
                       !heredoc?)
 
       # Capture opening delimiter in percent-literals.
-      @str_type << delimiter if @str_type.start_with?('%')
+      @str_type << delimiter if @str_type.start_with?('%'.freeze)
 
       clear_buffer
 
@@ -103,7 +103,7 @@ module Parser
     end
 
     def backslash_delimited?
-      @end_delim == '\\'
+      @end_delim == '\\'.freeze
     end
 
     def type
@@ -116,7 +116,7 @@ module Parser
       if words? && character =~ /[ \t\v\r\f\n]/
         true
       else
-        ['\\', @start_delim, @end_delim].include?(character)
+        ['\\'.freeze, @start_delim, @end_delim].include?(character)
       end
     end
 

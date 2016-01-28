@@ -312,10 +312,10 @@ class Parser::Lexer
     if @token_queue.any?
       @token_queue.shift
     elsif @cs == klass.lex_error
-      [ false, [ '$error', range(p - 1, p) ] ]
+      [ false, [ '$error'.freeze, range(p - 1, p) ] ]
     else
       eof = @source_pts.size + 1
-      [ false, [ '$eof',   range(eof, eof) ] ]
+      [ false, [ '$eof'.freeze,   range(eof, eof) ] ]
     end
   end
 
@@ -1619,7 +1619,7 @@ class Parser::Lexer
       [+\-][0-9]
       => {
         fhold;
-        if tok.start_with? '-'
+        if tok.start_with? '-'.freeze
           emit(:tUMINUS_NUM, '-', @ts, @ts + 1)
           fnext expr_end; fbreak;
         end
@@ -1984,7 +1984,7 @@ class Parser::Lexer
       => {
         emit_table(KEYWORDS)
 
-        if version?(18) && tok == 'not'
+        if version?(18) && tok == 'not'.freeze
           fnext expr_beg; fbreak;
         else
           fnext expr_arg; fbreak;
