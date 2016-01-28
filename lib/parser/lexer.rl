@@ -189,9 +189,7 @@ class Parser::Lexer
       @source = @source_buffer.source
       @need_encode = false
 
-      if @has_encode
-        @encoding   = @source.encoding
-      end
+      @encoding = @source.encoding if @has_encode
 
       if @has_encode && @source.encoding == Encoding::UTF_8
         @source_pts = @source.unpack('U*')
@@ -327,11 +325,6 @@ class Parser::Lexer
 
   def version?(*versions)
     versions.include?(@version)
-  end
-
-  def stack_pop
-    @top -= 1
-    @stack[@top]
   end
 
   if "".respond_to?(:encode)
@@ -844,7 +837,6 @@ class Parser::Lexer
 
   action extend_string {
     string = tok
-    string = string.encode(@encoding) if @need_encode
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
@@ -1030,7 +1022,7 @@ class Parser::Lexer
         end
 
         fhold;
-        fnext *stack_pop;
+        fret;
         fbreak;
       end
     end
@@ -1249,7 +1241,7 @@ class Parser::Lexer
           emit(:tGVAR)
         end
 
-        fnext *stack_pop; fbreak;
+        fret; fbreak;
       };
 
       class_var_v
@@ -1259,7 +1251,7 @@ class Parser::Lexer
         end
 
         emit(:tCVAR)
-        fnext *stack_pop; fbreak;
+        fret; fbreak;
       };
 
       instance_var_v
@@ -1269,7 +1261,7 @@ class Parser::Lexer
         end
 
         emit(:tIVAR)
-        fnext *stack_pop; fbreak;
+        fret; fbreak;
       };
   *|;
 

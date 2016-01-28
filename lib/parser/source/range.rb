@@ -34,6 +34,9 @@ module Parser
         if end_pos < begin_pos
           raise ArgumentError, 'Parser::Source::Range: end_pos must not be less than begin_pos'
         end
+        if source_buffer.nil?
+          raise ArgumentError, 'Parser::Source::Range: source_buffer must not be nil'
+        end
 
         @source_buffer       = source_buffer
         @begin_pos, @end_pos = begin_pos, end_pos
@@ -207,6 +210,21 @@ module Parser
       #
       def disjoint?(other)
         @begin_pos >= other.end_pos || other.begin_pos >= @end_pos
+      end
+
+      ##
+      # @param [Range] other
+      # @return [Boolean] `true` if this range and `other` overlap
+      #
+      def overlaps?(other)
+        @begin_pos < other.end_pos && other.begin_pos < @end_pos
+      end
+
+      ##
+      # Checks if a range is empty; if it contains no characters
+      # @return [Boolean]
+      def empty?
+        @begin_pos == @end_pos
       end
 
       ##
