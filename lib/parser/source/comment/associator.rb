@@ -122,6 +122,10 @@ module Parser
 
         return unless @current_comment
 
+        # If the next comment is beyond the last line of this node, we don't
+        # need to iterate over its subnodes
+        # (Unless this node is a heredoc... there could be a comment in its body,
+        # inside an interpolation)
         node_loc = node.location
         if @current_comment.location.line <= node_loc.last_line ||
            node_loc.is_a?(Map::Heredoc)
