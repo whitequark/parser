@@ -87,10 +87,7 @@ class Parser::Lexer
     'v' => "\v", '\\' => "\\"
   }
 
-  BLANK_STRING = ''.freeze
-  ESCAPED_NEXT_LINE = "\\\n".freeze
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
-  UNDERSCORE_STRING = '_'.freeze
 
   RBRACE_OR_RBRACK = %w"} ]".freeze
 
@@ -899,7 +896,7 @@ class Parser::Lexer
       if current_literal.regexp?
         # Regular expressions should include escape sequences in their
         # escaped form. On the other hand, escaped newlines are removed.
-        current_literal.extend_string(tok.gsub(ESCAPED_NEXT_LINE, BLANK_STRING), @ts, @te)
+        current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
       else
         current_literal.extend_string(@escape || tok, @ts, @te)
       end
@@ -917,11 +914,11 @@ class Parser::Lexer
     end
 
     if current_literal.heredoc?
-      line = tok(@herebody_s, @ts).gsub(/\r+$/, BLANK_STRING)
+      line = tok(@herebody_s, @ts).gsub(/\r+$/, ''.freeze)
 
       if version?(18, 19, 20)
         # See ruby:c48b4209c
-        line = line.gsub(/\r.*$/, BLANK_STRING)
+        line = line.gsub(/\r.*$/, ''.freeze)
       end
 
       # Try ending the heredoc with the complete most recently
@@ -2026,8 +2023,8 @@ class Parser::Lexer
       => {
         digits = tok(@num_digits_s, @num_suffix_s)
 
-        if digits.end_with? UNDERSCORE_STRING
-          diagnostic :error, :trailing_in_number, { :character => UNDERSCORE_STRING },
+        if digits.end_with? '_'.freeze
+          diagnostic :error, :trailing_in_number, { :character => '_'.freeze },
                      range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.

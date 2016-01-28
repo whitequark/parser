@@ -40,8 +40,6 @@ module Parser
           )
         /x
 
-      NEW_LINE = "\n".freeze
-
       ##
       # Try to recognize encoding of `string` as Ruby would, i.e. by looking for
       # magic encoding comment or UTF-8 BOM. `string` can be in any encoding.
@@ -175,7 +173,7 @@ module Parser
           raise ArgumentError, 'Source::Buffer is immutable'
         end
 
-        @source = input.gsub("\r\n", NEW_LINE).freeze
+        @source = input.gsub("\r\n".freeze, "\n".freeze).freeze
       end
 
       ##
@@ -198,10 +196,10 @@ module Parser
       def source_lines
         @lines ||= begin
           lines = @source.lines.to_a
-          lines << '' if @source.end_with?("\n")
+          lines << '' if @source.end_with?("\n".freeze)
 
           lines.each do |line|
-            line.chomp!(NEW_LINE)
+            line.chomp!("\n".freeze)
             line.freeze
           end
 
