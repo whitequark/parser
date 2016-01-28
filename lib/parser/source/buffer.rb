@@ -253,14 +253,11 @@ module Parser
 
       def line_begins
         unless @line_begins
-          @line_begins, index = [ [ 0, 0 ] ], 1
+          @line_begins, index = [ [ 0, 0 ] ], 0
 
-          @source.each_char do |char|
-            if char == NEW_LINE
-              @line_begins.unshift [ @line_begins.length, index ]
-            end
-
+          while index = @source.index("\n".freeze, index)
             index += 1
+            @line_begins.unshift [ @line_begins.length, index ]
           end
         end
 
