@@ -47,7 +47,7 @@ module Parser
       # @raise [ClobberingError] when clobbering is detected
       #
       def remove(range)
-        append Rewriter::Action.new(range, '')
+        append Rewriter::Action.new(range, ''.freeze)
       end
 
       ##
@@ -210,8 +210,8 @@ module Parser
           action_offset = overlap.begin_pos - action.range.begin_pos
           other_offset  = overlap.begin_pos - other.range.begin_pos
 
-          replacement1 = action.replacement[action_offset, overlap.size] || ''
-          replacement2 = other.replacement[other_offset, overlap.size] || ''
+          replacement1 = action.replacement[action_offset, overlap.size] || ''.freeze
+          replacement2 = other.replacement[other_offset, overlap.size] || ''.freeze
           replacement1 == replacement2
         end
       end

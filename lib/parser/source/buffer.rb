@@ -56,7 +56,7 @@ module Parser
 
         if first_line =~ /\A\xef\xbb\xbf/ # BOM
           return Encoding::UTF_8
-        elsif first_line[0, 2] == '#!'
+        elsif first_line[0, 2] == '#!'.freeze
           encoding_line = second_line
         else
           encoding_line = first_line
