@@ -1678,10 +1678,7 @@ class Parser::Lexer
         else
           fnext *push_literal(type, delimiter, @ts, heredoc_e, indent, dedent_body);
 
-          if @herebody_s.nil?
-            @herebody_s = new_herebody_s
-          end
-
+          @herebody_s ||= new_herebody_s
           p = @herebody_s - 1
         end
       };
