@@ -1668,7 +1668,7 @@ class Parser::Lexer
 
         indent      = !$1.empty? || !$2.empty?
         dedent_body = !$2.empty?
-        type        =  $3.empty? ? '<<"'.freeze : ('<<' << $3)
+        type        =  $3.empty? ? '<<"'.freeze : ('<<'.freeze + $3)
         delimiter   =  $4
 
         if dedent_body && version?(18, 19, 20, 21, 22)
