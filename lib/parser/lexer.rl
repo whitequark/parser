@@ -369,11 +369,11 @@ class Parser::Lexer
 
   def emit_do(do_block=false)
     if @cond.active?
-      emit(:kDO_COND)
+      emit(:kDO_COND, 'do'.freeze)
     elsif @cmdarg.active? || do_block
-      emit(:kDO_BLOCK)
+      emit(:kDO_BLOCK, 'do'.freeze)
     else
-      emit(:kDO)
+      emit(:kDO, 'do'.freeze)
     end
   end
 
@@ -1012,9 +1012,9 @@ class Parser::Lexer
     if current_literal
       if current_literal.end_interp_brace_and_try_closing
         if version?(18, 19)
-          emit(:tRCURLY, '}', p - 1, p)
+          emit(:tRCURLY, '}'.freeze, p - 1, p)
         else
-          emit(:tSTRING_DEND, '}', p - 1, p)
+          emit(:tSTRING_DEND, '}'.freeze, p - 1, p)
         end
 
         if current_literal.saved_herebody_s
@@ -1033,7 +1033,7 @@ class Parser::Lexer
     current_literal.flush_string
     current_literal.extend_content
 
-    emit(:tSTRING_DBEG, '#{')
+    emit(:tSTRING_DBEG, '#{'.freeze)
 
     if current_literal.heredoc?
       current_literal.saved_herebody_s = @herebody_s
@@ -1377,10 +1377,10 @@ class Parser::Lexer
       w_space+ e_lparen
       => {
         if version?(18)
-          emit(:tLPAREN2, '(', @te - 1, @te)
+          emit(:tLPAREN2, '('.freeze, @te - 1, @te)
           fnext expr_value; fbreak;
         else
-          emit(:tLPAREN_ARG, '(', @te - 1, @te)
+          emit(:tLPAREN_ARG, '('.freeze, @te - 1, @te)
           fnext expr_beg; fbreak;
         end
       };
@@ -1388,13 +1388,13 @@ class Parser::Lexer
       # meth(1 + 2)
       # Regular method call.
       e_lparen
-      => { emit(:tLPAREN2)
+      => { emit(:tLPAREN2, '('.freeze)
            fnext expr_beg; fbreak; };
 
       # meth [...]
       # Array argument. Compare with indexing `meth[...]`.
       w_space+ e_lbrack
-      => { emit(:tLBRACK, '[', @te - 1, @te)
+      => { emit(:tLBRACK, '['.freeze, @te - 1, @te)
            fnext expr_beg; fbreak; };
 
       # cmd {}
@@ -1405,7 +1405,7 @@ class Parser::Lexer
           p = @ts - 1
           fgoto expr_end;
         else
-          emit(:tLCURLY, '{', @te - 1, @te)
+          emit(:tLCURLY, '{'.freeze, @te - 1, @te)
           fnext expr_value; fbreak;
         end
       };
@@ -1436,7 +1436,7 @@ class Parser::Lexer
       | '<<'
       )
       => {
-        if tok(tm, tm + 1) == '/'
+        if tok(tm, tm + 1) == '/'.freeze
           # Ambiguous regexp literal.
           diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
         end
@@ -1513,7 +1513,7 @@ class Parser::Lexer
   expr_cmdarg := |*
       w_space+ e_lparen
       => {
-        emit(:tLPAREN_ARG, '(', @te - 1, @te)
+        emit(:tLPAREN_ARG, '('.freeze, @te - 1, @te)
         if version?(18)
           fnext expr_value; fbreak;
         else
@@ -1524,9 +1524,9 @@ class Parser::Lexer
       w_space* 'do'
       => {
         if @cond.active?
-          emit(:kDO_COND, 'do', @te - 2, @te)
+          emit(:kDO_COND, 'do'.freeze, @te - 2, @te)
         else
-          emit(:kDO, 'do', @te - 2, @te)
+          emit(:kDO, 'do'.freeze, @te - 2, @te)
         end
         fnext expr_value; fbreak;
       };
@@ -1558,7 +1558,7 @@ class Parser::Lexer
   # `do` (as `kDO_BLOCK` in `expr_beg`).
   expr_endarg := |*
       e_lbrace
-      => { emit(:tLBRACE_ARG)
+      => { emit(:tLBRACE_ARG, '{'.freeze)
            fnext expr_value; };
 
       'do'
@@ -1612,14 +1612,14 @@ class Parser::Lexer
       => {
         fhold;
         if tok.start_with? '-'.freeze
-          emit(:tUMINUS_NUM, '-', @ts, @ts + 1)
+          emit(:tUMINUS_NUM, '-'.freeze, @ts, @ts + 1)
           fnext expr_end; fbreak;
         end
       };
 
       # splat *a
       '*'
-      => { emit(:tSTAR)
+      => { emit(:tSTAR, '*'.freeze)
            fbreak; };
 
       #
@@ -1668,20 +1668,17 @@ class Parser::Lexer
 
         indent      = !$1.empty? || !$2.empty?
         dedent_body = !$2.empty?
-        type        =  '<<' + ($3.empty? ? '"' : $3)
+        type        =  $3.empty? ? '<<"'.freeze : ('<<' << $3)
         delimiter   =  $4
 
         if dedent_body && version?(18, 19, 20, 21, 22)
-          emit(:tLSHFT, '<<', @ts, @ts + 2)
+          emit(:tLSHFT, '<<'.freeze, @ts, @ts + 2)
           p = @ts + 1
           fnext expr_beg; fbreak;
         else
           fnext *push_literal(type, delimiter, @ts, heredoc_e, indent, dedent_body);
 
-          if @herebody_s.nil?
-            @herebody_s = new_herebody_s
-          end
-
+          @herebody_s ||= new_herebody_s
           p = @herebody_s - 1
         end
       };
@@ -1763,21 +1760,21 @@ class Parser::Lexer
       => {
         if @lambda_stack.last == @paren_nest
           @lambda_stack.pop
-          emit(:tLAMBEG)
+          emit(:tLAMBEG, '{'.freeze)
         else
-          emit(:tLBRACE)
+          emit(:tLBRACE, '{'.freeze)
         end
         fbreak;
       };
 
       # a([1, 2])
       e_lbrack
-      => { emit(:tLBRACK)
+      => { emit(:tLBRACK, '['.freeze)
            fbreak; };
 
       # a()
       e_lparen
-      => { emit(:tLPAREN)
+      => { emit(:tLPAREN, '('.freeze)
            fbreak; };
 
       # a(+b)
@@ -1788,7 +1785,7 @@ class Parser::Lexer
       # rescue Exception => e: Block rescue.
       # Special because it should transition to expr_mid.
       'rescue' %{ tm = p } '=>'?
-      => { emit(:kRESCUE, tok(@ts, tm), @ts, tm)
+      => { emit(:kRESCUE, 'rescue'.freeze, @ts, tm)
            p = tm - 1
            fnext expr_mid; fbreak; };
 
@@ -1918,7 +1915,7 @@ class Parser::Lexer
 
       '->'
       => {
-        emit(:tLAMBDA, tok(@ts, @ts + 2), @ts, @ts + 2)
+        emit(:tLAMBDA, '->'.freeze, @ts, @ts + 2)
 
         @lambda_stack.push @paren_nest
         fnext expr_endfn; fbreak;
@@ -1929,14 +1926,14 @@ class Parser::Lexer
         if @lambda_stack.last == @paren_nest
           @lambda_stack.pop
 
-          if tok == '{'
-            emit(:tLAMBEG)
+          if tok == '{'.freeze
+            emit(:tLAMBEG, '{'.freeze)
           else # 'do'
-            emit(:kDO_LAMBDA)
+            emit(:kDO_LAMBDA, 'do'.freeze)
           end
         else
-          if tok == '{'
-            emit(:tLCURLY)
+          if tok == '{'.freeze
+            emit(:tLCURLY, '{'.freeze)
           else # 'do'
             emit_do
           end
@@ -1954,8 +1951,8 @@ class Parser::Lexer
            fnext expr_fname; fbreak; };
 
       'class' w_any* '<<'
-      => { emit(:kCLASS, 'class', @ts, @ts + 5)
-           emit(:tLSHFT, '<<',    @te - 2, @te)
+      => { emit(:kCLASS, 'class'.freeze, @ts, @ts + 5)
+           emit(:tLSHFT, '<<'.freeze,    @te - 2, @te)
            fnext expr_value; fbreak; };
 
       # a if b:c: Syntax error.
@@ -1992,7 +1989,7 @@ class Parser::Lexer
             fnext *arg_or_cmdarg;
           end
         else
-          emit(:k__ENCODING__)
+          emit(:k__ENCODING__, '__ENCODING__'.freeze)
         end
         fbreak;
       };
@@ -2020,7 +2017,7 @@ class Parser::Lexer
                      range(@te - 1, @te)
         elsif digits.empty? && @num_base == 8 && version?(18)
           # 1.8 did not raise an error on 0o.
-          digits = "0"
+          digits = '0'.freeze
         elsif digits.empty?
           diagnostic :error, :empty_numeric
         elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
@@ -2163,11 +2160,11 @@ class Parser::Lexer
            fnext expr_beg; fbreak; };
 
       '?'
-      => { emit(:tEH)
+      => { emit(:tEH, '?'.freeze)
            fnext expr_value; fbreak; };
 
       e_lbrack
-      => { emit(:tLBRACK2)
+      => { emit(:tLBRACK2, '['.freeze)
            fnext expr_beg; fbreak; };
 
       punctuation_end
@@ -2184,7 +2181,7 @@ class Parser::Lexer
       => { fgoto leading_dot; };
 
       ';'
-      => { emit(:tSEMI)
+      => { emit(:tSEMI, ';'.freeze)
            fnext expr_value; fbreak; };
 
       '\\' c_line {
