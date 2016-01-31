@@ -1661,7 +1661,7 @@ class Parser::Lexer
         ( '"' ( c_line - '"' )* '"'
         | "'" ( c_line - "'" )* "'"
         | "`" ( c_line - "`" )* "`"
-        | bareword ) % { heredoc_e     = p }
+        | bareword ) % { heredoc_e      = p }
         c_line* c_nl % { new_herebody_s = p }
       => {
         tok(@ts, heredoc_e) =~ /^<<(-?)(~?)(["'`]?)(.*)\3$/
