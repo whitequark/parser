@@ -106,6 +106,10 @@ module Parser
 
         @lines       = nil
         @line_begins = nil
+
+        # Cache for fast lookup
+        @line_for_position = {}
+        @col_for_position  = {}
       end
 
       ##
@@ -186,6 +190,34 @@ module Parser
         line_no, line_begin = line_for(position)
 
         [ @first_line + line_no, position - line_begin ]
+      end
+
+      ##
+      # Convert a character index into the source to a line number.
+      #
+      # @param  [Integer] position
+      # @return [Integer] line
+      # @api private
+      #
+      def line_for_position(position)
+        @line_for_position[position] ||= begin
+          line_no, _ = line_for(position)
+          @first_line + line_no
+        end
+      end
+
+      ##
+      # Convert a character index into the source to a column number.
+      #
+      # @param  [Integer] position
+      # @return [Integer] column
+      # @api private
+      #
+      def column_for_position(position)
+        @col_for_position[position] ||= begin
+          _, line_begin = line_for(position)
+          position - line_begin
+        end
       end
 
       ##
