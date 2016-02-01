@@ -2938,7 +2938,7 @@ class TestLexer < Minitest::Test
     @lex.state = :expr_arg
     assert_scanned(" \nfoo",
                    :tNL,          nil,   [1, 2],
-                   :tIDENTIFIER,  "foo", [2, 5],)
+                   :tIDENTIFIER,  "foo", [2, 5])
 
     @lex.state = :expr_arg
     assert_scanned("#foo\nfoo",
