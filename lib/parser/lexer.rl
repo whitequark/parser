@@ -2027,7 +2027,7 @@ class Parser::Lexer
         end
 
         if version?(18, 19, 20)
-          emit(:tINTEGER, digits.to_i(@num_base))
+          emit(:tINTEGER, digits.to_i(@num_base), @ts, @num_suffix_s)
           p = @num_suffix_s - 1
         else
           @num_xfrm.call(digits.to_i(@num_base))
@@ -2047,7 +2047,7 @@ class Parser::Lexer
                      :trailing_in_number, { :character => tok(@te - 1, @te) },
                      range(@te - 1, @te)
         else
-          emit(:tINTEGER, tok(@ts, @te - 1).to_i)
+          emit(:tINTEGER, tok(@ts, @te - 1).to_i, @ts, @te - 1)
           fhold; fbreak;
         end
       };
@@ -2059,7 +2059,7 @@ class Parser::Lexer
                      :trailing_in_number, { :character => tok(@te - 1, @te) },
                      range(@te - 1, @te)
         else
-          emit(:tFLOAT, tok(@ts, @te - 1).to_f)
+          emit(:tFLOAT, tok(@ts, @te - 1).to_f, @ts, @te - 1)
           fhold; fbreak;
         end
       };
@@ -2072,7 +2072,7 @@ class Parser::Lexer
         digits = tok(@ts, @num_suffix_s)
 
         if version?(18, 19, 20)
-          emit(:tFLOAT, Float(digits))
+          emit(:tFLOAT, Float(digits), @ts, @num_suffix_s)
           p = @num_suffix_s - 1
         else
           @num_xfrm.call(digits)
