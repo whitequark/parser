@@ -841,7 +841,6 @@ class Parser::Lexer
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
       lookahead = @source[@te...@te+2]
-      lookahead = lookahead.encode(@encoding) if @need_encode
     end
 
     current_literal = literal

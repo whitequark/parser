@@ -304,6 +304,16 @@ class TestLexer < Minitest::Test
                    :tLABEL_END,       "'",   [5, 7])
   end
 
+  def test_label_with_utf32_encoded_source__22
+    setup_lexer 22
+    @lex.force_utf32 = true
+    assert_scanned("{'a':",
+                   :tLBRACE,          '{',
+                   :tSTRING_BEG,      "'",
+                   :tSTRING_CONTENT,  'a',
+                   :tLABEL_END,       "'")
+  end
+
   def test_label_colon2__22
     setup_lexer 22
 
