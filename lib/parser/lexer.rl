@@ -1630,7 +1630,7 @@ class Parser::Lexer
       # /=/ (disambiguation with /=)
       '/' c_any
       => {
-        type = delimiter = @source[@ts].chr
+        type = delimiter = tok[0].chr
         fhold; fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1644,7 +1644,7 @@ class Parser::Lexer
       # %w(we are the people)
       '%' [A-Za-z]+ c_any
       => {
-        type, delimiter = @source[@ts...(@te - 1)], @source[@te - 1].chr
+        type, delimiter = tok[0..-2], tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1690,7 +1690,7 @@ class Parser::Lexer
       # :"bar", :'baz'
       ':' ['"] # '
       => {
-        type, delimiter = tok, @source[@te - 1].chr
+        type, delimiter = tok, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -2087,7 +2087,7 @@ class Parser::Lexer
       # `echo foo`, "bar", 'baz'
       '`' | ['"] # '
       => {
-        type, delimiter = tok, @source[@te - 1].chr
+        type, delimiter = tok, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts, nil, false, false, true);
       };
 
