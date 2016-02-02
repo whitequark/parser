@@ -82,10 +82,10 @@ class Parser::Lexer
   # %
 
   ESCAPES = {
-    'a' => "\a", 'b'  => "\b", 'e'  => "\e", 'f' => "\f",
-    'n' => "\n", 'r'  => "\r", 's'  => "\s", 't' => "\t",
-    'v' => "\v", '\\' => "\\"
-  }
+    ?a.ord => "\a", ?b.ord  => "\b", ?e.ord => "\e", ?f.ord => "\f",
+    ?n.ord => "\n", ?r.ord  => "\r", ?s.ord => "\s", ?t.ord => "\t",
+    ?v.ord => "\v", ?\\.ord => "\\"
+  }.freeze
 
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
 
@@ -689,8 +689,8 @@ class Parser::Lexer
   }
 
   action unescape_char {
-    char = @source[p - 1].chr
-    @escape = ESCAPES.fetch(char, char)
+    codepoint = @source_pts[p - 1]
+    @escape = ESCAPES[codepoint] || encode_escape(codepoint)
   }
 
   action invalid_complex_escape {
