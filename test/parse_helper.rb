@@ -73,41 +73,51 @@ module ParseHelper
   # ~~~
   def assert_parses(ast, code, source_maps='', versions=ALL_VERSIONS)
     with_versions(versions) do |version, parser|
-      source_file = Parser::Source::Buffer.new('(assert_parses)')
-      source_file.source = code
+      try_parsing(ast, code, parser, source_maps, version)
+    end
 
-      begin
-        parsed_ast = parser.parse(source_file)
-      rescue => exc
-        backtrace = exc.backtrace
-        Exception.instance_method(:initialize).bind(exc).
-          call("(#{version}) #{exc.message}")
-        exc.set_backtrace(backtrace)
-        raise
+    # Also try parsing with lexer set to use UTF-32LE internally
+    with_versions(versions) do |version, parser|
+      parser.instance_eval { @lexer.force_utf32 = true }
+      try_parsing(ast, code, parser, source_maps, version)
+    end
+  end
+
+  def try_parsing(ast, code, parser, source_maps, version)
+    source_file = Parser::Source::Buffer.new('(assert_parses)')
+    source_file.source = code
+
+    begin
+      parsed_ast = parser.parse(source_file)
+    rescue => exc
+      backtrace = exc.backtrace
+      Exception.instance_method(:initialize).bind(exc).
+        call("(#{version}) #{exc.message}")
+      exc.set_backtrace(backtrace)
+      raise
+    end
+
+    assert_equal ast, parsed_ast,
+                 "(#{version}) AST equality"
+
+    parse_source_map_descriptions(source_maps) \
+        do |begin_pos, end_pos, map_field, ast_path, line|
+
+      astlet = traverse_ast(parsed_ast, ast_path)
+
+      if astlet.nil?
+        # This is a testsuite bug.
+        raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
       end
 
-      assert_equal ast, parsed_ast,
-                   "(#{version}) AST equality"
+      assert astlet.frozen?
 
-      parse_source_map_descriptions(source_maps) \
-          do |begin_pos, end_pos, map_field, ast_path, line|
+      assert astlet.location.respond_to?(map_field),
+             "(#{version}) #{astlet.location.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
 
-        astlet = traverse_ast(parsed_ast, ast_path)
+      range = astlet.location.send(map_field)
 
-        if astlet.nil?
-          # This is a testsuite bug.
-          raise "No entity with AST path #{ast_path} in #{parsed_ast.inspect}"
-        end
-
-        assert astlet.frozen?
-
-        assert astlet.location.respond_to?(map_field),
-               "(#{version}) #{astlet.location.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
-
-        range = astlet.location.send(map_field)
-
-        assert_source_range(begin_pos, end_pos, range, version, line.inspect)
-      end
+      assert_source_range(begin_pos, end_pos, range, version, line.inspect)
     end
   end
 
