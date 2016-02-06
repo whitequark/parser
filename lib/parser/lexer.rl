@@ -211,8 +211,14 @@ class Parser::Lexer
         # symbols, then storing the source in UTF-8 would be faster.
         #
         # Patches accepted.
-        @source = @source.encode(Encoding::UTF_32LE)
-        @need_encode = true
+        begin
+          @source = @source.encode(Encoding::UTF_32LE)
+          @need_encode = true
+        rescue EncodingError
+          # We may receive invalid UTF-8, which we will be able to
+          # re-encode. Just carry on in UTF-8, which will happily skip
+          # over invalid byte sequences and leave them as-is.
+        end
       end
 
       if @source_pts[0] == 0xfeff
