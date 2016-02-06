@@ -82,10 +82,10 @@ class Parser::Lexer
   # %
 
   ESCAPES = {
-    'a' => "\a", 'b'  => "\b", 'e'  => "\e", 'f' => "\f",
-    'n' => "\n", 'r'  => "\r", 's'  => "\s", 't' => "\t",
-    'v' => "\v", '\\' => "\\"
-  }
+    ?a.ord => "\a", ?b.ord  => "\b", ?e.ord => "\e", ?f.ord => "\f",
+    ?n.ord => "\n", ?r.ord  => "\r", ?s.ord => "\s", ?t.ord => "\t",
+    ?v.ord => "\v", ?\\.ord => "\\"
+  }.freeze
 
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
 
@@ -689,8 +689,8 @@ class Parser::Lexer
   }
 
   action unescape_char {
-    char = @source[p - 1].chr
-    @escape = ESCAPES.fetch(char, char)
+    codepoint = @source_pts[p - 1]
+    @escape = ESCAPES[codepoint] || encode_escape(codepoint)
   }
 
   action invalid_complex_escape {
@@ -1630,7 +1630,7 @@ class Parser::Lexer
       # /=/ (disambiguation with /=)
       '/' c_any
       => {
-        type = delimiter = @source[@ts].chr
+        type = delimiter = tok[0].chr
         fhold; fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1644,7 +1644,7 @@ class Parser::Lexer
       # %w(we are the people)
       '%' [A-Za-z]+ c_any
       => {
-        type, delimiter = @source[@ts...(@te - 1)], @source[@te - 1].chr
+        type, delimiter = tok[0..-2], tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1690,7 +1690,7 @@ class Parser::Lexer
       # :"bar", :'baz'
       ':' ['"] # '
       => {
-        type, delimiter = tok, @source[@te - 1].chr
+        type, delimiter = tok, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -2087,7 +2087,7 @@ class Parser::Lexer
       # `echo foo`, "bar", 'baz'
       '`' | ['"] # '
       => {
-        type, delimiter = tok, @source[@te - 1].chr
+        type, delimiter = tok, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts, nil, false, false, true);
       };
 
