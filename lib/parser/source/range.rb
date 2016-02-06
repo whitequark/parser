@@ -126,7 +126,7 @@ module Parser
       # @return [String] all source code covered by this range.
       #
       def source
-        @source_buffer.source[self.begin_pos...self.end_pos]
+        @source_buffer.slice(self.begin_pos...self.end_pos)
       end
 
       ##
