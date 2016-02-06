@@ -198,21 +198,26 @@ class Parser::Lexer
       end
 
       if @has_encode &&
-        (@source_pts.size > 1_000_000 || @force_utf32) &&
+        (!@source.ascii_only? || @force_utf32) &&
         @encoding != Encoding::UTF_32LE
-        # A heuristic: if the buffer is larger than 1M, then
-        # store it in UTF-32 and convert the tokens as they're
-        # going out. If it's smaller, the conversion overhead
-        # dominates runtime and this stops being beneficial.
+        # If the buffer contains non-ASCII characters, store it in
+        # UTF-32 and convert the tokens as they're going out.
         #
-        # This is not really a good heuristic, as the result
-        # heavily depends on token/character ratio. If it's low,
-        # say the gem consists mostly of long identifiers and
-        # symbols, then storing the source in UTF-8 would be faster.
-        #
-        # Patches accepted.
-        @source = @source.encode(Encoding::UTF_32LE)
-        @need_encode = true
+        # We rely heavily (e.g. in #tok) on slicing the input string
+        # at character offests. In arbitrary UTF-8, this slice is
+        # O(n), drastically slowing down the lexer. (If the string is
+        # UTF-8-encoded but happens to only include ASCII characters,
+        # Ruby notes this and optimizes slices internally, so there's
+        # no need to re-encode)
+
+        begin
+          @source = @source.encode(Encoding::UTF_32LE)
+          @need_encode = true
+        rescue EncodingError
+          # We may receive invalid UTF-8, which we will be able to
+          # re-encode. Just carry on in UTF-8, which will happily skip
+          # over invalid byte sequences and leave them as-is.
+        end
       end
 
       if @source_pts[0] == 0xfeff
