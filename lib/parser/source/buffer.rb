@@ -200,6 +200,7 @@ module Parser
       # @api private
       #
       def line_for_position(position)
+        @line_for_position ||= {}
         @line_for_position[position] ||= begin
           line_no, _ = line_for(position)
           @first_line + line_no
@@ -214,6 +215,7 @@ module Parser
       # @api private
       #
       def column_for_position(position)
+        @col_for_position ||= {}
         @col_for_position[position] ||= begin
           _, line_begin = line_for(position)
           position - line_begin
