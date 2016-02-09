@@ -5330,6 +5330,16 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_parser_bug_272
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:ivar, :@b)),
+        s(:args,
+          s(:arg, :c)), nil),
+      %q{a @b do |c|;end})
+  end
+
   def test_bug_lambda_leakage
     assert_parses(
       s(:begin,
