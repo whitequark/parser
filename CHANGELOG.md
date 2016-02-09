@@ -1,6 +1,9 @@
 Changelog
 =========
 
+v2.3.0.4 (2016-02-09)
+---------------------
+
 v2.3.0.3 (2016-02-06)
 ---------------------
 
@@ -14,7 +17,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.0.3 (2016-01-16)
+v2.3.0.4 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
