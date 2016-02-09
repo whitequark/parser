@@ -107,6 +107,9 @@ module Parser
         @lines       = nil
         @line_begins = nil
 
+        # UTF-32-reencoded source for O(1) slicing
+        @slice_source = nil
+
         # Cache for fast lookup
         @line_for_position = {}
         @col_for_position  = {}
@@ -178,6 +181,21 @@ module Parser
         end
 
         @source = input.gsub("\r\n".freeze, "\n".freeze).freeze
+
+        if defined?(Encoding) &&
+           !@source.ascii_only? &&
+           @source.encoding != Encoding::UTF_32LE &&
+           @source.encoding != Encoding::ASCII_8BIT
+          @slice_source = @source.encode(Encoding::UTF_32LE)
+        end
+      end
+
+      def slice(range)
+        if @slice_source.nil?
+          @source[range]
+        else
+          @slice_source[range].encode(@source.encoding)
+        end
       end
 
       ##

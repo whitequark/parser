@@ -2730,13 +2730,6 @@ class TestLexer < Minitest::Test
         assert_equal Encoding::UTF_8, str.encoding
       end
     end
-
-    def test_non_ascii_strings_are_reencoded_internally
-      setup_lexer(19)
-      assert_scanned(utf('"café"'),
-                         :tSTRING, utf("café"), [0, 6])
-      assert_equal Encoding::UTF_32LE, @lex.instance_variable_get(:@source).encoding
-    end
   end
 
   #

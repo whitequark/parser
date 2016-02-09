@@ -19,7 +19,7 @@
 #    they're pointing to ("current"), plus one. `@ts` contains the index
 #    of the corresponding character. The code for extracting matched token is:
 #
-#       @source[@ts...@te]
+#       @source_buffer.slice(@ts...@te)
 #
 #  * If your input is `foooooooobar` and the rule is:
 #
@@ -109,8 +109,6 @@ class Parser::Lexer
     @tokens     = nil
     @comments   = nil
 
-    @has_encode = ''.respond_to?(:encode)
-
     reset
   end
 
@@ -128,10 +126,7 @@ class Parser::Lexer
 
     @force_utf32   = false # Set to true by some tests
 
-    @source        = nil # source string
     @source_pts    = nil # @source as a codepoint array
-    @encoding      = nil # target encoding for output strings
-    @need_encode   = nil
 
     @p             = 0   # stream position (saved manually in #advance)
     @ts            = nil # token start
@@ -186,38 +181,12 @@ class Parser::Lexer
     @source_buffer = source_buffer
 
     if @source_buffer
-      @source = @source_buffer.source
-      @need_encode = false
+      source = @source_buffer.source
 
-      @encoding = @source.encoding if @has_encode
-
-      if @has_encode && @source.encoding == Encoding::UTF_8
-        @source_pts = @source.unpack('U*')
+      if source.respond_to?(:encode) && source.encoding == Encoding::UTF_8
+        @source_pts = source.unpack('U*')
       else
-        @source_pts = @source.unpack('C*')
-      end
-
-      if @has_encode &&
-        (!@source.ascii_only? || @force_utf32) &&
-        @encoding != Encoding::UTF_32LE
-        # If the buffer contains non-ASCII characters, store it in
-        # UTF-32 and convert the tokens as they're going out.
-        #
-        # We rely heavily (e.g. in #tok) on slicing the input string
-        # at character offests. In arbitrary UTF-8, this slice is
-        # O(n), drastically slowing down the lexer. (If the string is
-        # UTF-8-encoded but happens to only include ASCII characters,
-        # Ruby notes this and optimizes slices internally, so there's
-        # no need to re-encode)
-
-        begin
-          @source = @source.encode(Encoding::UTF_32LE)
-          @need_encode = true
-        rescue EncodingError
-          # We may receive invalid UTF-8, which we will be able to
-          # re-encode. Just carry on in UTF-8, which will happily skip
-          # over invalid byte sequences and leave them as-is.
-        end
+        @source_pts = source.unpack('C*')
       end
 
       if @source_pts[0] == 0xfeff
@@ -225,7 +194,6 @@ class Parser::Lexer
         @p = 1
       end
     else
-      @source     = nil
       @source_pts = nil
     end
   end
@@ -334,22 +302,17 @@ class Parser::Lexer
 
   if "".respond_to?(:encode)
     def encode_escape(ord)
-      ord.chr.force_encoding(@encoding)
+      ord.chr.force_encoding(source_buffer.source.encoding)
     end
 
-    def tok(s = @ts, e = @te)
-      source = @source[s...e]
-      return source unless @need_encode
-      source.encode(@encoding)
-    end
   else
     def encode_escape(ord)
       ord.chr
     end
+  end
 
-    def tok(s = @ts, e = @te)
-      @source[s...e]
-    end
+  def tok(s = @ts, e = @te)
+    @source_buffer.slice(s...e)
   end
 
   def range(s = @ts, e = @te)
@@ -712,13 +675,13 @@ class Parser::Lexer
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
-    | ( c_any - [\\] )  % { @escape = @source[p - 1].chr }
+    | ( c_any - [\\] )  % { @escape = @source_buffer.slice(p - 1).chr }
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
-    | ( c_any - [\\?] ) % { @escape = @source[p - 1].chr } %slash_c_char
+    | ( c_any - [\\?] ) % { @escape = @source_buffer.slice(p - 1).chr } %slash_c_char
   );
 
   escape = (
@@ -845,8 +808,7 @@ class Parser::Lexer
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
-      lookahead = @source[@te...@te+2]
-      lookahead = lookahead.encode(@encoding) if @need_encode
+      lookahead = @source_buffer.slice(@te...@te+2)
     end
 
     current_literal = literal
@@ -868,7 +830,7 @@ class Parser::Lexer
   action extend_string_escaped {
     current_literal = literal
     # Get the first character after the backslash.
-    escaped_char = @source[@escape_s].chr
+    escaped_char = @source_buffer.slice(@escape_s).chr
 
     if current_literal.munge_escape? escaped_char
       # If this particular literal uses this character as an opening
@@ -1642,7 +1604,7 @@ class Parser::Lexer
       # %<string>
       '%' ( any - [A-Za-z] )
       => {
-        type, delimiter = @source[@ts].chr, tok[-1].chr
+        type, delimiter = @source_buffer.slice(@ts).chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1737,7 +1699,7 @@ class Parser::Lexer
       '?' c_space_nl
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
-                   "\v" => '\v', "\f" => '\f' }[@source[@ts + 1]]
+                   "\v" => '\v', "\f" => '\f' }[@source_buffer.slice(@ts + 1)]
         diagnostic :warning, :invalid_escape_use, { :escape => escape }, range
 
         p = @ts - 1
@@ -1810,7 +1772,7 @@ class Parser::Lexer
         if version?(18)
           ident = tok(@ts, @te - 2)
 
-          emit((@source[@ts] =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
+          emit((@source_buffer.slice(@ts) =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
                ident, @ts, @te - 2)
           fhold; # continue as a symbol
 
