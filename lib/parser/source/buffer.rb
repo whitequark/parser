@@ -111,8 +111,8 @@ module Parser
         @slice_source = nil
 
         # Cache for fast lookup
-        @line_for_position = {}
-        @col_for_position  = {}
+        @line_for_position   = {}
+        @column_for_position = {}
       end
 
       ##
@@ -232,7 +232,7 @@ module Parser
       # @api private
       #
       def column_for_position(position)
-        @col_for_position[position] ||= begin
+        @column_for_position[position] ||= begin
           _, line_begin = line_for(position)
           position - line_begin
         end
