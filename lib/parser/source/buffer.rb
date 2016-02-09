@@ -185,7 +185,7 @@ module Parser
         if defined?(Encoding) &&
            !@source.ascii_only? &&
            @source.encoding != Encoding::UTF_32LE &&
-           @source.encoding != Encoding::ASCII_8BIT
+           @source.encoding != Encoding::BINARY
           @slice_source = @source.encode(Encoding::UTF_32LE)
         end
       end
