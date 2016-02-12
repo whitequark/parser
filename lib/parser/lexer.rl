@@ -92,7 +92,6 @@ class Parser::Lexer
   RBRACE_OR_RBRACK = %w"} ]".freeze
 
   attr_reader   :source_buffer
-  attr_reader   :encoding
 
   attr_accessor :diagnostics
   attr_accessor :static_env
@@ -196,6 +195,10 @@ class Parser::Lexer
     else
       @source_pts = nil
     end
+  end
+
+  def encoding
+    @source_buffer.source.encoding
   end
 
   LEX_STATES = {
