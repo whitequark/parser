@@ -183,7 +183,7 @@ class Parser::Lexer
     if @source_buffer
       source = @source_buffer.source
 
-      if source.respond_to?(:encode) && source.encoding == Encoding::UTF_8
+      if defined?(Encoding) && source.encoding == Encoding::UTF_8
         @source_pts = source.unpack('U*')
       else
         @source_pts = source.unpack('C*')
@@ -305,11 +305,10 @@ class Parser::Lexer
     @stack[@top]
   end
 
-  if "".respond_to?(:encode)
+  if defined?(Encoding)
     def encode_escape(ord)
       ord.chr.force_encoding(source_buffer.source.encoding)
     end
-
   else
     def encode_escape(ord)
       ord.chr
