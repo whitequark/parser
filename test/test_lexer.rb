@@ -3176,6 +3176,13 @@ class TestLexer < Minitest::Test
     end
   end
 
+  def test_bug_string_utf_escape_noop
+    if defined?(Encoding)
+      assert_scanned(%q{"\あ"}.force_encoding(Encoding::UTF_8),
+                     :tSTRING, "あ".force_encoding(Encoding::UTF_8), [0, 4])
+    end
+  end
+
   def test_bug_string_non_utf
     assert_scanned(%Q{"caf\xE9"},
                    :tSTRING, "caf\xE9", [0, 6])

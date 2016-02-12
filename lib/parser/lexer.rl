@@ -310,7 +310,7 @@ class Parser::Lexer
 
   if defined?(Encoding)
     def encode_escape(ord)
-      ord.chr.force_encoding(source_buffer.source.encoding)
+      ord.chr.force_encoding(@source_buffer.source.encoding)
     end
   else
     def encode_escape(ord)
@@ -665,7 +665,9 @@ class Parser::Lexer
 
   action unescape_char {
     codepoint = @source_pts[p - 1]
-    @escape = ESCAPES[codepoint] || encode_escape(codepoint)
+    if (@escape = ESCAPES[codepoint]).nil?
+      @escape = encode_escape(@source_buffer.slice(p - 1))
+    end
   }
 
   action invalid_complex_escape {
