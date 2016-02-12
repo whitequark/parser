@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.3.0.5 (2016-02-12)
+---------------------
+
+Bugs fixed:
+ * lexer.rl: "%Q{\あ}": fix encoding of UTF-8 noop escapes. (whitequark)
+
 v2.3.0.4 (2016-02-09)
 ---------------------
 
@@ -17,7 +23,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.0.4 (2016-01-16)
+v2.3.0.5 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
