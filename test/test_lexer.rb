@@ -3167,19 +3167,19 @@ class TestLexer < Minitest::Test
                    :tSTRING, "\xE2\x80\x99", [0, 14])
 
     if defined?(Encoding)
-      assert_scanned(%q{"\xE2\x80\x99"}.force_encoding(Encoding::UTF_8),
-                     :tSTRING, '’'.force_encoding(Encoding::UTF_8), [0, 14])
-      assert_scanned(%q{"\342\200\231"}.force_encoding(Encoding::UTF_8),
-                     :tSTRING, '’'.force_encoding(Encoding::UTF_8), [0, 14])
-      assert_scanned(%q{"\M-b\C-\M-@\C-\M-Y"}.force_encoding(Encoding::UTF_8),
-                     :tSTRING, '’'.force_encoding(Encoding::UTF_8), [0, 20])
+      assert_scanned(utf(%q{"\xE2\x80\x99"}),
+                     :tSTRING, utf('’'), [0, 14])
+      assert_scanned(utf(%q{"\342\200\231"}),
+                     :tSTRING, utf('’'), [0, 14])
+      assert_scanned(utf(%q{"\M-b\C-\M-@\C-\M-Y"}),
+                     :tSTRING, utf('’'), [0, 20])
     end
   end
 
   def test_bug_string_utf_escape_noop
     if defined?(Encoding)
-      assert_scanned(%q{"\あ"}.force_encoding(Encoding::UTF_8),
-                     :tSTRING, "あ".force_encoding(Encoding::UTF_8), [0, 4])
+      assert_scanned(utf(%q{"\あ"}),
+                     :tSTRING, utf("あ"), [0, 4])
     end
   end
 
@@ -3190,8 +3190,8 @@ class TestLexer < Minitest::Test
                    :tSTRING, "caf\xC3\xA9", [0, 7])
 
     if defined?(Encoding)
-      assert_scanned(%q{"café"}.force_encoding(Encoding::UTF_8),
-                     :tSTRING, "café".force_encoding(Encoding::UTF_8), [0, 6])
+      assert_scanned(utf(%q{"café"}),
+                     :tSTRING, utf("café"), [0, 6])
     end
   end
 
