@@ -288,7 +288,7 @@ class Parser::Lexer
     elsif @cs == klass.lex_error
       [ false, [ '$error'.freeze, range(p - 1, p) ] ]
     else
-      eof = @source_pts.size + 1
+      eof = @source_pts.size
       [ false, [ '$eof'.freeze,   range(eof, eof) ] ]
     end
   end

@@ -2426,6 +2426,13 @@ class TestLexer < Minitest::Test
     end
   end
 
+  def test_eof
+    assert_scanned("self",
+                   :kSELF, "self", [0, 4])
+    assert_equal([false, ["$eof", Parser::Source::Range.new(@lex.source_buffer, 4, 4)]],
+                 @lex.advance)
+  end
+
   #
   # Test for 'fluent interface'
   #
