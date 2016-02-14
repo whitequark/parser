@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2.3.0.6 (2016-02-14)
+---------------------
+
+Bugs fixed:
+ * lexer.rl: fix EOF location (closes #273). (whitequark)
+
 v2.3.0.5 (2016-02-12)
 ---------------------
 
@@ -23,7 +29,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.0.5 (2016-01-16)
+v2.3.0.6 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
