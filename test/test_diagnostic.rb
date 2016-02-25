@@ -86,11 +86,9 @@ class TestDiagnostic < Minitest::Test
                                   location)
 
     assert_equal([
-      '(string):2:32-3:0: error: unexpected token tNL',
+      '(string):2:32: error: unexpected token tNL',
       '(string):2:   foo: ->() # I forgot my brace',
-      '(string):2:                                ',
-      '(string):3:   }',
-      '(string):3:    '
+      '(string):2:                                ^'
     ], diag.render)
   end
 end

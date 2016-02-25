@@ -82,7 +82,9 @@ module Parser
     # @return [Array<String>]
     #
     def render
-      if @location.line != @location.last_line
+      if @location.line == @location.last_line || @location.is?("\n")
+        ["#{@location}: #{@level}: #{message}"] + render_line(@location)
+      else
         # multi-line diagnostic
         first_line = first_line_only(@location)
         last_line  = last_line_only(@location)
@@ -93,8 +95,6 @@ module Parser
         ["#{@location}-#{last_lineno}:#{last_column}: #{@level}: #{message}"] +
           render_line(first_line, num_lines > 2, false) +
           render_line(last_line, false, true)
-      else
-        ["#{@location}: #{@level}: #{message}"] + render_line(@location)
       end
     end
 
@@ -116,10 +116,14 @@ module Parser
         end
       end
 
-      if !range_end && range.size >= 1
-        highlight_line[range.column_range] = '^' + '~' * (range.size - 1)
+      if range.is?("\n")
+        highlight_line += "^"
       else
-        highlight_line[range.column_range] = '~' * range.size
+        if !range_end && range.size >= 1
+          highlight_line[range.column_range] = '^' + '~' * (range.size - 1)
+        else
+          highlight_line[range.column_range] = '~' * range.size
+        end
       end
 
       highlight_line += '...' if ellipsis
