@@ -69,4 +69,28 @@ class TestDiagnostic < Minitest::Test
       '(string):3: ~~~ ~~~    '
     ], diag.render)
   end
+
+  def test_bug_error_on_newline
+    # regression test; see GitHub issue 273
+    source = <<-CODE
+{
+  foo: ->() # I forgot my brace
+  }
+}
+    CODE
+    @buffer = Parser::Source::Buffer.new('(string)')
+    @buffer.source = source
+
+    location = Parser::Source::Range.new(@buffer, 33, 34)
+    diag = Parser::Diagnostic.new(:error, :unexpected_token, { :token => 'tNL' },
+                                  location)
+
+    assert_equal([
+      '(string):2:32-3:0: error: unexpected token tNL',
+      '(string):2:   foo: ->() # I forgot my brace',
+      '(string):2:                                ',
+      '(string):3:   }',
+      '(string):3:    '
+    ], diag.render)
+  end
 end
