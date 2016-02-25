@@ -150,7 +150,7 @@ module Parser
     def last_line_only(range)
       if range.line != range.last_line
         Source::Range.new(range.source_buffer,
-                          range.begin_pos + (range.source =~ /[^\n]*\Z/),
+                          range.begin_pos + (range.source =~ /[^\n]*\z/),
                           range.end_pos)
       else
         range
