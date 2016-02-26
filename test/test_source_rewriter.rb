@@ -135,6 +135,16 @@ class TestSourceRewriter < Minitest::Test
     end
   end
 
+  def test_intentional_multiple_insertions_at_same_location
+    assert_equal 'foo [(bar)] baz',
+      @rewriter.
+        insert_before_multi(range(4, 0), '(').
+        insert_after_multi(range(7, 0), ')').
+        insert_before_multi(range(4, 0), '[').
+        insert_after_multi(range(7, 0), ']').
+        process
+  end
+
   def test_insertion_within_replace_clobber
     silence_diagnostics
 
@@ -171,6 +181,46 @@ class TestSourceRewriter < Minitest::Test
     assert_raises Parser::ClobberingError do
       @rewriter.
         insert_after(range(3, 1), '>').
+        remove(range(3, 2))
+    end
+  end
+
+  def test_multi_insertion_within_replace_clobber
+    silence_diagnostics
+
+    assert_raises Parser::ClobberingError do
+      @rewriter.
+        replace(range(3, 2), '<').
+        insert_after_multi(range(3, 1), '>')
+    end
+  end
+
+  def test_multi_insertion_within_remove_clobber
+    silence_diagnostics
+
+    assert_raises Parser::ClobberingError do
+      @rewriter.
+        remove(range(3, 2)).
+        insert_after_multi(range(3, 1), '>')
+    end
+  end
+
+  def test_replace_overlapping_multi_insertion_clobber
+    silence_diagnostics
+
+    assert_raises Parser::ClobberingError do
+      @rewriter.
+        insert_after_multi(range(3, 1), '>').
+        replace(range(3, 2), '<')
+    end
+  end
+
+  def test_remove_overlapping_multi_insertion_clobber
+    silence_diagnostics
+
+    assert_raises Parser::ClobberingError do
+      @rewriter.
+        insert_after_multi(range(3, 1), '>').
         remove(range(3, 2))
     end
   end

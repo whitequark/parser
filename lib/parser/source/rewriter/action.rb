@@ -5,12 +5,24 @@ module Parser
     # @api private
     #
     class Rewriter::Action
-      attr_reader :range, :replacement
+      include Comparable
 
-      def initialize(range, replacement='')
-        @range, @replacement = range, replacement
+      attr_reader :range, :replacement, :allow_multiple_insertions, :order
+      alias_method :allow_multiple_insertions?, :allow_multiple_insertions
+
+      def initialize(range, replacement='', allow_multiple_insertions = false, order = 0)
+        @range = range
+        @replacement = replacement
+        @allow_multiple_insertions = allow_multiple_insertions
+        @order = order
 
         freeze
+      end
+
+      def <=>(other)
+        result = range.begin_pos <=> other.range.begin_pos
+        return result unless result.zero?
+        order <=> other.order
       end
 
       def to_s
