@@ -39,6 +39,9 @@ module Parser
         @queue         = []
         @clobber       = 0
         @insertions    = 0 # clobbered zero-length positions; index 0 is the far left
+
+        @insert_before_multi_order = 0
+        @insert_after_multi_order = 0
       end
 
       ##
@@ -65,6 +68,28 @@ module Parser
       end
 
       ##
+      # Inserts new code before the given source range by allowing other
+      # insertions at the same position.
+      # Note that an insertion with latter invocation comes _before_ earlier
+      # insertion at the same position in the rewritten source.
+      #
+      # @example Inserting '[('
+      #   rewriter.
+      #     insert_before_multi(range, '(').
+      #     insert_before_multi(range, '[').
+      #     process
+      #
+      # @param [Range] range
+      # @param [String] content
+      # @return [Rewriter] self
+      # @raise [ClobberingError] when clobbering is detected
+      #
+      def insert_before_multi(range, content)
+        @insert_before_multi_order -= 1
+        append Rewriter::Action.new(range.begin, content, true, @insert_before_multi_order)
+      end
+
+      ##
       # Inserts new code after the given source range.
       #
       # @param [Range] range
@@ -74,6 +99,28 @@ module Parser
       #
       def insert_after(range, content)
         append Rewriter::Action.new(range.end, content)
+      end
+
+      ##
+      # Inserts new code after the given source range by allowing other
+      # insertions at the same position.
+      # Note that an insertion with latter invocation comes _after_ earlier
+      # insertion at the same position in the rewritten source.
+      #
+      # @example Inserting ')]'
+      #   rewriter.
+      #     insert_after_multi(range, ')').
+      #     insert_after_multi(range, ']').
+      #     process
+      #
+      # @param [Range] range
+      # @param [String] content
+      # @return [Rewriter] self
+      # @raise [ClobberingError] when clobbering is detected
+      #
+      def insert_after_multi(range, content)
+        @insert_after_multi_order += 1
+        append Rewriter::Action.new(range.end, content, true, @insert_after_multi_order)
       end
 
       ##
@@ -102,9 +149,7 @@ module Parser
         adjustment = 0
         source     = @source_buffer.source.dup
 
-        sorted_queue = @queue.sort_by { |action| action.range.begin_pos }
-
-        sorted_queue.each do |action|
+        @queue.sort.each do |action|
           begin_pos = action.range.begin_pos + adjustment
           end_pos   = begin_pos + action.range.length
 
@@ -205,7 +250,7 @@ module Parser
           # Replacing nothing with... nothing?
           return self if action.replacement.empty?
 
-          if (conflicting = clobbered_insertion?(range))
+          if !action.allow_multiple_insertions? && (conflicting = clobbered_insertion?(range))
             raise_clobber_error(action, [conflicting])
           end
 
