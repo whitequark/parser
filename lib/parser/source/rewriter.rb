@@ -376,7 +376,7 @@ module Parser
         actions = existing.push(action).sort_by do |a|
           [a.range.begin_pos, a.range.end_pos]
         end
-        range = actions.first.range.join(actions.last.range)
+        range = actions.first.range.join(actions.max_by { |a| a.range.end_pos }.range)
 
         Rewriter::Action.new(range, merge_replacements(actions))
       end

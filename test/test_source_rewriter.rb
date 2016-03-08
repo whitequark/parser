@@ -364,6 +364,17 @@ class TestSourceRewriter < Minitest::Test
     end
   end
 
+  def test_replaced_ranges_merge_when_furthest_right_range_is_not_furthest_left
+    # regression test; previously, when actions were merged, the resulting
+    # replaced range could be too small sometimes
+    assert_equal 'foo_***_***',
+      @rewriter.
+        replace(range(3, 1), '_').
+        replace(range(7, 1), '_').
+        replace(range(4, 7), '***_***').
+        process
+  end
+
   def test_clobber
     diagnostics = []
     @rewriter.diagnostics.consumer = lambda do |diag|
