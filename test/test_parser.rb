@@ -5114,6 +5114,31 @@ class TestParser < Minitest::Test
     end
   end
 
+  def test_tokenize_recover
+    with_versions(ALL_VERSIONS) do |_ver, parser|
+      source_file = Parser::Source::Buffer.new('(tokenize)')
+      source_file.source = "1 + # foo\n "
+
+      range = lambda do |from, to|
+        Parser::Source::Range.new(source_file, from, to)
+      end
+
+      ast, comments, tokens = parser.tokenize(source_file, true)
+
+      assert_equal nil, ast
+
+      assert_equal [
+                     Parser::Source::Comment.new(range.call(4, 9))
+                   ], comments
+
+      assert_equal [
+                     [:tINTEGER, [ 1,       range.call(0, 1) ]],
+                     [:tPLUS,    [ '+',     range.call(2, 3) ]],
+                     [:tCOMMENT, [ '# foo', range.call(4, 9) ]],
+                   ], tokens
+    end
+  end
+
   #
   # Bug-specific tests
   #

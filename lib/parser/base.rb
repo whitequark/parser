@@ -167,8 +167,7 @@ module Parser
     end
 
     ##
-    # Parses a source buffer and returns the AST along with the comments of the
-    # Ruby source code.
+    # Parses a source buffer and returns the AST and the source code comments.
     #
     # @see #parse
     # @see Parser::Source::Comment#associate
@@ -183,6 +182,12 @@ module Parser
     end
 
     ##
+    # Parses a source buffer and returns the AST, the source code comments,
+    # and the tokens emitted by the lexer. If `recover` is true and a fatal
+    # {SyntaxError} is encountered, `nil` is returned instead of the AST, and
+    # comments as well as tokens are only returned up to the location of
+    # the error.
+    #
     # Currently, token stream format returned by #tokenize is not documented,
     # but is considered part of a public API and only changed according
     # to Semantic Versioning.
@@ -193,16 +198,23 @@ module Parser
     # `:tSTRING "foo"`; such details must not be relied upon.
     #
     # @param [Parser::Source::Buffer] source_buffer
+    # @param [Boolean] recover If true, recover from syntax errors. False by default.
     # @return [Array]
     #
-    def tokenize(source_buffer)
+    def tokenize(source_buffer, recover=false)
       @lexer.tokens = []
+      @lexer.comments = []
 
-      ast, comments = parse_with_comments(source_buffer)
+      begin
+        ast = parse(source_buffer)
+      rescue Parser::SyntaxError
+        raise if !recover
+      end
 
-      [ ast, comments, @lexer.tokens ]
+      [ ast, @lexer.comments, @lexer.tokens ]
     ensure
       @lexer.tokens = nil
+      @lexer.comments = nil
     end
 
     ##
