@@ -227,9 +227,9 @@ issue](https://github.com/whitequark/parser/issues/72).
 
 It is unknown whether any gems are affected by this issue.
 
-### Invalid characters inside comments
+### Invalid characters inside comments and literals
 
-Ruby MRI permits arbitrary non-7-bit characters to appear in comments regardless of source encoding.
+Ruby MRI permits arbitrary non-7-bit byte sequences to appear in comments, as well as in string or symbol literals in form of escape sequences, regardless of source encoding. Parser requires all source code, including the expanded escape sequences, to consist of valid byte sequences in the source encoding that are convertible to UTF-8.
 
 As of 2013-07-25, there are about 180 affected gems.
 
@@ -238,12 +238,6 @@ As of 2013-07-25, there are about 180 affected gems.
 Ruby MRI 1.8 permits to specify a bare `\u` escape sequence in a string; it treats it like `u`. Ruby MRI 1.9 and later treat `\u` as a prefix for Unicode escape sequence and do not allow it to appear bare. Parser follows 1.9+ behavior.
 
 As of 2013-07-25, affected gems are: activerdf, activerdf_net7, fastreader, gkellog-reddy.
-
-### Invalid Unicode escape sequences
-
-Ruby MRI 1.9+ permits to specify invalid Unicode codepoints in Unicode escape sequences, such as `\u{d800}`.
-
-As of 2013-07-25, affected gems are: aws_cloud_search.
 
 ### Dollar-dash
 
