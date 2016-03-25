@@ -1,6 +1,20 @@
 Changelog
 =========
 
+v2.3.0.7 (2016-03-25)
+---------------------
+
+API modifications:
+ * Source::Diagnostic: handle ranges pointing to newlines (#273). (whitequark)
+
+Features implemented:
+ * Parser::Base#tokenize: allow recovery from syntax errors. (whitequark)
+ * lexer.rl: "a=1; a b: 1": allow label after command clashing with local. (whitequark)
+ * lexer.rl: "undef %s(x)": emit %s literals in expr_fname in 2.3 mode. (whitequark)
+
+Bugs fixed:
+ * Builders::Default: reject non-UTF-8 compatible literals. (whitequark)
+
 v2.3.0.6 (2016-02-14)
 ---------------------
 
@@ -29,7 +43,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.0.6 (2016-01-16)
+v2.3.0.7 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
