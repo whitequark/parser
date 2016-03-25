@@ -5226,23 +5226,25 @@ class TestParser < Minitest::Test
   end
 
   def test_bug_ascii_8bit_in_literal
-    assert_diagnoses(
-      [:error, :invalid_encoding],
-      %q{".\xc3."},
-      %q{^^^^^^^^ location},
-      ALL_VERSIONS)
+    if defined?(Encoding)
+      assert_diagnoses(
+        [:error, :invalid_encoding],
+        %q{".\xc3."},
+        %q{^^^^^^^^ location},
+        ALL_VERSIONS)
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
-      %q{%W"x .\xc3."},
-      %q{     ^^^^^^ location},
-      ALL_VERSIONS)
+      assert_diagnoses(
+        [:error, :invalid_encoding],
+        %q{%W"x .\xc3."},
+        %q{     ^^^^^^ location},
+        ALL_VERSIONS)
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
-      %q{:".\xc3."},
-      %q{  ^^^^^^ location},
-      ALL_VERSIONS)
+      assert_diagnoses(
+        [:error, :invalid_encoding],
+        %q{:".\xc3."},
+        %q{  ^^^^^^ location},
+        ALL_VERSIONS)
+    end
 
     assert_diagnoses(
       [:error, :invalid_encoding],
