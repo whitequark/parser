@@ -1534,12 +1534,16 @@ module Parser
       token[0]
     end
 
-    def string_value(token)
-      unless token[0].valid_encoding?
-        diagnostic(:error, :invalid_encoding, nil, token[1])
-      end
+    if defined?(Encoding)
+      def string_value(token)
+        unless token[0].valid_encoding?
+          diagnostic(:error, :invalid_encoding, nil, token[1])
+        end
 
-      token[0]
+        token[0]
+      end
+    else
+      alias string_value value
     end
 
     def loc(token)

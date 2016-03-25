@@ -1708,7 +1708,11 @@ class Parser::Lexer
         value = @escape || tok(@ts + 1)
 
         if version?(18)
-          emit(:tINTEGER, value.dup.force_encoding(Encoding::BINARY)[0].ord)
+          if defined?(Encoding)
+            emit(:tINTEGER, value.dup.force_encoding(Encoding::BINARY)[0].ord)
+          else
+            emit(:tINTEGER, value[0].ord)
+          end
         else
           emit(:tCHARACTER, value)
         end
