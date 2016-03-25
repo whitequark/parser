@@ -1197,7 +1197,7 @@ class Parser::Lexer
     emit(:tIDENTIFIER)
 
     if !@static_env.nil? && @static_env.declared?(tok)
-      fnext expr_end; fbreak;
+      fnext expr_endfn; fbreak;
     else
       fnext *arg_or_cmdarg; fbreak;
     end

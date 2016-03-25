@@ -5318,6 +5318,21 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
   end
 
+  def test_ruby_bug_12073
+    assert_parses(
+      s(:begin,
+        s(:lvasgn, :a,
+          s(:int, 1)),
+        s(:send, nil, :a,
+          s(:hash,
+            s(:pair,
+              s(:sym, :b),
+              s(:int, 1))))),
+      %q{a = 1; a b: 1},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_parser_bug_198
     assert_parses(
       s(:array,
