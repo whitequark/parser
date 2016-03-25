@@ -2349,6 +2349,26 @@ class TestLexer < Minitest::Test
                    :tSYMBOL,     'b',     [10, 12])
   end
 
+  def test_fname_pct_s__22
+    setup_lexer 22
+    @lex.state = :expr_fname
+    assert_scanned("%s(a)",
+                   :tPERCENT,    '%', [0, 1],
+                   :tIDENTIFIER, 's', [1, 2],
+                   :tLPAREN2,    '(', [2, 3],
+                   :tIDENTIFIER, 'a', [3, 4],
+                   :tRPAREN,     ')', [4, 5])
+  end
+
+  def test_fname_pct_s__23
+    setup_lexer 23
+    @lex.state = :expr_fname
+    assert_scanned("%s(a)",
+                   :tSYMBEG,         '%s(', [0, 3],
+                   :tSTRING_CONTENT, 'a',   [3, 4],
+                   :tSTRING_END,     ')',   [4, 5])
+  end
+
   def test_static_env
     env = Parser::StaticEnvironment.new
     env.declare "a"

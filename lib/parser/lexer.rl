@@ -1282,6 +1282,17 @@ class Parser::Lexer
       ':'
       => { fhold; fgoto expr_beg; };
 
+      '%s' c_any
+      => {
+        if version?(23)
+          type, delimiter = tok[0..-2], tok[-1].chr
+          fgoto *push_literal(type, delimiter, @ts);
+        else
+          p = @ts - 1
+          fgoto expr_end;
+        end
+      };
+
       w_any;
 
       c_any
