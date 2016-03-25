@@ -5225,6 +5225,51 @@ class TestParser < Minitest::Test
       %Q{f <<-TABLE do\nTABLE\nend})
   end
 
+  def test_bug_ascii_8bit_in_literal
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{".\xc3."},
+      %q{^^^^^^^^ location},
+      ALL_VERSIONS)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{%W"x .\xc3."},
+      %q{     ^^^^^^ location},
+      ALL_VERSIONS)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{:".\xc3."},
+      %q{  ^^^^^^ location},
+      ALL_VERSIONS)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{%I"x .\xc3."},
+      %q{     ^^^^^^ location},
+      ALL_VERSIONS - %w(1.8 1.9 ios mac))
+
+    assert_parses(
+      s(:int, 0xc3),
+      %q{?\xc3},
+      %q{},
+      %w(1.8))
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{?\xc3},
+      %q{^^^^^ location},
+      ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:str, "проверка"),
+      %q{# coding:utf-8
+         "\xD0\xBF\xD1\x80\xD0\xBE\xD0\xB2\xD0\xB5\xD1\x80\xD0\xBA\xD0\xB0"},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
+  end
+
   def test_ruby_bug_9669
     assert_parses(
       s(:def, :a, s(:args, s(:kwarg, :b)), s(:return)),

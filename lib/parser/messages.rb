@@ -59,6 +59,9 @@ module Parser
     # Parser warnings
     :useless_else            => 'else without rescue is useless',
 
+    # Parser errors that are not Ruby errors
+    :invalid_encoding        => 'literal contains escape sequences incompatible with UTF-8',
+
     # Rewriter diagnostics
     :invalid_action          => 'cannot %{action}',
     :clobbered               => 'clobbered by: %{action}',

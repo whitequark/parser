@@ -120,12 +120,12 @@ module Parser
     # Strings
 
     def string(string_t)
-      n(:str, [ value(string_t) ],
+      n(:str, [ string_value(string_t) ],
         delimited_string_map(string_t))
     end
 
     def string_internal(string_t)
-      n(:str, [ value(string_t) ],
+      n(:str, [ string_value(string_t) ],
         unquoted_map(string_t))
     end
 
@@ -144,7 +144,7 @@ module Parser
     end
 
     def character(char_t)
-      n(:str, [ value(char_t) ],
+      n(:str, [ string_value(char_t) ],
         prefix_string_map(char_t))
     end
 
@@ -156,12 +156,12 @@ module Parser
     # Symbols
 
     def symbol(symbol_t)
-      n(:sym, [ value(symbol_t).to_sym ],
+      n(:sym, [ string_value(symbol_t).to_sym ],
         prefix_string_map(symbol_t))
     end
 
     def symbol_internal(symbol_t)
-      n(:sym, [ value(symbol_t).to_sym ],
+      n(:sym, [ string_value(symbol_t).to_sym ],
         unquoted_map(symbol_t))
     end
 
@@ -1531,6 +1531,14 @@ module Parser
     end
 
     def value(token)
+      token[0]
+    end
+
+    def string_value(token)
+      unless token[0].valid_encoding?
+        diagnostic(:error, :invalid_encoding, nil, token[1])
+      end
+
       token[0]
     end
 
