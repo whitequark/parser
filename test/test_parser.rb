@@ -5403,6 +5403,18 @@ class TestParser < Minitest::Test
       %q{a = 1; a b: 1},
       %q{},
       ALL_VERSIONS - %w(1.8))
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :raise)),
+        s(:send, nil, :raise,
+          s(:const,
+            s(:const, nil, :A), :B),
+          s(:str, ""))),
+      %q{def foo raise; raise A::B, ''; end},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def test_parser_bug_198

@@ -1307,9 +1307,9 @@ class Parser::Lexer
   # Transitions to `expr_end` afterwards.
   #
   expr_endfn := |*
-      label
-      => { emit(:tLABEL, tok(@ts, @te - 1))
-           fnext expr_labelarg; fbreak; };
+      label ( any - ':' )
+      => { emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
+           fhold; fnext expr_labelarg; fbreak; };
 
       w_space_comment;
 
