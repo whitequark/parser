@@ -1053,7 +1053,9 @@ module Parser
     def check_condition(cond)
       case cond.type
       when :masgn
-        diagnostic :error, :masgn_as_condition, nil, cond.loc.expression
+        if @parser.version <= 23
+          diagnostic :error, :masgn_as_condition, nil, cond.loc.expression
+        end
 
       when :begin
         if cond.children.count == 1
