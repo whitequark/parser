@@ -25,6 +25,7 @@ GENERATED_FILES = %w(lib/parser/lexer.rb
                      lib/parser/ruby21.rb
                      lib/parser/ruby22.rb
                      lib/parser/ruby23.rb
+                     lib/parser/ruby24.rb
                      lib/parser/macruby.rb
                      lib/parser/rubymotion.rb)
 

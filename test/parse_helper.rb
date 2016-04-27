@@ -27,6 +27,7 @@ module ParseHelper
     when '2.1' then parser = Parser::Ruby21.new
     when '2.2' then parser = Parser::Ruby22.new
     when '2.3' then parser = Parser::Ruby23.new
+    when '2.4' then parser = Parser::Ruby24.new
     when 'mac' then parser = Parser::MacRuby.new
     when 'ios' then parser = Parser::RubyMotion.new
     else raise "Unrecognized Ruby version #{version}"
