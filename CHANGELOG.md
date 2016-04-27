@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v2.3.1.0 (2016-04-27)
+---------------------
+
+Features implemented:
+ * Parser::Current: update for Ruby 2.3.1. (whitequark)
+ * Builders::Default: allow masgn in conditional context on >=Ruby 2.4. (whitequark)
+ * ruby24.y: branch parser. (whitequark)
+
+Bugs fixed:
+ * lexer.rl: "def x y; y A::B, ''; end": reject X:: in EXPR_ENDFN (fixes #285). (whitequark)
+
 v2.3.0.7 (2016-03-25)
 ---------------------
 
@@ -43,7 +54,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.0.7 (2016-01-16)
+v2.3.1.0 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
