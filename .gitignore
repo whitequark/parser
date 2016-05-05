@@ -16,6 +16,8 @@ test/tmp
 test/version_tmp
 tmp
 *.output
+.ruby-version
+.ruby-gemset
 lib/parser/lexer.rb
 lib/parser/ruby18.rb
 lib/parser/ruby19.rb
