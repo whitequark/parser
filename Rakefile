@@ -148,6 +148,7 @@ rule '.rb' => '.y' do |t|
            t.source,
            "-o", t.name
          ]
+  opts << "--no-line-convert" unless ENV['RACC_DEBUG']
   opts << "--debug" if ENV['RACC_DEBUG']
 
   sh "racc", *opts
