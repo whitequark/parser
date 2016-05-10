@@ -86,7 +86,7 @@ module Parser
 
       opts.on '--24', 'Parse as Ruby 2.4 would' do
         require 'parser/ruby24'
-        @parser_class = Parser::Ruby23
+        @parser_class = Parser::Ruby24
       end
 
       opts.on '--mac', 'Parse as MacRuby 0.12 would' do
