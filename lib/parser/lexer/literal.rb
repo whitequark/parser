@@ -78,7 +78,7 @@ module Parser
                       !heredoc?)
 
       # Capture opening delimiter in percent-literals.
-      @str_type << delimiter if @str_type.start_with?('%'.freeze)
+      @str_type += delimiter if @str_type.start_with?('%'.freeze)
 
       clear_buffer
 
@@ -187,7 +187,7 @@ module Parser
       @buffer_s ||= ts
       @buffer_e = te
 
-      @buffer << string
+      @buffer += string
     end
 
     def flush_string
