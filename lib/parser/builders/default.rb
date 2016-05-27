@@ -749,7 +749,7 @@ module Parser
         diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
       end
 
-      if [:send, :super, :zsuper, :lambda].include?(method_call.type)
+      if [:send, :csend, :super, :zsuper, :lambda].include?(method_call.type)
         n(:block, [ method_call, args, body ],
           block_map(method_call.loc.expression, begin_t, end_t))
       else

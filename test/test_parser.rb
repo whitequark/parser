@@ -3416,6 +3416,17 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
   end
 
+  def test_send_block_conditional
+    assert_parses(
+      s(:block,
+        s(:csend,
+          s(:send, nil, :foo), :bar),
+        s(:args), nil),
+      %q{foo&.bar {}},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 ios mac))
+  end
+
   def test_lvar_injecting_match
     assert_parses(
       s(:begin,
