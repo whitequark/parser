@@ -3429,7 +3429,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:csend,
-          s(:send, nil, :foo), :bar),
+          s(:lvar, :foo), :bar),
         s(:args), nil),
       %q{foo&.bar {}},
       %q{},
