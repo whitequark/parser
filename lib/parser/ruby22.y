@@ -1454,6 +1454,7 @@ opt_block_args_tail:
 
             bvar: tIDENTIFIER
                     {
+                      @static_env.declare val[0][0]
                       result = @builder.shadowarg(val[0])
                     }
                 | f_bad_arg
