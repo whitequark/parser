@@ -2026,6 +2026,15 @@ class TestParser < Minitest::Test
       %q{def f(var: defined?(var)) var end},
       %q{},
       ALL_VERSIONS - %w(1.8 1.9 mac ios 2.0))
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :lambda),
+        s(:args, s(:shadowarg, :a)),
+        s(:lvar, :a)),
+      %q{lambda{|;a|a}},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 
   def assert_parses_args(ast, code, versions=ALL_VERSIONS)

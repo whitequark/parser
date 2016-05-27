@@ -1416,6 +1416,7 @@ rule
 
             bvar: tIDENTIFIER
                     {
+                      @static_env.declare val[0][0]
                       result = @builder.shadowarg(val[0])
                     }
                 | f_bad_arg
