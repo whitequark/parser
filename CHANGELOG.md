@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v2.3.1.1 (2016-06-01)
+---------------------
+
+Bugs fixed:
+ * ruby{^18}.y: "lambda{|;a|a}": treat shadowarg as local inside block. (Ilya Bylich)
+ * Builders::Default: "foo&.bar{}": emit csend in block properly. (whitequark)
+ * runner.rb: re-add --23 (cremno)
+ * runner.rb: make --24 actually use the 2.4 parser (cremno)
+
 v2.3.1.0 (2016-04-27)
 ---------------------
 
@@ -54,7 +63,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.1.0 (2016-01-16)
+v2.3.1.1 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
