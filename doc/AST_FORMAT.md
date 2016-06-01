@@ -959,7 +959,7 @@ Format:
 Format:
 
 ~~~
-(kwarg :foo (int 1))
+(kwarg :foo)
 "foo:"
  ~~~~ expression
  ~~~~ name
