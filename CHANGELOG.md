@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v2.3.1.2 (2016-06-02)
+---------------------
+
+API modifications:
+ * parser/current: update 2.2 warning to 2.2.5 (#295) (Kohei Suzuki)
+
+Bugs fixed:
+ * AST_FORMAT: Fix `kwarg` example (#294) (Magnus Holm)
+
 v2.3.1.1 (2016-06-01)
 ---------------------
 
@@ -63,7 +72,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.1.1 (2016-01-16)
+v2.3.1.2 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
