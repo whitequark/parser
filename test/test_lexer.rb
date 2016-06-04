@@ -2188,6 +2188,55 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     "\\",  [3, 4])
   end
 
+  def test_string_pct_w_backslash
+    assert_scanned("%w\\s1 s2 \\",
+                   :tQWORDS_BEG,     "%w\\", [0, 3],
+                   :tSTRING_CONTENT, "s1",  [3, 5],
+                   :tSPACE,          nil,   [5, 6],
+                   :tSTRING_CONTENT, "s2",  [6, 8],
+                   :tSPACE,          nil,   [8, 9],
+                   :tSTRING_END,     "\\",   [9, 10])
+  end
+
+  def test_string_pct_w_backslash_nl
+    assert_scanned("%w\\s1 s2 \\\n",
+                   :tQWORDS_BEG,     "%w\\", [0, 3],
+                   :tSTRING_CONTENT, "s1",   [3, 5],
+                   :tSPACE,          nil,    [5, 6],
+                   :tSTRING_CONTENT, "s2",   [6, 8],
+                   :tSPACE,          nil,    [8, 9],
+                   :tSTRING_END,     "\\",   [9, 10],
+                   :tNL,             nil,    [10, 11])
+  end
+
+  def test_string_pct_w_backslash_interp_nl
+    assert_scanned("%W\\blah #x a \#@a b \#$b c \#{3} # \\",
+                   :tWORDS_BEG,     "%W\\",  [0, 3],
+                   :tSTRING_CONTENT, "blah", [3, 7],
+                   :tSPACE,          nil,    [7, 8],
+                   :tSTRING_CONTENT, "#x",   [8, 10],
+                   :tSPACE,          nil,    [10, 11],
+                   :tSTRING_CONTENT, "a",    [11, 12],
+                   :tSPACE,          nil,    [12, 13],
+                   :tSTRING_DVAR,    nil,    [13, 14],
+                   :tIVAR,           "@a",   [14, 16],
+                   :tSPACE,          nil,    [16, 17],
+                   :tSTRING_CONTENT, "b",    [17, 18],
+                   :tSPACE,          nil,    [18, 19],
+                   :tSTRING_DVAR,    nil,    [19, 20],
+                   :tGVAR,           "$b",   [20, 22],
+                   :tSPACE,          nil,    [22, 23],
+                   :tSTRING_CONTENT, "c",    [23, 24],
+                   :tSPACE,          nil,    [24, 25],
+                   :tSTRING_DBEG,    '#{',   [25, 27],
+                   :tINTEGER,        3,      [27, 28],
+                   :tRCURLY,         "}",    [28, 29],
+                   :tSPACE,          nil,    [29, 30],
+                   :tSTRING_CONTENT, "#",    [30, 31],
+                   :tSPACE,          nil,    [31, 32],
+                   :tSTRING_END,     "\\",   [32, 33])
+  end
+
   def test_string_pct_backslash_with_bad_escape
     # No escapes are allowed in a backslash-delimited string
     refute_scanned("%\\a\\n\\",
