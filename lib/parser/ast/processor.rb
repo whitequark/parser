@@ -39,9 +39,13 @@ module Parser
       def on_vasgn(node)
         name, value_node = *node
 
-        node.updated(nil, [
-          name, process(value_node)
-        ])
+        if !value_node.nil?
+          node.updated(nil, [
+            name, process(value_node)
+          ])
+        else
+          node
+        end
       end
 
       # @private
@@ -79,9 +83,15 @@ module Parser
       def on_casgn(node)
         scope_node, name, value_node = *node
 
-        node.updated(nil, [
-          process(scope_node), name, process(value_node)
-        ])
+        if !value_node.nil?
+          node.updated(nil, [
+            process(scope_node), name, process(value_node)
+          ])
+        else
+          node.updated(nil, [
+            process(scope_node), name
+          ])
+        end
       end
 
       alias on_args     process_regular_node
@@ -89,9 +99,13 @@ module Parser
       def on_argument(node)
         arg_name, value_node = *node
 
-        node.updated(nil, [
-          arg_name, process(value_node)
-        ])
+        if !value_node.nil?
+          node.updated(nil, [
+            arg_name, process(value_node)
+          ])
+        else
+          node
+        end
       end
 
       # @private
