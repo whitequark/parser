@@ -161,6 +161,8 @@ module Parser
         ])
       end
 
+      alias on_csend on_send
+
       alias on_block    process_regular_node
 
       alias on_while      process_regular_node
