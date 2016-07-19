@@ -487,7 +487,7 @@ module Parser
 
     def op_assign(lhs, op_t, rhs)
       case lhs.type
-      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :casgn, :send
+      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :casgn, :send, :csend
         operator   = value(op_t)[0..-1].to_sym
         source_map = lhs.loc.
                         with_operator(loc(op_t)).
