@@ -2,7 +2,6 @@ require 'tempfile'
 require 'minitest/test'
 
 require 'simplecov'
-require 'coveralls'
 
 if ENV.include?('COVERAGE') && SimpleCov.usable?
   if defined?(TracePoint)
@@ -15,13 +14,9 @@ if ENV.include?('COVERAGE') && SimpleCov.usable?
     at_exit { RaccCoverage.stop }
   end
 
-  require 'simplecov-sublime-ruby-coverage'
-
   SimpleCov.start do
     self.formatter = SimpleCov::Formatter::MultiFormatter[
       SimpleCov::Formatter::HTMLFormatter,
-      SimpleCov::Formatter::SublimeRubyCoverageFormatter,
-      Coveralls::SimpleCov::Formatter
     ]
 
     add_group 'Grammars' do |source_file|

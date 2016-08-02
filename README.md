@@ -2,7 +2,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/parser.svg)](https://badge.fury.io/rb/parser)
 [![Build Status](https://travis-ci.org/whitequark/parser.svg?branch=master)](https://travis-ci.org/whitequark/parser)
-[![Coverage Status](https://coveralls.io/repos/whitequark/parser/badge.svg?branch=master)](https://coveralls.io/r/whitequark/parser)
 
 _Parser_ is a production-ready Ruby parser written in pure Ruby. It recognizes as
 much or more code than Ripper, Melbourne, JRubyParser or ruby\_parser, and
