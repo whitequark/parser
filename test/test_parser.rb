@@ -4718,6 +4718,23 @@ class TestParser < Minitest::Test
   end
 
   def test_rescue_else_useless
+    assert_parses(
+      s(:kwbegin,
+        s(:int, 1),
+        s(:begin,
+          s(:int, 2))),
+      %q{begin; 1; else; 2; end},
+      %q{          ~~~~ begin (begin)})
+
+    assert_parses(
+      s(:kwbegin,
+        s(:int, 1),
+        s(:int, 2),
+        s(:begin,
+          s(:int, 3))),
+      %q{begin; 1; 2; else; 3; end},
+      %q{             ~~~~ begin (begin)})
+
     assert_diagnoses(
       [:warning, :useless_else],
       %q{begin; 1; else; 2; end},

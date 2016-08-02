@@ -982,6 +982,19 @@ module Parser
               [ compound_stmt, *(rescue_bodies + [ nil ]) ],
               eh_keyword_map(compound_stmt, nil, rescue_bodies, nil, nil))
         end
+      elsif else_t
+        statements = []
+        if compound_stmt.type == :begin
+          statements += compound_stmt.children
+        else
+          statements.push(compound_stmt)
+        end
+        statements.push(
+          n(:begin, [ else_ ],
+            collection_map(else_t, [ else_ ], nil)))
+        compound_stmt =
+          n(:begin, statements,
+            collection_map(nil, statements, nil))
       end
 
       if ensure_t
