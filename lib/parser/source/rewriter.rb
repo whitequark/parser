@@ -388,8 +388,6 @@ module Parser
       end
 
       def merge_replacements(actions)
-        # `actions` must be sorted by beginning position
-        begin_pos = actions.first.range.begin_pos
         result    = ''
         prev_act  = nil
 
