@@ -945,15 +945,15 @@ rule
                       result = @lexer.cmdarg.dup
                       @lexer.cmdarg.clear
                     }
-                    expr
+                    stmt
                     {
                       @lexer.state = :expr_endarg
                     }
-                    opt_nl tRPAREN
+                    rparen
                     {
                       @lexer.cmdarg = val[1]
 
-                      result = @builder.begin(val[0], val[2], val[5])
+                      result = @builder.begin(val[0], val[2], val[4])
                     }
                 | tLPAREN_ARG
                     {

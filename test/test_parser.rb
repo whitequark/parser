@@ -5476,6 +5476,24 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - %w(1.8))
   end
 
+  def test_ruby_bug_12686
+    assert_parses(
+      s(:send, nil, :f,
+        s(:begin,
+          s(:rescue,
+            s(:send, nil, :g),
+            s(:resbody, nil, nil,
+              s(:nil)), nil))),
+      %q{f (g rescue nil)},
+      %q{},
+      ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 2.3 ios mac))
+
+    assert_diagnoses(
+      [:error, :unexpected_token, {:token => 'kRESCUE_MOD'}],
+      %q{f(g rescue nil)},
+      %q{    ^^^^^^ location})
+  end
+
   def test_parser_bug_198
     assert_parses(
       s(:array,
