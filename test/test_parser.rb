@@ -4215,10 +4215,11 @@ class TestParser < Minitest::Test
   end
 
   def test_if_masgn__24
-    assert_diagnoses(
-      [:error, :masgn_as_condition],
+    assert_parses(
+      s(:if,
+        s(:begin, nil), nil, nil),
       %q{if (a, b = foo); end},
-      %q{    ~~~~~~~~~~ location},
+      %q{},
       ALL_VERSIONS - %w(1.8 1.9 2.0 2.1 2.2 2.3 ios mac))
   end
 
