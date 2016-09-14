@@ -1259,6 +1259,9 @@ rule
 
        block_var: block_par
                 | block_par tCOMMA
+                  {
+                    result = [@builder.multi_lhs(nil, val[0], nil)]
+                  }
                 | block_par tCOMMA tAMPER lhs
                     {
                       result =  val[0].

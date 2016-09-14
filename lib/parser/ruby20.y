@@ -1385,6 +1385,9 @@ opt_block_args_tail:
                                   concat(val[3])
                     }
                 | f_arg tCOMMA
+                  {
+                    result = [@builder.multi_lhs(nil, val[0], nil)]
+                  }
                 | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_block_args_tail
                     {
                       result = val[0].
