@@ -2350,8 +2350,9 @@ class TestParser < Minitest::Test
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:arg, :a)),
-      %q{|a,|})
+      s(:args, s(:mlhs, s(:arg, :a))),
+      %q{|a,|}
+    )
 
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:blockarg, :b)),
