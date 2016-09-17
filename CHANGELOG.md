@@ -1,6 +1,23 @@
 Changelog
 =========
 
+v2.3.1.3 (2016-09-17)
+---------------------
+
+API modifications:
+ * parser/current: latest 2.3 release is 2.3.2. (Chris Riddoch)
+
+Features implemented:
+ * ruby24.y: "f (g rescue nil)": allow stmt after tLPAREN_ARG. (whitequark)
+
+Bugs fixed:
+ * ruby{18,19,20,21,22,23,24}.y: parse trailing commas as mlhs for block args "a.b{ |c,| d }" (fixes #312) (John Backus)
+ * Builders::Default: "begin; 1; else; 2; end": do not drop else. (whitequark)
+ * Builders::Default: "a&.b &&= c": fix safe navigation in lhs of op-assignment. (Ilya Bylich)
+ * AST::Processor: handle "csend" as "send". (#301) (Ilya Bylich)
+ * Parser::AST::Processor: do not spuriously modify ASTs. (Ilya Bylich)
+ * lexer.rl: "%w\a b\": lex backslash-delimited words literals. (Masataka Kuwabara)
+
 v2.3.1.2 (2016-06-02)
 ---------------------
 
@@ -72,7 +89,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.1.2 (2016-01-16)
+v2.3.1.3 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
