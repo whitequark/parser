@@ -984,10 +984,12 @@ module Parser
         end
       elsif else_t
         statements = []
-        if compound_stmt.type == :begin
-          statements += compound_stmt.children
-        else
-          statements.push(compound_stmt)
+        if !compound_stmt.nil?
+          if compound_stmt.type == :begin
+            statements += compound_stmt.children
+          else
+            statements.push(compound_stmt)
+          end
         end
         statements.push(
           n(:begin, [ else_ ],

@@ -4722,6 +4722,13 @@ class TestParser < Minitest::Test
   def test_rescue_else_useless
     assert_parses(
       s(:kwbegin,
+        s(:begin,
+          s(:int, 2))),
+      %q{begin; else; 2; end},
+      %q{       ~~~~ begin (begin)})
+
+    assert_parses(
+      s(:kwbegin,
         s(:int, 1),
         s(:begin,
           s(:int, 2))),
