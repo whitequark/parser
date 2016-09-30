@@ -122,4 +122,17 @@ class TestSourceRange < Minitest::Test
     sr = Parser::Source::Range.new(@buf, 8, 9)
     assert_equal '(string):2:2', sr.to_s
   end
+
+  def test_resize
+    sr1 = Parser::Source::Range.new(@buf, 0, 1)
+    sr2 = Parser::Source::Range.new(@buf, 0, 3)
+    assert_equal sr2, sr1.resize(3)
+  end
+
+  def test_bad_resize
+    sr = Parser::Source::Range.new(@buf, 0, 1)
+    assert_raises ArgumentError do
+      sr.resize(-1)
+    end
+  end
 end
