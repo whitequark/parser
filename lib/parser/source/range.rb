@@ -179,8 +179,8 @@ module Parser
       #
       def join(other)
         Range.new(@source_buffer,
-            [@begin_pos, other.begin_pos].min,
-            [@end_pos,   other.end_pos].max)
+          [@begin_pos, other.begin_pos].min,
+          [@end_pos,   other.end_pos].max)
       end
 
       ##
