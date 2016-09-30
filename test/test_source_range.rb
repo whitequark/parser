@@ -135,4 +135,31 @@ class TestSourceRange < Minitest::Test
       sr.resize(-1)
     end
   end
+
+  def test_expand
+    sr1 = Parser::Source::Range.new(@buf, 2, 3)
+    sr2 = Parser::Source::Range.new(@buf, 1, 4)
+    assert_equal sr2, sr1.expand
+
+    sr1 = Parser::Source::Range.new(@buf, 2, 3)
+    sr2 = Parser::Source::Range.new(@buf, 0, 5)
+    assert_equal sr2, sr1.expand(2)
+  end
+
+  def test_contract
+    sr1 = Parser::Source::Range.new(@buf, 0, 4)
+    sr2 = Parser::Source::Range.new(@buf, 1, 3)
+    assert_equal sr2, sr1.contract
+
+    sr1 = Parser::Source::Range.new(@buf, 0, 4)
+    sr2 = Parser::Source::Range.new(@buf, 2, 2)
+    assert_equal sr2, sr1.contract(2)
+  end
+
+  def test_bad_contract
+    sr = Parser::Source::Range.new(@buf, 0, 1)
+    assert_raises ArgumentError do
+      sr.contract
+    end
+  end
 end

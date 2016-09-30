@@ -174,6 +174,20 @@ module Parser
       end
 
       ##
+      # @param [integer] by
+      # @return [Range] a range expanded in both directions by `by`.
+      def expand(by = 1)
+        Range.new(@source_buffer, @begin_pos - by, @end_pos + by)
+      end
+
+      ##
+      # @param [integer] by
+      # @return [Range] a range contracted in both directions by `by`.
+      def contract(by = 1)
+        Range.new(@source_buffer, @begin_pos + by, @end_pos - by)
+      end
+
+      ##
       # @param [Range] other
       # @return [Range] smallest possible range spanning both this range and `other`.
       #
