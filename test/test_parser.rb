@@ -1500,13 +1500,19 @@ class TestParser < Minitest::Test
         s(:send, nil, :m, s(:lvar, :foo))),
       %q{foo.A += m foo})
 
+    assert_diagnoses(
+      [:error, :const_reassignment],
+      %q{foo::A += m foo},
+      %q{       ~~ location},
+      %w(1.9 mac))
+
     assert_parses(
       s(:op_asgn,
-        s(:send, s(:lvar, :foo), :A), :+,
+        s(:casgn, s(:lvar, :foo), :A), :+,
         s(:send, nil, :m, s(:lvar, :foo))),
       %q{foo::A += m foo},
       %q{},
-      ALL_VERSIONS - %w(1.8 ios))
+      SINCE_2_0)
   end
 
   def test_op_asgn_index
@@ -5658,7 +5664,7 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:or_asgn,
-        s(:send,
+        s(:casgn,
           s(:lvar, :foo), :C),
         s(:rescue,
           s(:send, nil, :raise,

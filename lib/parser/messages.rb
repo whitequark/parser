@@ -48,6 +48,7 @@ module Parser
     :odd_hash                => 'odd number of entries for a hash',
     :singleton_literal       => 'cannot define a singleton method for a literal',
     :dynamic_const           => 'dynamic constant assignment',
+    :const_reassignment      => 'constant re-assignment',
     :module_in_def           => 'module definition in method body',
     :class_in_def            => 'class definition in method body',
     :unexpected_percent_str  => '%{type}: unknown type of percent-literal',
