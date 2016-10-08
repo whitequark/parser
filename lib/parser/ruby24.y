@@ -283,15 +283,9 @@ rule
                                   nil, val[3], nil)
                     }
 
- cmd_brace_block: tLBRACE_ARG
+ cmd_brace_block: tLBRACE_ARG brace_body tRCURLY
                     {
-                      @static_env.extend_dynamic
-                    }
-                    opt_block_param compstmt tRCURLY
-                    {
-                      result = [ val[0], val[2], val[3], val[4] ]
-
-                      @static_env.unextend
+                      result = [ val[0], *val[1], val[2] ]
                     }
 
            fcall: operation
@@ -1494,15 +1488,9 @@ opt_block_args_tail:
                       result = [ val[0], val[1], val[2] ]
                     }
 
-        do_block: kDO_BLOCK
+        do_block: kDO_BLOCK do_body kEND
                     {
-                      @static_env.extend_dynamic
-                    }
-                    opt_block_param compstmt kEND
-                    {
-                      result = [ val[0], val[2], val[3], val[4] ]
-
-                      @static_env.unextend
+                      result = [ val[0], *val[1], val[2] ]
                     }
 
       block_call: command do_block
@@ -1586,23 +1574,31 @@ opt_block_args_tail:
                       result = @builder.index(val[0], val[1], val[2], val[3])
                     }
 
-     brace_block: tLCURLY
+     brace_block: tLCURLY brace_body tRCURLY
                     {
+                      result = [ val[0], *val[1], val[2] ]
+                    }
+                | kDO do_body kEND
+                    {
+                      result = [ val[0], *val[1], val[2] ]
+                    }
+
+      brace_body:   {
                       @static_env.extend_dynamic
                     }
-                    opt_block_param compstmt tRCURLY
+                    opt_block_param compstmt
                     {
-                      result = [ val[0], val[2], val[3], val[4] ]
+                      result = [ val[1], val[2] ]
 
                       @static_env.unextend
                     }
-                | kDO
-                    {
+
+         do_body:   {
                       @static_env.extend_dynamic
                     }
-                 opt_block_param compstmt kEND
+                    opt_block_param compstmt
                     {
-                      result = [ val[0], val[2], val[3], val[4] ]
+                      result = [ val[1], val[2] ]
 
                       @static_env.unextend
                     }
