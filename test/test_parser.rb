@@ -5500,7 +5500,85 @@ class TestParser < Minitest::Test
             s(:nil)), nil)),
       %q{foo = raise(bar) rescue nil},
       %q{},
-      ALL_VERSIONS)
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:lvasgn, :foo), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo += raise(bar) rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :[],
+          s(:int, 0)), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo[0] += raise(bar) rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :m), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo.m += raise(bar) rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :m), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo::m += raise(bar) rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :C), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo.C += raise(bar) rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:or_asgn,
+        s(:casgn,
+          s(:lvar, :foo), :C),
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo::C ||= raise(bar) rescue nil},
+      %q{},
+      SINCE_2_4)
 
     assert_parses(
       s(:lvasgn, :foo,
@@ -5510,6 +5588,84 @@ class TestParser < Minitest::Test
           s(:resbody, nil, nil,
             s(:nil)), nil)),
       %q{foo = raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:lvasgn, :foo), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo += raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :[],
+          s(:int, 0)), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo[0] += raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :m), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo.m += raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :m), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo::m += raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn,
+        s(:send,
+          s(:lvar, :foo), :C), :+,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo.C += raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:or_asgn,
+        s(:send,
+          s(:lvar, :foo), :C),
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo::C ||= raise bar rescue nil},
       %q{},
       SINCE_2_4)
   end

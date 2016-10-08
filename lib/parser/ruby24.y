@@ -183,46 +183,46 @@ rule
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
                     }
-                | var_lhs tOP_ASGN command_call
+                | var_lhs tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(val[0], val[1], val[2])
                     }
-                | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN command_call
+                | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.index(
                                     val[0], val[1], val[2], val[3]),
                                   val[4], val[5])
                     }
-                | primary_value call_op tIDENTIFIER tOP_ASGN command_call
+                | primary_value call_op tIDENTIFIER tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value call_op tCONSTANT tOP_ASGN command_call
+                | primary_value call_op tCONSTANT tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
+                | primary_value tCOLON2 tCONSTANT tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
+                | primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | backref tOP_ASGN command_call
+                | backref tOP_ASGN command_rhs
                     {
                       @builder.op_assign(val[0], val[1], val[2])
                     }
@@ -601,47 +601,47 @@ rule
                     {
                       result = @builder.op_assign(val[0], val[1], val[2])
                     }
-                | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN arg
+                | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN arg_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.index(
                                     val[0], val[1], val[2], val[3]),
                                   val[4], val[5])
                     }
-                | primary_value call_op tIDENTIFIER tOP_ASGN arg
+                | primary_value call_op tIDENTIFIER tOP_ASGN arg_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value call_op tCONSTANT tOP_ASGN arg
+                | primary_value call_op tCONSTANT tOP_ASGN arg_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
+                | primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg_rhs
                     {
                       result = @builder.op_assign(
                                   @builder.call_method(
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | primary_value tCOLON2 tCONSTANT tOP_ASGN arg
+                | primary_value tCOLON2 tCONSTANT tOP_ASGN arg_rhs
                     {
                       const  = @builder.const_op_assignable(
                                   @builder.const_fetch(val[0], val[1], val[2]))
                       result = @builder.op_assign(const, val[3], val[4])
                     }
-                | tCOLON3 tCONSTANT tOP_ASGN arg
+                | tCOLON3 tCONSTANT tOP_ASGN arg_rhs
                     {
                       const  = @builder.const_op_assignable(
                                   @builder.const_global(val[0], val[1]))
                       result = @builder.op_assign(const, val[2], val[3])
                     }
-                | backref tOP_ASGN arg
+                | backref tOP_ASGN arg_rhs
                     {
                       result = @builder.op_assign(val[0], val[1], val[2])
                     }
