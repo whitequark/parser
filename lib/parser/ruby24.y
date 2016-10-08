@@ -241,6 +241,16 @@ rule
                     {
                       result = @builder.assign(val[0], val[1], val[2])
                     }
+                | lhs tEQL command_call kRESCUE_MOD stmt
+                    {
+                      rescue_body = @builder.rescue_body(val[3],
+                                        nil, nil, nil,
+                                        nil, val[4])
+
+                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
+
+                      result  = @builder.assign(val[0], val[1], rescue_)
+                    }
                 | lhs tEQL command_asgn
                     {
                       result = @builder.assign(val[0], val[1], val[2])

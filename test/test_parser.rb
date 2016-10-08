@@ -5490,6 +5490,30 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
+  def test_ruby_bug_12402
+    assert_parses(
+      s(:lvasgn, :foo,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo = raise(bar) rescue nil},
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:lvasgn, :foo,
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:lvar, :bar)),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{foo = raise bar rescue nil},
+      %q{},
+      SINCE_2_4)
+  end
+
   def test_ruby_bug_12686
     assert_parses(
       s(:send, nil, :f,
