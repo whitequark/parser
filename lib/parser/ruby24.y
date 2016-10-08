@@ -237,24 +237,21 @@ rule
                     }
                 | expr
 
-    command_asgn: lhs tEQL command_call
+    command_asgn: lhs tEQL command_rhs
                     {
                       result = @builder.assign(val[0], val[1], val[2])
                     }
-                | lhs tEQL command_call kRESCUE_MOD stmt
+
+     command_rhs: command_call =tOP_ASGN
+                | command_call kRESCUE_MOD stmt
                     {
-                      rescue_body = @builder.rescue_body(val[3],
+                      rescue_body = @builder.rescue_body(val[1],
                                         nil, nil, nil,
-                                        nil, val[4])
+                                        nil, val[2])
 
-                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
-
-                      result  = @builder.assign(val[0], val[1], rescue_)
+                      result = @builder.begin_body(val[0], [ rescue_body ])
                     }
-                | lhs tEQL command_asgn
-                    {
-                      result = @builder.assign(val[0], val[1], val[2])
-                    }
+                | command_asgn
 
             expr: command_call
                 | expr kAND expr
@@ -596,33 +593,13 @@ rule
                 | kWHEN     | kYIELD    | kIF           | kUNLESS | kWHILE
                 | kUNTIL
 
-             arg: lhs tEQL arg
+             arg: lhs tEQL arg_rhs
                     {
                       result = @builder.assign(val[0], val[1], val[2])
                     }
-                | lhs tEQL arg kRESCUE_MOD arg
-                    {
-                      rescue_body = @builder.rescue_body(val[3],
-                                        nil, nil, nil,
-                                        nil, val[4])
-
-                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
-
-                      result  = @builder.assign(val[0], val[1], rescue_)
-                    }
-                | var_lhs tOP_ASGN arg
+                | var_lhs tOP_ASGN arg_rhs
                     {
                       result = @builder.op_assign(val[0], val[1], val[2])
-                    }
-                | var_lhs tOP_ASGN arg kRESCUE_MOD arg
-                    {
-                      rescue_body = @builder.rescue_body(val[3],
-                                        nil, nil, nil,
-                                        nil, val[4])
-
-                      rescue_ = @builder.begin_body(val[2], [ rescue_body ])
-
-                      result = @builder.op_assign(val[0], val[1], rescue_)
                     }
                 | primary_value tLBRACK2 opt_call_args rbracket tOP_ASGN arg
                     {
@@ -812,6 +789,16 @@ rule
                 | assocs trailer
                     {
                       result = [ @builder.associate(nil, val[0], nil) ]
+                    }
+
+         arg_rhs: arg =tOP_ASGN
+                | arg kRESCUE_MOD arg
+                    {
+                      rescue_body = @builder.rescue_body(val[1],
+                                        nil, nil, nil,
+                                        nil, val[2])
+
+                      result = @builder.begin_body(val[0], [ rescue_body ])
                     }
 
       paren_args: tLPAREN2 opt_call_args rparen
