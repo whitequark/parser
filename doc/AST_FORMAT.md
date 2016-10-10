@@ -912,6 +912,23 @@ Format:
 
 Begin of the `expression` points to `&`.
 
+### Required single block argument (1.9)
+
+Parser emits this node when a block has only one required argument without trailing comma.
+
+Note: `proc {|a|}` and `proc {|a,|}` are semantically
+different, the second one acts more like mlhs (`p { |(a)| }`) and it
+expands passed array argument, i.e. `proc { |a,| a }.call([1])` returns `1`.
+
+Format:
+
+~~~
+(procarg0 :foo)
+"|foo|"
+  ~~~ expression
+  ~~~ name
+~~~
+
 ### Expression arguments
 
 Ruby 1.8 allows to use arbitrary expressions as block arguments,

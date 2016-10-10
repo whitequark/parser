@@ -2350,8 +2350,14 @@ class TestParser < Minitest::Test
     # f_arg                                                      opt_f_block_arg
     # f_arg tCOMMA
     assert_parses_blockargs(
+      s(:args, s(:procarg0, :a)),
+      %q{|a|},
+      SINCE_1_9)
+
+    assert_parses_blockargs(
       s(:args, s(:arg, :a)),
-      %q{|a|})
+      %q{|a|},
+      %w(1.8))
 
     assert_parses_blockargs(
       s(:args, s(:arg, :a), s(:arg, :c)),
@@ -2363,7 +2369,7 @@ class TestParser < Minitest::Test
       %w(1.8))
 
     assert_parses_blockargs(
-      s(:args, s(:mlhs, s(:arg, :a))),
+      s(:args, s(:arg, :a)),
       %q{|a,|}
     )
 
@@ -2565,6 +2571,25 @@ class TestParser < Minitest::Test
         s(:blockarg, :b)),
       %q{|*r, p, &b|},
       SINCE_1_9)
+  end
+
+  def test_multiple_args_with_trailing_comma
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a),
+        s(:arg, :b)),
+      %q(|a, b,|)
+    )
+  end
+
+  def test_procarg0_legacy
+    Parser::Builders::Default.emit_procarg0 = false
+    assert_parses_blockargs(
+      s(:args,
+        s(:arg, :a)),
+      %q{|a|}
+    )
+    Parser::Builders::Default.emit_procarg0 = true
   end
 
   def test_block_kwarg_combinations
@@ -5385,13 +5410,28 @@ class TestParser < Minitest::Test
           s(:send,
             s(:int, 1), :tap),
           s(:args,
+            s(:procarg0, :n)),
+          s(:send, nil, :p,
+            s(:lvar, :n))),
+        s(:int, 0)),
+      %q{true ? 1.tap do |n| p n end : 0},
+      %q{},
+      SINCE_1_9)
+
+    assert_parses(
+      s(:if,
+        s(:true),
+        s(:block,
+          s(:send,
+            s(:int, 1), :tap),
+          s(:args,
             s(:arg, :n)),
           s(:send, nil, :p,
             s(:lvar, :n))),
         s(:int, 0)),
       %q{true ? 1.tap do |n| p n end : 0},
       %q{},
-      ALL_VERSIONS)
+      %w(1.8))
 
     assert_parses(
       s(:if,
@@ -5712,8 +5752,20 @@ class TestParser < Minitest::Test
         s(:send, nil, :a,
           s(:ivar, :@b)),
         s(:args,
+          s(:procarg0, :c)), nil),
+      %q{a @b do |c|;end},
+      %q{},
+      SINCE_1_9)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:ivar, :@b)),
+        s(:args,
           s(:arg, :c)), nil),
-      %q{a @b do |c|;end})
+      %q{a @b do |c|;end},
+      %q{},
+      %w(1.8))
   end
 
   def test_bug_lambda_leakage

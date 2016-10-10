@@ -1347,9 +1347,6 @@ rule
                                   concat(val[3])
                     }
                 | f_arg tCOMMA
-                  {
-                    result = [@builder.multi_lhs(nil, val[0], nil)]
-                  }
                 | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_f_block_arg
                     {
                       result = val[0].
@@ -1359,7 +1356,11 @@ rule
                     }
                 | f_arg                                                      opt_f_block_arg
                     {
-                      result = val[0].concat(val[1])
+                      if val[1].empty? && val[0].size == 1
+                        result = [@builder.procarg0(val[0][0])]
+                      else
+                        result = val[0].concat(val[1])
+                      end
                     }
                 | f_block_optarg tCOMMA f_rest_arg              opt_f_block_arg
                     {

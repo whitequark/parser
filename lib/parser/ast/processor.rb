@@ -121,6 +121,7 @@ module Parser
       alias on_kwarg          process_argument_node
       alias on_kwoptarg       process_argument_node
       alias on_kwrestarg      process_argument_node
+      alias on_procarg0       process_argument_node
 
       alias on_arg_expr       process_regular_node
       alias on_restarg_expr   process_regular_node

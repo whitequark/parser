@@ -24,9 +24,28 @@ module Parser
 
     class << self
       ##
+      # AST compatibility attribute; block arguments of `m { |a| }` are
+      # not semantically equivalent to block arguments of `m { |a,| }` or `m { |a, b| }`,
+      # all new code should set this attribute to true.
+      #
+      # If set to false (the default), arguments of `m { |a| }` are emitted as
+      # `s(:args, s(:arg, :a))`
+      #
+      # If set to true, arguments of `m { |a| }` are emitted as
+      # `s(:args, s(:procarg0, :a))
+      #
+      # @return [Boolean]
+      attr_accessor :emit_procarg0
+    end
+
+    @emit_procarg0 = false
+
+    class << self
+      ##
       # @api private
       def modernize
         @emit_lambda = true
+        @emit_procarg0 = true
       end
     end
 
@@ -637,6 +656,14 @@ module Parser
         arg_prefix_map(amper_t, name_t))
     end
 
+    def procarg0(arg)
+      if self.class.emit_procarg0
+        arg.updated(:procarg0)
+      else
+        arg
+      end
+    end
+
     # Ruby 1.8 block arguments
 
     def arg_expr(expr)
@@ -1112,7 +1139,7 @@ module Parser
         case this_arg.type
         when :arg, :optarg, :restarg, :blockarg,
              :kwarg, :kwoptarg, :kwrestarg,
-             :shadowarg
+             :shadowarg, :procarg0
 
           this_name, = *this_arg
 
