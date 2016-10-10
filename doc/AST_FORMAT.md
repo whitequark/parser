@@ -912,13 +912,15 @@ Format:
 
 Begin of the `expression` points to `&`.
 
-### Required single block argument (1.9)
+### Auto-expanding proc argument (1.9)
 
-Parser emits this node when a block has only one required argument without trailing comma.
-
-Note: `proc {|a|}` and `proc {|a,|}` are semantically
-different, the second one acts more like mlhs (`p { |(a)| }`) and it
-expands passed array argument, i.e. `proc { |a,| a }.call([1])` returns `1`.
+In Ruby 1.9 and later, when a proc-like closure (i.e. a closure
+created by capturing a block or with the `proc` method, but not
+with the `->{}` syntax or the `lambda` method) has exactly one
+argument, and it is called with more than one argument, the behavior
+is as if the array of all arguments was instead passed as the sole
+argument. This behavior can be prevented by adding a comma after
+the sole argument (e.g. `|foo,|`).
 
 Format:
 
