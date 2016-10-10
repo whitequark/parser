@@ -19,10 +19,15 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 
 ## Usage
 
-Parse a chunk of code:
+Load Parser (see the [backwards compatibility](#backwards-compatibility) section
+below for explanation of `emit_*` calls):
 
     require 'parser/current'
-    Parser::Builders::Default.emit_lambda = true # opt-in to most recent AST format
+    # opt-in to most recent AST format:
+    Parser::Builders::Default.emit_lambda = true
+    Parser::Builders::Default.emit_procarg0 = true
+
+Parse a chunk of code:
 
     p Parser::CurrentRuby.parse("2 + 2")
     # (send
@@ -196,6 +201,23 @@ $ ruby-parse -e '(foo) while cond'
 ```
 
 (Parser also needs the `(kwbegin)` node type internally, and it is highly problematic to map it back to `(begin)`.)
+
+## Backwards compatibility
+
+Parser does _not_ use semantic versioning. Parser versions are structured as `x.y.z.t`,
+where `x.y.z` indicates the most recent supported Ruby release (support for every
+Ruby release that is chronologically earlier is implied), and `t` is a monotonically
+increasing number.
+
+The public API of Parser as well as the AST format (as listed in the documentation)
+are considered stable forever, although support for old Ruby versions may be removed
+at some point.
+
+Sometimes it is necessary to modify the format of AST nodes that are already being emitted
+in a way that would break existing applications. To avoid such breakage, applications
+must opt-in to these modifications; without explicit opt-in, Parser will continue to emit
+the old AST node format. The most recent set of opt-ins is speified in
+the [usage section](#usage) of this README.
 
 ## Compatibility with Ruby MRI
 
