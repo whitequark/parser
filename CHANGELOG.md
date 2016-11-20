@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v2.3.2.0 (2016-11-20)
+---------------------
+
+API modifications:
+ * parser/current: update 2.3 branch to 2.3.2. (whitequark)
+ * Introduce (procarg0) node for a single required block argument. (Ilya Bylich)
+
+Bugs fixed:
+ * {macruby,ruby{19,20,21,22,23,24}}.y: "x::A += m x": treat as constant assignment. (whitequark)
+ * ruby24.y: "x += raise y rescue nil": bind rescue tighter than tOP_ASGN. (whitequark)
+ * ruby24.y: "x = raise y rescue nil": bind rescue tighter than =. (whitequark)
+ * Builders::Default: "begin; else; 1; end": fix a crash. (whitequark)
+
 v2.3.1.4 (2016-09-19)
 ---------------------
 
@@ -92,7 +105,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.1.4 (2016-01-16)
+v2.3.2.0 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
