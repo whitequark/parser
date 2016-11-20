@@ -5783,6 +5783,44 @@ class TestParser < Minitest::Test
       SINCE_2_4)
   end
 
+  def test_ruby_bug_12669
+    assert_parses(
+      s(:lvasgn, :a,
+        s(:lvasgn, :b,
+          s(:send, nil, :raise,
+            s(:sym, :x)))),
+      %q{a = b = raise :x},
+      %q{},
+      SINCE_2_0)
+
+    assert_parses(
+      s(:op_asgn, s(:lvasgn, :a), :+,
+        s(:lvasgn, :b,
+          s(:send, nil, :raise,
+            s(:sym, :x)))),
+      %q{a += b = raise :x},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:lvasgn, :a,
+        s(:op_asgn, s(:lvasgn, :b), :+,
+          s(:send, nil, :raise,
+            s(:sym, :x)))),
+      %q{a = b += raise :x},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:op_asgn, s(:lvasgn, :a), :+,
+        s(:op_asgn, s(:lvasgn, :b), :+,
+          s(:send, nil, :raise,
+            s(:sym, :x)))),
+      %q{a += b += raise :x},
+      %q{},
+      SINCE_2_4)
+  end
+
   def test_ruby_bug_12686
     assert_parses(
       s(:send, nil, :f,

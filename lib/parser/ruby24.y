@@ -183,6 +183,21 @@ rule
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
                     }
+                | lhs tEQL mrhs
+                    {
+                      result = @builder.assign(val[0], val[1],
+                                  @builder.array(nil, val[2], nil))
+                    }
+                | mlhs tEQL mrhs_arg
+                    {
+                      result = @builder.multi_assign(val[0], val[1], val[2])
+                    }
+                | expr
+
+    command_asgn: lhs tEQL command_rhs
+                    {
+                      result = @builder.assign(val[0], val[1], val[2])
+                    }
                 | var_lhs tOP_ASGN command_rhs
                     {
                       result = @builder.op_assign(val[0], val[1], val[2])
@@ -224,21 +239,6 @@ rule
                 | backref tOP_ASGN command_rhs
                     {
                       @builder.op_assign(val[0], val[1], val[2])
-                    }
-                | lhs tEQL mrhs
-                    {
-                      result = @builder.assign(val[0], val[1],
-                                  @builder.array(nil, val[2], nil))
-                    }
-                | mlhs tEQL mrhs_arg
-                    {
-                      result = @builder.multi_assign(val[0], val[1], val[2])
-                    }
-                | expr
-
-    command_asgn: lhs tEQL command_rhs
-                    {
-                      result = @builder.assign(val[0], val[1], val[2])
                     }
 
      command_rhs: command_call =tOP_ASGN
