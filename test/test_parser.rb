@@ -5489,7 +5489,7 @@ class TestParser < Minitest::Test
       SINCE_2_1) # no 1.9 backport
   end
 
-  def test_ruby_bug_11873
+  def test_ruby_bug_11873_a
     [[":e",   s(:sym, :e)],
      ["1",    s(:int, 1)],
      ["1.0",  s(:float, 1.0)],
@@ -5535,6 +5535,25 @@ class TestParser < Minitest::Test
         %q{},
         SINCE_2_4)
     end
+  end
+
+  def test_ruby_bug_11873_b
+    assert_parses(
+      s(:block,
+        s(:send, nil, :p,
+          s(:block,
+            s(:send, nil, :p),
+            s(:args),
+            s(:begin,
+              s(:send, nil, :p,
+                s(:send, nil, :p)),
+              s(:send, nil, :p,
+                s(:send, nil, :p)))),
+          s(:send, nil, :tap)),
+        s(:args), nil),
+      %q{p p{p(p);p p}, tap do end},
+      %q{},
+      SINCE_2_4)
   end
 
   def test_ruby_bug_11989

@@ -1587,21 +1587,33 @@ opt_block_args_tail:
       brace_body:   {
                       @static_env.extend_dynamic
                     }
+                    {
+                      result = @lexer.cmdarg.dup
+                      @lexer.cmdarg.clear
+                    }
                     opt_block_param compstmt
                     {
-                      result = [ val[1], val[2] ]
+                      result = [ val[2], val[3] ]
 
                       @static_env.unextend
+                      @lexer.cmdarg = val[1]
+                      @lexer.cmdarg.pop
                     }
 
          do_body:   {
                       @static_env.extend_dynamic
                     }
+                    {
+                      result = @lexer.cmdarg.dup
+                      @lexer.cmdarg.clear
+                    }
                     opt_block_param compstmt
                     {
-                      result = [ val[1], val[2] ]
+                      result = [ val[2], val[3] ]
 
                       @static_env.unextend
+                      @lexer.cmdarg = val[1]
+                      @lexer.cmdarg.pop
                     }
 
        case_body: kWHEN args then compstmt cases
