@@ -1565,8 +1565,15 @@ class Parser::Lexer
   # `do` (as `kDO_BLOCK` in `expr_beg`).
   expr_endarg := |*
       e_lbrace
-      => { emit(:tLBRACE_ARG, '{'.freeze)
-           fnext expr_value; };
+      => {
+        if @lambda_stack.last == @paren_nest
+          @lambda_stack.pop
+          emit(:tLAMBEG, '{'.freeze)
+        else
+          emit(:tLBRACE_ARG, '{'.freeze)
+        end
+        fnext expr_value;
+      };
 
       'do'
       => { emit_do(true)

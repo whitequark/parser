@@ -5489,6 +5489,54 @@ class TestParser < Minitest::Test
       SINCE_2_1) # no 1.9 backport
   end
 
+  def test_ruby_bug_11873
+    [[":e",   s(:sym, :e)],
+     ["1",    s(:int, 1)],
+     ["1.0",  s(:float, 1.0)],
+     ["1.0r", s(:rational, Rational(1, 1))],
+     ["1.0i", s(:complex,  Complex(0.0, 1.0))]].each do |code, node|
+      expect_a = \
+        s(:block,
+          s(:send, nil, :a,
+            s(:block,
+              s(:send, nil, :b),
+              s(:args),
+              s(:send, nil, :c,
+                s(:send, nil, :d))),
+            node),
+          s(:args), nil)
+      assert_parses(
+        expect_a,
+        %Q{a b{c d}, #{code} do end},
+        %q{},
+        SINCE_2_4)
+      assert_parses(
+        expect_a,
+        %Q{a b{c(d)}, #{code} do end},
+        %q{},
+        SINCE_2_4)
+
+      expect_b = \
+        s(:block,
+          s(:send, nil, :a,
+            s(:send, nil, :b,
+              s(:send, nil, :c,
+                s(:send, nil, :d))),
+            node),
+          s(:args), nil)
+      assert_parses(
+        expect_b,
+        %Q{a b(c d), #{code} do end},
+        %q{},
+        SINCE_2_4)
+      assert_parses(
+        expect_b,
+        %Q{a b(c(d)), #{code} do end},
+        %q{},
+        SINCE_2_4)
+    end
+  end
+
   def test_ruby_bug_11989
     assert_parses(
       s(:send, nil, :p,

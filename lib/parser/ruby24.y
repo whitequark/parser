@@ -1828,11 +1828,13 @@ regexp_contents: # nothing
 
           symbol: tSYMBOL
                     {
+                      @lexer.state = :expr_endarg
                       result = @builder.symbol(val[0])
                     }
 
             dsym: tSYMBEG xstring_contents tSTRING_END
                     {
+                      @lexer.state = :expr_endarg
                       result = @builder.symbol_compose(val[0], val[1], val[2])
                     }
 
@@ -1847,18 +1849,22 @@ regexp_contents: # nothing
 
   simple_numeric: tINTEGER
                     {
+                      @lexer.state = :expr_endarg
                       result = @builder.integer(val[0])
                     }
                 | tFLOAT
                     {
+                      @lexer.state = :expr_endarg
                       result = @builder.float(val[0])
                     }
                 | tRATIONAL
                     {
+                      @lexer.state = :expr_endarg
                       result = @builder.rational(val[0])
                     }
                 | tIMAGINARY
                     {
+                      @lexer.state = :expr_endarg
                       result = @builder.complex(val[0])
                     }
 
