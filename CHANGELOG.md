@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v2.3.3.0 (2016-11-28)
+---------------------
+
+API modifications:
+ * parser/current: update 2.3 branch to 2.3.3. (Philip Arndt)
+
+Bugs fixed:
+ * ruby24.y: "a += b += raise :x": fix errors with chained op-assignments. (whitequark)
+ * ruby24.y: "p p{p(p);p p}, tap do end": preserve cmdarg stack. (whitequark)
+ * ruby24.y: "a b{c d}, :e do end": go to EXPR_ENDARG after literal. (whitequark)
+
 v2.3.2.0 (2016-11-20)
 ---------------------
 
@@ -105,7 +116,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.2.0 (2016-01-16)
+v2.3.3.0 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
