@@ -1490,6 +1490,8 @@ class Parser::Lexer
                   ( '=' | c_space_nl )?    |
       # x rescue y: Modifier keyword.
       w_space* keyword_modifier            |
+      # a &. b: Safe navigation operator.
+      w_space* '&.'                        |
       # Miscellanea.
       w_space* punctuation_end
       => {

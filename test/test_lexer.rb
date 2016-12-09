@@ -231,7 +231,13 @@ class TestLexer < Minitest::Test
     assert_lex_fname "&", :tAMPER2, [0, 1]
   end
 
-  def test_and_dot
+  def test_and_dot_arg
+    @lex.state = :expr_arg
+
+    assert_scanned "&.", :tANDDOT, "&.", [0, 2]
+  end
+
+  def test_and_dot_cmdarg
     @lex.state = :expr_cmdarg
 
     assert_scanned "&.", :tANDDOT, "&.", [0, 2]
