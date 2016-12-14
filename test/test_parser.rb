@@ -3453,7 +3453,7 @@ class TestParser < Minitest::Test
       s(:csend, s(:send, nil, :a), :b),
       %q{a&.b},
       %q{ ^^ dot},
-      SINCE_2_3)
+      SINCE_2_3 + %w{ios})
   end
 
   def test_send_attr_asgn_conditional
@@ -3461,7 +3461,7 @@ class TestParser < Minitest::Test
       s(:csend, s(:send, nil, :a), :b=, s(:int, 1)),
       %q{a&.b = 1},
       %q{ ^^ dot},
-      SINCE_2_3)
+      SINCE_2_3 + %w{ios})
   end
 
   def test_send_block_conditional
@@ -3472,7 +3472,7 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{foo&.bar {}},
       %q{},
-      SINCE_2_3)
+      SINCE_2_3 + %w{ios})
   end
 
   def test_send_op_asgn_conditional
@@ -3480,7 +3480,7 @@ class TestParser < Minitest::Test
       s(:and_asgn, s(:csend, s(:send, nil, :a), :b), s(:int, 1)),
       %q{a&.b &&= 1},
       %q{},
-      SINCE_2_3)
+      SINCE_2_3 + %w{ios})
   end
 
   def test_lvar_injecting_match
