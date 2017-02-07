@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v2.4.0.0 (2017-02-07)
+---------------------
+
+API modifications:
+ * parser/current: update for the 2.4 release. (whitequark)
+ * rubymotion.y: "a&.b": implement safe navigation operator in RubyMotion. (Mark Villacampa)
+
+Bugs fixed:
+ * lexer.rl: "a &. b": accept &. in EXPR_ARG also. (whitequark)
+
 v2.3.3.1 (2016-12-02)
 ---------------------
 
@@ -122,7 +132,7 @@ Bugs fixed:
  * Add :csend to Parser::Meta::NODE_TYPES (Markus Schirp)
  * lexer/dedenter: "\<\<x\n  y\\n  z\nx": don't dedent after escaped newline. (whitequark)
 
-v2.3.3.1 (2016-01-16)
+v2.4.0.0 (2016-01-16)
 ---------------------
 
 v2.3.0.1 (2016-01-14)
