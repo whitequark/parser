@@ -5320,6 +5320,14 @@ class TestParser < Minitest::Test
         |       ~~~~~~~~~~~~~~~~~~~~~~ expression (rescue)})
   end
 
+  def test_bug_def_empty_else
+    assert_parses(
+      s(:def, :foo, s(:args),
+        s(:begin,
+          s(:begin, nil))),
+      %q{def foo; else; end})
+  end
+
   def test_bug_heredoc_do
     assert_parses(
       s(:block,

@@ -1271,6 +1271,10 @@ module Parser
       if begin_t.nil? || end_t.nil?
         if parts.any?
           expr_l = join_exprs(parts.first, parts.last)
+        elsif !begin_t.nil?
+          expr_l = loc(begin_t)
+        elsif !end_t.nil?
+          expr_l = loc(end_t)
         end
       else
         expr_l = loc(begin_t).join(loc(end_t))
