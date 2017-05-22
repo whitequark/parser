@@ -627,6 +627,7 @@ Format:
 ~~~
 
 Ruby_parser output for reference:
+
 ~~~
 "a += 1"
 s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:int, 1)))
@@ -656,6 +657,7 @@ Format:
 ~~~
 
 Ruby_parser output for reference:
+
 ~~~
 "@a.b += 1"
 s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:int, 1))
@@ -685,6 +687,7 @@ Format:
 ~~~
 
 Ruby_parser output for reference:
+
 ~~~
 "@a ||= 1"
 s(:op_asgn_or, s(:ivar, :@a), s(:ivasgn, :@a, s(:int, 1)))
@@ -1136,6 +1139,7 @@ Format:
 ### To superclass
 
 Format of super with arguments:
+
 ~~~
 (super (lvar :a))
 "super a"
@@ -1151,6 +1155,7 @@ Format of super with arguments:
 ~~~
 
 Format of super without arguments (**z**ero-arity):
+
 ~~~
 (zsuper)
 "super"
