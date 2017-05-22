@@ -722,6 +722,7 @@ Format:
 ~~~
 
 Ruby_parser output for reference:
+
 ~~~
 "@foo.bar &&= 1"
 s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:int, 1))
