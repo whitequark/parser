@@ -8,14 +8,14 @@ module Parser
       %w(
         true false nil int float str dstr
         sym dsym xstr regopt regexp array splat
-        array pair kwsplat hash irange erange self
+        pair kwsplat hash irange erange self
         lvar ivar cvar gvar const defined? lvasgn
-        ivasgn cvasgn gvasgn casgn mlhs masgn op_asgn
+        ivasgn cvasgn gvasgn casgn mlhs masgn
         op_asgn and_asgn ensure rescue arg_expr
-        or_asgn and_asgn or_asgn back_ref nth_ref
+        or_asgn back_ref nth_ref
         match_with_lvasgn match_current_line
         module class sclass def defs undef alias args
-        cbase arg optarg restarg blockarg block_pass args def kwarg kwoptarg
+        cbase arg optarg restarg blockarg block_pass kwarg kwoptarg
         kwrestarg send csend super zsuper yield block
         and not or if when case while until while_post
         until_post for break next redo return resbody
