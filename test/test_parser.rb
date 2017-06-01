@@ -5092,10 +5092,11 @@ class TestParser < Minitest::Test
     end
 
     def test_magic_encoding_comment
+      funny_russian_sym = "проверка".encode(Encoding::KOI8_R).to_sym
       assert_parses(
         s(:begin,
-          s(:lvasgn, :"проверка", s(:int, 42)),
-          s(:send, nil, :puts, s(:lvar, :"проверка"))),
+          s(:lvasgn, funny_russian_sym, s(:int, 42)),
+          s(:send, nil, :puts, s(:lvar, funny_russian_sym))),
         %Q{# coding:koi8-r
            \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1 = 42
            puts \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1}.
@@ -5898,5 +5899,22 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:regexp, s(:str, "#)"), s(:regopt, :x)),
       %Q{/#)/x})
+  end
+
+  def test_bug_non_utf8_symbol_literal
+    # "\xC7" is actually invalid in US-ASCII, but Ruby allows the conversion of
+    # this invalid string to a symbol, regardless if you do so using
+    # `String#to_sym` or if you have :"\xC7" appear as a literal in a US-ASCII
+    # encoded source file.
+    #
+    # If it was UTF-8, we would get an EncodingError.
+
+    bad_symbol = "\xC7".force_encoding(Encoding::US_ASCII).to_sym
+    assert_parses(
+      s(:send, nil, :puts, s(:sym, bad_symbol)),
+      %q{# encoding: us-ascii
+         puts :"\\xC7"},
+      %q{},
+      ALL_VERSIONS - %w(1.8))
   end
 end
