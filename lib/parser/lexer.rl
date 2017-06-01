@@ -238,6 +238,18 @@ class Parser::Lexer
     @cmdarg = @cmdarg_stack.pop
   end
 
+  def push_cmdarg_state(bit)
+    @cmdarg.push(bit)
+  end
+
+  def pop_cmdarg_state
+    @cmdarg.pop
+  end
+
+  def lexpop_cmdarg_state
+    @cmdarg.lexpop
+  end
+
   def push_cond
     @cond_stack.push(@cond)
     @cond = StackState.new("cond.#{@cond_stack.count}")
@@ -252,6 +264,18 @@ class Parser::Lexer
     # using a stale value.
     dedent_level, @dedent_level = @dedent_level, nil
     dedent_level
+  end
+
+  def push_cond_state(bit)
+    @cond.push(bit)
+  end
+
+  def pop_cond_state
+    @cond.pop
+  end
+
+  def lexpop_cond_state
+    @cond.lexpop
   end
 
   # Return next token: [type, value].

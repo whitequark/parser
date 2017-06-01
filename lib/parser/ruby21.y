@@ -855,12 +855,11 @@ rule
                     }
 
     command_args:   {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.push(true)
+                      @lexer.push_cmdarg_state(true)
                     }
                   call_args
                     {
-                      @lexer.cmdarg = val[0]
+                      @lexer.pop_cmdarg_state
 
                       result = val[1]
                     }
@@ -931,19 +930,17 @@ rule
                     }
                 | kBEGIN
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.push_cmdarg
                     }
                     bodystmt kEND
                     {
-                      @lexer.cmdarg = val[1]
+                      @lexer.pop_cmdarg
 
                       result = @builder.begin_keyword(val[0], val[2], val[3])
                     }
                 | tLPAREN_ARG
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.push_cmdarg
                     }
                     expr
                     {
@@ -951,7 +948,7 @@ rule
                     }
                     opt_nl tRPAREN
                     {
-                      @lexer.cmdarg = val[1]
+                      @lexer.pop_cmdarg
 
                       result = @builder.begin(val[0], val[2], val[5])
                     }
@@ -1051,11 +1048,11 @@ rule
                     }
                 | kWHILE
                     {
-                      @lexer.cond.push(true)
+                      @lexer.push_cond_state(true)
                     }
                     expr_value do
                     {
-                      @lexer.cond.pop
+                      @lexer.pop_cond_state
                     }
                     compstmt kEND
                     {
@@ -1064,11 +1061,11 @@ rule
                     }
                 | kUNTIL
                     {
-                      @lexer.cond.push(true)
+                      @lexer.push_cond_state(true)
                     }
                     expr_value do
                     {
-                      @lexer.cond.pop
+                      @lexer.pop_cond_state
                     }
                     compstmt kEND
                     {
@@ -1093,11 +1090,11 @@ rule
                     }
                 | kFOR for_var kIN
                     {
-                      @lexer.cond.push(true)
+                      @lexer.push_cond_state(true)
                     }
                     expr_value do
                     {
-                      @lexer.cond.pop
+                      @lexer.pop_cond_state
                     }
                     compstmt kEND
                     {
@@ -1468,13 +1465,12 @@ opt_block_args_tail:
                     }
                   f_larglist
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.push_cmdarg
                     }
                   lambda_body
                     {
-                      @lexer.cmdarg = val[2]
-                      @lexer.cmdarg.lexpop
+                      @lexer.pop_cmdarg
+                      @lexer.lexpop_cmdarg_state
 
                       result = [ val[1], val[3] ]
 
@@ -1805,13 +1801,13 @@ regexp_contents: # nothing
                     }
                 | tSTRING_DBEG
                     {
-                      @lexer.cond.push(false)
-                      @lexer.cmdarg.push(false)
+                      @lexer.push_cond_state(false)
+                      @lexer.push_cmdarg_state(false)
                     }
                     compstmt tSTRING_DEND
                     {
-                      @lexer.cond.lexpop
-                      @lexer.cmdarg.lexpop
+                      @lexer.lexpop_cond_state
+                      @lexer.lexpop_cmdarg_state
 
                       result = @builder.begin(val[0], val[2], val[3])
                     }

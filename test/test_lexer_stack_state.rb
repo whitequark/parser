@@ -1,4 +1,5 @@
 require 'helper'
+require 'parser/lexer/stack_state'
 
 class TestLexerStackState < Minitest::Test
   def setup

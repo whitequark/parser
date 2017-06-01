@@ -28,3 +28,5 @@ lib/parser/ruby23.rb
 lib/parser/ruby24.rb
 lib/parser/macruby.rb
 lib/parser/rubymotion.rb
+ext/lexer/lexer.c
+lib/parser/lexer.so

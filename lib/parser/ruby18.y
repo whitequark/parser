@@ -890,12 +890,11 @@ rule
                     }
 
     command_args:   {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.push(true)
+                      @lexer.push_cmdarg_state(true)
                     }
                     open_args
                     {
-                      @lexer.cmdarg = val[0]
+                      @lexer.pop_cmdarg_state
 
                       result = val[1]
                     }
@@ -1057,11 +1056,11 @@ rule
                     }
                 | kWHILE
                     {
-                      @lexer.cond.push(true)
+                      @lexer.push_cond_state(true)
                     }
                     expr_value do
                     {
-                      @lexer.cond.pop
+                      @lexer.pop_cond_state
                     }
                     compstmt kEND
                     {
@@ -1070,11 +1069,11 @@ rule
                     }
                 | kUNTIL
                     {
-                      @lexer.cond.push(true)
+                      @lexer.push_cond_state(true)
                     }
                     expr_value do
                     {
-                      @lexer.cond.pop
+                      @lexer.pop_cond_state
                     }
                     compstmt kEND
                     {
@@ -1107,11 +1106,11 @@ rule
                     }
                 | kFOR for_var kIN
                     {
-                      @lexer.cond.push(true)
+                      @lexer.push_cond_state(true)
                     }
                     expr_value do
                     {
-                      @lexer.cond.pop
+                      @lexer.pop_cond_state
                     }
                     compstmt kEND
                     {
@@ -1573,13 +1572,13 @@ xstring_contents: # nothing
                     }
                 | tSTRING_DBEG
                     {
-                      @lexer.cond.push(false)
-                      @lexer.cmdarg.push(false)
+                      @lexer.push_cond_state(false)
+                      @lexer.push_cmdarg_state(false)
                     }
                     compstmt tRCURLY
                     {
-                      @lexer.cond.lexpop
-                      @lexer.cmdarg.lexpop
+                      @lexer.lexpop_cond_state
+                      @lexer.lexpop_cmdarg_state
 
                       result = @builder.begin(val[0], val[2], val[3])
                     }

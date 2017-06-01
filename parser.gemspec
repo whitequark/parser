@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
                        )
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^test/})
+  spec.extensions    = ['ext/lexer/extconf.rb']
   spec.require_paths = ['lib']
 
   spec.add_dependency             'ast',       '~> 2.2'
@@ -43,4 +44,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov', '~> 0.8.2'
 
   spec.add_development_dependency 'gauntlet'
+
+  spec.add_development_dependency 'rake-compiler', '~> 0.9'
 end
