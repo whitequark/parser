@@ -1097,6 +1097,8 @@ module Parser
       when :masgn
         if @parser.version <= 23
           diagnostic :error, :masgn_as_condition, nil, cond.loc.expression
+        else
+          cond
         end
 
       when :begin
