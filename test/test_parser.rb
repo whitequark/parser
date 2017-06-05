@@ -4255,7 +4255,12 @@ class TestParser < Minitest::Test
   def test_if_masgn__24
     assert_parses(
       s(:if,
-        s(:begin, nil), nil, nil),
+        s(:begin,
+          s(:masgn,
+            s(:mlhs,
+              s(:lvasgn, :a),
+              s(:lvasgn, :b)),
+          s(:lvar, :foo))), nil, nil),
       %q{if (a, b = foo); end},
       %q{},
       SINCE_2_4)
