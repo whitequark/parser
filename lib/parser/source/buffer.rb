@@ -246,7 +246,7 @@ module Parser
       def source_lines
         @lines ||= begin
           lines = @source.lines.to_a
-          lines << '' if @source.end_with?("\n".freeze)
+          lines << ''.dup if @source.end_with?("\n".freeze)
 
           lines.each do |line|
             line.chomp!("\n".freeze)
