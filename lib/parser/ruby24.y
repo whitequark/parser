@@ -1613,7 +1613,6 @@ opt_block_args_tail:
 
                       @static_env.unextend
                       @lexer.cmdarg = val[1]
-                      @lexer.cmdarg.pop
                     }
 
        case_body: kWHEN args then compstmt cases
