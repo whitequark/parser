@@ -1,7 +1,7 @@
 require 'helper'
 require 'parse_helper'
 
-class TestSourceComment < Minitest::Test
+class TestSourceMap < Minitest::Test
   include ParseHelper
 
   def test_to_hash
