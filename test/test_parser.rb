@@ -5234,7 +5234,7 @@ class TestParser < Minitest::Test
 
       ast, comments, tokens = parser.tokenize(source_file, true)
 
-      assert_equal nil, ast
+      assert_nil ast
 
       assert_equal [
                      Parser::Source::Comment.new(range.call(4, 9))
