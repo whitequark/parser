@@ -42,6 +42,10 @@ module Parser
 
         @insert_before_multi_order = 0
         @insert_after_multi_order = 0
+
+        @pending_queue = nil
+        @pending_clobber = nil
+        @pending_insertions = nil
       end
 
       ##
