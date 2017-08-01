@@ -98,6 +98,11 @@ module ParseHelper
       raise
     end
 
+    if ast.nil?
+      assert_nil parsed_ast, "(#{version}) AST equality"
+      return
+    end
+
     assert_equal ast, parsed_ast,
                  "(#{version}) AST equality"
 

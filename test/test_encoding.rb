@@ -13,7 +13,7 @@ class TestEncoding < Minitest::Test
     require 'parser/all'
 
     def test_default
-      assert_equal nil, recognize('foobar')
+      assert_nil recognize('foobar')
     end
 
     def test_bom
@@ -38,16 +38,16 @@ class TestEncoding < Minitest::Test
     end
 
     def test_empty
-      assert_equal nil, recognize('')
+      assert_nil recognize('')
     end
 
     def test_no_comment
-      assert_equal nil, recognize(%{require 'cane/encoding_aware_iterator'})
+      assert_nil recognize(%{require 'cane/encoding_aware_iterator'})
     end
 
     def test_adjacent
-      assert_equal nil, recognize('# codingkoi8-r')
-      assert_equal nil, recognize('# coding koi8-r')
+      assert_nil recognize('# codingkoi8-r')
+      assert_nil recognize('# coding koi8-r')
     end
 
     def test_utf8_mac
@@ -60,7 +60,7 @@ class TestEncoding < Minitest::Test
       assert_equal Encoding::UTF_8, recognize('# coding: utf-8-mac')
 
       assert_raises(ArgumentError) do
-        assert_equal nil,           recognize('# coding: utf-8-dicks')
+        assert_nil recognize('# coding: utf-8-dicks')
       end
     end
 

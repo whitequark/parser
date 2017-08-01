@@ -23,7 +23,7 @@ class TestBase < Minitest::Test
 
   def test_loc_dup
     ast = Parser::CurrentRuby.parse('1')
-    assert_equal nil, ast.loc.dup.node
+    assert_nil ast.loc.dup.node
     Parser::AST::Node.new(:root, [], :location => ast.loc)
   end
 end
