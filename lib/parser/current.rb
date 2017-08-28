@@ -37,7 +37,7 @@ module Parser
     CurrentRuby = Ruby20
 
   when /^2\.1\./
-    current_version = '2.1.8'
+    current_version = '2.1.10'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby21', current_version
     end
