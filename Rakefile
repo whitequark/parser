@@ -3,6 +3,7 @@
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'rake/clean'
+require 'date'
 
 task :default => [:test]
 
