@@ -183,20 +183,11 @@ module Parser
       (@interp_braces == 0)
     end
 
-    if RUBY_ENGINE == 'opal'
-      def extend_string(string, ts, te)
-        @buffer_s ||= ts
-        @buffer_e = te
+    def extend_string(string, ts, te)
+      @buffer_s ||= ts
+      @buffer_e = te
 
-        @buffer += string
-      end
-    else
-      def extend_string(string, ts, te)
-        @buffer_s ||= ts
-        @buffer_e = te
-
-        @buffer << string
-      end
+      @buffer += string
     end
 
     def flush_string
