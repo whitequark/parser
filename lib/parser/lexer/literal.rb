@@ -187,7 +187,7 @@ module Parser
       @buffer_s ||= ts
       @buffer_e = te
 
-      @buffer += string
+      @buffer << string
     end
 
     def flush_string
