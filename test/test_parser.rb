@@ -919,7 +919,8 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:const, s(:const, nil, :Encoding), :UTF_8),
       %q{__ENCODING__},
-      %q{~~~~~~~~~~~~ expression},
+      %q{~~~~~~~~~~~~ name
+        |~~~~~~~~~~~~ expression},
       SINCE_1_9)
   end
 
