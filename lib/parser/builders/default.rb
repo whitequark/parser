@@ -416,7 +416,7 @@ module Parser
 
       when :__ENCODING__
         n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
-          node.loc.dup)
+          constant_map(nil, nil, ["Encoding", node.loc.expression]))
 
       when :ident
         name, = *node
