@@ -660,10 +660,10 @@ Ruby_parser output for reference:
 
 ~~~
 "@a.b += 1"
-s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:int, 1))
+s(:op-asgn, s(:send, s(:ivar, :@a), :b), :+, s(:int, 1))
 
 "@a[0, 1] += 1"
-s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:int, 0), s(:int, 1)), :+, s(:int, 1))
+s(:op-asgn, s(:send, s(:ivar, :@a), :[], s(:int, 0), s(:int, 1)), :+, s(:int, 1))
 ~~~
 
 ### Logical operator-assignment
@@ -690,10 +690,10 @@ Ruby_parser output for reference:
 
 ~~~
 "@a ||= 1"
-s(:op_asgn_or, s(:ivar, :@a), s(:ivasgn, :@a, s(:int, 1)))
+s(:or-asgn, s(:ivasgn, :@a), s(:int, 1))
 
 "a &&= 1"
-s(:op_asgn_and, s(:lvar, :a), s(:lvasgn, :a, s(:int, 1)))
+s(:and-asgn, s(:ivasgn, :@a), s(:int, 1))
 ~~~
 
 #### Method logical operator-assignment
@@ -728,10 +728,10 @@ Ruby_parser output for reference:
 
 ~~~
 "@foo.bar &&= 1"
-s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:int, 1))
+s(:and-asgn, s(:send, s(:ivar, :@foo), :bar), s(:int, 1))
 
 "@foo[0] ||= 1"
-s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
+s(:or-asgn, s(:send, s(:ivar, :@foo), :[], s(:int, 0)), s(:int, 1))
 
 ~~~
 
