@@ -626,16 +626,6 @@ Format:
 "@a += 1"
 ~~~
 
-Ruby_parser output for reference:
-
-~~~
-"a += 1"
-s(:lasgn, :a, s(:call, s(:lvar, :a), :+, s(:int, 1)))
-
-"@a += 1"
-s(:iasgn, :@a, s(:call, s(:ivar, :@a), :+, s(:int, 1)))
-~~~
-
 #### Method binary operator-assignment
 
 Format:
@@ -656,16 +646,6 @@ Format:
  ~~~~~~~~~~~~~ expression (op-asgn)
 ~~~
 
-Ruby_parser output for reference:
-
-~~~
-"@a.b += 1"
-s(:op_asgn2, s(:ivar, :@a), :b=, :+, s(:int, 1))
-
-"@a[0, 1] += 1"
-s(:op_asgn1, s(:ivar, :@a), s(:arglist, s(:int, 0), s(:int, 1)), :+, s(:int, 1))
-~~~
-
 ### Logical operator-assignment
 
 Logical operator-assignment features the same "incomplete assignments" and "incomplete calls" as [multiple assignment](#assignment-1).
@@ -684,16 +664,6 @@ Format:
 "a &&= 1"
    ~~~ operator
  ~~~~~~~ expression
-~~~
-
-Ruby_parser output for reference:
-
-~~~
-"@a ||= 1"
-s(:op_asgn_or, s(:ivar, :@a), s(:ivasgn, :@a, s(:int, 1)))
-
-"a &&= 1"
-s(:op_asgn_and, s(:lvar, :a), s(:lvasgn, :a, s(:int, 1)))
 ~~~
 
 #### Method logical operator-assignment
@@ -721,17 +691,6 @@ Format:
  ~~~~~~~~~~ expr (send)
             ~~~ operator (or-asgn)
  ~~~~~~~~~~~~~~~~ expression (or-asgn)
-
-~~~
-
-Ruby_parser output for reference:
-
-~~~
-"@foo.bar &&= 1"
-s(:op_asgn2, s(:ivar, :@foo), :bar=, :"&&", s(:int, 1))
-
-"@foo[0] ||= 1"
-s(:op_asgn1, s(:ivar, :@foo), s(:arglist, s(:int, 0)), :"||", s(:int, 1))
 
 ~~~
 
