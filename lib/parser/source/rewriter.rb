@@ -392,7 +392,7 @@ module Parser
       end
 
       def merge_replacements(actions)
-        result    = ''
+        result    = ''.dup
         prev_act  = nil
 
         actions.each do |act|

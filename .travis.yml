@@ -6,6 +6,7 @@ rvm:
  - 2.0.0
  - 2.2.5
  - 2.3.1
+ - 2.4.1
  - ruby-head
  - jruby-18mode
  - jruby-19mode
@@ -18,5 +19,7 @@ before_install:
  - gem install bundler
  - bundle --version
  - gem --version
+before_script:
+- if (ruby -e "exit RUBY_VERSION.to_f >= 2.4"); then export RUBYOPT="--enable-frozen-string-literal"; fi; echo $RUBYOPT
 script:
  - bundle exec rake test_cov
