@@ -15,7 +15,7 @@ module RaccCoverage
       @coverage[parser] = extract_interesting_lines(parser, base_path)
     end
 
-    @trace = TracePoint.trace(:line) do |trace|
+    @trace = TracePoint.new(:line) do |trace|
       lineno = trace.lineno - 1
 
       if (line_coverage = @coverage[trace.path])
@@ -24,6 +24,7 @@ module RaccCoverage
         end
       end
     end
+    @trace.enable
   end
 
   def self.stop
