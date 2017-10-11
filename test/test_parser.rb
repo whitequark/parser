@@ -2868,7 +2868,7 @@ class TestParser < Minitest::Test
       %q{fun(1, bar: 2, 3, nil)},
       %q{            ~~~~~~~~~ expression (hash.pair.objc_varargs)},
       %w(mac))
-    end
+  end
 
   # To receiver
 
