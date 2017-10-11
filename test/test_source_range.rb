@@ -122,4 +122,15 @@ class TestSourceRange < Minitest::Test
     sr = Parser::Source::Range.new(@buf, 8, 9)
     assert_equal '(string):2:2', sr.to_s
   end
+
+  def test_with
+    sr1 = Parser::Source::Range.new(@buf, 1, 3)
+    sr2 = sr1.with(begin_pos: 2)
+    sr3 = sr1.with(end_pos: 4)
+
+    assert_equal 2, sr2.begin_pos
+    assert_equal 3, sr2.end_pos
+    assert_equal 1, sr3.begin_pos
+    assert_equal 4, sr3.end_pos
+  end
 end

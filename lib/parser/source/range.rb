@@ -49,7 +49,7 @@ module Parser
       #   of this range.
       #
       def begin
-        Range.new(@source_buffer, @begin_pos, @begin_pos)
+        with(end_pos: @begin_pos)
       end
 
       ##
@@ -57,7 +57,7 @@ module Parser
       #   of this range.
       #
       def end
-        Range.new(@source_buffer, @end_pos, @end_pos)
+        with(begin_pos: @end_pos)
       end
 
       ##
@@ -166,11 +166,19 @@ module Parser
       end
 
       ##
+      # @param [Hash] Endpoint(s) to change, any combination of :begin_pos or :end_pos
+      # @return [Range] the same range as this range but with the given end point(s) changed
+      #
+      def with(pos)
+        Range.new(@source_buffer,pos.fetch(:begin_pos, @begin_pos), pos.fetch(:end_pos, @end_pos))
+      end
+
+      ##
       # @param [Integer] new_size
       # @return [Range] a range beginning at the same point as this range and length `new_size`.
       #
       def resize(new_size)
-        Range.new(@source_buffer, @begin_pos, @begin_pos + new_size)
+        with(end_pos: @begin_pos + new_size)
       end
 
       ##
