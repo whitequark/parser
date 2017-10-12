@@ -22,50 +22,57 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 Load Parser (see the [backwards compatibility](#backwards-compatibility) section
 below for explanation of `emit_*` calls):
 
-    require 'parser/current'
-    # opt-in to most recent AST format:
-    Parser::Builders::Default.emit_lambda = true
-    Parser::Builders::Default.emit_procarg0 = true
+```ruby
+require 'parser/current'
+# opt-in to most recent AST format:
+Parser::Builders::Default.emit_lambda = true
+Parser::Builders::Default.emit_procarg0 = true
+```
 
 Parse a chunk of code:
 
-    p Parser::CurrentRuby.parse("2 + 2")
-    # (send
-    #   (int 2) :+
-    #   (int 2))
-
+```ruby
+p Parser::CurrentRuby.parse("2 + 2")
+# (send
+#   (int 2) :+
+#   (int 2))
+```
 Access the AST's source map:
 
-    p Parser::CurrentRuby.parse("2 + 2").loc
-    # #<Parser::Source::Map::Send:0x007fe5a1ac2388
-    #   @dot=nil,
-    #   @begin=nil,
-    #   @end=nil,
-    #   @selector=#<Source::Range (string) 2...3>,
-    #   @expression=#<Source::Range (string) 0...5>>
+```ruby
+p Parser::CurrentRuby.parse("2 + 2").loc
+# #<Parser::Source::Map::Send:0x007fe5a1ac2388
+#   @dot=nil,
+#   @begin=nil,
+#   @end=nil,
+#   @selector=#<Source::Range (string) 2...3>,
+#   @expression=#<Source::Range (string) 0...5>>
 
-    p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
-    # "+"
+p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
+# "+"
+```
 
 Traverse the AST: see the documentation for [gem ast](https://whitequark.github.io/ast/).
 
 Parse a chunk of code and display all diagnostics:
 
-    parser = Parser::CurrentRuby.new
-    parser.diagnostics.consumer = lambda do |diag|
-      puts diag.render
-    end
+```ruby
+parser = Parser::CurrentRuby.new
+parser.diagnostics.consumer = lambda do |diag|
+  puts diag.render
+end
 
-    buffer = Parser::Source::Buffer.new('(string)')
-    buffer.source = "foo *bar"
+buffer = Parser::Source::Buffer.new('(string)')
+buffer.source = "foo *bar"
 
-    p parser.parse(buffer)
-    # (string):1:5: warning: `*' interpreted as argument prefix
-    # foo *bar
-    #     ^
-    # (send nil :foo
-    #   (splat
-    #     (send nil :bar)))
+p parser.parse(buffer)
+# (string):1:5: warning: `*' interpreted as argument prefix
+# foo *bar
+#     ^
+# (send nil :foo
+#   (splat
+#     (send nil :bar)))
+```
 
 If you reuse the same parser object for multiple `#parse` runs, you need to
 `#reset` it.
