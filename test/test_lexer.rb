@@ -569,16 +569,6 @@ class TestLexer < Minitest::Test
                    :kEND,        "end", [8, 11])
   end
 
-  def test_do_cond
-    @lex.cond.push(true)
-
-    assert_scanned("x do 42 end",
-                   :tIDENTIFIER, "x",   [0, 1],
-                   :kDO_COND,    "do",  [2, 4],
-                   :tINTEGER,    42,    [5, 7],
-                   :kEND,        "end", [8, 11])
-  end
-
   def test_do_block
     @lex.state = :expr_endarg
 
