@@ -952,12 +952,14 @@ class TestLexer < Minitest::Test
   end
 
   def test_identifier_eh
+    setup_lexer 19
+
     assert_scanned("identifier?",
                    :tFID,        "identifier?", [0, 11])
 
     assert_scanned("identifier?=",
                    :tIDENTIFIER, "identifier", [0, 10],
-                   :tNEQ,        "?=",         [10, 12])
+                   :tCHARACTER,  "=",          [10, 12])
   end
 
   def test_identifier_cmp
@@ -966,10 +968,6 @@ class TestLexer < Minitest::Test
 
   def test_identifier_def
     assert_lex_fname "identifier", :tIDENTIFIER, [0, 10]
-  end
-
-  def test_identifier_eh
-    assert_scanned("identifier?", :tFID, "identifier?", [0, 11])
   end
 
   def test_identifier_equals_arrow
