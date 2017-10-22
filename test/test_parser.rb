@@ -25,6 +25,7 @@ class TestParser < Minitest::Test
   SINCE_2_2 = SINCE_2_1 - %w(2.1)
   SINCE_2_3 = SINCE_2_2 - %w(2.2)
   SINCE_2_4 = SINCE_2_3 - %w(2.3)
+  SINCE_2_5 = SINCE_2_4 - %w(2.4)
 
   # Guidelines for test naming:
   #  * Test structure follows structure of AST_FORMAT.md.

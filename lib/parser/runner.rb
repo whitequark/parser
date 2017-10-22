@@ -94,6 +94,11 @@ module Parser
         @parser_class = Parser::Ruby24
       end
 
+      opts.on '--25', 'Parse as Ruby 2.5 would' do
+        require 'parser/ruby25'
+        @parser_class = Parser::Ruby25
+      end
+
       opts.on '--mac', 'Parse as MacRuby 0.12 would' do
         require 'parser/macruby'
         @parser_class = Parser::MacRuby
