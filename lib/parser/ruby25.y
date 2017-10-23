@@ -700,22 +700,7 @@ rule
                     {
                       result = @builder.binary_op(val[0], val[1], val[2])
                     }
-                | arg tGT arg
-                    {
-                      result = @builder.binary_op(val[0], val[1], val[2])
-                    }
-                | arg tGEQ arg
-                    {
-                      result = @builder.binary_op(val[0], val[1], val[2])
-                    }
-                | arg tLT arg
-                    {
-                      result = @builder.binary_op(val[0], val[1], val[2])
-                    }
-                | arg tLEQ arg
-                    {
-                      result = @builder.binary_op(val[0], val[1], val[2])
-                    }
+                | rel_expr =tCMP
                 | arg tEQ arg
                     {
                       result = @builder.binary_op(val[0], val[1], val[2])
@@ -770,6 +755,17 @@ rule
                                                 val[2], val[4], val[5])
                     }
                 | primary
+
+           relop: tGT | tLT | tGEQ | tLEQ
+
+        rel_expr: arg relop arg =tGT
+                    {
+                      result = @builder.binary_op(val[0], val[1], val[2])
+                    }
+                | rel_expr relop arg =tGT
+                    {
+                      result = @builder.binary_op(val[0], val[1], val[2])
+                    }
 
        arg_value: arg
 
