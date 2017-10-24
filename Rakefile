@@ -123,6 +123,7 @@ task :changelog do
     io.puts
 
     changelog.each do |version, commits|
+      next if commits.empty?
       io.puts version
       io.puts '-' * version.length
       io.puts
