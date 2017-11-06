@@ -34,12 +34,14 @@ GENERATED_FILES = %w(lib/parser/lexer.rb
 
 CLEAN.include(GENERATED_FILES)
 
+ENCODING_COMMENT = "# -*- encoding:utf-8; warn-indent:false; frozen_string_literal: true  -*-\n"
+
 desc 'Generate the Ragel lexer and Racc parser.'
 task :generate => GENERATED_FILES do
   Rake::Task[:ragel_check].invoke
   GENERATED_FILES.each do |filename|
     content = File.read(filename)
-    content = "# -*- encoding:utf-8; warn-indent:false; frozen_string_literal: true  -*-\n" + content
+    content = ENCODING_COMMENT + content unless content.start_with?(ENCODING_COMMENT)
 
     File.open(filename, 'w') do |io|
       io.write content
