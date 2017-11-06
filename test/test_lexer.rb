@@ -1348,6 +1348,12 @@ class TestLexer < Minitest::Test
                    :tINTEGER,    42,  [1, 3])
   end
 
+  def test_minus_unary_whitespace_number
+    assert_scanned("- 42",
+                   :tUNARY_NUM,  "-", [0, 1],
+                   :tINTEGER,    42,  [2, 4])
+  end
+
   def test_nth_ref
     assert_scanned('[$1, $2, $3]',
                    :tLBRACK,  "[", [0, 1],
@@ -1477,6 +1483,12 @@ class TestLexer < Minitest::Test
     assert_scanned("+42",
                    :tUNARY_NUM,  "+", [0, 1],
                    :tINTEGER,    42,  [1, 3])
+  end
+
+  def test_plus_unary_whitespace_number
+    assert_scanned("+ 42",
+                   :tUNARY_NUM,  "+", [0, 1],
+                   :tINTEGER,    42,  [2, 4])
   end
 
   def test_numbers
@@ -2791,7 +2803,7 @@ class TestLexer < Minitest::Test
     @lex.state = :expr_end
     assert_scanned("\n+ 1",
                    :tNL,      nil, [0, 1],
-                   :tUPLUS,   '+', [1, 2],
+                   :tUNARY_NUM, '+', [1, 2],
                    :tINTEGER, 1,   [3, 4])
 
     @lex.state = :expr_end
@@ -2802,7 +2814,7 @@ class TestLexer < Minitest::Test
     @lex.state = :expr_end
     assert_scanned("#foo\n+ 1",
                    :tNL,      nil, [4, 5],
-                   :tUPLUS,   '+', [5, 6],
+                   :tUNARY_NUM, '+', [5, 6],
                    :tINTEGER, 1,   [7, 8])
   end
 

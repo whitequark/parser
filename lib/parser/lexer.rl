@@ -1621,8 +1621,8 @@ class Parser::Lexer
   # explodes.
   #
   expr_beg := |*
-      # +5, -5
-      [+\-][0-9]
+      # +5, -5, -  5
+      [+\-] w_any* [0-9]
       => {
         emit(:tUNARY_NUM, tok(@ts, @ts + 1), @ts, @ts + 1)
         fhold; fnext expr_end; fbreak;
