@@ -7,7 +7,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       kUNTIL_MOD kRESCUE_MOD kALIAS kDEFINED klBEGIN klEND k__LINE__
       k__FILE__ k__ENCODING__ tIDENTIFIER tFID tGVAR tIVAR tCONSTANT
       tLABEL tCVAR tNTH_REF tBACK_REF tSTRING_CONTENT tINTEGER tFLOAT
-      tUPLUS tUMINUS tUMINUS_NUM tPOW tCMP tEQ tEQQ tNEQ
+      tUPLUS tUMINUS tUNARY_NUM tPOW tCMP tEQ tEQQ tNEQ
       tGEQ tLEQ tANDOP tOROP tMATCH tNMATCH tDOT tDOT2 tDOT3 tAREF
       tASET tLSHFT tRSHFT tCOLON2 tCOLON3 tOP_ASGN tASSOC tLPAREN
       tLPAREN2 tRPAREN tLPAREN_ARG tLBRACK tLBRACK2 tRBRACK tLBRACE
@@ -21,7 +21,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
 prechigh
   right    tBANG tTILDE tUPLUS
   right    tPOW
-  right    tUMINUS_NUM tUMINUS
+  right    tUNARY_NUM tUMINUS
   left     tSTAR2 tDIVIDE tPERCENT
   left     tPLUS tMINUS
   left     tLSHFT tRSHFT
@@ -684,14 +684,14 @@ rule
                     {
                       result = @builder.binary_op(val[0], val[1], val[2])
                     }
-                | tUMINUS_NUM tINTEGER tPOW arg
+                | tUNARY_NUM tINTEGER tPOW arg
                     {
                       result = @builder.unary_op(val[0],
                                   @builder.binary_op(
                                     @builder.integer(val[1]),
                                       val[2], val[3]))
                     }
-                | tUMINUS_NUM tFLOAT tPOW arg
+                | tUNARY_NUM tFLOAT tPOW arg
                     {
                       result = @builder.unary_op(val[0],
                                   @builder.binary_op(
@@ -1766,15 +1766,25 @@ regexp_contents: # nothing
                     {
                       result = @builder.float(val[0])
                     }
-                | tUMINUS_NUM tINTEGER =tLOWEST
+                | tUNARY_NUM tINTEGER =tLOWEST
                     {
-                      result = @builder.negate(val[0],
-                                  @builder.integer(val[1]))
+                      num = @builder.integer(val[1])
+                      if @builder.respond_to? :negate
+                        # AST builder interface compatibility
+                        result = @builder.negate(val[0], num)
+                      else
+                        result = @builder.unary_num(val[0], num)
+                      end
                     }
-                | tUMINUS_NUM tFLOAT   =tLOWEST
+                | tUNARY_NUM tFLOAT   =tLOWEST
                     {
-                      result = @builder.negate(val[0],
-                                  @builder.float(val[1]))
+                      num = @builder.float(val[1])
+                      if @builder.respond_to? :negate
+                        # AST builder interface compatibility
+                        result = @builder.negate(val[0], num)
+                      else
+                        result = @builder.unary_num(val[0], num)
+                      end
                     }
 
    user_variable: tIDENTIFIER

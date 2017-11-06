@@ -1621,16 +1621,11 @@ class Parser::Lexer
   # explodes.
   #
   expr_beg := |*
-      # Numeric processing. Converts:
-      #   +5 to [tINTEGER, 5]
-      #   -5 to [tUMINUS_NUM] [tINTEGER, 5]
+      # +5, -5
       [+\-][0-9]
       => {
-        fhold;
-        if tok.start_with? '-'.freeze
-          emit(:tUMINUS_NUM, '-'.freeze, @ts, @ts + 1)
-          fnext expr_end; fbreak;
-        end
+        emit(:tUNARY_NUM, tok(@ts, @ts + 1), @ts, @ts + 1)
+        fhold; fnext expr_end; fbreak;
       };
 
       # splat *a

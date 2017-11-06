@@ -120,11 +120,18 @@ module Parser
     end
     private :numeric
 
-    def negate(uminus_t, numeric)
+    def unary_num(unary_t, numeric)
       value, = *numeric
-      operator_loc = loc(uminus_t)
+      operator_loc = loc(unary_t)
 
-      numeric.updated(nil, [ -value ],
+      case value(unary_t)
+      when '+'
+        value = +value
+      when '-'
+        value = -value
+      end
+
+      numeric.updated(nil, [ value ],
         :location =>
           Source::Map::Operator.new(
             operator_loc,

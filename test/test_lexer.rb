@@ -178,13 +178,14 @@ class TestLexer < Minitest::Test
   def test_ambiguous_uminus
     assert_scanned("m -3",
                    :tIDENTIFIER, "m", [0, 1],
-                   :tUMINUS_NUM, "-", [2, 3],
+                   :tUNARY_NUM,  "-", [2, 3],
                    :tINTEGER,    3,   [3, 4])
   end
 
   def test_ambiguous_uplus
     assert_scanned("m +3",
                    :tIDENTIFIER, "m", [0, 1],
+                   :tUNARY_NUM,  "+", [2, 3],
                    :tINTEGER,    3,   [3, 4])
   end
 
@@ -645,7 +646,13 @@ class TestLexer < Minitest::Test
 
   def test_float_dot_E_neg
     assert_scanned("-1.0E10",
-                   :tUMINUS_NUM, "-",    [0, 1],
+                   :tUNARY_NUM,  "-",    [0, 1],
+                   :tFLOAT,      1.0e10, [1, 7])
+  end
+
+  def test_float_dot_E_pos
+    assert_scanned("+1.0E10",
+                   :tUNARY_NUM,  "+",    [0, 1],
                    :tFLOAT,      1.0e10, [1, 7])
   end
 
@@ -655,7 +662,13 @@ class TestLexer < Minitest::Test
 
   def test_float_dot_e_neg
     assert_scanned("-1.0e10",
-                   :tUMINUS_NUM, "-",    [0, 1],
+                   :tUNARY_NUM,  "-",    [0, 1],
+                   :tFLOAT,      1.0e10, [1, 7])
+  end
+
+  def test_float_dot_e_pos
+    assert_scanned("+1.0e10",
+                   :tUNARY_NUM,  "+",    [0, 1],
                    :tFLOAT,      1.0e10, [1, 7])
   end
 
@@ -673,19 +686,37 @@ class TestLexer < Minitest::Test
 
   def test_float_e_neg
     assert_scanned("-1e10",
-                   :tUMINUS_NUM, "-",  [0, 1],
+                   :tUNARY_NUM,  "-",  [0, 1],
                    :tFLOAT,      1e10, [1, 5])
   end
 
   def test_float_e_neg_minus
     assert_scanned("-1e-10",
-                   :tUMINUS_NUM, "-",   [0, 1],
+                   :tUNARY_NUM,  "-",   [0, 1],
                    :tFLOAT,      1e-10, [1, 6])
   end
 
   def test_float_e_neg_plus
     assert_scanned("-1e+10",
-                   :tUMINUS_NUM, "-",  [0, 1],
+                   :tUNARY_NUM,  "-",  [0, 1],
+                   :tFLOAT,      1e10, [1, 6])
+  end
+
+  def test_float_e_pos
+    assert_scanned("+1e10",
+                   :tUNARY_NUM,  "+",  [0, 1],
+                   :tFLOAT,      1e10, [1, 5])
+  end
+
+  def test_float_e_pos_minus
+    assert_scanned("+1e-10",
+                   :tUNARY_NUM,  "+",   [0, 1],
+                   :tFLOAT,      1e-10, [1, 6])
+  end
+
+  def test_float_e_pos_plus
+    assert_scanned("+1e+10",
+                   :tUNARY_NUM,  "+",  [0, 1],
                    :tFLOAT,      1e10, [1, 6])
   end
 
@@ -717,7 +748,13 @@ class TestLexer < Minitest::Test
 
   def test_float_neg
     assert_scanned("-1.0",
-                   :tUMINUS_NUM, "-", [0, 1],
+                   :tUNARY_NUM,  "-", [0, 1],
+                   :tFLOAT,      1.0, [1, 4])
+  end
+
+  def test_float_pos
+    assert_scanned("+1.0",
+                   :tUNARY_NUM,  "+", [0, 1],
                    :tFLOAT,      1.0, [1, 4])
   end
 
@@ -1307,7 +1344,7 @@ class TestLexer < Minitest::Test
 
   def test_minus_unary_number
     assert_scanned("-42",
-                   :tUMINUS_NUM, "-", [0, 1],
+                   :tUNARY_NUM,  "-", [0, 1],
                    :tINTEGER,    42,  [1, 3])
   end
 
@@ -1436,6 +1473,12 @@ class TestLexer < Minitest::Test
     assert_scanned "+@", :tUPLUS, "+@", [0, 2]
   end
 
+  def test_plus_unary_number
+    assert_scanned("+42",
+                   :tUNARY_NUM,  "+", [0, 1],
+                   :tINTEGER,    42,  [1, 3])
+  end
+
   def test_numbers
     assert_scanned "0b10", :tINTEGER, 2, [0, 4]
     assert_scanned "0B10", :tINTEGER, 2, [0, 4]
@@ -1478,11 +1521,6 @@ class TestLexer < Minitest::Test
 
     refute_scanned "1end"
     refute_scanned "1.1end"
-  end
-
-  def test_plus_unary_number
-    assert_scanned("+42",
-                   :tINTEGER, 42, [1, 3])
   end
 
   def test_question__18

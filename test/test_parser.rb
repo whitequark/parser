@@ -100,6 +100,12 @@ class TestParser < Minitest::Test
       %q{~~ expression})
 
     assert_parses(
+      s(:int, 42),
+      %q{+42},
+      %q{^ operator
+        |~~~ expression})
+
+    assert_parses(
       s(:int, -42),
       %q{-42},
       %q{^ operator
@@ -3252,13 +3258,35 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
-  def test_pow_precedence
+  def test_unary_num_pow_precedence
     assert_parses(
-      s(:send, s(:send, s(:int, 2), :**, s(:int, 10)), :-@),
+      s(:send,
+        s(:send,
+          s(:int, 2), :**, s(:int, 10)),
+        :+@),
+      %q{+2 ** 10},
+      %{},
+      %w{2.1})
+
+    assert_parses(
+      s(:send,
+        s(:send,
+          s(:float, 2.0), :**, s(:int, 10)),
+        :+@),
+      %q{+2.0 ** 10})
+
+    assert_parses(
+      s(:send,
+        s(:send,
+          s(:int, 2), :**, s(:int, 10)),
+        :-@),
       %q{-2 ** 10})
 
     assert_parses(
-      s(:send, s(:send, s(:float, 2.0), :**, s(:int, 10)), :-@),
+      s(:send,
+        s(:send,
+          s(:float, 2.0), :**, s(:int, 10)),
+        :-@),
       %q{-2.0 ** 10})
   end
 
