@@ -213,6 +213,96 @@ end
     assert_equal 0, associations.size
   end
 
+  def test_associate_frozen_string_literal
+    ast, associations = associate(<<-END)
+# frozen_string_literal: true
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_frozen_string_literal_dash_star_dash
+    ast, associations = associate(<<-END)
+# -*- frozen_string_literal: true -*-
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_frozen_string_literal_no_space_after_colon
+    ast, associations = associate(<<-END)
+# frozen_string_literal:true
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_warn_indent
+    ast, associations = associate(<<-END)
+# warn_indent: true
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_warn_indent_dash_star_dash
+    ast, associations = associate(<<-END)
+# -*- warn_indent: true -*-
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_warn_past_scope
+    ast, associations = associate(<<-END)
+# warn_past_scope: true
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_warn_past_scope_dash_star_dash
+    ast, associations = associate(<<-END)
+# -*- warn_past_scope: true -*-
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_multiple
+    ast, associations = associate(<<-END)
+# frozen_string_literal: true; warn_indent: true
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
+  def test_associate_multiple_dash_star_dash
+    ast, associations = associate(<<-END)
+# -*- frozen_string_literal: true; warn_indent: true -*-
+class Foo
+end
+    END
+
+    assert_equal 0, associations.size
+  end
+
   def test_associate_no_comments
     ast, associations = associate(<<-END)
 class Foo
