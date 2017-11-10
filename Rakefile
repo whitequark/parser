@@ -100,7 +100,7 @@ task :changelog do
       date = Date.parse(date)
 
       current_version = "#{$1} (#{date})" if version =~ /(v[\d\w.]+)/
-      current_version = "v#{Parser::VERSION} (#{date})" \
+      current_version = "Not released (#{date})" \
         if version =~ /(^| |\/)#{Regexp.escape branch}$/
 
       next if current_version.nil?
