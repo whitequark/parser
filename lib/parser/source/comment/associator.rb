@@ -188,7 +188,7 @@ module Parser
 
       def advance_through_directives
         # Skip shebang.
-        if @current_comment && @current_comment.text =~ /^#!/
+        if @current_comment && @current_comment.text.start_with?('#!')
           advance_comment
         end
 
