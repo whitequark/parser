@@ -54,7 +54,7 @@ module Parser
         string =~ /\A(.*)\n?(.*\n)?/
         first_line, second_line = $1, $2
 
-        if first_line =~ /\A\xef\xbb\xbf/ # BOM
+        if first_line.start_with?("\xef\xbb\xbf".freeze) # BOM
           return Encoding::UTF_8
         elsif first_line[0, 2] == '#!'.freeze
           encoding_line = second_line
