@@ -4992,6 +4992,23 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
+  def test_rescue_without_begin_end
+    assert_parses(
+      s(:block,
+        s(:send, nil, :meth),
+        s(:args),
+        s(:rescue,
+          s(:lvar, :foo),
+          s(:resbody, nil, nil,
+            s(:lvar, :bar)),
+          nil)),
+      %q{meth do; foo; rescue; bar; end},
+      %q{              ~~~~~~ keyword (rescue.resbody)
+        |              ~~~~~~~~~~~ expression (rescue.resbody)
+        |         ~~~~~~~~~~~~~~~~ expression (rescue)},
+      SINCE_2_5)
+  end
+
   def test_resbody_list
     assert_parses(
       s(:kwbegin,
