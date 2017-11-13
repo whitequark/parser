@@ -5,6 +5,12 @@ Not released (2017-11-13)
 -------------------------
 
 API modifications:
+ * parser/current: update for 2.3.5 release. (whitequark)
+
+v2.4.0.1 (2017-11-13)
+---------------------
+
+API modifications:
  * parser/current: update for 2.3.4 release. (whitequark)
  * parser/current: update for Ruby 2.1.10 and 2.2.7. (Koichi ITO)
 
