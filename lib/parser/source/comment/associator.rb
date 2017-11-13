@@ -184,7 +184,7 @@ module Parser
         advance_comment
       end
 
-      MAGIC_COMMENT_RE = /^#\s*(-\*-|)\s*(frozen_string_literal|warn_indent|warn_past_scope):.*\1$/
+      MAGIC_COMMENT_RE = /^#\s*(-\*-|)\s*(?:frozen_string_literal|warn_indent|warn_past_scope):.*\1$/
 
       def advance_through_directives
         # Skip shebang.
