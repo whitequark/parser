@@ -1603,7 +1603,7 @@ opt_block_args_tail:
                       result = @lexer.cmdarg.dup
                       @lexer.cmdarg.clear
                     }
-                    opt_block_param compstmt
+                    opt_block_param bodystmt
                     {
                       result = [ val[2], val[3] ]
 
