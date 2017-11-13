@@ -1,16 +1,21 @@
 Changelog
 =========
 
-Not released (2017-10-24)
+Not released (2017-11-13)
 -------------------------
 
 API modifications:
+ * parser/current: update for 2.3.4 release. (whitequark)
  * parser/current: update for Ruby 2.1.10 and 2.2.7. (Koichi ITO)
 
 Features implemented:
+ * Allow rescue/else/ensure inside do/end blocks. [Feature #12906] (Ilya Bylich)
  * ruby25.y: branch parser. (Ilya Bylich)
 
 Bugs fixed:
+ * Source::Comment::Associator: skip -*- magic comments -*-. (Denis Defreyne)
+ * lexer.rl: "- 5": allow whitespace after tUNARY_NUM. (whitequark)
+ * *ruby*.y, Builders::Default: "+5": don't lose location of the "+". (whitequark)
  * ruby-rewrite: allow passing paths to --load. (whitequark)
  * builders/default: "def x; else; end": don't crash. (whitequark)
 
