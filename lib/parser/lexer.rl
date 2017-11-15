@@ -1683,18 +1683,29 @@ class Parser::Lexer
       # <<-END | <<-'END' | <<-"END" | <<-`END` |
       # <<~END | <<~'END' | <<~"END" | <<~`END`
       '<<' [~\-]?
-        ( '"' ( c_line - '"' )* '"'
-        | "'" ( c_line - "'" )* "'"
-        | "`" ( c_line - "`" )* "`"
+        ( '"' ( any - '"' )* '"'
+        | "'" ( any - "'" )* "'"
+        | "`" ( any - "`" )* "`"
         | bareword ) % { heredoc_e      = p }
         c_line* c_nl % { new_herebody_s = p }
       => {
-        tok(@ts, heredoc_e) =~ /^<<(-?)(~?)(["'`]?)(.*)\3$/
+        tok(@ts, heredoc_e) =~ /^<<(-?)(~?)(["'`]?)(.*)\3$/m
 
         indent      = !$1.empty? || !$2.empty?
         dedent_body = !$2.empty?
         type        =  $3.empty? ? '<<"'.freeze : ('<<'.freeze + $3)
         delimiter   =  $4
+
+        if @version >= 24
+          if delimiter.count("\n") > 0
+            if delimiter.end_with?("\n")
+              diagnostic :warning, :heredoc_id_ends_with_nl, nil, range(@ts, @ts + 1)
+              delimiter = delimiter.rstrip
+            else
+              diagnostic :fatal, :heredoc_id_has_newline, nil, range(@ts, @ts + 1)
+            end
+          end
+        end
 
         if dedent_body && version?(18, 19, 20, 21, 22)
           emit(:tLSHFT, '<<'.freeze, @ts, @ts + 2)
