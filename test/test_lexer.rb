@@ -974,6 +974,34 @@ class TestLexer < Minitest::Test
                    :tNL,             nil,          [8, 9])
   end
 
+  def test_heredoc_with_identifier_ending_newline__19
+    setup_lexer 19
+    refute_scanned "<<\"EOS\n\"\n123\nEOS\n"
+  end
+
+  def test_heredoc_with_identifier_ending_newline__24
+    setup_lexer 24
+
+    assert_scanned("a = <<\"EOS\n\"\nABCDEF\nEOS\n",
+                   :tIDENTIFIER,     "a",          [0, 1],
+                   :tEQL,            "=",          [2, 3],
+                   :tSTRING_BEG,     "<<\"",       [4, 12],
+                   :tSTRING_CONTENT, "ABCDEF\n",   [13, 20],
+                   :tSTRING_END,     "EOS",        [20, 23],
+                   :tNL,             nil,          [12, 13])
+  end
+
+  def test_heredoc_with_identifier_containing_newline_inside__19
+    setup_lexer 19
+    refute_scanned "<<\"EOS\nEOS\"\n123\nEOS\n"
+  end
+
+  def test_heredoc_with_identifier_containing_newline_inside__24
+    setup_lexer 24
+
+    refute_scanned "<<\"EOS\nEOS\"\n123\nEOS\n"
+  end
+
   def test_identifier
     assert_scanned("identifier",
                    :tIDENTIFIER, "identifier", [0, 10])
