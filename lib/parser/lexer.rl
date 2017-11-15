@@ -657,17 +657,37 @@ class Parser::Lexer
     codepoints  = tok(@escape_s + 2, p - 1)
     codepoint_s = @escape_s + 2
 
-    codepoints.split(/[ \t]/).each do |codepoint_str|
-      codepoint = codepoint_str.to_i(16)
-
-      if codepoint >= 0x110000
-        diagnostic :error, :unicode_point_too_large, nil,
-                   range(codepoint_s, codepoint_s + codepoint_str.length)
-        break
+    if @version < 24
+      if codepoints.start_with?(" ") || codepoints.start_with?("\t")
+        diagnostic :fatal, :invalid_unicode_escape, nil,
+          range(@escape_s + 2, @escape_s + 3)
       end
 
-      @escape     += codepoint.chr(Encoding::UTF_8)
-      codepoint_s += codepoint_str.length + 1
+      if spaces_p = codepoints.index(/[ \t]{2}/)
+        diagnostic :fatal, :invalid_unicode_escape, nil,
+          range(codepoint_s + spaces_p + 1, codepoint_s + spaces_p + 2)
+      end
+
+      if codepoints.end_with?(" ") || codepoints.end_with?("\t")
+        diagnostic :fatal, :invalid_unicode_escape, nil, range(p - 1, p)
+      end
+    end
+
+    codepoints.scan(/([0-9a-fA-F]+)|([ \t]+)/).each do |(codepoint_str, spaces)|
+      if spaces
+        codepoint_s += spaces.length
+      else
+        codepoint = codepoint_str.to_i(16)
+
+        if codepoint >= 0x110000
+          diagnostic :error, :unicode_point_too_large, nil,
+                     range(codepoint_s, codepoint_s + codepoint_str.length)
+          break
+        end
+
+        @escape     += codepoint.chr(Encoding::UTF_8)
+        codepoint_s += codepoint_str.length
+      end
     end
   }
 
@@ -710,35 +730,38 @@ class Parser::Lexer
     | 'x' xdigit{1,2}
         % { @escape = encode_escape(tok(@escape_s + 1, p).to_i(16)) }
 
-      # \u263a
-    | 'u' xdigit{4}
-      % { @escape = tok(@escape_s + 1, p).to_i(16).chr(Encoding::UTF_8) }
-
       # %q[\x]
     | 'x' ( c_any - xdigit )
       % {
         diagnostic :fatal, :invalid_hex_escape, nil, range(@escape_s - 1, p + 2)
       }
 
-      # %q[\u123] %q[\u{12]
-    | 'u' ( c_any{0,4}  -
-            xdigit{4}   -            # \u1234 is valid
-            ( '{' xdigit{1,3}        # \u{1 \u{12 \u{123 are valid
-            | '{' xdigit [ \t}] any? # \u{1. \u{1} are valid
-            | '{' xdigit{2} [ \t}]   # \u{12. \u{12} are valid
-            )
-          )
+      # \u263a
+    | 'u' xdigit{4}
+      % { @escape = tok(@escape_s + 1, p).to_i(16).chr(Encoding::UTF_8) }
+
+      # \u123
+    | 'u' xdigit{0,3}
       % {
         diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
       }
 
-      # \u{123 456}
-    | 'u{' ( xdigit{1,6} [ \t] )*
-      ( xdigit{1,6} '}'
-        %unicode_points
-      | ( xdigit* ( c_any - xdigit - '}' )+ '}'
-        | ( c_any - '}' )* c_eof
-        | xdigit{7,}
+      # u{not hex} or u{}
+    | 'u{' ( c_any - xdigit - [ \t}] )* '}'
+      % {
+        diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
+      }
+
+      # \u{  \t  123  \t 456   \t\t }
+    | 'u{' [ \t]* ( xdigit{1,6} [ \t]+ )*
+      (
+        ( xdigit{1,6} [ \t]* '}'
+          %unicode_points
+        )
+        |
+        ( xdigit* ( c_any - xdigit - [ \t}] )+ '}'
+          | ( c_any - [ \t}] )* c_eof
+          | xdigit{7,}
         ) % {
           diagnostic :fatal, :unterminated_unicode, nil, range(p - 1, p)
         }

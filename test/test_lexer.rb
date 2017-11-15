@@ -1229,6 +1229,46 @@ class TestLexer < Minitest::Test
     refute_scanned '?\\u{123'
   end
 
+  def test_question_eh_escape_space_around_unicode_point__19
+    setup_lexer 19
+    refute_scanned '"\\u{1 }"'
+
+    setup_lexer 19
+    refute_scanned '"\\u{ 1}"'
+
+    setup_lexer 19
+    refute_scanned '"\\u{ 1 }"'
+
+    setup_lexer 19
+    refute_scanned '"\\u{1 2 }"'
+
+    setup_lexer 19
+    refute_scanned '"\\u{ 1 2}"'
+
+    setup_lexer 19
+    refute_scanned '"\\u{1  2}"'
+  end
+
+  def test_question_eh_escape_space_around_unicode_point__24
+    setup_lexer 24
+    assert_scanned '"\\u{ 1}"', :tSTRING, "\u0001", [0, 8]
+
+    setup_lexer 24
+    assert_scanned '"\\u{1 }"', :tSTRING, "\u0001", [0, 8]
+
+    setup_lexer 24
+    assert_scanned '"\\u{ 1 }"', :tSTRING, "\u0001", [0, 9]
+
+    setup_lexer 24
+    assert_scanned '"\\u{1 2 }"', :tSTRING, "\u0001\u0002", [0, 10]
+
+    setup_lexer 24
+    assert_scanned '"\\u{ 1 2}"', :tSTRING, "\u0001\u0002", [0, 10]
+
+    setup_lexer 24
+    assert_scanned '"\\u{1  2}"', :tSTRING, "\u0001\u0002", [0, 10]
+  end
+
   def test_integer_hex
     assert_scanned "0x2a", :tINTEGER, 42, [0, 4]
   end
