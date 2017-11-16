@@ -424,8 +424,10 @@ class Parser::Lexer
     if old_literal.type == :tREGEXP_BEG
       # Fetch modifiers.
       self.class.lex_en_regexp_modifiers
-    else
+    elsif @version < 24
       self.class.lex_en_expr_end
+    else
+      self.class.lex_en_expr_endarg
     end
   end
 
@@ -1096,13 +1098,25 @@ class Parser::Lexer
         end
 
         emit(:tREGEXP_OPT)
-        fnext expr_end; fbreak;
+
+        if @version < 24
+          fnext expr_end;
+        else
+          fnext expr_endarg;
+        end
+
+        fbreak;
       };
 
       any
       => {
         emit(:tREGEXP_OPT, tok(@ts, @te - 1), @ts, @te - 1)
-        fhold; fgoto expr_end;
+        fhold;
+        if @version < 24
+          fgoto expr_end;
+        else
+          fgoto expr_endarg;
+        end
       };
   *|;
 
