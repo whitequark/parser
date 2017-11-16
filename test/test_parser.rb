@@ -5969,6 +5969,170 @@ class TestParser < Minitest::Test
       %q{    ^^^^^^ location})
   end
 
+  def test_ruby_bug_11873
+    # strings
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:block,
+            s(:send, nil, :b),
+            s(:args),
+            s(:send, nil, :c, s(:send, nil, :d))),
+          s(:str, "x")),
+        s(:args),
+        nil),
+      %q{a b{c d}, "x" do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:send, nil, :b,
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:str, "x")),
+        s(:args),
+        nil),
+      %q{a b(c d), "x" do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:block,
+            s(:send, nil, :b),
+            s(:args),
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:str, "x")),
+        s(:args), nil),
+      %q{a b{c(d)}, "x" do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:send, nil, :b,
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:str, "x")),
+        s(:args), nil),
+      %q{a b(c(d)), "x" do end},
+      %q{},
+      SINCE_2_4)
+
+    # regexps without options
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:block,
+            s(:send, nil, :b),
+            s(:args),
+            s(:send, nil, :c, s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt))),
+        s(:args),
+        nil),
+      %q{a b{c d}, /x/ do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:send, nil, :b,
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt))),
+        s(:args),
+        nil),
+      %q{a b(c d), /x/ do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:block,
+            s(:send, nil, :b),
+            s(:args),
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt))),
+        s(:args), nil),
+      %q{a b{c(d)}, /x/ do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:send, nil, :b,
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt))),
+        s(:args), nil),
+      %q{a b(c(d)), /x/ do end},
+      %q{},
+      SINCE_2_4)
+
+    # regexps with options
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:block,
+            s(:send, nil, :b),
+            s(:args),
+            s(:send, nil, :c, s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt, :m))),
+        s(:args),
+        nil),
+      %q{a b{c d}, /x/m do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:send, nil, :b,
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt, :m))),
+        s(:args),
+        nil),
+      %q{a b(c d), /x/m do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:block,
+            s(:send, nil, :b),
+            s(:args),
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt, :m))),
+        s(:args), nil),
+      %q{a b{c(d)}, /x/m do end},
+      %q{},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :a,
+          s(:send, nil, :b,
+            s(:send, nil, :c,
+              s(:send, nil, :d))),
+          s(:regexp, s(:str, "x"), s(:regopt, :m))),
+        s(:args), nil),
+      %q{a b(c(d)), /x/m do end},
+      %q{},
+      SINCE_2_4)
+  end
+
   def test_parser_bug_198
     assert_parses(
       s(:array,
