@@ -33,6 +33,8 @@ module Parser
 
     require 'parser/source/rewriter'
     require 'parser/source/rewriter/action'
+    require 'parser/source/tree_rewriter'
+    require 'parser/source/tree_rewriter/action'
 
     require 'parser/source/map'
     require 'parser/source/map/operator'
