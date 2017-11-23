@@ -2336,8 +2336,6 @@ end
 
 require 'parser'
 
-Parser.check_for_encoding_support
-
 ---- inner
 
   def version

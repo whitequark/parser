@@ -9,15 +9,6 @@ module Parser
   end
 
   case RUBY_VERSION
-  when /^1\.8\./
-    current_version = '1.8.7'
-    if RUBY_VERSION != current_version
-      warn_syntax_deviation 'parser/ruby18', current_version
-    end
-
-    require 'parser/ruby18'
-    CurrentRuby = Ruby18
-
   when /^1\.9\./
     current_version = '1.9.3'
     if RUBY_VERSION != current_version

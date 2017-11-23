@@ -1,11 +1,15 @@
+if RUBY_VERSION =~ /^1\.8\./
+  require 'parser/version'
+  raise LoadError, <<-UNSUPPORTED_VERSION_MSG
+parser v#{Parser::VERSION} cannot run on Ruby #{RUBY_VERSION}.
+Please upgrade to Ruby 2.0.0 or higher, or use an older version of the parser gem.
+  UNSUPPORTED_VERSION_MSG
+end
+
 require 'set'
 require 'racc/parser'
 
 require 'ast'
-
-if RUBY_VERSION < '1.9'
-  require 'parser/compatibility/ruby1_8'
-end
 
 if RUBY_VERSION < '2.0'
   require 'parser/compatibility/ruby1_9'
@@ -69,13 +73,4 @@ module Parser
   require 'parser/base'
 
   require 'parser/rewriter'
-
-  ##
-  # Verify that the current Ruby implementation supports Encoding.
-  # @raise [RuntimeError]
-  def self.check_for_encoding_support
-    unless defined?(Encoding)
-      raise RuntimeError, 'Parsing 1.9 and later versions of Ruby is not supported on 1.8 due to the lack of Encoding support'
-    end
-  end
 end
