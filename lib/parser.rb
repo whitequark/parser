@@ -1,4 +1,4 @@
-if RUBY_VERSION =~ /^1\.8\./
+if RUBY_VERSION =~ /^1\.[89]\./
   require 'parser/version'
   raise LoadError, <<-UNSUPPORTED_VERSION_MSG
 parser v#{Parser::VERSION} cannot run on Ruby #{RUBY_VERSION}.
@@ -10,10 +10,6 @@ require 'set'
 require 'racc/parser'
 
 require 'ast'
-
-if RUBY_VERSION < '2.0'
-  require 'parser/compatibility/ruby1_9'
-end
 
 ##
 # @api public
