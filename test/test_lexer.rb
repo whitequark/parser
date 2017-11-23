@@ -156,23 +156,19 @@ class TestLexer < Minitest::Test
   end
 
   def test_read_escape_unicode__19
-    if RUBY_VERSION >= '1.9'
-      assert_escape "\x09", 'u{9}'
-      assert_escape "\x31", 'u{31}'
-      assert_escape "\x09\x01", 'u{9 1}'
+    assert_escape "\x09", 'u{9}'
+    assert_escape "\x31", 'u{31}'
+    assert_escape "\x09\x01", 'u{9 1}'
 
-      assert_escape "\xc4\xa3", utf('u0123')
-      assert_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", utf('u{123 f0 B123}')
-    end
+    assert_escape "\xc4\xa3", utf('u0123')
+    assert_escape "\xc4\xa3\xc3\xb0\xeb\x84\xa3", utf('u{123 f0 B123}')
   end
 
   def test_read_escape_unicode_bad__19
-    if RUBY_VERSION >= '1.9'
-      refute_escape 'u123'
-      refute_escape 'u{}'
-      refute_escape 'u{123 f0h}'
-      refute_escape 'u{123 f0'
-    end
+    refute_escape 'u123'
+    refute_escape 'u{}'
+    refute_escape 'u{123 f0h}'
+    refute_escape 'u{123 f0'
   end
 
   def test_ambiguous_uminus
@@ -1199,20 +1195,16 @@ class TestLexer < Minitest::Test
   end
 
   def test_question_eh_escape_u_4_digits
-    if RUBY_VERSION >= '1.9'
-      setup_lexer 19
-      assert_scanned '?\\u0001', :tCHARACTER, "\u0001", [0, 7]
-    end
+    setup_lexer 19
+    assert_scanned '?\\u0001', :tCHARACTER, "\u0001", [0, 7]
   end
 
   def test_question_eh_single_unicode_point
-    if RUBY_VERSION >= '1.9'
-      setup_lexer 19
-      assert_scanned '?\\u{123}', :tCHARACTER, "\u0123", [0, 8]
+    setup_lexer 19
+    assert_scanned '?\\u{123}', :tCHARACTER, "\u0123", [0, 8]
 
-      setup_lexer 19
-      assert_scanned '?\\u{a}',  :tCHARACTER, "\n", [0, 6]
-    end
+    setup_lexer 19
+    assert_scanned '?\\u{a}',  :tCHARACTER, "\n", [0, 6]
   end
 
   def test_question_eh_multiple_unicode_points

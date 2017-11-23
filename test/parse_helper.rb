@@ -1,17 +1,11 @@
 module ParseHelper
   include AST::Sexp
 
-  if RUBY_VERSION == '1.8.7'
-    require 'parser/ruby18'
+  require 'parser/all'
+  require 'parser/macruby'
+  require 'parser/rubymotion'
 
-    ALL_VERSIONS = %w(1.8)
-  else
-    require 'parser/all'
-    require 'parser/macruby'
-    require 'parser/rubymotion'
-
-    ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 mac ios)
-  end
+  ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 mac ios)
 
   def setup
     @diagnostics = []
