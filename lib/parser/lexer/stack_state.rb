@@ -25,7 +25,8 @@ module Parser
     end
 
     def lexpop
-      push(pop || pop)
+      @stack = ((@stack >> 1) | (@stack & 1))
+      @stack[0] == 1
     end
 
     def active?
