@@ -145,36 +145,6 @@ class TestSourceRewriter < Minitest::Test
         process
   end
 
-  def test_intentional_multiple_insertions_at_same_location_with_after_then_before
-    assert_equal 'foo ba>1>2{b{aa}b}2<1<r baz',
-      @rewriter.
-        insert_after_multi(range(5, 1), '>1').
-        insert_after_multi(range(6, 0), 'a}').
-        insert_before_multi(range(6, 0), '{a').
-        insert_before_multi(range(6, 1), '1<').
-        insert_after_multi(range(5, 1), '>2').
-        insert_after_multi(range(6, 0), 'b}').
-        insert_before_multi(range(6, 0), '{b').
-        insert_before_multi(range(6, 1), '2<').
-        process
-  end
-
-  def test_intentional_multiple_insertions_at_same_location_with_before_then_after
-    # Same test as above, with same result, but with first and second half of
-    # commands given in reverse order.
-    assert_equal 'foo ba>1>2{b{aa}b}2<1<r baz',
-      @rewriter.
-        insert_before_multi(range(6, 1), '1<').
-        insert_before_multi(range(6, 0), '{a').
-        insert_after_multi(range(6, 0), 'a}').
-        insert_after_multi(range(5, 1), '>1').
-        insert_before_multi(range(6, 1), '2<').
-        insert_before_multi(range(6, 0), '{b').
-        insert_after_multi(range(6, 0), 'b}').
-        insert_after_multi(range(5, 1), '>2').
-        process
-  end
-
   def test_insertion_within_replace_clobber
     silence_diagnostics
 
