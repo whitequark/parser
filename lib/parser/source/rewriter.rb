@@ -71,40 +71,16 @@ module Parser
         append Rewriter::Action.new(range.begin, content)
       end
 
-      INSERT_GROUP_SEPARATOR = 0x1fff_ffff # Any big enough integer will do. This one fits in a Fixnum
-
       ##
       # Inserts new code before the given source range by allowing other
       # insertions at the same position.
-      # Note that multiple insertions at the same position are done in groups:
-      #  - insert_after_multi (with non empty ranges ending at insertion point)
-      #  - insert_before_multi at insertion point (i.e. empty range)
-      #  - insert_after_multi at insertion point (i.e. empty range)
-      #  - insert_before_multi (with non empty ranges beginning at insertion point)
+      # Note that an insertion with latter invocation comes _before_ earlier
+      # insertion at the same position in the rewritten source.
       #
-      #  Within each group of `insert_before_multi`, the insertions are done
-      #  in the _reverse_ order they were given, while each group of `insert_after_multi` is
-      #  processed in the _same_ order they were given.
-      #
-      # @example Inserting '[(' before and ')]' after a range:
+      # @example Inserting '[('
       #   rewriter.
       #     insert_before_multi(range, '(').
-      #     insert_after_multi(range, ')').
       #     insert_before_multi(range, '[').
-      #     insert_after_multi(range, ']').
-      #     process
-      #
-      # @example Inserting '>{}<'
-      #   insertion_point = range.end
-      #   # Assume that range and other_range non empty ranges such that
-      #   insertion_point == other_range.begin # => true
-      #   # The following will insert '>{}<' for any order of the calls to `insert...`:
-      #
-      #   rewriter.
-      #     insert_after_multi(range, '>').
-      #     insert_before_multi(insertion_point, '{').
-      #     insert_after_multi(insertion_point, '}').
-      #     insert_before_multi(other_range, '<').
       #     process
       #
       # @param [Range] range
@@ -114,8 +90,7 @@ module Parser
       #
       def insert_before_multi(range, content)
         @insert_before_multi_order -= 1
-        group_delta = range.empty? ? 0 : INSERT_GROUP_SEPARATOR
-        append Rewriter::Action.new(range.begin, content, true, @insert_before_multi_order + group_delta)
+        append Rewriter::Action.new(range.begin, content, true, @insert_before_multi_order)
       end
 
       ##
@@ -133,7 +108,14 @@ module Parser
       ##
       # Inserts new code after the given source range by allowing other
       # insertions at the same position.
-      # See `insert_before_multi` for examples and details on the order.
+      # Note that an insertion with latter invocation comes _after_ earlier
+      # insertion at the same position in the rewritten source.
+      #
+      # @example Inserting ')]'
+      #   rewriter.
+      #     insert_after_multi(range, ')').
+      #     insert_after_multi(range, ']').
+      #     process
       #
       # @param [Range] range
       # @param [String] content
@@ -142,8 +124,7 @@ module Parser
       #
       def insert_after_multi(range, content)
         @insert_after_multi_order += 1
-        group_delta = range.empty? ? 0 : INSERT_GROUP_SEPARATOR
-        append Rewriter::Action.new(range.end, content, true, @insert_after_multi_order - group_delta)
+        append Rewriter::Action.new(range.end, content, true, @insert_after_multi_order)
       end
 
       ##
