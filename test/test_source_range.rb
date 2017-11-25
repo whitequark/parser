@@ -4,18 +4,20 @@ class TestSourceRange < Minitest::Test
   def setup
     @buf = Parser::Source::Buffer.new('(string)')
     @buf.source = "foobar\nbaz"
+    @sr1_3 = Parser::Source::Range.new(@buf, 1, 3)
+    @sr2_2 = Parser::Source::Range.new(@buf, 2, 2)
+    @sr2_6 = Parser::Source::Range.new(@buf, 2, 6)
+    @sr5_8 = Parser::Source::Range.new(@buf, 5, 8)
   end
 
   def test_initialize
-    sr = Parser::Source::Range.new(@buf, 1, 2)
-    assert_equal 1, sr.begin_pos
-    assert_equal 2, sr.end_pos
-    assert sr.frozen?
+    assert_equal 1, @sr1_3.begin_pos
+    assert_equal 3, @sr1_3.end_pos
+    assert @sr1_3.frozen?
   end
 
   def test_size
-    sr = Parser::Source::Range.new(@buf, 1, 3)
-    assert_equal 2, sr.size
+    assert_equal 4, @sr2_6.size
   end
 
   def test_bad_size
@@ -25,65 +27,43 @@ class TestSourceRange < Minitest::Test
   end
 
   def test_join
-    sr1 = Parser::Source::Range.new(@buf, 1, 2)
-    sr2 = Parser::Source::Range.new(@buf, 5, 8)
-    sr = sr1.join(sr2)
+    sr = @sr1_3.join(@sr5_8)
 
     assert_equal 1, sr.begin_pos
     assert_equal 8, sr.end_pos
   end
 
   def test_intersect
-    sr1 = Parser::Source::Range.new(@buf, 1, 3)
-    sr2 = Parser::Source::Range.new(@buf, 2, 6)
-    sr3 = Parser::Source::Range.new(@buf, 5, 8)
-    sre = Parser::Source::Range.new(@buf, 2, 2)
-
-    assert_equal 2, sr1.intersect(sr2).begin_pos
-    assert_equal 3, sr1.intersect(sr2).end_pos
-    assert_equal 5, sr2.intersect(sr3).begin_pos
-    assert_equal 6, sr2.intersect(sr3).end_pos
-    assert sr1.intersect(sr3) == nil
-    assert_equal 2, sr1.intersect(sre).begin_pos
-    assert_equal 2, sr1.intersect(sre).end_pos
-    assert_equal 2, sre.intersect(sre).begin_pos
-    assert_equal 2, sre.intersect(sre).end_pos
+    assert_equal 2, @sr1_3.intersect(@sr2_6).begin_pos
+    assert_equal 3, @sr1_3.intersect(@sr2_6).end_pos
+    assert_equal 5, @sr2_6.intersect(@sr5_8).begin_pos
+    assert_equal 6, @sr2_6.intersect(@sr5_8).end_pos
+    assert @sr1_3.intersect(@sr5_8) == nil
+    assert_equal 2, @sr1_3.intersect(@sr2_2).begin_pos
+    assert_equal 2, @sr1_3.intersect(@sr2_2).end_pos
+    assert_equal 2, @sr2_2.intersect(@sr2_2).begin_pos
+    assert_equal 2, @sr2_2.intersect(@sr2_2).end_pos
   end
 
   def test_disjoint
-    sr1 = Parser::Source::Range.new(@buf, 1, 3)
-    sr2 = Parser::Source::Range.new(@buf, 2, 6)
-    sr3 = Parser::Source::Range.new(@buf, 5, 8)
-    sre = Parser::Source::Range.new(@buf, 2, 2)
-
-    assert sr1.disjoint?(sr3)
-    assert !sr1.disjoint?(sr2)
-    assert !sr2.disjoint?(sr3)
-    assert !sre.disjoint?(sre)
+    assert @sr1_3.disjoint?(@sr5_8)
+    assert !@sr1_3.disjoint?(@sr2_6)
+    assert !@sr2_6.disjoint?(@sr5_8)
+    assert !@sr2_2.disjoint?(@sr2_2)
   end
 
   def test_overlaps
-    sr1 = Parser::Source::Range.new(@buf, 1, 3)
-    sr2 = Parser::Source::Range.new(@buf, 2, 6)
-    sr3 = Parser::Source::Range.new(@buf, 5, 8)
-    sre = Parser::Source::Range.new(@buf, 2, 2)
-
-    assert !sr1.overlaps?(sr3)
-    assert sr1.overlaps?(sr2)
-    assert sr2.overlaps?(sr3)
-    assert sr1.overlaps?(sre)
-    assert !sr2.overlaps?(sre)
-    assert sre.overlaps?(sre)
+    assert !@sr1_3.overlaps?(@sr5_8)
+    assert @sr1_3.overlaps?(@sr2_6)
+    assert @sr2_6.overlaps?(@sr5_8)
+    assert @sr1_3.overlaps?(@sr2_2)
+    assert !@sr2_6.overlaps?(@sr2_2)
+    assert @sr2_2.overlaps?(@sr2_2)
   end
 
   def test_empty
-    sr1 = Parser::Source::Range.new(@buf, 1, 3)
-    sr2 = Parser::Source::Range.new(@buf, 2, 2)
-    sr3 = Parser::Source::Range.new(@buf, 7, 8)
-
-    assert !sr1.empty?
-    assert sr2.empty?
-    assert !sr3.empty?
+    assert !@sr1_3.empty?
+    assert @sr2_2.empty?
   end
 
   def test_line
@@ -104,15 +84,13 @@ class TestSourceRange < Minitest::Test
   end
 
   def test_begin_end
-    sr = Parser::Source::Range.new(@buf, 1, 5)
+    sr_beg = @sr2_6.begin
+    assert_equal 2, sr_beg.begin_pos
+    assert_equal 2, sr_beg.end_pos
 
-    sr_beg = sr.begin
-    assert_equal 1, sr_beg.begin_pos
-    assert_equal 1, sr_beg.end_pos
-
-    sr_end = sr.end
-    assert_equal 5, sr_end.begin_pos
-    assert_equal 5, sr_end.end_pos
+    sr_end = @sr2_6.end
+    assert_equal 6, sr_end.begin_pos
+    assert_equal 6, sr_end.end_pos
   end
 
   def test_source
@@ -135,9 +113,8 @@ class TestSourceRange < Minitest::Test
   end
 
   def test_with
-    sr1 = Parser::Source::Range.new(@buf, 1, 3)
-    sr2 = sr1.with(begin_pos: 2)
-    sr3 = sr1.with(end_pos: 4)
+    sr2 = @sr1_3.with(begin_pos: 2)
+    sr3 = @sr1_3.with(end_pos: 4)
 
     assert_equal 2, sr2.begin_pos
     assert_equal 3, sr2.end_pos
