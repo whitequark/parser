@@ -117,6 +117,18 @@ class TestSourceBuffer < Minitest::Test
     end
   end
 
+  def test_source_range
+    @buffer = Parser::Source::Buffer.new('(string)', 5)
+
+    assert_raises RuntimeError do
+      @buffer.source_range
+    end
+
+    @buffer.source = "abc\ndef\nghi\n"
+
+    assert_equal Parser::Source::Range.new(@buffer, 0, @buffer.source.size), @buffer.source_range
+  end
+
   def test_last_line
     @buffer.source = "1\nfoo\nbar"
     assert_equal 3, @buffer.last_line

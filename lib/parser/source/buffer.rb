@@ -289,6 +289,13 @@ module Parser
       end
 
       ##
+      # @return [Range] A range covering the whole source
+      #
+      def source_range
+        @source_range ||= Range.new(self, 0, source.size)
+      end
+
+      ##
       # Number of last line in the buffer
       #
       # @return [Integer]
