@@ -168,9 +168,19 @@ module Parser
       ##
       # @param [Hash] Endpoint(s) to change, any combination of :begin_pos or :end_pos
       # @return [Range] the same range as this range but with the given end point(s) changed
+      # to the given value(s).
       #
       def with(pos)
         Range.new(@source_buffer,pos.fetch(:begin_pos, @begin_pos), pos.fetch(:end_pos, @end_pos))
+      end
+
+      ##
+      # @param [Hash] Endpoint(s) to change, any combination of :begin_pos or :end_pos
+      # @return [Range] the same range as this range but with the given end point(s) adjusted
+      # by the given amount(s)
+      #
+      def adjust(begin_pos: 0, end_pos: 0)
+        Range.new(@source_buffer, @begin_pos + begin_pos, @end_pos + end_pos)
       end
 
       ##

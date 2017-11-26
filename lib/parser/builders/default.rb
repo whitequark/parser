@@ -1232,7 +1232,7 @@ module Parser
     def pair_keyword_map(key_t, value_e)
       key_range = loc(key_t)
 
-      key_l   = key_range.with(end_pos: key_range.end_pos - 1)
+      key_l   = key_range.adjust(end_pos: -1)
 
       colon_l = key_range.with(begin_pos: key_range.end_pos - 1)
 
@@ -1338,7 +1338,7 @@ module Parser
 
     def kwarg_map(name_t, value_e=nil)
       label_range = loc(name_t)
-      name_range  = label_range.with(end_pos: label_range.end_pos - 1)
+      name_range  = label_range.adjust(end_pos: -1)
 
       if value_e
         expr_l = loc(name_t).join(value_e.loc.expression)
