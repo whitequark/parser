@@ -170,8 +170,8 @@ module Parser
       # @return [Range] the same range as this range but with the given end point(s) changed
       # to the given value(s).
       #
-      def with(pos)
-        Range.new(@source_buffer,pos.fetch(:begin_pos, @begin_pos), pos.fetch(:end_pos, @end_pos))
+      def with(begin_pos: @begin_pos, end_pos: @end_pos)
+        Range.new(@source_buffer, begin_pos, end_pos)
       end
 
       ##
