@@ -22,6 +22,8 @@ module Parser
     # @api public
     #
     class Range
+      include Comparable
+
       attr_reader :source_buffer
       attr_reader :begin_pos, :end_pos
 
@@ -285,14 +287,13 @@ module Parser
       end
 
       ##
-      # Compares ranges.
-      # @return [Boolean]
+      # Compare ranges, first by begin_pos, then by end_pos.
       #
-      def ==(other)
-        other.is_a?(Range) &&
-          @source_buffer == other.source_buffer &&
-          @begin_pos     == other.begin_pos     &&
-          @end_pos       == other.end_pos
+      def <=>(other)
+        return nil unless other.is_a?(::Parser::Source::Range) &&
+          @source_buffer == other.source_buffer
+        (@begin_pos <=> other.begin_pos).nonzero? ||
+        (@end_pos <=> other.end_pos)
       end
 
       ##
