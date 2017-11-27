@@ -205,8 +205,12 @@ module Parser
       end
 
       ##
+      # Return `true` iff this range and `other` are disjoint.
+      #
+      # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
+      #
       # @param [Range] other
-      # @return [Boolean] `true` if this range and `other` do not overlap
+      # @return [Boolean]
       #
       def disjoint?(other)
         (@begin_pos >= other.end_pos || other.begin_pos >= @end_pos) &&
@@ -214,11 +218,50 @@ module Parser
       end
 
       ##
+      # Return `true` iff this range is not disjoint from `other`.
+      #
       # @param [Range] other
       # @return [Boolean] `true` if this range and `other` overlap
       #
       def overlaps?(other)
         !disjoint?(other)
+      end
+
+      ##
+      # Returns true iff this range contains (strictly) `other`.
+      #
+      # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
+      #
+      # @param [Range] other
+      # @return [Boolean]
+      #
+      def contains?(other)
+        (other.begin_pos <=> @begin_pos) + (@end_pos <=> other.end_pos) >= (other.empty? ? 2 : 1)
+      end
+
+      ##
+      # Return `other.contains?(self)`
+      #
+      # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
+      #
+      # @param [Range] other
+      # @return [Boolean]
+      #
+      def contained?(other)
+        other.contains?(self)
+      end
+
+      ##
+      # Returns true iff both ranges intersect and also have different elements from one another.
+      #
+      # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
+      #
+      # @param [Range] other
+      # @return [Boolean]
+      #
+      def crossing?(other)
+        return false unless overlaps?(other)
+        (@begin_pos <=> other.begin_pos) * (@end_pos <=> other.end_pos) == 1
       end
 
       ##
