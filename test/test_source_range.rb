@@ -37,32 +37,43 @@ class TestSourceRange < Minitest::Test
     sr1 = Parser::Source::Range.new(@buf, 1, 3)
     sr2 = Parser::Source::Range.new(@buf, 2, 6)
     sr3 = Parser::Source::Range.new(@buf, 5, 8)
+    sre = Parser::Source::Range.new(@buf, 2, 2)
 
     assert_equal 2, sr1.intersect(sr2).begin_pos
     assert_equal 3, sr1.intersect(sr2).end_pos
     assert_equal 5, sr2.intersect(sr3).begin_pos
     assert_equal 6, sr2.intersect(sr3).end_pos
     assert sr1.intersect(sr3) == nil
+    assert_equal 2, sr1.intersect(sre).begin_pos
+    assert_equal 2, sr1.intersect(sre).end_pos
+    assert_equal 2, sre.intersect(sre).begin_pos
+    assert_equal 2, sre.intersect(sre).end_pos
   end
 
   def test_disjoint
     sr1 = Parser::Source::Range.new(@buf, 1, 3)
     sr2 = Parser::Source::Range.new(@buf, 2, 6)
     sr3 = Parser::Source::Range.new(@buf, 5, 8)
+    sre = Parser::Source::Range.new(@buf, 2, 2)
 
     assert sr1.disjoint?(sr3)
     assert !sr1.disjoint?(sr2)
     assert !sr2.disjoint?(sr3)
+    assert !sre.disjoint?(sre)
   end
 
   def test_overlaps
     sr1 = Parser::Source::Range.new(@buf, 1, 3)
     sr2 = Parser::Source::Range.new(@buf, 2, 6)
     sr3 = Parser::Source::Range.new(@buf, 5, 8)
+    sre = Parser::Source::Range.new(@buf, 2, 2)
 
     assert !sr1.overlaps?(sr3)
     assert sr1.overlaps?(sr2)
     assert sr2.overlaps?(sr3)
+    assert sr1.overlaps?(sre)
+    assert !sr2.overlaps?(sre)
+    assert sre.overlaps?(sre)
   end
 
   def test_empty
