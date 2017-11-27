@@ -45,13 +45,6 @@ class TestSourceRange < Minitest::Test
     assert_equal 2, @sr2_2.intersect(@sr2_2).end_pos
   end
 
-  def test_disjoint
-    assert @sr1_3.disjoint?(@sr5_8)
-    assert !@sr1_3.disjoint?(@sr2_6)
-    assert !@sr2_6.disjoint?(@sr5_8)
-    assert !@sr2_2.disjoint?(@sr2_2)
-  end
-
   def test_overlaps
     assert !@sr1_3.overlaps?(@sr5_8)
     assert @sr1_3.overlaps?(@sr2_6)
@@ -59,6 +52,37 @@ class TestSourceRange < Minitest::Test
     assert @sr1_3.overlaps?(@sr2_2)
     assert !@sr2_6.overlaps?(@sr2_2)
     assert @sr2_2.overlaps?(@sr2_2)
+  end
+
+  def check_relationship(relationship, sr1, sr2, reflexive_relationship = relationship)
+    # Double check equality
+    assert_equal true, sr1 == sr1.dup
+    assert_equal true, sr1 != sr2
+    # Check relationships and reflexivity
+    assert_equal true, sr1.send(relationship, sr2)
+    assert_equal true, sr2.send(reflexive_relationship, sr1)
+    # Check it's not true for itself
+    assert_equal false, sr1.send(relationship, sr1)
+    # Check other relationships return false
+    others = %i[disjoint? crossing? contains? contained?] - [relationship, reflexive_relationship]
+    others.each do |other_rel|
+      assert_equal false, sr1.send(other_rel, sr2), other_rel
+      assert_equal false, sr2.send(other_rel, sr1), other_rel
+    end
+  end
+
+  def test_disjoint
+    check_relationship(:disjoint?, @sr1_3, @sr5_8)
+    check_relationship(:disjoint?, @sr2_2, @sr2_6)
+  end
+
+  def test_crossing
+    check_relationship(:crossing?, @sr1_3, @sr2_6)
+  end
+
+  def test_containment
+    check_relationship(:contained?, @sr2_2, @sr1_3, :contains?)
+    check_relationship(:contained?, @sr5_8.with(end_pos: 7), @sr5_8, :contains?)
   end
 
   def test_empty
