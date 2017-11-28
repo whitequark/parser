@@ -86,6 +86,16 @@ module Parser
     end
 
     ##
+    # Wraps the given source range with the given values.
+    #
+    # @param [Parser::Source::Range] range
+    # @param [String] content
+    #
+    def wrap(range, before, after)
+      @source_rewriter.wrap(range, before, after)
+    end
+
+    ##
     # Inserts new code before the given source range.
     #
     # @param [Parser::Source::Range] range
