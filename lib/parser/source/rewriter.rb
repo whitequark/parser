@@ -80,6 +80,21 @@ module Parser
       end
 
       ##
+      # Inserts new code before and after the given source range.
+      #
+      # @param [Range] range
+      # @param [String] before
+      # @param [String] after
+      # @return [Rewriter] self
+      # @raise [ClobberingError] when clobbering is detected
+      # @deprecated Use {TreeRewriter#wrap}
+      #
+      def wrap(range, before, after)
+        append Rewriter::Action.new(range.begin, before)
+        append Rewriter::Action.new(range.end, after)
+      end
+
+      ##
       # Inserts new code before the given source range by allowing other
       # insertions at the same position.
       # Note that an insertion with latter invocation comes _before_ earlier
