@@ -2,7 +2,7 @@ require 'pathname'
 require 'fileutils'
 require 'shellwords'
 
-BASE_DIR = Pathname.new(__FILE__) + '../..'
+BASE_DIR = Pathname.new(__FILE__) + '..'
 require (BASE_DIR + 'helper').expand_path
 
 class TestRunnerRewrite < Minitest::Test
