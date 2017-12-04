@@ -6,6 +6,7 @@ class TestSourceRange < Minitest::Test
     @buf.source = "foobar\nbaz"
     @sr1_3 = Parser::Source::Range.new(@buf, 1, 3)
     @sr2_2 = Parser::Source::Range.new(@buf, 2, 2)
+    @sr3_3 = Parser::Source::Range.new(@buf, 3, 3)
     @sr2_6 = Parser::Source::Range.new(@buf, 2, 6)
     @sr5_8 = Parser::Source::Range.new(@buf, 5, 8)
   end
@@ -74,6 +75,7 @@ class TestSourceRange < Minitest::Test
   def test_disjoint
     check_relationship(:disjoint?, @sr1_3, @sr5_8)
     check_relationship(:disjoint?, @sr2_2, @sr2_6)
+    check_relationship(:disjoint?, @sr2_2, @sr3_3)
   end
 
   def test_crossing

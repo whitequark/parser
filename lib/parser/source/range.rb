@@ -223,8 +223,11 @@ module Parser
       # @return [Boolean]
       #
       def disjoint?(other)
-        (@begin_pos >= other.end_pos || other.begin_pos >= @end_pos) &&
-          (!empty? || !other.empty?)
+        if empty? && other.empty?
+          @begin_pos != other.begin_pos
+        else
+          @begin_pos >= other.end_pos || other.begin_pos >= @end_pos
+        end
       end
 
       ##
