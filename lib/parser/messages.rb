@@ -58,6 +58,7 @@ module Parser
     :masgn_as_condition      => 'multiple assignment in conditional context',
     :block_given_to_yield    => 'block given to yield',
     :invalid_regexp          => '%{message}',
+    :brace_after_literal_arg => 'brace after literal arg',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',
