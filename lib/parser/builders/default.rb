@@ -771,7 +771,14 @@ module Parser
       end
     end
 
-    def block(method_call, begin_t, args, body, end_t)
+    LITERAL_TYPES = %i[
+      int float rational complex
+      str dstr sym dsym
+      irange erange
+      array regexp
+    ].freeze
+
+    def block(method_call, begin_t, args, body, end_t, cmd_brace_block=false)
       _receiver, _selector, *call_args = *method_call
 
       if method_call.type == :yield
@@ -781,6 +788,10 @@ module Parser
       last_arg = call_args.last
       if last_arg && last_arg.type == :block_pass
         diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
+      end
+
+      if @parser.version >= 24 && cmd_brace_block && LITERAL_TYPES.include?(last_arg.type)
+        diagnostic :error, :brace_after_literal_arg, nil, loc(begin_t), [loc(begin_t)]
       end
 
       if [:send, :csend, :super, :zsuper, :lambda].include?(method_call.type)

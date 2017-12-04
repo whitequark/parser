@@ -302,7 +302,7 @@ rule
 
                       begin_t, args, body, end_t = val[2]
                       result      = @builder.block(method_call,
-                                      begin_t, args, body, end_t)
+                                      begin_t, args, body, end_t, true)
                     }
                 | primary_value call_op operation2 command_args =tLOWEST
                     {
@@ -316,7 +316,7 @@ rule
 
                       begin_t, args, body, end_t = val[4]
                       result      = @builder.block(method_call,
-                                      begin_t, args, body, end_t)
+                                      begin_t, args, body, end_t, true)
                     }
                 | primary_value tCOLON2 operation2 command_args =tLOWEST
                     {
@@ -330,7 +330,7 @@ rule
 
                       begin_t, args, body, end_t = val[4]
                       result      = @builder.block(method_call,
-                                      begin_t, args, body, end_t)
+                                      begin_t, args, body, end_t, true)
                     }
                 | kSUPER command_args
                     {

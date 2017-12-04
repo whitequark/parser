@@ -6185,4 +6185,99 @@ class TestParser < Minitest::Test
       s(:regexp, s(:str, "#)"), s(:regopt, :x)),
       %Q{/#)/x})
   end
+
+  def test_ruby_bug_13547
+    [
+      [%q{m "x" {}},
+       %q{      ^ location}],
+      [%q{m 1 {}},
+       %q{    ^ location}],
+      [%q{m 1.0 {}},
+       %q{      ^ location}],
+      [%q{m 1r {}},
+       %q{     ^ location}],
+      [%q{m 1i {}},
+       %q{     ^ location}],
+      [%q{m :m {}},
+       %q{     ^ location}],
+      [%q{m :"#{m}" {}},
+       %q{          ^ location}],
+      [%q{m %[] {}},
+       %q{      ^ location}],
+      [%q{m 0..1 {}},
+       %q{       ^ location}],
+      [%q{m 0...1 {}},
+       %q{        ^ location}],
+      [%q{m [] {}},
+       %q{     ^ location}],
+
+      [%q{recv.m "x" {}},
+       %q{           ^ location}],
+      [%q{recv.m 1 {}},
+       %q{         ^ location}],
+      [%q{recv.m 1.0 {}},
+       %q{           ^ location}],
+      [%q{recv.m 1r {}},
+       %q{          ^ location}],
+      [%q{recv.m 1i {}},
+       %q{          ^ location}],
+      [%q{recv.m :m {}},
+       %q{          ^ location}],
+      [%q{recv.m :"#{m}" {}},
+       %q{               ^ location}],
+      [%q{recv.m %[] {}},
+       %q{           ^ location}],
+      [%q{recv.m 0..1 {}},
+       %q{            ^ location}],
+      [%q{recv.m 0...1 {}},
+       %q{             ^ location}],
+      [%q{recv.m [] {}},
+       %q{          ^ location}],
+
+      [%q{A::m "x" {}},
+       %q{         ^ location}],
+      [%q{A::m 1 {}},
+       %q{       ^ location}],
+      [%q{A::m 1.0 {}},
+       %q{         ^ location}],
+      [%q{A::m 1r {}},
+       %q{        ^ location}],
+      [%q{A::m 1i {}},
+       %q{        ^ location}],
+      [%q{A::m :m {}},
+       %q{        ^ location}],
+      [%q{A::m :"#{m}" {}},
+       %q{             ^ location}],
+      [%q{A::m %[] {}},
+       %q{         ^ location}],
+      [%q{A::m 0..1 {}},
+       %q{          ^ location}],
+      [%q{A::m 0...1 {}},
+       %q{           ^ location}],
+      [%q{A::m [] {}},
+       %q{        ^ location}]
+    ].each do |code, location|
+      assert_diagnoses(
+        [:error, :brace_after_literal_arg, {}],
+        code,
+        location,
+        SINCE_2_4)
+    end
+
+    # regexp is a special case, since it produces 2 messages: a warning and an error
+    [
+      %q{m /foo/ {}},
+      %q{recv.m /foo/ {}},
+      %q{A::m /foo/ {}}
+    ].each do |code|
+      assert_diagnoses_many(
+        [
+          [:warning, :ambiguous_literal],
+          [:error, :brace_after_literal_arg, {}]
+        ],
+        code,
+        SINCE_2_4
+      )
+    end
+  end
 end
