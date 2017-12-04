@@ -17,6 +17,7 @@ require 'ast'
 module Parser
   require 'parser/version'
   require 'parser/messages'
+  require 'parser/deprecation'
 
   module AST
     require 'parser/ast/node'
