@@ -229,6 +229,31 @@ module Parser
         @in_transaction
       end
 
+      ##
+      # @api private
+      # @deprecated Use insert_after or wrap
+      #
+      def insert_before_multi(range, text)
+        self.class.warn_of_deprecation
+        insert_before(range, text)
+      end
+
+      ##
+      # @api private
+      # @deprecated Use insert_after or wrap
+      #
+      def insert_after_multi(range, text)
+        self.class.warn_of_deprecation
+        insert_after(range, text)
+      end
+
+      DEPRECATION_WARNING = [
+        'TreeRewriter#insert_before_multi and insert_before_multi exist only for legacy compatibility.',
+        'Please update your code to use `wrap`, `insert_before` or `insert_after` instead.'
+      ].join("\n").freeze
+
+      extend Deprecation
+
       private
 
       ACTIONS = %i[accept warn raise].freeze
