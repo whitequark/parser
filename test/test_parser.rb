@@ -6278,4 +6278,41 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_2_3)
   end
+
+  def test_lparenarg_after_lvar__since_25
+    assert_parses(
+      s(:send, nil, :meth,
+        s(:send,
+          s(:begin,
+            s(:float, -1.3)), :abs)),
+      %q{meth (-1.3).abs},
+      %q{},
+      ALL_VERSIONS - SINCE_2_5)
+
+    assert_parses(
+      s(:send,
+        s(:send, nil, :foo,
+          s(:float, -1.3)), :abs),
+      %q{foo (-1.3).abs},
+      %q{},
+      ALL_VERSIONS - SINCE_2_5)
+
+    assert_parses(
+      s(:send, nil, :meth,
+        s(:send,
+          s(:begin,
+            s(:float, -1.3)), :abs)),
+      %q{meth (-1.3).abs},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:send,
+          s(:begin,
+            s(:float, -1.3)), :abs)),
+      %q{foo (-1.3).abs},
+      %q{},
+      SINCE_2_5)
+  end
 end

@@ -1901,6 +1901,21 @@ class Parser::Lexer
       call_or_var
       => local_ident;
 
+      (call_or_var - keyword)
+        % { ident_tok = tok; ident_ts = @ts; ident_te = @te; }
+      w_space+ '('
+      => {
+        emit(:tIDENTIFIER, ident_tok, ident_ts, ident_te)
+        p = ident_te - 1
+
+        if !@static_env.nil? && @static_env.declared?(ident_tok) && @version < 25
+          fnext expr_endfn;
+        else
+          fnext expr_cmdarg;
+        end
+        fbreak;
+      };
+
       #
       # WHITESPACE
       #
