@@ -6185,4 +6185,97 @@ class TestParser < Minitest::Test
       s(:regexp, s(:str, "#)"), s(:regopt, :x)),
       %Q{/#)/x})
   end
+
+  def test_bug_do_block_in_hash_brace
+    assert_parses(
+      s(:send, nil, :p,
+        s(:sym, :foo),
+        s(:hash,
+          s(:pair,
+            s(:sym, :a),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)),
+          s(:pair,
+            s(:sym, :b),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)))),
+      %q{p :foo, {a: proc do end, b: proc do end}},
+      %q{},
+      SINCE_2_3)
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:sym, :foo),
+        s(:hash,
+          s(:pair,
+            s(:sym, :a),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)),
+          s(:pair,
+            s(:sym, :b),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)))),
+      %q{p :foo, {:a => proc do end, b: proc do end}},
+      %q{},
+      SINCE_2_3)
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:sym, :foo),
+        s(:hash,
+          s(:pair,
+            s(:sym, :a),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)),
+          s(:pair,
+            s(:sym, :b),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)))),
+      %q{p :foo, {"a": proc do end, b: proc do end}},
+      %q{},
+      SINCE_2_3)
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:sym, :foo),
+        s(:hash,
+          s(:pair,
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)),
+          s(:pair,
+            s(:sym, :b),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)))),
+      %q{p :foo, {proc do end => proc do end, b: proc do end}},
+      %q{},
+      SINCE_2_3)
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:sym, :foo),
+        s(:hash,
+          s(:kwsplat,
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)),
+          s(:pair,
+            s(:sym, :b),
+            s(:block,
+              s(:send, nil, :proc),
+              s(:args), nil)))),
+      %q{p :foo, {** proc do end, b: proc do end}},
+      %q{},
+      SINCE_2_3)
+  end
 end
