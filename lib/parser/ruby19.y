@@ -280,12 +280,14 @@ rule
  cmd_brace_block: tLBRACE_ARG
                     {
                       @static_env.extend_dynamic
+                      @context.push(:block)
                     }
                     opt_block_param compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
+                      @context.pop
                     }
 
          command: operation command_args =tLOWEST
@@ -1089,10 +1091,11 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @context.push(:class)
                     }
                     bodystmt kEND
                     {
-                      if in_def?
+                      if @context.indirectly_in_def?
                         diagnostic :error, :class_in_def, nil, val[0]
                       end
 
@@ -1103,14 +1106,13 @@ rule
 
                       @lexer.pop_cmdarg
                       @static_env.unextend
+                      @context.pop
                     }
                 | kCLASS tLSHFT expr term
                     {
-                      result = @def_level
-                      @def_level = 0
-
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @context.push(:sclass)
                     }
                     bodystmt kEND
                     {
@@ -1119,8 +1121,7 @@ rule
 
                       @lexer.pop_cmdarg
                       @static_env.unextend
-
-                      @def_level = val[4]
+                      @context.pop
                     }
                 | kMODULE cpath
                     {
@@ -1129,7 +1130,7 @@ rule
                     }
                     bodystmt kEND
                     {
-                      if in_def?
+                      if @context.indirectly_in_def?
                         diagnostic :error, :module_in_def, nil, val[0]
                       end
 
@@ -1141,9 +1142,9 @@ rule
                     }
                 | kDEF fname
                     {
-                      @def_level += 1
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @context.push(:def)
                     }
                     f_arglist bodystmt kEND
                     {
@@ -1152,7 +1153,7 @@ rule
 
                       @lexer.pop_cmdarg
                       @static_env.unextend
-                      @def_level -= 1
+                      @context.pop
                     }
                 | kDEF singleton dot_or_colon
                     {
@@ -1160,9 +1161,9 @@ rule
                     }
                     fname
                     {
-                      @def_level += 1
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @context.push(:defs)
                     }
                     f_arglist bodystmt kEND
                     {
@@ -1171,7 +1172,7 @@ rule
 
                       @lexer.pop_cmdarg
                       @static_env.unextend
-                      @def_level -= 1
+                      @context.pop
                     }
                 | kBREAK
                     {
@@ -1448,24 +1449,36 @@ rule
                       result = @builder.args(nil, val[0], nil)
                     }
 
-     lambda_body: tLAMBEG compstmt tRCURLY
+     lambda_body: tLAMBEG
                     {
-                      result = [ val[0], val[1], val[2] ]
+                      @context.push(:lambda)
                     }
-                | kDO_LAMBDA compstmt kEND
+                  compstmt tRCURLY
                     {
-                      result = [ val[0], val[1], val[2] ]
+                      result = [ val[0], val[2], val[3] ]
+                      @context.pop
+                    }
+                | kDO_LAMBDA
+                    {
+                      @context.push(:lambda)
+                    }
+                  compstmt kEND
+                    {
+                      result = [ val[0], val[2], val[3] ]
+                      @context.pop
                     }
 
         do_block: kDO_BLOCK
                     {
                       @static_env.extend_dynamic
+                      @context.push(:block)
                     }
                     opt_block_param compstmt kEND
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
+                      @context.pop
                     }
 
       block_call: command do_block
@@ -1539,22 +1552,26 @@ rule
      brace_block: tLCURLY
                     {
                       @static_env.extend_dynamic
+                      @context.push(:block)
                     }
                     opt_block_param compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
+                      @context.pop
                     }
                 | kDO
                     {
                       @static_env.extend_dynamic
+                      @context.push(:block)
                     }
                     opt_block_param compstmt kEND
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
+                      @context.pop
                     }
 
        case_body: kWHEN args then compstmt cases

@@ -58,6 +58,7 @@ module Parser
     :masgn_as_condition      => 'multiple assignment in conditional context',
     :block_given_to_yield    => 'block given to yield',
     :invalid_regexp          => '%{message}',
+    :invalid_return          => 'Invalid return in class/module body',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',

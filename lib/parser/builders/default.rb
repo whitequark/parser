@@ -479,7 +479,7 @@ module Parser
         node.updated(:gvasgn)
 
       when :const
-        if @parser.in_def?
+        if @parser.context.indirectly_in_def?
           diagnostic :error, :dynamic_const, nil, node.loc.expression
         end
 

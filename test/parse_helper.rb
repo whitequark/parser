@@ -196,6 +196,21 @@ module ParseHelper
     end
   end
 
+  def assert_context(context, code, versions=ALL_VERSIONS)
+    with_versions(versions) do |version, parser|
+      source_file = Parser::Source::Buffer.new('(assert_context)')
+      source_file.source = code
+
+      begin
+        parser.parse(source_file)
+      rescue Parser::SyntaxError
+        # do nothing; the diagnostic was reported
+      end
+
+      assert_equal parser.context.stack, context, "(#{version}) parsing context"
+    end
+  end
+
   SOURCE_MAP_DESCRIPTION_RE =
       /(?x)
        ^(?# $1 skip)            ^(\s*)

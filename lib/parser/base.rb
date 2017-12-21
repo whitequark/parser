@@ -111,6 +111,7 @@ module Parser
     attr_reader :builder
     attr_reader :static_env
     attr_reader :source_buffer
+    attr_reader :context
 
     ##
     # @param [Parser::Builders::Default] builder The AST builder to use.
@@ -126,6 +127,7 @@ module Parser
 
       @builder = builder
       @builder.parser = self
+      @context = Context.new
 
       if self.class::Racc_debug_parser && ENV['RACC_DEBUG']
         @yydebug = true
@@ -139,10 +141,10 @@ module Parser
     #
     def reset
       @source_buffer = nil
-      @def_level     = 0 # count of nested def's.
 
       @lexer.reset
       @static_env.reset
+      @context.reset
 
       self
     end
@@ -213,14 +215,6 @@ module Parser
     ensure
       @lexer.tokens = nil
       @lexer.comments = nil
-    end
-
-    ##
-    # @api private
-    # @return [Boolean]
-    #
-    def in_def?
-      @def_level > 0
     end
 
     private
