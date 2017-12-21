@@ -156,13 +156,11 @@ module Parser
       # @return [String]
       #
       def source=(input)
-        if defined?(Encoding)
-          input = input.dup if input.frozen?
-          input = self.class.reencode_string(input)
+        input = input.dup if input.frozen?
+        input = self.class.reencode_string(input)
 
-          unless input.valid_encoding?
-            raise EncodingError, "invalid byte sequence in #{input.encoding.name}"
-          end
+        unless input.valid_encoding?
+          raise EncodingError, "invalid byte sequence in #{input.encoding.name}"
         end
 
         self.raw_source = input
@@ -182,8 +180,7 @@ module Parser
 
         @source = input.gsub("\r\n".freeze, "\n".freeze).freeze
 
-        if defined?(Encoding) &&
-           !@source.ascii_only? &&
+        if !@source.ascii_only? &&
            @source.encoding != Encoding::UTF_32LE &&
            @source.encoding != Encoding::BINARY
           @slice_source = @source.encode(Encoding::UTF_32LE)

@@ -1923,5 +1923,5 @@ require 'parser'
   end
 
   def default_encoding
-    Encoding::BINARY if defined? Encoding
+    Encoding::BINARY
   end

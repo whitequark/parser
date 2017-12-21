@@ -1542,19 +1542,17 @@ module Parser
       source = static_string(parts)
       return nil if source.nil?
 
-      if defined?(Encoding)
-        source = case
-        when options.children.include?(:u)
-          source.encode(Encoding::UTF_8)
-        when options.children.include?(:e)
-          source.encode(Encoding::EUC_JP)
-        when options.children.include?(:s)
-          source.encode(Encoding::WINDOWS_31J)
-        when options.children.include?(:n)
-          source.encode(Encoding::BINARY)
-        else
-          source
-        end
+      source = case
+      when options.children.include?(:u)
+        source.encode(Encoding::UTF_8)
+      when options.children.include?(:e)
+        source.encode(Encoding::EUC_JP)
+      when options.children.include?(:s)
+        source.encode(Encoding::WINDOWS_31J)
+      when options.children.include?(:n)
+        source.encode(Encoding::BINARY)
+      else
+        source
       end
 
       Regexp.new(source, (Regexp::EXTENDED if options.children.include?(:x)))
@@ -1576,16 +1574,12 @@ module Parser
       token[0]
     end
 
-    if defined?(Encoding)
-      def string_value(token)
-        unless token[0].valid_encoding?
-          diagnostic(:error, :invalid_encoding, nil, token[1])
-        end
-
-        token[0]
+    def string_value(token)
+      unless token[0].valid_encoding?
+        diagnostic(:error, :invalid_encoding, nil, token[1])
       end
-    else
-      alias string_value value
+
+      token[0]
     end
 
     def loc(token)

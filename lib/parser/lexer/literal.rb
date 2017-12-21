@@ -229,11 +229,7 @@ module Parser
     end
 
     def coerce_encoding(string)
-      if defined?(Encoding)
-        string.dup.force_encoding(Encoding::BINARY)
-      else
-        string
-      end
+      string.dup.force_encoding(Encoding::BINARY)
     end
 
     def clear_buffer
@@ -241,9 +237,7 @@ module Parser
 
       # Prime the buffer with lexer encoding; otherwise,
       # concatenation will produce varying results.
-      if defined?(Encoding)
-        @buffer.force_encoding(@lexer.source_buffer.source.encoding)
-      end
+      @buffer.force_encoding(@lexer.source_buffer.source.encoding)
 
       @buffer_s = nil
       @buffer_e = nil

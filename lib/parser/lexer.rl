@@ -182,7 +182,7 @@ class Parser::Lexer
     if @source_buffer
       source = @source_buffer.source
 
-      if defined?(Encoding) && source.encoding == Encoding::UTF_8
+      if source.encoding == Encoding::UTF_8
         @source_pts = source.unpack('U*')
       else
         @source_pts = source.unpack('C*')
@@ -308,14 +308,8 @@ class Parser::Lexer
     @stack[@top]
   end
 
-  if defined?(Encoding)
-    def encode_escape(ord)
-      ord.chr.force_encoding(@source_buffer.source.encoding)
-    end
-  else
-    def encode_escape(ord)
-      ord.chr
-    end
+  def encode_escape(ord)
+    ord.chr.force_encoding(@source_buffer.source.encoding)
   end
 
   def tok(s = @ts, e = @te)
@@ -1780,11 +1774,7 @@ class Parser::Lexer
         value = @escape || tok(@ts + 1)
 
         if version?(18)
-          if defined?(Encoding)
-            emit(:tINTEGER, value.dup.force_encoding(Encoding::BINARY)[0].ord)
-          else
-            emit(:tINTEGER, value[0].ord)
-          end
+          emit(:tINTEGER, value.dup.force_encoding(Encoding::BINARY)[0].ord)
         else
           emit(:tCHARACTER, value)
         end
