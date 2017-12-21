@@ -38,4 +38,8 @@ class TestRunnerRewrite < Minitest::Test
       expected_error: Parser::Rewriter::DEPRECATION_WARNING
     )
   end
+
+  def test_tree_rewriter
+    assert_rewriter_output('using_tree_rewriter', '-l using_tree_rewriter.rb --modify')
+  end
 end

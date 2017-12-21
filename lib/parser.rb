@@ -72,4 +72,5 @@ module Parser
   require 'parser/base'
 
   require 'parser/rewriter'
+  require 'parser/tree_rewriter'
 end
