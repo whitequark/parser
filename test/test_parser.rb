@@ -1102,6 +1102,21 @@ class TestParser < Minitest::Test
       [:error, :dynamic_const],
       %q{def f; ::Bar = 1; end},
       %q{       ~~~~~ location})
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def self.f; Foo = 1; end},
+      %q{            ~~~ location})
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def self.f; Foo::Bar = 1; end},
+      %q{            ~~~~~~~~ location})
+
+    assert_diagnoses(
+      [:error, :dynamic_const],
+      %q{def self.f; ::Bar = 1; end},
+      %q{            ~~~~~ location})
   end
 
   # Multiple assignment
@@ -1732,6 +1747,11 @@ class TestParser < Minitest::Test
       [:error, :class_in_def],
       %q{def a; class Foo; end; end},
       %q{       ^^^^^ location})
+
+    assert_diagnoses(
+      [:error, :class_in_def],
+      %q{def self.a; class Foo; end; end},
+      %q{            ^^^^^ location})
   end
 
   def test_sclass
@@ -6310,5 +6330,156 @@ class TestParser < Minitest::Test
       %q{foo (-1.3).abs},
       %q{},
       SINCE_2_5)
+  end
+
+  def test_context_class
+    [
+      %q{class A;},
+      %q{class A < B;}
+    ].each do |code|
+      assert_context([:class], code, ALL_VERSIONS)
+    end
+  end
+
+  def test_context_sclass
+    assert_context(
+      [:sclass],
+      %q{class << foo;},
+      ALL_VERSIONS)
+  end
+
+  def test_context_def
+    assert_context(
+      [:def],
+      %q{def m;},
+      ALL_VERSIONS)
+  end
+
+  def test_context_defs
+    assert_context(
+      [:defs],
+      %q{def foo.m;},
+      ALL_VERSIONS)
+  end
+
+  def test_context_cmd_brace_block
+    [
+      'tap 1, { 1 => 2 } {',
+      'foo.tap 1, { 1 => 2 } {',
+      'foo::tap 1, { 1 => 2 } {'
+    ].each do |code|
+      assert_context([:block], code, ALL_VERSIONS)
+    end
+  end
+
+  def test_context_brace_block
+    [
+      'tap {',
+      'foo.tap {',
+      'foo::tap {',
+      'tap do',
+      'foo.tap do',
+      'foo::tap do'
+    ].each do |code|
+      assert_context([:block], code, ALL_VERSIONS)
+    end
+  end
+
+  def test_context_do_block
+    [
+      %q{tap 1 do},
+      %q{foo.tap do},
+      %q{foo::tap do}
+    ].each do |code|
+      assert_context([:block], code, ALL_VERSIONS)
+    end
+  end
+
+  def test_context_lambda
+    [
+      '->() {',
+      '->() do'
+    ].each do |code|
+      assert_context([:lambda], code, SINCE_1_9)
+    end
+  end
+
+  def test_context_nested
+    assert_context(
+      [:class, :sclass, :defs, :def, :block],
+      %q{class A; class << foo; def bar.m; def m; tap do},
+      ALL_VERSIONS)
+
+    assert_context(
+      [:class, :sclass, :defs, :def, :lambda, :block],
+      %q{class A; class << foo; def bar.m; def m; -> do; tap do},
+      SINCE_1_9)
+
+    assert_context(
+      [],
+      %q{
+        class A
+          class << foo
+            def bar.m
+              def m
+                tap do
+                end
+              end
+            end
+          end
+        end
+      },
+      ALL_VERSIONS)
+
+    assert_context(
+      [],
+      %q{
+        class A
+          class << foo
+            def bar.m
+              def m
+                -> do
+                  tap do
+                  end
+                end
+              end
+            end
+          end
+        end
+      },
+      SINCE_1_9)
+  end
+
+  def test_return_in_class
+    assert_parses(
+      s(:class,
+        s(:const, nil, :A), nil,
+        s(:return)),
+      %q{class A; return; end},
+      %q{},
+      ALL_VERSIONS - SINCE_2_5)
+
+    assert_diagnoses(
+      [:error, :invalid_return, {}],
+      %q{class A; return; end},
+      %q{         ^^^^^^ location},
+      SINCE_2_5)
+
+    [
+      %q{class << foo; return; end},
+      %q{def m; return; end},
+      %q{tap { return }},
+      %q{class A; class << self; return; end; end},
+      %q{class A; def m; return; end; end},
+    ].each do |code|
+      refute_diagnoses(code, ALL_VERSIONS)
+    end
+
+    [
+      %q{-> do return end},
+      %q{class A; -> do return end; end},
+    ].each do |code|
+      refute_diagnoses(code, SINCE_1_9)
+    end
   end
 end

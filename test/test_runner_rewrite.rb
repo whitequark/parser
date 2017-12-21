@@ -27,7 +27,7 @@ class TestRunnerRewrite < Minitest::Test
       end
 
       assert_equal expected_output.chomp, stdout.chomp
-      assert_equal expected_error.chomp, stderr.chomp unless RUBY_PLATFORM == 'java' # JRuby has warnings on Travis
+      assert_match expected_error.chomp, stderr.chomp
       assert_equal File.read(expected_file.expand_path), File.read(sample_file)
     end
   end

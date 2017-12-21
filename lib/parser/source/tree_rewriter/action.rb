@@ -33,7 +33,7 @@ module Parser
         reps = []
         reps << [@range.begin, @insert_before] unless @insert_before.empty?
         reps << [@range, @replacement] if @replacement
-        reps.concat(@children.sort_by(&:range).flat_map(&:ordered_replacements)) rescue binding.pry
+        reps.concat(@children.sort_by(&:range).flat_map(&:ordered_replacements))
         reps << [@range.end, @insert_after] unless @insert_after.empty?
         reps
       end

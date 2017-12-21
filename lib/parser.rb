@@ -69,6 +69,8 @@ module Parser
     require 'parser/builders/default'
   end
 
+  require 'parser/context'
+
   require 'parser/base'
 
   require 'parser/rewriter'
