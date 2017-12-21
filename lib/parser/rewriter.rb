@@ -1,52 +1,13 @@
 module Parser
 
   ##
-  # {Parser::Rewriter} offers a basic API that makes it easy to rewrite
-  # existing ASTs. It's built on top of {Parser::AST::Processor} and
-  # {Parser::Source::Rewriter}.
-  #
-  # For example, assume you want to remove `do` tokens from a while statement.
-  # You can do this as following:
-  #
-  #     require 'parser/current'
-  #
-  #     class RemoveDo < Parser::Rewriter
-  #       def on_while(node)
-  #         # Check if the statement starts with "do"
-  #         if node.location.begin.is?('do')
-  #           remove(node.location.begin)
-  #         end
-  #       end
-  #     end
-  #
-  #     code = <<-EOF
-  #     while true do
-  #       puts 'hello'
-  #     end
-  #     EOF
-  #
-  #     buffer        = Parser::Source::Buffer.new('(example)')
-  #     buffer.source = code
-  #     parser        = Parser::CurrentRuby.new
-  #     ast           = parser.parse(buffer)
-  #     rewriter      = RemoveDo.new
-  #
-  #     # Rewrite the AST, returns a String with the new form.
-  #     puts rewriter.rewrite(buffer, ast)
-  #
-  # This would result in the following Ruby code:
-  #
-  #     while true
-  #       puts 'hello'
-  #     end
-  #
-  # Keep in mind that {Parser::Rewriter} does not take care of indentation when
-  # inserting/replacing code so you'll have to do this yourself.
-  #
-  # See also [a blog entry](http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/)
-  # describing rewriters in greater detail.
+  # {Parser::Rewriter} is deprecated. Use {Parser::TreeRewriter} instead.
+  # It has a backwards compatible API and uses {Parser::Source::TreeRewriter}
+  # instead of {Parser::Source::Rewriter}.
+  # Please check the documentation for {Parser::Source::Rewriter} for details.
   #
   # @api public
+  # @deprecated Use {Parser::TreeRewriter}
   #
   class Rewriter < Parser::AST::Processor
     ##
@@ -123,6 +84,19 @@ module Parser
     #
     def replace(range, content)
       @source_rewriter.replace(range, content)
+    end
+
+    DEPRECATION_WARNING = [
+      'Parser::Rewriter is deprecated.',
+      'Please update your code to use Parser::TreeRewriter instead'
+    ].join("\n").freeze
+
+    extend Deprecation
+
+    def initialize(*)
+      self.class.warn_of_deprecation
+      Source::Rewriter.warned_of_deprecation = true
+      super
     end
   end
 
