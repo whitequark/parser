@@ -4,7 +4,7 @@ class TestSourceRewriter < Minitest::Test
   def setup
     @buf = Parser::Source::Buffer.new('(rewriter)')
     @buf.source = 'foo bar baz'
-
+    Parser::Source::Rewriter.warned_of_deprecation = true
     @rewriter = Parser::Source::Rewriter.new(@buf)
   end
 
