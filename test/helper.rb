@@ -4,15 +4,13 @@ require 'minitest/test'
 require 'simplecov'
 
 if ENV.include?('COVERAGE') && SimpleCov.usable?
-  if defined?(TracePoint)
-    require_relative 'racc_coverage_helper'
+  require_relative 'racc_coverage_helper'
 
-    RaccCoverage.start(%w(ruby18.y ruby19.y ruby20.y ruby21.y ruby22.y ruby23.y ruby24.y ruby25.y),
-                       File.expand_path('../../lib/parser', __FILE__))
+  RaccCoverage.start(%w(ruby18.y ruby19.y ruby20.y ruby21.y ruby22.y ruby23.y ruby24.y ruby25.y),
+                     File.expand_path('../../lib/parser', __FILE__))
 
-    # Report results faster.
-    at_exit { RaccCoverage.stop }
-  end
+  # Report results faster.
+  at_exit { RaccCoverage.stop }
 
   SimpleCov.start do
     self.formatter = SimpleCov::Formatter::MultiFormatter[

@@ -38,11 +38,7 @@ class TestLexer < Minitest::Test
   def assert_escape(expected, input)
     source_buffer = Parser::Source::Buffer.new('(assert_escape)')
 
-    if defined?(Encoding)
-      source_buffer.source = "\"\\#{input}\"".encode(input.encoding)
-    else
-      source_buffer.source = "\"\\#{input}\""
-    end
+    source_buffer.source = "\"\\#{input}\"".encode(input.encoding)
 
     @lex.reset
     @lex.source_buffer = source_buffer
@@ -2890,19 +2886,17 @@ class TestLexer < Minitest::Test
   # Handling of encoding-related issues.
   #
 
-  if defined?(Encoding)
-    def test_transcoded_source_is_converted_back_to_original_encoding
-      setup_lexer(19)
-      @lex.force_utf32 = true
-      @lex.tokens = []
-      assert_scanned(utf('"a" + "b"'),
-                     :tSTRING, "a", [0, 3],
-                     :tPLUS,   "+", [4, 5],
-                     :tSTRING, "b", [6, 9])
+  def test_transcoded_source_is_converted_back_to_original_encoding
+    setup_lexer(19)
+    @lex.force_utf32 = true
+    @lex.tokens = []
+    assert_scanned(utf('"a" + "b"'),
+                   :tSTRING, "a", [0, 3],
+                   :tPLUS,   "+", [4, 5],
+                   :tSTRING, "b", [6, 9])
 
-      @lex.tokens.each do |_type, (str, _range)|
-        assert_equal Encoding::UTF_8, str.encoding
-      end
+    @lex.tokens.each do |_type, (str, _range)|
+      assert_equal Encoding::UTF_8, str.encoding
     end
   end
 
@@ -3340,21 +3334,17 @@ class TestLexer < Minitest::Test
     assert_scanned(%q{"\xE2\x80\x99"},
                    :tSTRING, "\xE2\x80\x99", [0, 14])
 
-    if defined?(Encoding)
-      assert_scanned(utf(%q{"\xE2\x80\x99"}),
-                     :tSTRING, utf('’'), [0, 14])
-      assert_scanned(utf(%q{"\342\200\231"}),
-                     :tSTRING, utf('’'), [0, 14])
-      assert_scanned(utf(%q{"\M-b\C-\M-@\C-\M-Y"}),
-                     :tSTRING, utf('’'), [0, 20])
-    end
+    assert_scanned(utf(%q{"\xE2\x80\x99"}),
+                   :tSTRING, utf('’'), [0, 14])
+    assert_scanned(utf(%q{"\342\200\231"}),
+                   :tSTRING, utf('’'), [0, 14])
+    assert_scanned(utf(%q{"\M-b\C-\M-@\C-\M-Y"}),
+                   :tSTRING, utf('’'), [0, 20])
   end
 
   def test_bug_string_utf_escape_noop
-    if defined?(Encoding)
-      assert_scanned(utf(%q{"\あ"}),
-                     :tSTRING, utf("あ"), [0, 4])
-    end
+    assert_scanned(utf(%q{"\あ"}),
+                   :tSTRING, utf("あ"), [0, 4])
   end
 
   def test_bug_string_non_utf
@@ -3363,10 +3353,8 @@ class TestLexer < Minitest::Test
     assert_scanned(%Q{"caf\xC3\xA9"},
                    :tSTRING, "caf\xC3\xA9", [0, 7])
 
-    if defined?(Encoding)
-      assert_scanned(utf(%q{"café"}),
-                     :tSTRING, utf("café"), [0, 6])
-    end
+    assert_scanned(utf(%q{"café"}),
+                   :tSTRING, utf("café"), [0, 6])
   end
 
   def test_bug_semi__END__
@@ -3437,19 +3425,17 @@ class TestLexer < Minitest::Test
                    :kIF_MOD,  'if', [3, 5])
   end
 
-  if defined?(Encoding)
-    def test_bug_unicode_in_literal
-      setup_lexer(19)
-      assert_scanned('"\u00a4"',
-                     :tSTRING, "\u00a4", [0, 8])
-    end
+  def test_bug_unicode_in_literal
+    setup_lexer(19)
+    assert_scanned('"\u00a4"',
+                   :tSTRING, "\u00a4", [0, 8])
+  end
 
-    def test_bug_utf32le_leak
-      setup_lexer(19)
-      @lex.force_utf32 = true
-      assert_scanned('"F0"',
-                     :tSTRING, "F0", [0, 4])
-    end
+  def test_bug_utf32le_leak
+    setup_lexer(19)
+    @lex.force_utf32 = true
+    assert_scanned('"F0"',
+                   :tSTRING, "F0", [0, 4])
   end
 
   def test_bug_ragel_stack

@@ -29,17 +29,15 @@ class TestSourceBuffer < Minitest::Test
     end
   end
 
-  if defined?(Encoding)
-    def test_source_setter_encoding_error
-      error = assert_raises EncodingError do
-        @buffer.source = [
-          '# encoding: utf-8',
-          "# \xf9"
-        ].join("\n")
-      end
-
-      assert_match /invalid byte sequence in UTF\-8/, error.message
+  def test_source_setter_encoding_error
+    error = assert_raises EncodingError do
+      @buffer.source = [
+        '# encoding: utf-8',
+        "# \xf9"
+      ].join("\n")
     end
+
+    assert_match /invalid byte sequence in UTF\-8/, error.message
   end
 
   def test_read
