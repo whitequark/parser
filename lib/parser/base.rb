@@ -93,9 +93,7 @@ module Parser
     end
 
     def self.setup_source_buffer(file, line, string, encoding)
-      if string.respond_to? :force_encoding
-        string = string.dup.force_encoding(encoding)
-      end
+      string = string.dup.force_encoding(encoding)
 
       source_buffer = Source::Buffer.new(file, line)
 

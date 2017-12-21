@@ -22,11 +22,7 @@ class TestLexer < Minitest::Test
   #
 
   def utf(str)
-    if str.respond_to?(:force_encoding)
-      str.force_encoding(Encoding::UTF_8)
-    else
-      str
-    end
+    str.force_encoding(Encoding::UTF_8)
   end
 
   #
@@ -53,9 +49,7 @@ class TestLexer < Minitest::Test
 
     lex_token, (lex_value, *) = @lex.advance
 
-    if lex_value.respond_to?(:force_encoding)
-      lex_value.force_encoding(Encoding::BINARY)
-    end
+    lex_value.force_encoding(Encoding::BINARY)
 
     assert_equal [:tSTRING, expected],
                  [lex_token, lex_value],

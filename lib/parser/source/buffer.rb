@@ -319,19 +319,9 @@ module Parser
         @line_begins
       end
 
-      if [].respond_to?(:bsearch)
-        def line_for(position)
-          # Fast O(log n) variant for Ruby >=2.0.
-          line_begins.bsearch do |line, line_begin|
-            line_begin <= position
-          end
-        end
-      else
-        def line_for(position)
-          # Slower O(n) variant for Ruby <2.0.
-          line_begins.find do |line, line_begin|
-            line_begin <= position
-          end
+      def line_for(position)
+        line_begins.bsearch do |line, line_begin|
+          line_begin <= position
         end
       end
     end
