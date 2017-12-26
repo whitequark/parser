@@ -1740,6 +1740,13 @@ class Parser::Lexer
       # SYMBOL LITERALS
       #
 
+      # :&&, :||
+      ':' ('&&' | '||') => {
+        fhold; fhold;
+        emit(:tSYMBEG, tok(@ts, @ts + 1), @ts, @ts + 1)
+        fgoto expr_fname;
+      };
+
       # :"bar", :'baz'
       ':' ['"] # '
       => {

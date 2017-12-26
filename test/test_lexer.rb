@@ -3451,4 +3451,16 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,      "\"",  [15, 16])
   end
 
+  def test_bug_423
+    @lex.state = :expr_beg
+    assert_scanned(':&&',
+                   :tSYMBEG, ':',  [0, 1],
+                   :tANDOP,  '&&', [1, 3])
+
+    @lex.state = :expr_beg
+    assert_scanned(':||',
+                   :tSYMBEG, ':',  [0, 1],
+                   :tOROP,   '||', [1, 3])
+  end
+
 end
