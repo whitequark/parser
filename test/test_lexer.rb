@@ -3473,4 +3473,28 @@ class TestLexer < Minitest::Test
                    :tRCURLY,  '}', [24, 25])
   end
 
+  def test_bug_407
+    setup_lexer(21)
+
+    assert_scanned('123if cond',
+                   :tINTEGER,    123,    [0, 3],
+                   :kIF_MOD,     'if',   [3, 5],
+                   :tIDENTIFIER, 'cond', [6, 10])
+
+    assert_scanned('1.23if cond',
+                   :tFLOAT,      1.23,   [0, 4],
+                   :kIF_MOD,     'if',   [4, 6],
+                   :tIDENTIFIER, 'cond', [7, 11])
+
+    assert_scanned('123rescue cond',
+                   :tINTEGER,    123,      [0, 3],
+                   :kRESCUE_MOD, 'rescue', [3, 9],
+                   :tIDENTIFIER, 'cond',   [10, 14])
+
+    assert_scanned('1.23rescue cond',
+                   :tFLOAT,      1.23,     [0, 4],
+                   :kRESCUE_MOD, 'rescue', [4, 10],
+                   :tIDENTIFIER, 'cond',   [11, 15])
+  end
+
 end
