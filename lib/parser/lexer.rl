@@ -174,6 +174,9 @@ class Parser::Lexer
 
     # True at the end of "def foo a:"
     @in_kwarg      = false
+
+    # State before =begin / =end block comment
+    @cs_before_block_comment = self.class.lex_en_line_begin
   end
 
   def source_buffer=(source_buffer)
@@ -1920,8 +1923,11 @@ class Parser::Lexer
       w_any;
 
       e_heredoc_nl '=begin' ( c_space | c_nl_zlen )
-      => { p = @ts - 1
-           fgoto line_begin; };
+      => {
+        p = @ts - 1
+        @cs_before_block_comment = @cs
+        fgoto line_begin;
+      };
 
       #
       # DEFAULT TRANSITION
@@ -2292,7 +2298,7 @@ class Parser::Lexer
       '=end' c_line* c_nl_zlen
       => {
         emit_comment(@eq_begin_s, @te)
-        fgoto line_begin;
+        fgoto *@cs_before_block_comment;
       };
 
       c_line* c_nl;

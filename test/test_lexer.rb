@@ -3463,4 +3463,14 @@ class TestLexer < Minitest::Test
                    :tOROP,   '||', [1, 3])
   end
 
+  def test_bug_418
+    setup_lexer 19
+
+    assert_scanned("{\n=begin\nx: 1,\n=end\ny: 2}",
+                   :tLBRACE,  '{', [0, 1],
+                   :tLABEL,   'y', [20, 22],
+                   :tINTEGER, 2,   [23, 24],
+                   :tRCURLY,  '}', [24, 25])
+  end
+
 end
