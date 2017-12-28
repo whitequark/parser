@@ -6482,4 +6482,104 @@ class TestParser < Minitest::Test
       refute_diagnoses(code, SINCE_1_9)
     end
   end
+
+  def test_ruby_bug_13547
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m "x" {}},
+      %q{      ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m "#{'x'}" {}},
+      %q{           ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1 {}},
+      %q{    ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1.0 {}},
+      %q{      ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1r {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1i {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m :m {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m :"#{m}" {}},
+      %q{          ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m %[] {}},
+      %q{      ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 0..1 {}},
+      %q{       ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 0...1 {}},
+      %q{        ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m [] {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send,
+          s(:send, nil, :meth), :[]),
+        s(:args), nil),
+      %q{meth[] {}},
+      %q{},
+      SINCE_2_4
+    )
+
+    assert_diagnoses_many(
+      [
+        [:warning, :ambiguous_literal],
+        [:error, :unexpected_token, { :token => 'tLCURLY' }]
+      ],
+      %q{m /foo/ {}},
+      SINCE_2_4)
+
+    assert_diagnoses_many(
+      [
+        [:warning, :ambiguous_literal],
+        [:error, :unexpected_token, { :token => 'tLCURLY' }]
+      ],
+      %q{m /foo/x {}},
+      SINCE_2_4)
+  end
 end
