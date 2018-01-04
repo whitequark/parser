@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Parser
   ##
   # {Parser::SyntaxError} is raised whenever parser detects a syntax error,

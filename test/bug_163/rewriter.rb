@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Rewriter < Parser::Rewriter
   def on_if(node)
     # Crude, totally-not-usable-in-the-real-world code to remove optional

@@ -1,3 +1,9 @@
+#! /usr/bin/env ruby
+# coding: utf-8
+# frozen_string_literal: true
+# warn_indent: true
+# warn_past_scope: true
+
 require 'helper'
 require 'parser/ruby18'
 
@@ -27,8 +33,6 @@ class TestSourceCommentAssociator < Minitest::Test
 
   def test_associate
     ast, associations = associate(<<-END)
-#!/usr/bin/env ruby
-# coding: utf-8
 # class preceeding
 # another class preceeding
 class Foo # class keyword line
@@ -108,8 +112,6 @@ end
 
   def test_associate_locations
     ast, associations = associate_locations(<<-END)
-#!/usr/bin/env ruby
-# coding: utf-8
 # class preceeding
 # another class preceeding
 class Foo # class keyword line
@@ -215,7 +217,6 @@ end
 
   def test_associate_frozen_string_literal
     ast, associations = associate(<<-END)
-# frozen_string_literal: true
 class Foo
 end
     END
@@ -235,7 +236,6 @@ end
 
   def test_associate_frozen_string_literal_no_space_after_colon
     ast, associations = associate(<<-END)
-# frozen_string_literal:true
 class Foo
 end
     END
@@ -245,7 +245,6 @@ end
 
   def test_associate_warn_indent
     ast, associations = associate(<<-END)
-# warn_indent: true
 class Foo
 end
     END
@@ -265,7 +264,6 @@ end
 
   def test_associate_warn_past_scope
     ast, associations = associate(<<-END)
-# warn_past_scope: true
 class Foo
 end
     END

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if RUBY_VERSION =~ /^1\.[89]\./
   require 'parser/version'
   raise LoadError, <<-UNSUPPORTED_VERSION_MSG
