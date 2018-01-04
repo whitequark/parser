@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Parser
   ##
   # Diagnostic messages (errors, warnings and notices) that can be generated.

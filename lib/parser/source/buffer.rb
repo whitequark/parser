@@ -1,4 +1,5 @@
 # encoding: ascii-8bit
+# frozen_string_literal: true
 
 module Parser
   module Source
@@ -243,7 +244,7 @@ module Parser
       def source_lines
         @lines ||= begin
           lines = @source.lines.to_a
-          lines << '' if @source.end_with?("\n".freeze)
+          lines << ''.dup if @source.end_with?("\n".freeze)
 
           lines.each do |line|
             line.chomp!("\n".freeze)

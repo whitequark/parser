@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'gauntlet'
 require 'parser/all'
 require 'shellwords'

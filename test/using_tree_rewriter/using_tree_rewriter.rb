@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UsingTreeRewriter < Parser::TreeRewriter
   def on_send(node)
     wrap(node.loc.expression, '(', ')')

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'helper'
 
 class TestDiagnostic < Minitest::Test
@@ -18,7 +20,7 @@ class TestDiagnostic < Minitest::Test
   end
 
   def test_freezes
-    string     = 'foo'
+    string     = 'foo'.dup
     highlights = [@range2]
 
     diag = Parser::Diagnostic.new(:error, :escape_eof, @range1, highlights)
