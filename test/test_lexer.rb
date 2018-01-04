@@ -23,7 +23,7 @@ class TestLexer < Minitest::Test
   #
 
   def utf(str)
-    str.force_encoding(Encoding::UTF_8)
+    str.dup.force_encoding(Encoding::UTF_8)
   end
 
   #

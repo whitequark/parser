@@ -234,7 +234,7 @@ module Parser
     end
 
     def clear_buffer
-      @buffer = ''
+      @buffer = ''.dup
 
       # Prime the buffer with lexer encoding; otherwise,
       # concatenation will produce varying results.
