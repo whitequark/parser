@@ -6483,4 +6483,110 @@ class TestParser < Minitest::Test
       refute_diagnoses(code, SINCE_1_9)
     end
   end
+
+  def test_method_definition_in_while_cond
+    assert_parses(
+      s(:while,
+        s(:def, :foo,
+          s(:args),
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while def foo; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:defs,
+          s(:self), :foo,
+          s(:args),
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while def self.foo; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:def, :foo,
+          s(:args,
+            s(:optarg, :a,
+              s(:block,
+                s(:send, nil, :tap),
+                s(:args), nil))), nil),
+        s(:break)),
+      %q{while def foo a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:defs,
+          s(:self), :foo,
+          s(:args,
+            s(:optarg, :a,
+              s(:block,
+                s(:send, nil, :tap),
+                s(:args), nil))), nil),
+        s(:break)),
+      %q{while def self.foo a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+  end
+
+  def test_class_definition_in_while_cond
+    assert_parses(
+      s(:while,
+        s(:class,
+          s(:const, nil, :Foo), nil,
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while class Foo; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:class,
+          s(:const, nil, :Foo), nil,
+          s(:lvasgn, :a,
+            s(:block,
+              s(:send, nil, :tap),
+              s(:args), nil))),
+        s(:break)),
+      %q{while class Foo a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:sclass,
+          s(:self),
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while class << self; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:sclass,
+          s(:self),
+          s(:lvasgn, :a,
+            s(:block,
+              s(:send, nil, :tap),
+              s(:args), nil))),
+        s(:break)),
+      %q{while class << self; a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+  end
 end

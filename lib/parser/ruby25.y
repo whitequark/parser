@@ -1100,6 +1100,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @lexer.push_cond
                       @context.push(:class)
                     }
                     bodystmt kEND
@@ -1114,6 +1115,7 @@ rule
                                                   val[4], val[5])
 
                       @lexer.pop_cmdarg
+                      @lexer.pop_cond
                       @static_env.unextend
                       @context.pop
                     }
@@ -1121,6 +1123,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @lexer.push_cond
                       @context.push(:sclass)
                     }
                     bodystmt kEND
@@ -1129,6 +1132,7 @@ rule
                                                    val[5], val[6])
 
                       @lexer.pop_cmdarg
+                      @lexer.pop_cond
                       @static_env.unextend
                       @context.pop
                     }
@@ -1153,6 +1157,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @lexer.push_cond
                       @context.push(:def)
                     }
                     f_arglist bodystmt kEND
@@ -1161,6 +1166,7 @@ rule
                                   val[3], val[4], val[5])
 
                       @lexer.pop_cmdarg
+                      @lexer.pop_cond
                       @static_env.unextend
                       @context.pop
                     }
@@ -1172,6 +1178,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @lexer.push_cond
                       @context.push(:defs)
                     }
                     f_arglist bodystmt kEND
@@ -1180,6 +1187,7 @@ rule
                                   val[4], val[6], val[7], val[8])
 
                       @lexer.pop_cmdarg
+                      @lexer.pop_cond
                       @static_env.unextend
                       @context.pop
                     }
