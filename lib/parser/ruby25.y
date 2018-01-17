@@ -71,9 +71,14 @@ rule
                     }
 
         top_stmt: stmt
-                | klBEGIN tLCURLY top_compstmt tRCURLY
+                | klBEGIN begin_block
                     {
-                      result = @builder.preexe(val[0], val[1], val[2], val[3])
+                      result = @builder.preexe(val[0], *val[1])
+                    }
+
+     begin_block: tLCURLY top_compstmt tRCURLY
+                    {
+                      result = val
                     }
 
         bodystmt: compstmt opt_rescue opt_else opt_ensure
@@ -115,7 +120,7 @@ rule
                     }
 
    stmt_or_begin: stmt
-                | klBEGIN tLCURLY top_compstmt tRCURLY
+                | klBEGIN begin_block
                     {
                       diagnostic :error, :begin_in_method, nil, val[0]
                     }
