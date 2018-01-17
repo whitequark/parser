@@ -273,6 +273,15 @@ rule
 
       expr_value: expr
 
+   expr_value_do:   {
+                      @lexer.cond.push(true)
+                    }
+                  expr_value do
+                    {
+                      @lexer.cond.pop
+                      result = [ val[1], val[2] ]
+                    }
+
     command_call: command
                 | block_command
 
@@ -1040,31 +1049,13 @@ rule
                                                   else_,  else_t,
                                                   val[3], val[5])
                     }
-                | kWHILE
+                | kWHILE expr_value_do compstmt kEND
                     {
-                      @lexer.cond.push(true)
+                      result = @builder.loop(:while, val[0], *val[1], val[2], val[3])
                     }
-                    expr_value do
+                | kUNTIL expr_value_do compstmt kEND
                     {
-                      @lexer.cond.pop
-                    }
-                    compstmt kEND
-                    {
-                      result = @builder.loop(:while, val[0], val[2], val[3],
-                                             val[5], val[6])
-                    }
-                | kUNTIL
-                    {
-                      @lexer.cond.push(true)
-                    }
-                    expr_value do
-                    {
-                      @lexer.cond.pop
-                    }
-                    compstmt kEND
-                    {
-                      result = @builder.loop(:until, val[0], val[2], val[3],
-                                             val[5], val[6])
+                      result = @builder.loop(:until, val[0], *val[1], val[2], val[3])
                     }
                 | kCASE expr_value opt_terms case_body kEND
                     {
@@ -1082,19 +1073,9 @@ rule
                                              when_bodies, else_t, else_body,
                                              val[3])
                     }
-                | kFOR for_var kIN
+                | kFOR for_var kIN expr_value_do compstmt kEND
                     {
-                      @lexer.cond.push(true)
-                    }
-                    expr_value do
-                    {
-                      @lexer.cond.pop
-                    }
-                    compstmt kEND
-                    {
-                      result = @builder.for(val[0], val[1],
-                                            val[2], val[4],
-                                            val[5], val[7], val[8])
+                      result = @builder.for(val[0], val[1], val[2], *val[3], val[4], val[5])
                     }
                 | kCLASS cpath superclass
                     {
