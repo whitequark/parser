@@ -34,7 +34,6 @@ module Parser
           @location = location
         end
       end
-
     end
 
   end
