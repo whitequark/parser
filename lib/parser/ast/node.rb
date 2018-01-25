@@ -34,21 +34,7 @@ module Parser
           @location = location
         end
       end
-      
-      ##
-      # Produces a machine-readable S-Expression.
-      #
-      def to_json
-        children_json = children.map do |child|
-          if child.is_a?(Node)
-            child.to_json
-          else
-            child
-          end
-        end
 
-        [type.to_s, *children_json]
-      end
     end
 
   end
