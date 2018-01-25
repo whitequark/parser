@@ -145,7 +145,7 @@ module Parser
         if @emit_ruby
           puts ast.inspect
         elsif @emit_json
-          puts JSON.generate(ast.to_sexp_arr)
+          puts JSON.generate(ast.to_sexp_array)
         else
           puts ast.to_s
         end
