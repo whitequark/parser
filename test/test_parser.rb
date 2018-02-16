@@ -6484,6 +6484,30 @@ class TestParser < Minitest::Test
     end
   end
 
+  def test_rescue_in_lambda_block
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'kRESCUE'}],
+      %q{-> do rescue; end},
+      %q{      ~~~~~~ location},
+      SINCE_1_9 - SINCE_2_5)
+
+    assert_parses(
+      s(:block,
+        s(:lambda),
+        s(:args),
+        s(:rescue, nil,
+          s(:resbody, nil, nil, nil), nil)),
+      %q{-> do rescue; end},
+      %q{      ~~~~~~ keyword (rescue.resbody)},
+      SINCE_2_5)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'kRESCUE'}],
+      %q{-> { rescue; }},
+      %q{     ~~~~~~ location},
+      SINCE_1_9)
+  end
+
   def test_ruby_bug_13547
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tLCURLY' }],
