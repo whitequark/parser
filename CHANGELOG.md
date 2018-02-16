@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2018-02-16)
--------------------------
+v2.5.0.0 (2018-02-16)
+---------------------
 
 API modifications:
  * Parser::Current: bump to 2.2.9 and 2.3.6. (Stan Hu)
