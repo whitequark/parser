@@ -1,8 +1,42 @@
 Changelog
 =========
 
-Not released (2017-11-13)
+Not released (2018-02-16)
 -------------------------
+
+API modifications:
+ * Parser::Current: bump to 2.2.9 and 2.3.6. (Stan Hu)
+ * Deprecate Parser::Rewriter (Marc-Andre Lafortune)
+ * Deprecate Parser::Source::Rewriter (Marc-Andre Lafortune)
+ * Change relative order of insert_after_multi and insert_before_multi for non-empty ranges (#399). (Marc-Andre Lafortune)
+
+Features implemented:
+ * parse.y: Reject brace after literal arg. This commit tracks upstream commits ruby/ruby@9987109 and ruby/ruby@7d6965f. (Ilya Bylich)
+ * ruby-parse: add an option for emitting AST as JSON. (Alex Rattray)
+ * Add Parser::TreeRewriter (Marc-Andre Lafortune)
+ * Add Parser::Rewriter#wrap to ease compatibility (Marc-Andre Lafortune)
+ * Add Parser::Source::TreeRewriter (Marc-Andre Lafortune)
+ * Add Range#\<=> and include Comparable (Marc-Andre Lafortune)
+ * parse.y: disable tLPAREN_ARG state after local variable. (Ilya Bylich)
+ * SourceBuffer#source_range (Marc-Andre Lafortune)
+ * Range#adjust (Marc-Andre Lafortune)
+ * Range#contains?, contained?, crossing? (Marc-Andre Lafortune)
+ * Add Range#with. (Marc-André Lafortune)
+ * lexer.rl: Relax restriction spaces inside "\u{...}". This commit tracks upstream commit ruby/ruby@7e8b910. (Ilya Bylich)
+ * lexer.rl: Allow newlines in heredoc identifiers. This commit tracks upstream commit ruby/ruby@d25faa4. (Ilya Bylich)
+ * lexer.rl: allow do after cmdarg in paren. This commit tracks upstream commit ruby/ruby@046c943. (Ilya Bylich)
+
+Bugs fixed:
+ * Fixed magic encoding comment parsing when encoding comment is on the first line but not in the beginning. (Ilya Bylich)
+ * lexer.rl: Parse '1if' as '1 if', '1rescue' as '1 rescue'. (Ilya Bylich)
+ * lexer.rl: Save state before entering a block comment to enter it after =end. (Ilya Bylich)
+ * parse.y: Prohibit return in class/module body except for singleton class. Replaced @def_level/in_def? in favor of context.indirectly_in_def?. This commit tracks upstream commit ruby/ruby@8c15f40ac. (Ilya Bylich)
+ * lexer.rl: Emit :&& as tSYMBEG + tANDOP, :|| as tSYMBEG + tOROP. (Ilya Bylich)
+ * ruby{24,25}.y: preserve cmdarg stack around do/end block [Bug #13073]. (Mateusz Lenik)
+ * Parser::Lexer::State: Fixed #lexpop to match MRI behavior. (Ilya Bylich)
+
+v2.4.0.2 (2017-11-13)
+---------------------
 
 API modifications:
  * parser/current: update for 2.3.5 release. (whitequark)
