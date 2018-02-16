@@ -850,12 +850,11 @@ rule
                     }
 
     command_args:   {
-                      result = @lexer.cmdarg.dup
                       @lexer.cmdarg.push(true)
                     }
                   call_args
                     {
-                      @lexer.cmdarg = val[0]
+                      @lexer.cmdarg.pop
 
                       result = val[1]
                     }
@@ -1462,13 +1461,11 @@ opt_block_args_tail:
                     }
                   f_larglist
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.cmdarg.push(false)
                     }
                   lambda_body
                     {
-                      @lexer.cmdarg = val[2]
-                      @lexer.cmdarg.lexpop
+                      @lexer.cmdarg.pop
 
                       result = [ val[1], val[3] ]
 
@@ -1616,17 +1613,11 @@ opt_block_args_tail:
       brace_body:   {
                       @static_env.extend_dynamic
                     }
-                    {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
-                    }
                     opt_block_param compstmt
                     {
-                      result = [ val[2], val[3] ]
+                      result = [ val[1], val[2] ]
 
                       @static_env.unextend
-                      @lexer.cmdarg = val[1]
-                      @lexer.cmdarg.pop
                     }
 
          do_body:   {
@@ -1846,7 +1837,7 @@ regexp_contents: # nothing
                     compstmt tSTRING_DEND
                     {
                       @lexer.cond.lexpop
-                      @lexer.cmdarg.lexpop
+                      @lexer.cmdarg.pop
 
                       result = @builder.begin(val[0], val[2], val[3])
                     }
@@ -1868,13 +1859,13 @@ regexp_contents: # nothing
 
           symbol: tSYMBOL
                     {
-                      @lexer.state = :expr_endarg
+                      @lexer.state = :expr_end
                       result = @builder.symbol(val[0])
                     }
 
             dsym: tSYMBEG xstring_contents tSTRING_END
                     {
-                      @lexer.state = :expr_endarg
+                      @lexer.state = :expr_end
                       result = @builder.symbol_compose(val[0], val[1], val[2])
                     }
 
@@ -1894,22 +1885,22 @@ regexp_contents: # nothing
 
   simple_numeric: tINTEGER
                     {
-                      @lexer.state = :expr_endarg
+                      @lexer.state = :expr_end
                       result = @builder.integer(val[0])
                     }
                 | tFLOAT
                     {
-                      @lexer.state = :expr_endarg
+                      @lexer.state = :expr_end
                       result = @builder.float(val[0])
                     }
                 | tRATIONAL
                     {
-                      @lexer.state = :expr_endarg
+                      @lexer.state = :expr_end
                       result = @builder.rational(val[0])
                     }
                 | tIMAGINARY
                     {
-                      @lexer.state = :expr_endarg
+                      @lexer.state = :expr_end
                       result = @builder.complex(val[0])
                     }
 

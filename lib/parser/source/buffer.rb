@@ -29,7 +29,7 @@ module Parser
       # @api private
       #
       ENCODING_RE =
-        /\#.*coding\s*[:=]\s*
+        /\A\#\s*(en)?coding\s*[:=]\s*
           (
             # Special-case: there's a UTF8-MAC encoding.
             (utf8-mac)
@@ -64,7 +64,7 @@ module Parser
         end
 
         if (result = ENCODING_RE.match(encoding_line))
-          Encoding.find(result[2] || result[3] || result[5])
+          Encoding.find(result[3] || result[4] || result[6])
         else
           nil
         end

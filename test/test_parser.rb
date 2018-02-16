@@ -6483,4 +6483,234 @@ class TestParser < Minitest::Test
       refute_diagnoses(code, SINCE_1_9)
     end
   end
+
+  def test_method_definition_in_while_cond
+    assert_parses(
+      s(:while,
+        s(:def, :foo,
+          s(:args),
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while def foo; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:defs,
+          s(:self), :foo,
+          s(:args),
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while def self.foo; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:def, :foo,
+          s(:args,
+            s(:optarg, :a,
+              s(:block,
+                s(:send, nil, :tap),
+                s(:args), nil))), nil),
+        s(:break)),
+      %q{while def foo a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:defs,
+          s(:self), :foo,
+          s(:args,
+            s(:optarg, :a,
+              s(:block,
+                s(:send, nil, :tap),
+                s(:args), nil))), nil),
+        s(:break)),
+      %q{while def self.foo a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+  end
+
+  def test_class_definition_in_while_cond
+    assert_parses(
+      s(:while,
+        s(:class,
+          s(:const, nil, :Foo), nil,
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while class Foo; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:class,
+          s(:const, nil, :Foo), nil,
+          s(:lvasgn, :a,
+            s(:block,
+              s(:send, nil, :tap),
+              s(:args), nil))),
+        s(:break)),
+      %q{while class Foo a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:sclass,
+          s(:self),
+          s(:block,
+            s(:send, nil, :tap),
+            s(:args), nil)),
+        s(:break)),
+      %q{while class << self; tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+
+    assert_parses(
+      s(:while,
+        s(:sclass,
+          s(:self),
+          s(:lvasgn, :a,
+            s(:block,
+              s(:send, nil, :tap),
+              s(:args), nil))),
+        s(:break)),
+      %q{while class << self; a = tap do end; end; break; end},
+      %q{},
+      SINCE_2_5)
+  end
+
+  def test_rescue_in_lambda_block
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'kRESCUE'}],
+      %q{-> do rescue; end},
+      %q{      ~~~~~~ location},
+      SINCE_1_9 - SINCE_2_5)
+
+    assert_parses(
+      s(:block,
+        s(:lambda),
+        s(:args),
+        s(:rescue, nil,
+          s(:resbody, nil, nil, nil), nil)),
+      %q{-> do rescue; end},
+      %q{      ~~~~~~ keyword (rescue.resbody)},
+      SINCE_2_5)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'kRESCUE'}],
+      %q{-> { rescue; }},
+      %q{     ~~~~~~ location},
+      SINCE_1_9)
+  end
+
+  def test_ruby_bug_13547
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m "x" {}},
+      %q{      ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m "#{'x'}" {}},
+      %q{           ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1 {}},
+      %q{    ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1.0 {}},
+      %q{      ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1r {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 1i {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m :m {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m :"#{m}" {}},
+      %q{          ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m %[] {}},
+      %q{      ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 0..1 {}},
+      %q{       ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m 0...1 {}},
+      %q{        ^ location},
+      SINCE_2_4)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLCURLY' }],
+      %q{m [] {}},
+      %q{     ^ location},
+      SINCE_2_4)
+
+    assert_parses(
+      s(:block,
+        s(:send,
+          s(:send, nil, :meth), :[]),
+        s(:args), nil),
+      %q{meth[] {}},
+      %q{},
+      SINCE_2_4
+    )
+
+    assert_diagnoses_many(
+      [
+        [:warning, :ambiguous_literal],
+        [:error, :unexpected_token, { :token => 'tLCURLY' }]
+      ],
+      %q{m /foo/ {}},
+      SINCE_2_4)
+
+    assert_diagnoses_many(
+      [
+        [:warning, :ambiguous_literal],
+        [:error, :unexpected_token, { :token => 'tLCURLY' }]
+      ],
+      %q{m /foo/x {}},
+      SINCE_2_4)
+  end
 end

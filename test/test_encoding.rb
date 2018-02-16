@@ -74,4 +74,17 @@ class TestEncoding < Minitest::Test
       Parser::Ruby19.parse("# encoding:feynman-diagram\n1")
     end
   end
+
+  def test_ending_comment
+    assert_nil recognize('foo # coding: koi8-r')
+  end
+
+  def test_wrong_prefix
+    assert_nil recognize('# decoding: koi8-r')
+  end
+
+  def test_no_spaces
+    assert_equal Encoding::KOI8_R, recognize('#encoding:koi8-r')
+    assert_equal Encoding::KOI8_R, recognize('#coding:koi8-r')
+  end
 end
