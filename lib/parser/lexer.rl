@@ -89,8 +89,6 @@ class Parser::Lexer
 
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
 
-  RBRACE_OR_RBRACK = %w"} ]".freeze
-
   attr_reader   :source_buffer
 
   attr_accessor :diagnostics
@@ -421,10 +419,8 @@ class Parser::Lexer
     if old_literal.type == :tREGEXP_BEG
       # Fetch modifiers.
       self.class.lex_en_regexp_modifiers
-    elsif @version < 24
-      self.class.lex_en_expr_end
     else
-      self.class.lex_en_expr_endarg
+      self.class.lex_en_expr_end
     end
   end
 
@@ -1122,13 +1118,7 @@ class Parser::Lexer
         end
 
         emit(:tREGEXP_OPT)
-
-        if @version < 24
-          fnext expr_end;
-        else
-          fnext expr_endarg;
-        end
-
+        fnext expr_end;
         fbreak;
       };
 
@@ -1136,11 +1126,7 @@ class Parser::Lexer
       => {
         emit(:tREGEXP_OPT, tok(@ts, @te - 1), @ts, @te - 1)
         fhold;
-        if @version < 24
-          fgoto expr_end;
-        else
-          fgoto expr_endarg;
-        end
+        fgoto expr_end;
       };
   *|;
 
@@ -2229,10 +2215,16 @@ class Parser::Lexer
       e_rbrace | e_rparen | ']'
       => {
         emit_table(PUNCTUATION)
-        @cond.lexpop; @cmdarg.lexpop
+        @cond.lexpop; @cmdarg.pop
 
-        if RBRACE_OR_RBRACK.include?(tok)
+        if tok == '}'.freeze
           fnext expr_endarg;
+        elsif tok == ']'
+          if @version >= 24
+            fnext expr_end;
+          else
+            fnext expr_endarg;
+          end
         else # )
           # fnext expr_endfn; ?
         end

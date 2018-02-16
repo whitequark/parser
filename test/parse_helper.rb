@@ -181,6 +181,42 @@ module ParseHelper
     end
   end
 
+  # Use like this:
+  # ~~~
+  # assert_diagnoses_many(
+  #   [
+  #     [:warning, :ambiguous_literal],
+  #     [:error, :unexpected_token, { :token => :tLCURLY }]
+  #   ],
+  #   %q{m /foo/ {}},
+  #   SINCE_2_4)
+  # ~~~
+  def assert_diagnoses_many(diagnostics, code, versions=ALL_VERSIONS)
+    with_versions(versions) do |version, parser|
+      source_file = Parser::Source::Buffer.new('(assert_diagnoses_many)')
+      source_file.source = code
+
+      begin
+        parser = parser.parse(source_file)
+      rescue Parser::SyntaxError
+        # do nothing; the diagnostic was reported
+      end
+
+      assert_equal diagnostics.count, @diagnostics.count
+
+      diagnostics.zip(@diagnostics) do |expected_diagnostic, actual_diagnostic|
+        level, reason, arguments = expected_diagnostic
+        arguments ||= {}
+        message     = Parser::MESSAGES[reason] % arguments
+
+        assert_equal level, actual_diagnostic.level
+        assert_equal reason, actual_diagnostic.reason
+        assert_equal arguments, actual_diagnostic.arguments
+        assert_equal message, actual_diagnostic.message
+      end
+    end
+  end
+
   def refute_diagnoses(code, versions=ALL_VERSIONS)
     with_versions(versions) do |version, parser|
       source_file = Parser::Source::Buffer.new('(refute_diagnoses)')
