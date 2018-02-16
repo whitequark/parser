@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 require 'parser/runner'
 require 'parser/lexer/explanation'
+require 'json'
 
 module Parser
 
@@ -94,6 +97,7 @@ module Parser
 
       @locate = false
       @emit_ruby = false
+      @emit_json = false
     end
 
     private
@@ -118,6 +122,10 @@ module Parser
       opts.on '--emit-ruby', 'Emit S-expressions as valid Ruby code' do
         @emit_ruby = true
       end
+      
+      opts.on '--emit-json', 'Emit S-expressions as valid JSON' do
+        @emit_json = true
+      end
     end
 
     def process_all_input
@@ -136,6 +144,8 @@ module Parser
       elsif !@benchmark
         if @emit_ruby
           puts ast.inspect
+        elsif @emit_json
+          puts JSON.generate(ast.to_sexp_array)
         else
           puts ast.to_s
         end

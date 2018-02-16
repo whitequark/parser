@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'racc/grammarfileparser'
 
 # Unfortunately, Ruby's Coverage module ignores module_eval statements,

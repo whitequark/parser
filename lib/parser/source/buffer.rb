@@ -1,4 +1,5 @@
 # encoding: ascii-8bit
+# frozen_string_literal: true
 
 module Parser
   module Source
@@ -28,7 +29,7 @@ module Parser
       # @api private
       #
       ENCODING_RE =
-        /\#.*coding\s*[:=]\s*
+        /\A\#\s*(en)?coding\s*[:=]\s*
           (
             # Special-case: there's a UTF8-MAC encoding.
             (utf8-mac)
@@ -63,7 +64,7 @@ module Parser
         end
 
         if (result = ENCODING_RE.match(encoding_line))
-          Encoding.find(result[2] || result[3] || result[5])
+          Encoding.find(result[3] || result[4] || result[6])
         else
           nil
         end
@@ -243,7 +244,7 @@ module Parser
       def source_lines
         @lines ||= begin
           lines = @source.lines.to_a
-          lines << '' if @source.end_with?("\n".freeze)
+          lines << ''.dup if @source.end_with?("\n".freeze)
 
           lines.each do |line|
             line.chomp!("\n".freeze)
