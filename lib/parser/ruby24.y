@@ -850,7 +850,28 @@ rule
                     }
 
     command_args:   {
-                      @lexer.cmdarg.push(true)
+                      # When branch gets invoked by RACC's lookahead
+                      # and command args start with '[' or '('
+                      # we need to put `true` to the cmdarg stack
+                      # **before** `false` pushed by lexer
+                      #   m [], n
+                      #     ^
+                      # Right here we have cmdarg [...0] because
+                      # lexer pushed it on '['
+                      # We need to modify cmdarg stack to [...10]
+                      #
+                      # For all other cases (like `m n` or `m n, []`) we simply put 1 to the stack
+                      # and later lexer pushes corresponding bits on top of it.
+                      last_token = @lexer.last_token[0]
+                      lookahead = last_token == :tLBRACK || last_token == :tLPAREN_ARG
+
+                      if lookahead
+                        top = @lexer.cmdarg.pop
+                        @lexer.cmdarg.push(true)
+                        @lexer.cmdarg.push(top)
+                      else
+                        @lexer.cmdarg.push(true)
+                      end
                     }
                   call_args
                     {
@@ -1836,7 +1857,7 @@ regexp_contents: # nothing
                     }
                     compstmt tSTRING_DEND
                     {
-                      @lexer.cond.lexpop
+                      @lexer.cond.pop
                       @lexer.cmdarg.pop
 
                       result = @builder.begin(val[0], val[2], val[3])
