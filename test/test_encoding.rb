@@ -87,4 +87,12 @@ class TestEncoding < Minitest::Test
     assert_equal Encoding::KOI8_R, recognize('#encoding:koi8-r')
     assert_equal Encoding::KOI8_R, recognize('#coding:koi8-r')
   end
+
+  def test_underscore_and_star_characters
+    assert_equal Encoding::KOI8_R, recognize('# -*- encoding: koi8-r -*-')
+  end
+
+  def test_garbage_around_encoding_comment
+    assert_equal Encoding::KOI8_R, recognize('# 1$# -*- &)* encoding: koi8-r 1$# -*- &)*')
+  end
 end
