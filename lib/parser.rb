@@ -47,6 +47,7 @@ module Parser
     require 'parser/source/map/keyword'
     require 'parser/source/map/definition'
     require 'parser/source/map/send'
+    require 'parser/source/map/index'
     require 'parser/source/map/condition'
     require 'parser/source/map/ternary'
     require 'parser/source/map/for'

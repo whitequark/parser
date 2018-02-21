@@ -62,11 +62,34 @@ module Parser
 
     class << self
       ##
+      # AST compatibility attribute; indexed assignment, `x[] = 1`, is not
+      # semantically equivalent to calling the method directly, `x.[]=(1)`.
+      # Specifically, in the former case, the expression's value is always 1,
+      # and in the latter case, the expression's value is the return value
+      # of the `[]=` method.
+      #
+      # If set to false (the default), `self[1]` is emitted as
+      # `s(:send, s(:self), :[], s(:int, 1))`, and `self[1] = 2` is
+      # emitted as `s(:send, s(:self), :[]=, s(:int, 1), s(:int, 2))`.
+      #
+      # If set to true, `self[1]` is emitted as
+      # `s(:index, s(:self), s(:int, 1))`, and `self[1] = 2` is
+      # emitted as `s(:indexasgn, s(:self), s(:int, 1), s(:int, 2))`.
+      #
+      # @return [Boolean]
+      attr_accessor :emit_index
+    end
+
+    @emit_index = false
+
+    class << self
+      ##
       # @api private
       def modernize
         @emit_lambda = true
         @emit_procarg0 = true
         @emit_encoding = true
+        @emit_index = true
       end
     end
 
@@ -75,7 +98,7 @@ module Parser
     attr_accessor :parser
 
     ##
-    # If set to true, `__FILE__` and `__LINE__` are transformed to
+    # If set to true (the default), `__FILE__` and `__LINE__` are transformed to
     # literal nodes. For example, `s(:str, "lib/foo.rb")` and `s(:int, 10)`.
     #
     # If set to false, `__FILE__` and `__LINE__` are emitted as-is,
@@ -538,11 +561,15 @@ module Parser
 
     def op_assign(lhs, op_t, rhs)
       case lhs.type
-      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :casgn, :send, :csend
+      when :gvasgn, :ivasgn, :lvasgn, :cvasgn, :casgn, :send, :csend, :index
         operator   = value(op_t)[0..-1].to_sym
         source_map = lhs.loc.
                         with_operator(loc(op_t)).
                         with_expression(join_exprs(lhs, rhs))
+
+        if lhs.type  == :index
+          lhs = lhs.updated(:indexasgn)
+        end
 
         case operator
         when :'&&'
@@ -808,7 +835,7 @@ module Parser
         diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
       end
 
-      if [:send, :csend, :super, :zsuper, :lambda].include?(method_call.type)
+      if [:send, :csend, :index, :super, :zsuper, :lambda].include?(method_call.type)
         n(:block, [ method_call, args, body ],
           block_map(method_call.loc.expression, begin_t, end_t))
       else
@@ -848,14 +875,24 @@ module Parser
     end
 
     def index(receiver, lbrack_t, indexes, rbrack_t)
-      n(:send, [ receiver, :[], *indexes ],
-        send_index_map(receiver, lbrack_t, rbrack_t))
+      if self.class.emit_index
+        n(:index, [ receiver, *indexes ],
+          index_map(receiver, lbrack_t, rbrack_t))
+      else
+        n(:send, [ receiver, :[], *indexes ],
+          send_index_map(receiver, lbrack_t, rbrack_t))
+      end
     end
 
     def index_asgn(receiver, lbrack_t, indexes, rbrack_t)
-      # Incomplete method call.
-      n(:send, [ receiver, :[]=, *indexes ],
-        send_index_map(receiver, lbrack_t, rbrack_t))
+      if self.class.emit_index
+        n(:indexasgn, [ receiver, *indexes ],
+          index_map(receiver, lbrack_t, rbrack_t))
+      else
+        # Incomplete method call.
+        n(:send, [ receiver, :[]=, *indexes ],
+          send_index_map(receiver, lbrack_t, rbrack_t))
+      end
     end
 
     def binary_op(receiver, operator_t, arg)
@@ -1432,6 +1469,11 @@ module Parser
       Source::Map::Send.new(nil, loc(selector_t),
                             nil, nil,
                             expr_l)
+    end
+
+    def index_map(receiver_e, lbrack_t, rbrack_t)
+      Source::Map::Index.new(loc(lbrack_t), loc(rbrack_t),
+                             receiver_e.loc.expression.join(loc(rbrack_t)))
     end
 
     def send_index_map(receiver_e, lbrack_t, rbrack_t)

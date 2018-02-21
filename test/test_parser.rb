@@ -1281,13 +1281,14 @@ class TestParser < Minitest::Test
       s(:masgn,
         s(:mlhs,
           s(:send, s(:self), :a=),
-          s(:send, s(:self), :[]=, s(:int, 1), s(:int, 2))),
+          s(:indexasgn, s(:self), s(:int, 1), s(:int, 2))),
         s(:lvar, :foo)),
       %q{self.a, self[1, 2] = foo},
-      %q{~~~~~~ expression (mlhs.send/1)
-        |     ~ selector (mlhs.send/1)
-        |            ~~~~~~ selector (mlhs.send/2)
-        |        ~~~~~~~~~~ expression (mlhs.send/2)})
+      %q{~~~~~~ expression (mlhs.send)
+        |     ~ selector (mlhs.send)
+        |            ^ begin (mlhs.indexasgn)
+        |                 ^ end (mlhs.indexasgn)
+        |        ~~~~~~~~~~ expression (mlhs.indexasgn)})
 
     assert_parses(
       s(:masgn,
@@ -1552,20 +1553,21 @@ class TestParser < Minitest::Test
   def test_op_asgn_index
     assert_parses(
       s(:op_asgn,
-        s(:send, s(:lvar, :foo), :[],
+        s(:indexasgn, s(:lvar, :foo),
           s(:int, 0), s(:int, 1)), :+,
         s(:int, 2)),
       %q{foo[0, 1] += 2},
       %q{          ^^ operator
-        |   ~~~~~~ selector (send)
-        |~~~~~~~~~ expression (send)
+        |   ^ begin (indexasgn)
+        |        ^ end (indexasgn)
+        |~~~~~~~~~ expression (indexasgn)
         |~~~~~~~~~~~~~~ expression})
   end
 
   def test_op_asgn_index_cmd
     assert_parses(
       s(:op_asgn,
-        s(:send, s(:lvar, :foo), :[],
+        s(:indexasgn, s(:lvar, :foo),
           s(:int, 0), s(:int, 1)), :+,
         s(:send, nil, :m, s(:lvar, :foo))),
       %q{foo[0, 1] += m foo})
@@ -1621,13 +1623,14 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:or_asgn,
-        s(:send, s(:lvar, :foo), :[],
+        s(:indexasgn, s(:lvar, :foo),
           s(:int, 0), s(:int, 1)),
         s(:int, 2)),
       %q{foo[0, 1] ||= 2},
       %q{          ^^^ operator
-        |   ~~~~~~ selector (send)
-        |~~~~~~~~~ expression (send)
+        |   ^ begin (indexasgn)
+        |        ^ end (indexasgn)
+        |~~~~~~~~~ expression (indexasgn)
         |~~~~~~~~~~~~~~~ expression})
   end
 
@@ -1644,13 +1647,14 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:and_asgn,
-        s(:send, s(:lvar, :foo), :[],
+        s(:indexasgn, s(:lvar, :foo),
           s(:int, 0), s(:int, 1)),
         s(:int, 2)),
       %q{foo[0, 1] &&= 2},
       %q{          ^^^ operator
-        |   ~~~~~~ selector (send)
-        |~~~~~~~~~ expression (send)
+        |   ^ begin (indexasgn)
+        |        ^ end (indexasgn)
+        |~~~~~~~~~ expression (indexasgn)
         |~~~~~~~~~~~~~~~ expression})
   end
 
@@ -3359,21 +3363,46 @@ class TestParser < Minitest::Test
 
   def test_send_index
     assert_parses(
+      s(:index, s(:lvar, :foo),
+        s(:int, 1), s(:int, 2)),
+      %q{foo[1, 2]},
+      %q{   ^ begin
+        |        ^ end
+        |~~~~~~~~~ expression})
+  end
+
+  def test_send_index_legacy
+    Parser::Builders::Default.emit_index = false
+    assert_parses(
       s(:send, s(:lvar, :foo), :[],
         s(:int, 1), s(:int, 2)),
       %q{foo[1, 2]},
       %q{   ~~~~~~ selector
         |~~~~~~~~~ expression})
+  ensure
+    Parser::Builders::Default.emit_index = true
   end
 
   def test_send_index_cmd
     assert_parses(
-      s(:send, s(:lvar, :foo), :[],
+      s(:index, s(:lvar, :foo),
         s(:send, nil, :m, s(:lvar, :bar))),
       %q{foo[m bar]})
   end
 
   def test_send_index_asgn
+    assert_parses(
+      s(:indexasgn, s(:lvar, :foo),
+        s(:int, 1), s(:int, 2), s(:int, 3)),
+      %q{foo[1, 2] = 3},
+      %q{   ^ begin
+        |        ^ end
+        |          ^ operator
+        |~~~~~~~~~~~~~ expression})
+  end
+
+  def test_send_index_asgn_legacy
+    Parser::Builders::Default.emit_index = false
     assert_parses(
       s(:send, s(:lvar, :foo), :[]=,
         s(:int, 1), s(:int, 2), s(:int, 3)),
@@ -3381,6 +3410,8 @@ class TestParser < Minitest::Test
       %q{   ~~~~~~ selector
         |          ^ operator
         |~~~~~~~~~~~~~ expression})
+  ensure
+    Parser::Builders::Default.emit_index = true
   end
 
   def test_send_lambda
@@ -3711,7 +3742,7 @@ class TestParser < Minitest::Test
 
   def test_args_args_comma
     assert_parses(
-      s(:send, s(:lvar, :foo), :[],
+      s(:index, s(:lvar, :foo),
         s(:lvar, :bar)),
       %q{foo[bar,]},
       %q{},
@@ -3752,7 +3783,7 @@ class TestParser < Minitest::Test
 
   def test_args_assocs_comma
     assert_parses(
-      s(:send, s(:lvar, :foo), :[],
+      s(:index, s(:lvar, :foo),
         s(:hash, s(:pair, s(:sym, :baz), s(:int, 1)))),
       %q{foo[:baz => 1,]},
       %q{},
@@ -3776,7 +3807,7 @@ class TestParser < Minitest::Test
 
   def test_args_args_assocs_comma
     assert_parses(
-      s(:send, s(:lvar, :foo), :[],
+      s(:index, s(:lvar, :foo),
         s(:lvar, :bar),
         s(:hash, s(:pair, s(:sym, :baz), s(:int, 1)))),
       %q{foo[bar, :baz => 1,]},
@@ -5789,8 +5820,8 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:op_asgn,
-        s(:send,
-          s(:lvar, :foo), :[],
+        s(:indexasgn,
+          s(:lvar, :foo),
           s(:int, 0)), :+,
         s(:rescue,
           s(:send, nil, :raise,
@@ -5878,8 +5909,8 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:op_asgn,
-        s(:send,
-          s(:lvar, :foo), :[],
+        s(:indexasgn,
+          s(:lvar, :foo),
           s(:int, 0)), :+,
         s(:rescue,
           s(:send, nil, :raise,
@@ -6702,8 +6733,8 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:block,
-        s(:send,
-          s(:send, nil, :meth), :[]),
+        s(:index,
+          s(:send, nil, :meth)),
         s(:args), nil),
       %q{meth[] {}},
       %q{},

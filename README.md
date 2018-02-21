@@ -27,6 +27,7 @@ below for explanation of `emit_*` calls):
     Parser::Builders::Default.emit_lambda   = true
     Parser::Builders::Default.emit_procarg0 = true
     Parser::Builders::Default.emit_encoding = true
+    Parser::Builders::Default.emit_index    = true
 
 Parse a chunk of code:
 

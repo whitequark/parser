@@ -1081,18 +1081,6 @@ Format:
      ~ selector
        ^ operator
  ~~~~~~~~~ expression
-
-(send (lvar :foo) :[] (int 1))
-"foo[i]"
-    ~~~ selector
- ~~~~~~ expression
-
-(send (lvar :bar) :[]= (int 1) (int 2) (lvar :baz))
-"bar[1, 2] = baz"
-    ~~~~~~ selector
-           ^ operator
- ~~~~~~~~~~~~~~~ expression
-
 ~~~
 
 ### To superclass
@@ -1133,6 +1121,26 @@ Format:
       ^ begin
           ^ end
  ~~~~~~~~~~ expression
+~~~
+
+### Indexing
+
+Format:
+
+~~~
+(index (lvar :foo) (int 1))
+"foo[1]"
+    ^ begin
+      ^ end
+ ~~~~~~ expression
+
+(indexasgn (lvar :bar) (int 1) (int 2) (lvar :baz))
+"bar[1, 2] = baz"
+    ^ begin
+         ^ end
+           ^ operator
+ ~~~~~~~~~~~~~~~ expression
+
 ~~~
 
 ### Passing a literal block
