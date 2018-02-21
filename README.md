@@ -24,8 +24,9 @@ below for explanation of `emit_*` calls):
 
     require 'parser/current'
     # opt-in to most recent AST format:
-    Parser::Builders::Default.emit_lambda = true
+    Parser::Builders::Default.emit_lambda   = true
     Parser::Builders::Default.emit_procarg0 = true
+    Parser::Builders::Default.emit_encoding = true
 
 Parse a chunk of code:
 

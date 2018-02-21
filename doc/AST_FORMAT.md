@@ -1676,3 +1676,35 @@ Format:
                  ~~ selector
  ~~~~~~~~~~~~~~~~~~~~~~ expression
 ~~~
+
+## Special constants
+
+### File
+
+Format:
+
+~~~
+(__FILE__)
+"__FILE__"
+ ~~~~~~~~ expression
+~~~
+
+### Line
+
+Format:
+
+~~~
+(__LINE__)
+"__LINE__"
+ ~~~~~~~~ expression
+~~~
+
+### Encoding
+
+Format:
+
+~~~
+(__ENCODING__)
+"__ENCODING__"
+ ~~~~~~~~~~~~ expression
+~~~

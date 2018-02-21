@@ -31,10 +31,10 @@ module Parser
       # all new code should set this attribute to true.
       #
       # If set to false (the default), arguments of `m { |a| }` are emitted as
-      # `s(:args, s(:arg, :a))`
+      # `s(:args, s(:arg, :a))`.
       #
       # If set to true, arguments of `m { |a| }` are emitted as
-      # `s(:args, s(:procarg0, :a))
+      # `s(:args, s(:procarg0, :a)).
       #
       # @return [Boolean]
       attr_accessor :emit_procarg0
@@ -44,10 +44,29 @@ module Parser
 
     class << self
       ##
+      # AST compatibility attribute; locations of `__ENCODING__` are not the same
+      # as locations of `Encoding::UTF_8` causing problems during rewriting,
+      # all new code should set this attribute to true.
+      #
+      # If set to false (the default), `__ENCODING__` is emitted as
+      # ` s(:const, s(:const, nil, :Encoding), :UTF_8)`.
+      #
+      # If set to true, `__ENCODING__` is emitted as
+      # `s(:__ENCODING__)`.
+      #
+      # @return [Boolean]
+      attr_accessor :emit_encoding
+    end
+
+    @emit_encoding = false
+
+    class << self
+      ##
       # @api private
       def modernize
         @emit_lambda = true
         @emit_procarg0 = true
+        @emit_encoding = true
       end
     end
 
@@ -424,8 +443,12 @@ module Parser
         end
 
       when :__ENCODING__
-        n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
-          node.loc.dup)
+        if !self.class.emit_encoding
+          n(:const, [ n(:const, [ nil, :Encoding], nil), :UTF_8 ],
+            node.loc.dup)
+        else
+          node
+        end
 
       when :ident
         name, = *node

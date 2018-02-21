@@ -925,10 +925,21 @@ class TestParser < Minitest::Test
 
   def test___ENCODING__
     assert_parses(
+      s(:__ENCODING__),
+      %q{__ENCODING__},
+      %q{~~~~~~~~~~~~ expression},
+      SINCE_1_9)
+  end
+
+  def test___ENCODING___legacy_
+    Parser::Builders::Default.emit_encoding = false
+    assert_parses(
       s(:const, s(:const, nil, :Encoding), :UTF_8),
       %q{__ENCODING__},
       %q{~~~~~~~~~~~~ expression},
       SINCE_1_9)
+  ensure
+    Parser::Builders::Default.emit_encoding = true
   end
 
   # defined?
@@ -2617,6 +2628,7 @@ class TestParser < Minitest::Test
         s(:arg, :a)),
       %q{|a|}
     )
+  ensure
     Parser::Builders::Default.emit_procarg0 = true
   end
 
@@ -3473,6 +3485,7 @@ class TestParser < Minitest::Test
         |    ^ end
         |~~~~~ expression},
       SINCE_1_9)
+  ensure
     Parser::Builders::Default.emit_lambda = true
   end
 
