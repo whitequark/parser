@@ -104,7 +104,7 @@ task :changelog do
 
       current_version = "#{$1} (#{date})" if version =~ /(v[\d\w.]+)/
       current_version = "Not released (#{date})" \
-        if version =~ /(^| |\/)#{Regexp.escape branch}$/
+        if version =~ /(^| |\/)#{Regexp.escape branch}$/ && !branch.start_with?('v')
 
       next if current_version.nil?
       changelog[current_version] # add a hash
