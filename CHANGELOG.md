@@ -1,6 +1,21 @@
 Changelog
 =========
 
+v2.5.0.1 (2018-02-21)
+---------------------
+
+Features implemented:
+ * builders/default: __ENCODING__: emit as s(:__ENCODING__) via AST opt-in. (whitequark)
+ * ruby25.y: Extract expr_value_do rule. This commit tracks upstream commit ruby/ruby@508533f. (Ilya Bylich)
+ * ruby25.y: Extract begin_block rule. This commit tracks upstream commit ruby/ruby@762d23c. (Ilya Bylich)
+ * ruby25.y: Allow class and method definition in the while condition. (#432) (Ilya Bylich)
+ * ruby25: Allow `-> do rescue; end`. (#431) (Ilya Bylich)
+
+Bugs fixed:
+ * parser/current: latest released Ruby series is 2.5.x. (whitequark)
+ * builders/default: x[], x[]=1: emit as s(:index), s(:indexasgn) via AST opt-in. (whitequark)
+ * lexer.rl: "#{-> foo {}}": fix parsing of interpolated lambda with open args. (Ilya Bylich)
+
 v2.5.0.0 (2018-02-16)
 ---------------------
 
