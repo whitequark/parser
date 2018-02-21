@@ -67,8 +67,8 @@ module Parser
 
   else # :nocov:
     # Keep this in sync with released Ruby.
-    warn_syntax_deviation 'parser/ruby24', '2.4.x'
-    require 'parser/ruby24'
-    CurrentRuby = Ruby24
+    warn_syntax_deviation 'parser/ruby25', '2.5.x'
+    require 'parser/ruby25'
+    CurrentRuby = Ruby25
   end
 end
