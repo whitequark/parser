@@ -1437,12 +1437,12 @@ class Parser::Lexer
       w_space* e_lbrace
       => {
         if @lambda_stack.last == @paren_nest
-          p = @ts - 1
-          fgoto expr_end;
+          @lambda_stack.pop
+          emit(:tLAMBEG, '{'.freeze, @te - 1, @te)
         else
           emit(:tLCURLY, '{'.freeze, @te - 1, @te)
-          fnext expr_value; fbreak;
         end
+        fnext expr_value; fbreak;
       };
 
       #

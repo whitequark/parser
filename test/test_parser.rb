@@ -6724,4 +6724,17 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_bug_435
+    assert_parses(
+      s(:dstr,
+        s(:begin,
+          s(:block,
+            s(:lambda),
+            s(:args,
+              s(:arg, :foo)), nil))),
+      %q{"#{-> foo {}}"},
+      %q{},
+      SINCE_1_9)
+  end
 end
