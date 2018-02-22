@@ -1,6 +1,19 @@
 Changelog
 =========
 
+Not released (2018-02-22)
+-------------------------
+
+Bugs fixed:
+ * Accept `BEGIN` and `END` as correct method name (#463) (Masataka Pocke Kuwabara)
+ * Parser::Source::Buffer: Fixed parsing of encoding comment when the file contains only shebang. (Ilya Bylich)
+
+v2.5.0.2 (2018-02-22)
+---------------------
+
+Bugs fixed:
+ * ruby24.y, ruby25.y: Replicate cmdargs handling from MRI. (#453) (Ilya Bylich)
+
 v2.5.0.1 (2018-02-21)
 ---------------------
 
