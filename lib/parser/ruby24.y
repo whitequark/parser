@@ -955,20 +955,13 @@ rule
 
                       result = @builder.begin_keyword(val[0], val[2], val[3])
                     }
-                | tLPAREN_ARG
-                    {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
-                    }
-                    stmt
+                | tLPAREN_ARG stmt
                     {
                       @lexer.state = :expr_endarg
                     }
                     rparen
                     {
-                      @lexer.cmdarg = val[1]
-
-                      result = @builder.begin(val[0], val[2], val[4])
+                      result = @builder.begin(val[0], val[1], val[3])
                     }
                 | tLPAREN_ARG
                     {
