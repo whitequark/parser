@@ -6781,4 +6781,20 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_1_9)
   end
+
+  def test_bug_452
+    assert_parses(
+      s(:begin,
+        s(:send, nil, :td,
+          s(:send,
+            s(:begin,
+              s(:int, 1500)), :toString)),
+        s(:block,
+          s(:send,
+            s(:send, nil, :td), :num),
+          s(:args), nil)),
+      %q{td (1_500).toString(); td.num do; end},
+      %q{},
+      ALL_VERSIONS)
+  end
 end
