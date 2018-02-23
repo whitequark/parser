@@ -63,7 +63,7 @@ module Parser
           encoding_line = first_line
         end
 
-        return nil if encoding_line[0] != '#'
+        return nil if encoding_line.nil? || encoding_line[0] != '#'
 
         if (result = ENCODING_RE.match(encoding_line))
           Encoding.find(result[3] || result[4] || result[6])
