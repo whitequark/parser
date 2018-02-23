@@ -27,6 +27,7 @@ class TestEncoding < Minitest::Test
 
   def test_shebang
     assert_equal Encoding::KOI8_R, recognize("#!/bin/foo\n# coding:koi8-r\nfoobar")
+    assert_nil recognize("#!/bin/foo\n")
   end
 
   def test_case
