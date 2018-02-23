@@ -230,7 +230,7 @@ module Parser
     end
 
     def coerce_encoding(string)
-      string.dup.force_encoding(Encoding::BINARY)
+      string.b
     end
 
     def clear_buffer

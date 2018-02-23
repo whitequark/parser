@@ -5272,7 +5272,7 @@ class TestParser < Minitest::Test
   def test_bom
     assert_parses(
       s(:int, 1),
-      %Q{\xef\xbb\xbf1}.dup.force_encoding(Encoding::BINARY),
+      %Q{\xef\xbb\xbf1}.b,
       %q{},
       %w(1.9 2.0 2.1))
   end
@@ -5284,8 +5284,7 @@ class TestParser < Minitest::Test
         s(:send, nil, :puts, s(:lvar, :"проверка"))),
       %Q{# coding:koi8-r
          \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1 = 42
-         puts \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1}.dup.
-        force_encoding(Encoding::BINARY),
+         puts \xd0\xd2\xcf\xd7\xc5\xd2\xcb\xc1}.b,
       %q{},
       %w(1.9 2.0 2.1))
   end
