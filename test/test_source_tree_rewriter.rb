@@ -174,4 +174,9 @@ DIAGNOSTIC
 (rewriter):1:       ^~~~~  ~~~~
 DIAGNOSTIC
   end
+
+  def test_out_of_range_ranges
+    rewriter = Parser::Source::TreeRewriter.new(@buf)
+    assert_raises(IndexError) { rewriter.insert_before(range(0, 100), 'hola') }
+  end
 end
