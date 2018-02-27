@@ -421,7 +421,7 @@ class TestSourceRewriter < Minitest::Test
   end
 
 
-  def test_overlapping_delete
+  def test_crossing_delete
     assert_equal 'faz',
                  @rewriter.
                    remove(range(1, 4)).

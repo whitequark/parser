@@ -17,7 +17,7 @@ module Parser
     # - The TreeRewriter policy closest to Rewriter's behavior is:
     #       different_replacements: :raise,
     #       swallowed_insertions: :raise,
-    #       overlapping_deletions: :accept
+    #       crossing_deletions: :accept
     #
     # @!attribute [r] source_buffer
     #  @return [Source::Buffer]
