@@ -103,7 +103,7 @@ module Parser
       end
 
       def initialize(name, first_line = 1)
-        @name        = name
+        @name        = name.to_s
         @source      = nil
         @first_line  = first_line
 
