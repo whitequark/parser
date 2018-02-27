@@ -2219,7 +2219,13 @@ class Parser::Lexer
       e_rbrace | e_rparen | ']'
       => {
         emit_table(PUNCTUATION)
-        @cond.lexpop; @cmdarg.pop
+
+        @cond.lexpop
+        if @version < 24
+          @cmdarg.lexpop
+        else
+          @cmdarg.pop
+        end
 
         if tok == '}'.freeze
           fnext expr_endarg;
