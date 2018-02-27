@@ -8,6 +8,12 @@ class TestSourceBuffer < Minitest::Test
   end
 
   def test_initialize
+    buffer = Parser::Source::Buffer.new(nil)
+    assert_equal '', buffer.name
+
+    buffer = Parser::Source::Buffer.new(Pathname('a/b'))
+    assert_equal 'a/b', buffer.name
+
     buffer = Parser::Source::Buffer.new('(string)')
     assert_equal '(string)', buffer.name
     assert_equal 1, buffer.first_line

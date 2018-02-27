@@ -273,7 +273,7 @@ module Parser
 
       def check_range_validity(range)
         if range.begin_pos < 0 || range.end_pos > @source_buffer.source.size
-          raise IndexError, "The range #{action.range} is outside the bounds of the source"
+          raise IndexError, "The range #{range} is outside the bounds of the source"
         end
         range
       end
