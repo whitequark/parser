@@ -134,15 +134,6 @@ DIAGNOSTIC
                           [:wrap, @world, '[', ']']
   end
 
-
-  def test_multiple_actions
-    assert_actions_result 'puts({:hello => [:everybody]})',
-                          [:replace, @comma_space, ' => '],
-                          [:wrap, @hello.join(@world), '{', '}'],
-                          [:replace, @world, ':everybody'],
-                          [:wrap, @world, '[', ']']
-  end
-
   def test_wraps_same_range
     assert_actions_result 'puts([(:hello)], :world)',
                            [[:wrap, @hello, '(', ')'],
