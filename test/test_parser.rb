@@ -1804,6 +1804,14 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:def, :until, s(:args), nil),
       %q{def until; end})
+
+    assert_parses(
+      s(:def, :BEGIN, s(:args), nil),
+      %q{def BEGIN; end})
+
+    assert_parses(
+      s(:def, :END, s(:args), nil),
+      %q{def END; end})
   end
 
   def test_defs

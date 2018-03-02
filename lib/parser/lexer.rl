@@ -467,6 +467,7 @@ class Parser::Lexer
     'if'     => :kIF,          'unless'   => :kUNLESS,
     'while'  => :kWHILE,       'until'    => :kUNTIL,
     'rescue' => :kRESCUE,      'defined?' => :kDEFINED,
+    'BEGIN'  => :klBEGIN,      'END'      => :klEND,
   }
 
   %w(class module def undef begin end then elsif else ensure case when
