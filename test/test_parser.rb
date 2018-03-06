@@ -6814,4 +6814,21 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_bug_466
+    assert_parses(
+      s(:block,
+        s(:send, nil, :foo,
+          s(:dstr,
+            s(:begin,
+              s(:send,
+                s(:begin,
+                  s(:send,
+                    s(:int, 1), :+,
+                    s(:int, 1))), :to_i)))),
+        s(:args), nil),
+      %q{foo "#{(1+1).to_i}" do; end},
+      %q{},
+      ALL_VERSIONS)
+  end
 end

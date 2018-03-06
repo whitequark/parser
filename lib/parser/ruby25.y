@@ -1842,13 +1842,13 @@ regexp_contents: # nothing
                     }
                 | tSTRING_DBEG
                     {
-                      @lexer.cond.push(false)
-                      @lexer.cmdarg.push(false)
+                      @lexer.push_cmdarg
+                      @lexer.push_cond
                     }
                     compstmt tSTRING_DEND
                     {
-                      @lexer.cond.pop
-                      @lexer.cmdarg.pop
+                      @lexer.pop_cmdarg
+                      @lexer.pop_cond
 
                       result = @builder.begin(val[0], val[2], val[3])
                     }
