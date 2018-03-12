@@ -166,7 +166,11 @@ module Parser
 
       alias on_csend on_send
 
+      alias on_index     process_regular_node
+      alias on_indexasgn process_regular_node
+
       alias on_block    process_regular_node
+      alias on_lambda   process_regular_node
 
       alias on_while      process_regular_node
       alias on_while_post process_regular_node
