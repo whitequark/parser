@@ -1,8 +1,14 @@
 Changelog
 =========
 
-Not released (2018-03-06)
--------------------------
+v2.5.0.4 (2018-03-13)
+---------------------
+
+Bugs fixed:
+ * AST::Processor: handle on_index, on_indexasgn, on_lambda. (Ilya Bylich)
+
+v2.5.0.3 (2018-03-06)
+---------------------
 
 Bugs fixed:
  * Accept `BEGIN` and `END` as correct method name (#463) (Masataka Pocke Kuwabara)
