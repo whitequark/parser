@@ -65,6 +65,15 @@ module Parser
     require 'parser/ruby25'
     CurrentRuby = Ruby25
 
+  when /^2\.6\./
+    current_version = '2.6.0-dev'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby26', current_version
+    end
+
+    require 'parser/ruby26'
+    CurrentRuby = Ruby26
+
   else # :nocov:
     # Keep this in sync with released Ruby.
     warn_syntax_deviation 'parser/ruby25', '2.5.x'
