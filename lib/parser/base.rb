@@ -131,6 +131,9 @@ module Parser
       @builder.parser = self
       @context = Context.new
 
+      # Last emitted token
+      @last_token = nil
+
       if self.class::Racc_debug_parser && ENV['RACC_DEBUG']
         @yydebug = true
       end
@@ -222,7 +225,9 @@ module Parser
     private
 
     def next_token
-      @lexer.advance
+      token = @lexer.advance
+      @last_token = token
+      token
     end
 
     def check_kwarg_name(name_t)

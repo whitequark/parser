@@ -6831,4 +6831,15 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_bug_473
+    assert_parses(
+      s(:send, nil, :m,
+        s(:dstr,
+          s(:begin,
+            s(:array)))),
+      %q{m "#{[]}"},
+      %q{},
+      ALL_VERSIONS)
+  end
 end

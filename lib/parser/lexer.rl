@@ -89,7 +89,7 @@ class Parser::Lexer
 
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
 
-  attr_reader   :source_buffer, :last_token
+  attr_reader   :source_buffer
 
   attr_accessor :diagnostics
   attr_accessor :static_env
@@ -175,9 +175,6 @@ class Parser::Lexer
 
     # State before =begin / =end block comment
     @cs_before_block_comment = self.class.lex_en_line_begin
-
-    # Last emitted token
-    @last_token = nil
   end
 
   def source_buffer=(source_buffer)
@@ -328,7 +325,6 @@ class Parser::Lexer
     token = [ type, [ value, range(s, e) ] ]
 
     @token_queue.push(token)
-    @last_token = token
 
     @tokens.push(token) if @tokens
 
