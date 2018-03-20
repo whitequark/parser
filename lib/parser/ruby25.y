@@ -872,7 +872,7 @@ rule
                       #
                       # For all other cases (like `m n` or `m n, []`) we simply put 1 to the stack
                       # and later lexer pushes corresponding bits on top of it.
-                      last_token = @lexer.last_token[0]
+                      last_token = @last_token[0]
                       lookahead = last_token == :tLBRACK || last_token == :tLPAREN_ARG
 
                       if lookahead
