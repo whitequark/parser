@@ -379,27 +379,30 @@ class Parser::Lexer
   def push_literal(*args)
     new_literal = Literal.new(self, *args)
     @literal_stack.push(new_literal)
+    next_state_for_literal(new_literal)
+  end
 
-    if new_literal.words? && new_literal.backslash_delimited?
-      if new_literal.interpolate?
+  def next_state_for_literal(literal)
+    if literal.words? && literal.backslash_delimited?
+      if literal.interpolate?
         self.class.lex_en_interp_backslash_delimited_words
       else
         self.class.lex_en_plain_backslash_delimited_words
       end
-    elsif new_literal.words? && !new_literal.backslash_delimited?
-      if new_literal.interpolate?
+    elsif literal.words? && !literal.backslash_delimited?
+      if literal.interpolate?
         self.class.lex_en_interp_words
       else
         self.class.lex_en_plain_words
       end
-    elsif !new_literal.words? && new_literal.backslash_delimited?
-      if new_literal.interpolate?
+    elsif !literal.words? && literal.backslash_delimited?
+      if literal.interpolate?
         self.class.lex_en_interp_backslash_delimited
       else
         self.class.lex_en_plain_backslash_delimited
       end
     else
-      if new_literal.interpolate?
+      if literal.interpolate?
         self.class.lex_en_interp_string
       else
         self.class.lex_en_plain_string
@@ -1026,8 +1029,15 @@ class Parser::Lexer
           @herebody_s = current_literal.saved_herebody_s
         end
 
+        @cond.lexpop
+        if @version < 24
+          @cmdarg.lexpop
+        else
+          @cmdarg.pop
+        end
+
         fhold;
-        fnext *stack_pop;
+        fnext *next_state_for_literal(current_literal);
         fbreak;
       end
     end
@@ -1046,7 +1056,8 @@ class Parser::Lexer
     end
 
     current_literal.start_interp_brace
-    fcall expr_value;
+    fnext expr_value;
+    fbreak;
   }
 
   # Actual string parsers are simply combined from the primitives defined
