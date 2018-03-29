@@ -946,12 +946,11 @@ rule
                     }
                 | kBEGIN
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.cmdarg.push(false)
                     }
                     bodystmt kEND
                     {
-                      @lexer.cmdarg = val[1]
+                      @lexer.cmdarg.pop
 
                       result = @builder.begin_keyword(val[0], val[2], val[3])
                     }
@@ -1116,7 +1115,7 @@ rule
                 | kCLASS cpath superclass
                     {
                       @static_env.extend_static
-                      @lexer.push_cmdarg
+                      @lexer.cmdarg.push(false)
                       @context.push(:class)
                     }
                     bodystmt kEND
@@ -1130,14 +1129,14 @@ rule
                                                   lt_t, superclass,
                                                   val[4], val[5])
 
-                      @lexer.pop_cmdarg
+                      @lexer.cmdarg.pop
                       @static_env.unextend
                       @context.pop
                     }
                 | kCLASS tLSHFT expr term
                     {
                       @static_env.extend_static
-                      @lexer.push_cmdarg
+                      @lexer.cmdarg.push(false)
                       @context.push(:sclass)
                     }
                     bodystmt kEND
@@ -1145,14 +1144,14 @@ rule
                       result = @builder.def_sclass(val[0], val[1], val[2],
                                                    val[5], val[6])
 
-                      @lexer.pop_cmdarg
+                      @lexer.cmdarg.pop
                       @static_env.unextend
                       @context.pop
                     }
                 | kMODULE cpath
                     {
                       @static_env.extend_static
-                      @lexer.push_cmdarg
+                      @lexer.cmdarg.push(false)
                     }
                     bodystmt kEND
                     {
@@ -1163,13 +1162,13 @@ rule
                       result = @builder.def_module(val[0], val[1],
                                                    val[3], val[4])
 
-                      @lexer.pop_cmdarg
+                      @lexer.cmdarg.pop
                       @static_env.unextend
                     }
                 | kDEF fname
                     {
                       @static_env.extend_static
-                      @lexer.push_cmdarg
+                      @lexer.cmdarg.push(false)
                       @context.push(:def)
                     }
                     f_arglist bodystmt kEND
@@ -1177,7 +1176,7 @@ rule
                       result = @builder.def_method(val[0], val[1],
                                   val[3], val[4], val[5])
 
-                      @lexer.pop_cmdarg
+                      @lexer.cmdarg.pop
                       @static_env.unextend
                       @context.pop
                     }
@@ -1188,7 +1187,7 @@ rule
                     fname
                     {
                       @static_env.extend_static
-                      @lexer.push_cmdarg
+                      @lexer.cmdarg.push(false)
                       @context.push(:defs)
                     }
                     f_arglist bodystmt kEND
@@ -1196,7 +1195,7 @@ rule
                       result = @builder.def_singleton(val[0], val[1], val[2],
                                   val[4], val[6], val[7], val[8])
 
-                      @lexer.pop_cmdarg
+                      @lexer.cmdarg.pop
                       @static_env.unextend
                       @context.pop
                     }
@@ -1638,15 +1637,14 @@ opt_block_args_tail:
                       @static_env.extend_dynamic
                     }
                     {
-                      result = @lexer.cmdarg.dup
-                      @lexer.cmdarg.clear
+                      @lexer.cmdarg.push(false)
                     }
                     opt_block_param compstmt
                     {
                       result = [ val[2], val[3] ]
 
                       @static_env.unextend
-                      @lexer.cmdarg = val[1]
+                      @lexer.cmdarg.pop
                     }
 
        case_body: kWHEN args then compstmt cases
@@ -1845,13 +1843,13 @@ regexp_contents: # nothing
                     }
                 | tSTRING_DBEG
                     {
-                      @lexer.push_cmdarg
-                      @lexer.push_cond
+                      @lexer.cmdarg.push(false)
+                      @lexer.cond.push(false)
                     }
                     compstmt tSTRING_DEND
                     {
-                      @lexer.pop_cmdarg
-                      @lexer.pop_cond
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
 
                       result = @builder.begin(val[0], val[2], val[3])
                     }
