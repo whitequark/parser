@@ -88,7 +88,7 @@ rule
                       ensure_t, ensure_ = val[3]
 
                       if rescue_bodies.empty? && !else_.nil?
-                        diagnostic :warning, :useless_else, nil, else_t
+                        diagnostic :error, :useless_else, nil, else_t
                       end
 
                       result = @builder.begin_body(val[0],

@@ -4941,7 +4941,8 @@ class TestParser < Minitest::Test
         s(:begin,
           s(:int, 2))),
       %q{begin; else; 2; end},
-      %q{       ~~~~ begin (begin)})
+      %q{       ~~~~ begin (begin)},
+      ALL_VERSIONS - SINCE_2_6)
 
     assert_parses(
       s(:kwbegin,
@@ -4949,7 +4950,8 @@ class TestParser < Minitest::Test
         s(:begin,
           s(:int, 2))),
       %q{begin; 1; else; 2; end},
-      %q{          ~~~~ begin (begin)})
+      %q{          ~~~~ begin (begin)},
+      ALL_VERSIONS - SINCE_2_6)
 
     assert_parses(
       s(:kwbegin,
@@ -4958,12 +4960,20 @@ class TestParser < Minitest::Test
         s(:begin,
           s(:int, 3))),
       %q{begin; 1; 2; else; 3; end},
-      %q{             ~~~~ begin (begin)})
+      %q{             ~~~~ begin (begin)},
+      ALL_VERSIONS - SINCE_2_6)
 
     assert_diagnoses(
       [:warning, :useless_else],
       %q{begin; 1; else; 2; end},
-      %q{          ~~~~ location})
+      %q{          ~~~~ location},
+      ALL_VERSIONS - SINCE_2_6)
+
+    assert_diagnoses(
+      [:error, :useless_else],
+      %q{begin; 1; else; 2; end},
+      %q{          ~~~~ location},
+      SINCE_2_6)
   end
 
   def test_ensure
