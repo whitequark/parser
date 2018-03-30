@@ -1021,6 +1021,13 @@ class Parser::Lexer
       if current_literal.end_interp_brace_and_try_closing
         if version?(18, 19)
           emit(:tRCURLY, '}'.freeze, p - 1, p)
+          if @version < 24
+            @cond.lexpop
+            @cmdarg.lexpop
+          else
+            @cond.pop
+            @cmdarg.pop
+          end
         else
           emit(:tSTRING_DEND, '}'.freeze, p - 1, p)
         end
@@ -1029,12 +1036,6 @@ class Parser::Lexer
           @herebody_s = current_literal.saved_herebody_s
         end
 
-        @cond.lexpop
-        if @version < 24
-          @cmdarg.lexpop
-        else
-          @cmdarg.pop
-        end
 
         fhold;
         fnext *next_state_for_literal(current_literal);
@@ -2228,10 +2229,11 @@ class Parser::Lexer
       => {
         emit_table(PUNCTUATION)
 
-        @cond.lexpop
         if @version < 24
+          @cond.lexpop
           @cmdarg.lexpop
         else
+          @cond.pop
           @cmdarg.pop
         end
 
