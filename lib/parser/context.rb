@@ -38,5 +38,14 @@ module Parser
     def indirectly_in_def?
       @stack.include?(:def) || @stack.include?(:defs)
     end
+
+    def class_definition_allowed?
+      def_index = stack.rindex { |item| [:def, :defs].include?(item) }
+      sclass_index = stack.rindex(:sclass)
+
+      def_index.nil? || (!sclass_index.nil? && sclass_index > def_index)
+    end
+    alias module_definition_allowed? class_definition_allowed?
+    alias dynamic_const_definition_allowed? class_definition_allowed?
   end
 end

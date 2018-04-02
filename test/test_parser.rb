@@ -6880,4 +6880,39 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_parser_bug_490
+    assert_parses(
+      s(:def, :m,
+        s(:args),
+        s(:sclass,
+          s(:self),
+          s(:class,
+            s(:const, nil, :C), nil, nil))),
+      %q{def m; class << self; class C; end; end; end},
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:def, :m,
+        s(:args),
+        s(:sclass,
+          s(:self),
+          s(:module,
+            s(:const, nil, :M), nil))),
+      %q{def m; class << self; module M; end; end; end},
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:def, :m,
+        s(:args),
+        s(:sclass,
+          s(:self),
+          s(:casgn, nil, :A,
+            s(:nil)))),
+      %q{def m; class << self; A = nil; end; end},
+      %q{},
+      ALL_VERSIONS)
+  end
 end
