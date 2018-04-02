@@ -3498,4 +3498,14 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 'cond',   [11, 15])
   end
 
+  def test_parser_bug_486
+    setup_lexer(19)
+    assert_scanned(':!@',
+                   :tSYMBOL, '!', [0, 3])
+
+    setup_lexer(19)
+    assert_scanned(':~@',
+                   :tSYMBOL, '~', [0, 3])
+  end
+
 end

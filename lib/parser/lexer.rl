@@ -1760,6 +1760,14 @@ class Parser::Lexer
         fgoto *push_literal(type, delimiter, @ts);
       };
 
+      # :!@ is :!
+      # :~@ is :~
+      ':' [!~] '@'
+      => {
+        emit(:tSYMBOL, tok(@ts + 1, @ts + 2))
+        fnext expr_end; fbreak;
+      };
+
       ':' bareword ambiguous_symbol_suffix
       => {
         emit(:tSYMBOL, tok(@ts + 1, tm), @ts, tm)
