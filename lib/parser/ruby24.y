@@ -1120,7 +1120,7 @@ rule
                     }
                     bodystmt kEND
                     {
-                      if @context.indirectly_in_def?
+                      unless @context.class_definition_allowed?
                         diagnostic :error, :class_in_def, nil, val[0]
                       end
 
@@ -1155,7 +1155,7 @@ rule
                     }
                     bodystmt kEND
                     {
-                      if @context.indirectly_in_def?
+                      unless @context.module_definition_allowed?
                         diagnostic :error, :module_in_def, nil, val[0]
                       end
 
