@@ -6916,4 +6916,22 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_slash_newline_in_heredocs
+    assert_parses(
+      s(:dstr,
+        s(:str, "1 2\n"),
+        s(:str, "3\n")),
+      %Q{<<~E\n    1 \\\n    2\n    3\nE\n},
+      %q{},
+      SINCE_2_3)
+
+    assert_parses(
+      s(:dstr,
+        s(:str, "    1     2\n"),
+        s(:str, "    3\n")),
+      %Q{<<-E\n    1 \\\n    2\n    3\nE\n},
+      %q{},
+      ALL_VERSIONS)
+  end
 end
