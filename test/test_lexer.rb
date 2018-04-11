@@ -1944,7 +1944,7 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, "a", [0, 1],
                    :tSTAR2,      "*", [2, 3])
 
-    assert_equal :expr_beg, @lex.state
+    assert_equal :expr_value, @lex.state
   end
 
   def test_star2
@@ -1952,7 +1952,7 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, "a",  [0, 1],
                    :tPOW,        "**", [2, 4])
 
-    assert_equal :expr_beg, @lex.state
+    assert_equal :expr_value, @lex.state
   end
 
   def test_star2_equals
