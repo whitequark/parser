@@ -3916,7 +3916,8 @@ class TestParser < Minitest::Test
         s(:args),
         s(:int, 1)),
       %q{f 1, {1 => 2} {1}},
-      %q{})
+      %q{},
+      ALL_VERSIONS - SINCE_2_5)
   end
 
   def test_space_args_arg_call
@@ -6427,9 +6428,9 @@ class TestParser < Minitest::Test
 
   def test_context_cmd_brace_block
     [
-      'tap 1, { 1 => 2 } {',
-      'foo.tap 1, { 1 => 2 } {',
-      'foo::tap 1, { 1 => 2 } {'
+      'tap foo {',
+      'foo.tap foo {',
+      'foo::tap foo {'
     ].each do |code|
       assert_context([:block], code, ALL_VERSIONS)
     end
@@ -6747,7 +6748,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tLCURLY' }],
       %q{m [] {}},
       %q{     ^ location},
-      SINCE_2_4)
+      SINCE_2_5)
 
     assert_parses(
       s(:block,
@@ -6756,7 +6757,7 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{meth[] {}},
       %q{},
-      SINCE_2_4
+      SINCE_2_5
     )
 
     assert_diagnoses_many(
