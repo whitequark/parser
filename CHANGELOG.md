@@ -1,6 +1,24 @@
 Changelog
 =========
 
+Not released (2018-04-12)
+-------------------------
+
+API modifications:
+ * Parser::Current: bump latest 2.2 branch to 2.2.10. (Ilya Bylich)
+
+Features implemented:
+ * ruby26.y: Raise a syntax error on 'else' without 'rescue'. This commit tracks upstream commit ruby/ruby@140512d. (Ilya Bylich)
+
+Bugs fixed:
+ * lexer.rl, Dedenter: Treat slash in heredocs as a line continuation. (Ilya Bylich)
+ * lexer.rl: Fix parsing of `a ? b + '': nil`. (Ilya Bylich)
+ * lexer.rl: Reject `m a: {} {}` and `m [] {}` since 25. (Ilya Bylich)
+ * builders/default: allow class/module/dynamic constant definition in the method body if there's a sclass between them. (bug #490) (Ilya Bylich)
+ * lexer.rl: Emit :!@ as :!, :~@ as :~. (Ilya Bylich)
+ * parse{23,24,25}.y: use only CMDARG/COND _PUSH/POP for cmdarg/cond management. (bug #481) (Ilya Bylich)
+ * lexer.rl: emit tSTRING_BEG and tSTRING_DBEG one by one to allow parser to properly manipulate cmdarg stack. (bug #480) (Ilya Bylich)
+
 v2.5.0.4 (2018-03-13)
 ---------------------
 
