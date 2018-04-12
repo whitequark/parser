@@ -2243,10 +2243,16 @@ class Parser::Lexer
       # OPERATORS
       #
 
-      ( e_lparen
-      | operator_arithmetic
-      | operator_rest
-      )
+      # When '|', '~', '!', '=>' are used as operators
+      # they do not accept any symbols (or quoted labels) after.
+      # Other binary operators accept it.
+      ( operator_arithmetic | operator_rest ) - ( '|' | '~' | '!' )
+      => {
+        emit_table(PUNCTUATION);
+        fnext expr_value; fbreak;
+      };
+
+      ( e_lparen | '|' | '~' | '!' )
       => { emit_table(PUNCTUATION)
            fnext expr_beg; fbreak; };
 

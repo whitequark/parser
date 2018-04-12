@@ -6934,4 +6934,35 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_ambiuous_quoted_label_in_ternary_operator
+    assert_parses(
+      s(:if,
+        s(:send, nil, :a),
+        s(:send,
+          s(:send, nil, :b), :&,
+          s(:str, '')),
+        s(:nil)),
+      %q{a ? b & '': nil},
+      %q{},
+      ALL_VERSIONS)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLABEL_END' }],
+      %q{a ? b | '': nil},
+      %q{         ^~ location},
+      SINCE_2_2)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tTILDE' }],
+      %q{a ? b ~ '': nil},
+      %q{      ^ location},
+      SINCE_2_2)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBANG' }],
+      %q{a ? b ! '': nil},
+      %q{      ^ location},
+      SINCE_2_2)
+  end
 end
