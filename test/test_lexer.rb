@@ -3508,4 +3508,30 @@ class TestLexer < Minitest::Test
                    :tSYMBOL, '~', [0, 3])
   end
 
+  def test_slash_only_in_heredocs
+    setup_lexer(23)
+    refute_scanned(%Q{<<~E\n\\\nE})
+
+    setup_lexer(23)
+    refute_scanned(%Q{<<-E\n\\\nE})
+  end
+
+  def test_escapes_in_squiggly_heredoc
+    setup_lexer(23)
+
+    assert_scanned(%Q{<<~E\n\a\b\e\f\r\t\\\v\nE},
+                   :tSTRING_BEG,     '<<"',              [0, 4],
+                   :tSTRING_CONTENT, "\a\b\e\f\r\t\v\n", [5, 14],
+                   :tSTRING_END,     'E',                [14, 15],
+                   :tNL,             nil,                [4, 5])
+
+    setup_lexer(23)
+
+    assert_scanned(%Q{<<-E\n\a\b\e\f\r\t\\\v\nE},
+                   :tSTRING_BEG,     '<<"',              [0, 4],
+                   :tSTRING_CONTENT, "\a\b\e\f\r\t\v\n", [5, 14],
+                   :tSTRING_END,     'E',                [14, 15],
+                   :tNL,             nil,                [4, 5])
+  end
+
 end

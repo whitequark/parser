@@ -103,6 +103,14 @@ module Parser
       !!@heredoc_e
     end
 
+    def plain_heredoc?
+      heredoc? && !@dedent_body
+    end
+
+    def squiggly_heredoc?
+      heredoc? && @dedent_body
+    end
+
     def backslash_delimited?
       @end_delim == '\\'.freeze
     end
