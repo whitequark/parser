@@ -1293,8 +1293,8 @@ Format:
  ~~~~~~ keyword
              ~~~~ begin
                           ~~~~ else
-                                     ~~~ end
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+                                         ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
 
 "unless cond; iftrue; else; iffalse; end"
  ~~~~~~ keyword
