@@ -35,6 +35,10 @@ module Parser
       @stack[0] == 1
     end
 
+    def empty?
+      @stack == 0
+    end
+
     def to_s
       "[#{@stack.to_s(2)} <= #{@name}]"
     end

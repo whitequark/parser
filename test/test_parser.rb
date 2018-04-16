@@ -6965,4 +6965,19 @@ class TestParser < Minitest::Test
       %q{      ^ location},
       SINCE_2_2)
   end
+
+  def test_lbrace_arg_after_command_args
+    assert_parses(
+      s(:block,
+        s(:send, nil, :let,
+          s(:begin,
+            s(:sym, :a))),
+        s(:args),
+        s(:block,
+          s(:send, nil, :m),
+          s(:args), nil)),
+      %q{let (:a) { m do; end }},
+      %q{},
+      ALL_VERSIONS)
+  end
 end
