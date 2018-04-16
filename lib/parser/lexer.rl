@@ -1628,7 +1628,7 @@ class Parser::Lexer
         else
           emit(:tLBRACE_ARG, '{'.freeze)
         end
-        fnext expr_value;
+        fnext expr_value; fbreak;
       };
 
       'do'

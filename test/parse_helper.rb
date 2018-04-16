@@ -124,7 +124,7 @@ module ParseHelper
       assert_source_range(begin_pos, end_pos, range, version, line.inspect)
     end
 
-    assert_equal parser.instance_eval { @lexer }.cmdarg.instance_eval { @stack }, 0,
+    assert parser.instance_eval { @lexer }.cmdarg.empty?,
       "(#{version}) expected cmdarg to be empty after parsing"
   end
 
