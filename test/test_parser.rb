@@ -6980,4 +6980,19 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_ruby_bug_14690
+    assert_parses(
+      s(:block,
+        s(:send, nil, :let,
+          s(:begin)),
+        s(:args),
+        s(:block,
+          s(:send, nil, :m,
+            s(:send, nil, :a)),
+          s(:args), nil)),
+      %q{let () { m(a) do; end }},
+      %q{},
+      SINCE_2_0)
+  end
 end
