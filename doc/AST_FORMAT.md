@@ -322,6 +322,20 @@ Format:
  ~~~~~ expression
 ~~~
 
+
+### Endless (2.6)
+
+Can be inclusive or exclusive.
+
+Format:
+
+~~~
+(irange (int 1) nil)
+"1.."
+  ~~ operator
+ ~~~ expression
+~~~
+
 ## Access
 
 ### Self

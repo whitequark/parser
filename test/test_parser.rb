@@ -6980,4 +6980,22 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_endless_range
+    assert_parses(
+      s(:irange,
+        s(:int, 1), nil),
+      %q{1..},
+      %q{~~~ expression
+        | ~~ operator},
+      SINCE_2_6)
+
+    assert_parses(
+      s(:erange,
+        s(:int, 1), nil),
+      %q{1...},
+      %q{~~~~ expression
+        | ~~~ operator},
+      SINCE_2_6)
+  end
 end
