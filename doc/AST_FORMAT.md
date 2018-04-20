@@ -325,8 +325,6 @@ Format:
 
 ### Endless (2.6)
 
-Can be inclusive or exclusive.
-
 Format:
 
 ~~~
@@ -334,6 +332,11 @@ Format:
 "1.."
   ~~ operator
  ~~~ expression
+
+(erange (int 1) nil)
+"1..."
+  ~~~ operator
+ ~~~~ expression
 ~~~
 
 ## Access
