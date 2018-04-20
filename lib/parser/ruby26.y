@@ -665,6 +665,14 @@ rule
                     {
                       result = @builder.range_exclusive(val[0], val[1], val[2])
                     }
+                | arg tDOT2
+                    {
+                      result = @builder.range_inclusive(val[0], val[1], nil)
+                    }
+                | arg tDOT3
+                    {
+                      result = @builder.range_exclusive(val[0], val[1], nil)
+                    }
                 | arg tPLUS arg
                     {
                       result = @builder.binary_op(val[0], val[1], val[2])

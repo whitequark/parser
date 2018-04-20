@@ -833,6 +833,24 @@ class TestParser < Minitest::Test
         |~~~~~ expression})
   end
 
+  def test_range_endless
+    assert_parses(
+      s(:irange,
+        s(:int, 1), nil),
+      %q{1..},
+      %q{~~~ expression
+        | ~~ operator},
+      SINCE_2_6)
+
+    assert_parses(
+      s(:erange,
+        s(:int, 1), nil),
+      %q{1...},
+      %q{~~~~ expression
+        | ~~~ operator},
+      SINCE_2_6)
+  end
+
   #
   # Access
   #

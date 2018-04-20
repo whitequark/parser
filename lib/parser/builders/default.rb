@@ -400,12 +400,12 @@ module Parser
 
     def range_inclusive(lhs, dot2_t, rhs)
       n(:irange, [ lhs, rhs ],
-        binary_op_map(lhs, dot2_t, rhs))
+        range_map(lhs, dot2_t, rhs))
     end
 
     def range_exclusive(lhs, dot3_t, rhs)
       n(:erange, [ lhs, rhs ],
-        binary_op_map(lhs, dot3_t, rhs))
+        range_map(lhs, dot3_t, rhs))
     end
 
     #
@@ -1383,6 +1383,16 @@ module Parser
         expr_l = loc(op_t)
       else
         expr_l = loc(op_t).join(arg_e.loc.expression)
+      end
+
+      Source::Map::Operator.new(loc(op_t), expr_l)
+    end
+
+    def range_map(start_e, op_t, end_e)
+      if end_e
+        expr_l = join_exprs(start_e, end_e)
+      else
+        expr_l = start_e.loc.expression.join(loc(op_t))
       end
 
       Source::Map::Operator.new(loc(op_t), expr_l)
