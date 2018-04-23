@@ -16,6 +16,7 @@ module Parser
       alias on_regexp   process_regular_node
       alias on_xstr     process_regular_node
       alias on_splat    process_regular_node
+      alias on_kwsplat  process_regular_node
       alias on_array    process_regular_node
       alias on_pair     process_regular_node
       alias on_hash     process_regular_node
