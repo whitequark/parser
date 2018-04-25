@@ -2249,7 +2249,7 @@ class Parser::Lexer
       ( operator_arithmetic | operator_rest ) - ( '|' | '~' | '!' )
       => {
         emit_table(PUNCTUATION);
-        fnext expr_value; fbreak;
+        fgoto expr_value;
       };
 
       ( e_lparen | '|' | '~' | '!' )

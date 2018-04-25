@@ -7013,4 +7013,16 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_2_0)
   end
+
+  def test_parser_bug_507
+    assert_parses(
+      s(:lvasgn, :m,
+        s(:block,
+          s(:lambda),
+          s(:args,
+            s(:restarg, :args)), nil)),
+      %q{m = -> *args do end},
+      %q{},
+      SINCE_1_9)
+  end
 end
