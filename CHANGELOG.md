@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Not released (2018-04-12)
+v2.5.1.0 (2018-04-12)
 -------------------------
 
 API modifications:
