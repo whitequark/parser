@@ -6676,7 +6676,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'kRESCUE'}],
       %q{-> do rescue; end},
       %q{      ~~~~~~ location},
-      SINCE_1_9 - SINCE_2_5)
+      SINCE_1_9 - SINCE_2_6)
 
     assert_parses(
       s(:block,
@@ -6686,7 +6686,7 @@ class TestParser < Minitest::Test
           s(:resbody, nil, nil, nil), nil)),
       %q{-> do rescue; end},
       %q{      ~~~~~~ keyword (rescue.resbody)},
-      SINCE_2_5)
+      SINCE_2_6)
 
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'kRESCUE'}],

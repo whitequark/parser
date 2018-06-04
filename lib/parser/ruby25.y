@@ -1517,7 +1517,7 @@ opt_block_args_tail:
                     {
                       @context.push(:lambda)
                     }
-                  bodystmt kEND
+                  compstmt kEND
                     {
                       result = [ val[0], val[2], val[3] ]
                       @context.pop
