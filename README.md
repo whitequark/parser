@@ -217,7 +217,7 @@ at some point.
 Sometimes it is necessary to modify the format of AST nodes that are already being emitted
 in a way that would break existing applications. To avoid such breakage, applications
 must opt-in to these modifications; without explicit opt-in, Parser will continue to emit
-the old AST node format. The most recent set of opt-ins is speified in
+the old AST node format. The most recent set of opt-ins is specified in
 the [usage section](#usage) of this README.
 
 ## Compatibility with Ruby MRI
