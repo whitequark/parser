@@ -143,7 +143,7 @@ module Parser
       end
 
       ##
-      # @return [Array(Integer)] a set of character indexes contained in this range.
+      # @return [Array<Integer>] a set of character indexes contained in this range.
       #
       def to_a
         (@begin_pos...@end_pos).to_a
