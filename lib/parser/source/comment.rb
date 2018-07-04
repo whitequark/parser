@@ -24,8 +24,8 @@ module Parser
       # Associate `comments` with `ast` nodes by their corresponding node.
       #
       # @param [Parser::AST::Node] ast
-      # @param [Array(Comment)]    comments
-      # @return [Hash(Parser::AST::Node, Array(Comment))]
+      # @param [Array<Comment>]    comments
+      # @return [Hash<Parser::AST::Node, Array<Comment>>]
       # @see Parser::Source::Comment::Associator#associate
       # @deprecated Use {associate_locations}.
       #
@@ -39,8 +39,8 @@ module Parser
       # source.
       #
       # @param [Parser::AST::Node] ast
-      # @param [Array(Comment)]    comments
-      # @return [Hash(Parser::Source::Map, Array(Comment))]
+      # @param [Array<Comment>]    comments
+      # @return [Hash<Parser::Source::Map, Array<Comment>>]
       # @see Parser::Source::Comment::Associator#associate_locations
       #
       def self.associate_locations(ast, comments)

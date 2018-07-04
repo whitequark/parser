@@ -47,7 +47,7 @@ module Parser
 
       ##
       # @param [Parser::AST::Node] ast
-      # @param [Array(Parser::Source::Comment)] comments
+      # @param [Array<Parser::Source::Comment>] comments
       def initialize(ast, comments)
         @ast         = ast
         @comments    = comments
@@ -85,7 +85,7 @@ module Parser
       # Note that {associate} produces unexpected result for nodes which are
       # equal but have distinct locations; comments for these nodes are merged.
       #
-      # @return [Hash(Parser::AST::Node, Array(Parser::Source::Comment))]
+      # @return [Hash<Parser::AST::Node, Array<Parser::Source::Comment>>]
       # @deprecated Use {associate_locations}.
       #
       def associate
@@ -98,7 +98,7 @@ module Parser
       # the hash key, thus producing an unambiguous result even in presence
       # of equal nodes.
       #
-      # @return [Hash(Parser::Source::Map, Array(Parser::Source::Comment))]
+      # @return [Hash<Parser::Source::Map, Array<Parser::Source::Comment>>]
       #
       def associate_locations
         @map_using_locations = true
