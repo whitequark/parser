@@ -158,7 +158,7 @@ module Parser
     # Parses a source buffer and returns the AST.
     #
     # @param [Parser::Source::Buffer] source_buffer The source buffer to parse.
-    # @return [Parser::AST::Node]
+    # @return [Parser::AST::Node, false]
     #
     def parse(source_buffer)
       @lexer.source_buffer = source_buffer
