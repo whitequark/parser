@@ -46,7 +46,7 @@ module Parser
       # magic encoding comment or UTF-8 BOM. `string` can be in any encoding.
       #
       # @param [String]  string
-      # @return [String|nil] encoding name, if recognized
+      # @return [String, nil] encoding name, if recognized
       #
       def self.recognize_encoding(string)
         return if string.empty?
