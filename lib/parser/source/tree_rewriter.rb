@@ -133,8 +133,8 @@ module Parser
       # Inserts the given strings before and after the given range.
       #
       # @param [Range] range
-      # @param [String or nil] insert_before
-      # @param [String or nil] insert_after
+      # @param [String, nil] insert_before
+      # @param [String, nil] insert_after
       # @return [Rewriter] self
       # @raise [ClobberingError] when clobbering is detected
       #
