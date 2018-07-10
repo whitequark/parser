@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Not released (2018-07-10)
+-------------------------
+
+Features implemented:
+ * ruby26.y: Endless ranges support. (Ilya Bylich)
+
+Bugs fixed:
+ * lexer.rl: Fix parsing of 'm = -> *args do end'. (Ilya Bylich)
+ * AST::Processor: Properly recurse into "kwsplat" nodes (Nelson Elhage)
+ * ruby24, ruby25, ruby26: Fix cmdargs after command_args followed by tLBRACE_ARG. This commit tracks upstream commit ruby/ruby@f168dbd. (Ilya Bylich)
+ * lexer.rl: Fix parsing of `let (:a) { m do; end }`. (Ilya Bylich)
+
 v2.5.1.0 (2018-04-12)
 ---------------------
 
