@@ -4,6 +4,12 @@ Changelog
 Not released (2018-07-10)
 -------------------------
 
+Bugs fixed:
+ * lexer.rl: Partially revert 5ba072d and properly handle 'm = -> *args do end'. (Ilya Bylich)
+
+v2.5.1.1 (2018-07-10)
+---------------------
+
 Features implemented:
  * ruby26.y: Endless ranges support. (Ilya Bylich)
 
