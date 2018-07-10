@@ -7025,4 +7025,14 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_1_9)
   end
+
+  def test_parser_bug_518
+    assert_parses(
+      s(:class,
+        s(:const, nil, :A),
+        s(:const, nil, :B), nil),
+      "class A < B\nend",
+      %q{},
+      ALL_VERSIONS)
+  end
 end
