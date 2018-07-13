@@ -120,6 +120,7 @@ module Parser
     #
     def initialize(builder=Parser::Builders::Default.new)
       @diagnostics = Diagnostic::Engine.new
+      @diagnostics.all_errors_are_fatal = true
 
       @static_env  = StaticEnvironment.new
 

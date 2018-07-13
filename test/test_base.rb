@@ -28,4 +28,14 @@ class TestBase < Minitest::Test
     assert_nil ast.loc.dup.node
     Parser::AST::Node.new(:root, [], :location => ast.loc)
   end
+
+  def test_raising_errors_by_default
+    parser = Parser::CurrentRuby.new
+    buffer = Parser::Source::Buffer.new("(eval)")
+    buffer.source = "foo *"
+
+    assert_raises Parser::SyntaxError do
+      parser.parse(buffer)
+    end
+  end
 end
