@@ -3534,4 +3534,10 @@ class TestLexer < Minitest::Test
                    :tNL,             nil,                [4, 5])
   end
 
+  def test_ambiguous_integer_re
+    assert_scanned('1re',
+                   :tINTEGER, 1, [0, 1],
+                   :tIDENTIFIER, 're', [1, 3])
+  end
+
 end
