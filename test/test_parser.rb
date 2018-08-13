@@ -7035,4 +7035,21 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_parser_bug_525
+    assert_parses(
+      s(:block,
+        s(:send, nil, :m1,
+          s(:hash,
+            s(:pair,
+              s(:sym, :k),
+              s(:send, nil, :m2)))),
+        s(:args),
+        s(:block,
+          s(:send, nil, :m3),
+          s(:args), nil)),
+      'm1 :k => m2 do; m3() do end; end',
+      %q{},
+      ALL_VERSIONS)
+  end
 end
