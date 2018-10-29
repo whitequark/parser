@@ -1,8 +1,15 @@
 Changelog
 =========
 
-Not released (2018-07-10)
+Not released (2018-10-29)
 -------------------------
+
+Bugs fixed:
+ * lexer.rl: Fix parsing of 'm :key => m do; m() do end; end'. (#526) (Ilya Bylich)
+ * lexer.rl: Fix parsing of ambiguous 1re. (#523) (Ilya Bylich)
+
+v2.5.1.2 (2018-07-10)
+---------------------
 
 Bugs fixed:
  * lexer.rl: Partially revert 5ba072d and properly handle 'm = -> *args do end'. (Ilya Bylich)
