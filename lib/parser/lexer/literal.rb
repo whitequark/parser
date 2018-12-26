@@ -227,6 +227,10 @@ module Parser
       end
     end
 
+    def supports_line_continuation_via_slash?
+      !words? && @interpolate
+    end
+
     protected
 
     def delimiter?(delimiter)

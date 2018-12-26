@@ -7052,4 +7052,36 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_parser_slash_slash_n_escaping_in_literals
+    [
+      ["'",             "'",       s(:dstr, s(:str, "a\\\n"), s(:str, "b"))  ],
+      ["<<-'HERE'\n",   "\nHERE",  s(:dstr, s(:str, "a\\\n"), s(:str, "b\n"))],
+      ["%q{",           "}",       s(:dstr, s(:str, "a\\\n"), s(:str, "b"))  ],
+      ['"',             '"',       s(:str, "ab")                             ],
+      ["<<-\"HERE\"\n", "\nHERE",  s(:str, "ab\n")                           ],
+      ["%{",            "}",       s(:str, "ab")                             ],
+      ["%Q{",           "}",       s(:str, "ab")                             ],
+      ["%w{",           "}",       s(:array, s(:str, "a\nb"))                ],
+      ["%W{",           "}",       s(:array, s(:str, "a\nb"))                ],
+      ["%i{",           "}",       s(:array, s(:sym, :"a\nb"))               ],
+      ["%I{",           "}",       s(:array, s(:sym, :"a\nb"))               ],
+      [":'",            "'",       s(:dsym, s(:str, "a\\\n"), s(:str, "b"))  ],
+      ["%s{",           "}",       s(:dsym, s(:str, "a\\\n"), s(:str, "b"))  ],
+      [':"',            '"',       s(:sym, :ab)                              ],
+      ['/',             '/',       s(:regexp, s(:str, "ab"), s(:regopt))     ],
+      ['%r{',           '}',       s(:regexp, s(:str, "ab"), s(:regopt))     ],
+      ['%x{',           '}',       s(:xstr, s(:str, "ab"))                   ],
+      ['`',             '`',       s(:xstr, s(:str, "ab"))                   ],
+      ["<<-`HERE`\n",   "\nHERE",  s(:xstr, s(:str, "ab\n"))                 ],
+    ].each do |literal_s, literal_e, expected|
+      source = literal_s + "a\\\nb" + literal_e
+
+      assert_parses(
+        expected,
+        source,
+        %q{},
+        SINCE_2_0)
+    end
+  end
 end
