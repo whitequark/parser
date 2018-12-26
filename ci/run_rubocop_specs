@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -eux
+
+bundle install
+rake generate
+
+git clone https://github.com/rubocop-hq/rubocop.git --depth=1
+cd rubocop
+export BUNDLE_GEMFILE=Gemfile
+echo "gem 'parser', path: '../'" > Gemfile.local
+
+bundle install
+bundle exec rake spec
