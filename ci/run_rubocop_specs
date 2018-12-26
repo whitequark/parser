@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eux
+
 bundle install
 rake generate
 
