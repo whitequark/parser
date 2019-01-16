@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2019-01-16)
--------------------------
+v2.6.0.0 (2019-01-16)
+---------------------
 
 API modifications:
  * 2.6.0 was released, unmark is as -dev. (#538) (Ilya Bylich)
