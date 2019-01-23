@@ -106,6 +106,11 @@ module Parser
         @parser_class = Parser::Ruby26
       end
 
+      opts.on '--27', 'Parse as Ruby 2.7 would' do
+        require 'parser/ruby27'
+        @parser_class = Parser::Ruby27
+      end
+
       opts.on '--mac', 'Parse as MacRuby 0.12 would' do
         require 'parser/macruby'
         @parser_class = Parser::MacRuby
