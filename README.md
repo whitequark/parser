@@ -15,59 +15,69 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 
 ## Installation
 
-    $ gem install parser
+```bash
+$ gem install parser
+```
 
 ## Usage
 
 Load Parser (see the [backwards compatibility](#backwards-compatibility) section
 below for explanation of `emit_*` calls):
 
-    require 'parser/current'
-    # opt-in to most recent AST format:
-    Parser::Builders::Default.emit_lambda   = true
-    Parser::Builders::Default.emit_procarg0 = true
-    Parser::Builders::Default.emit_encoding = true
-    Parser::Builders::Default.emit_index    = true
+```ruby
+require 'parser/current'
+# opt-in to most recent AST format:
+Parser::Builders::Default.emit_lambda   = true
+Parser::Builders::Default.emit_procarg0 = true
+Parser::Builders::Default.emit_encoding = true
+Parser::Builders::Default.emit_index    = true
+```
 
 Parse a chunk of code:
 
-    p Parser::CurrentRuby.parse("2 + 2")
-    # (send
-    #   (int 2) :+
-    #   (int 2))
+```ruby
+p Parser::CurrentRuby.parse("2 + 2")
+# (send
+#   (int 2) :+
+#   (int 2))
+```
 
 Access the AST's source map:
 
-    p Parser::CurrentRuby.parse("2 + 2").loc
-    # #<Parser::Source::Map::Send:0x007fe5a1ac2388
-    #   @dot=nil,
-    #   @begin=nil,
-    #   @end=nil,
-    #   @selector=#<Source::Range (string) 2...3>,
-    #   @expression=#<Source::Range (string) 0...5>>
+```ruby
+p Parser::CurrentRuby.parse("2 + 2").loc
+# #<Parser::Source::Map::Send:0x007fe5a1ac2388
+#   @dot=nil,
+#   @begin=nil,
+#   @end=nil,
+#   @selector=#<Source::Range (string) 2...3>,
+#   @expression=#<Source::Range (string) 0...5>>
 
-    p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
-    # "+"
+p Parser::CurrentRuby.parse("2 + 2").loc.selector.source
+# "+"
+```
 
 Traverse the AST: see the documentation for [gem ast](https://whitequark.github.io/ast/).
 
 Parse a chunk of code and display all diagnostics:
 
-    parser = Parser::CurrentRuby.new
-    parser.diagnostics.consumer = lambda do |diag|
-      puts diag.render
-    end
+```ruby
+parser = Parser::CurrentRuby.new
+parser.diagnostics.consumer = lambda do |diag|
+  puts diag.render
+end
 
-    buffer = Parser::Source::Buffer.new('(string)')
-    buffer.source = "foo *bar"
+buffer = Parser::Source::Buffer.new('(string)')
+buffer.source = "foo *bar"
 
-    p parser.parse(buffer)
-    # (string):1:5: warning: `*' interpreted as argument prefix
-    # foo *bar
-    #     ^
-    # (send nil :foo
-    #   (splat
-    #     (send nil :bar)))
+p parser.parse(buffer)
+# (string):1:5: warning: `*' interpreted as argument prefix
+# foo *bar
+#     ^
+# (send nil :foo
+#   (splat
+#     (send nil :bar)))
+```
 
 If you reuse the same parser object for multiple `#parse` runs, you need to
 `#reset` it.
@@ -75,31 +85,33 @@ If you reuse the same parser object for multiple `#parse` runs, you need to
 You can also use the `ruby-parse` utility (it's bundled with the gem) to play
 with Parser:
 
-    $ ruby-parse -L -e "2+2"
-    (send
-      (int 2) :+
-      (int 2))
-    2+2
-     ~ selector
-    ~~~ expression
-    (int 2)
-    2+2
-    ~ expression
-    (int 2)
-    2+2
+```bash
+$ ruby-parse -L -e "2+2"
+(send
+  (int 2) :+
+  (int 2))
+2+2
+ ~ selector
+~~~ expression
+(int 2)
+2+2
+~ expression
+(int 2)
+2+2
 
-    $ ruby-parse -E -e "2+2"
-    2+2
-    ^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
-    2+2
-     ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
-    2+2
-      ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
-    2+2
-      ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
-    (send
-      (int 2) :+
-      (int 2))
+$ ruby-parse -E -e "2+2"
+2+2
+^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
+2+2
+ ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
+2+2
+  ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
+2+2
+  ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
+(send
+  (int 2) :+
+  (int 2))
+```
 
 ## Features
 
@@ -135,7 +147,7 @@ Several Parser nodes seem to be confusing enough to warrant a dedicated README s
 
 The `(block)` node passes a Ruby block, that is, a closure, to a method call represented by its first child, a `(send)`, `(super)` or `(zsuper)` node. To demonstrate:
 
-```
+```bash
 $ ruby-parse -e 'foo { |x| x + 2 }'
 (block
   (send nil :foo)
@@ -159,7 +171,7 @@ Both `(begin)` and `(kwbegin)` nodes represent compound statements, that is, sev
 
 and so on.
 
-```
+```bash
 $ ruby-parse -e '(foo; bar)'
 (begin
   (send nil :foo)
@@ -174,7 +186,7 @@ $ ruby-parse -e 'def x; foo; bar end'
 
 Note that, despite its name, `kwbegin` node only has tangential relation to the `begin` keyword. Normally, Parser AST is semantic, that is, if two constructs look differently but behave identically, they get parsed to the same node. However, there exists a peculiar construct called post-loop in Ruby:
 
-```
+```ruby
 begin
   body
 end while condition
@@ -184,7 +196,7 @@ This specific syntactic construct, that is, keyword `begin..end` block followed 
 
   [postloop]: http://rosettacode.org/wiki/Loops/Do-while#Ruby
 
-```
+```bash
 $ ruby-parse -e 'begin foo end while cond'
 (while-post
   (send nil :cond)
