@@ -40,6 +40,6 @@ matrix:
     - rvm: rbx-2
     - script: ./ci/run_rubocop_specs
 before_install:
-  - gem install bundler
+  - gem install bundler -v '< 2'
   - bundle --version
   - gem --version
