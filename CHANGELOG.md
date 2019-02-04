@@ -1,8 +1,17 @@
 Changelog
 =========
 
-Not released (2018-10-29)
--------------------------
+v2.6.0.0 (2019-01-16)
+---------------------
+
+API modifications:
+ * 2.6.0 was released, unmark is as -dev. (#538) (Ilya Bylich)
+
+Bugs fixed:
+ * Fix parsing of "\\\n" escaped sequences in various literals. (#539) (Ilya Bylich)
+
+v2.5.3.0 (2018-10-29)
+---------------------
 
 Bugs fixed:
  * lexer.rl: Fix parsing of 'm :key => m do; m() do end; end'. (#526) (Ilya Bylich)
