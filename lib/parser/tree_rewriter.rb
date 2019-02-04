@@ -27,12 +27,13 @@ module Parser
   #     end
   #     EOF
   #
+  #     ast           = Parser::CurrentRuby.parse code
   #     buffer        = Parser::Source::Buffer.new('(example)')
   #     buffer.source = code
   #     rewriter      = RemoveDo.new
   #
   #     # Rewrite the AST, returns a String with the new form.
-  #     puts rewriter.rewrite(buffer)
+  #     puts rewriter.rewrite(buffer, ast)
   #
   # This would result in the following Ruby code:
   #
