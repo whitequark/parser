@@ -17,8 +17,8 @@ matrix:
     - name: 2.5.3 / Parser tests
       rvm: 2.5.3
       script: bundle exec rake test_cov
-    - name: 2.6.0 / Parser tests
-      rvm: 2.6.0
+    - name: 2.6.1 / Parser tests
+      rvm: 2.6.1
       script: bundle exec rake test_cov
     - name: ruby-head / Parser tests
       rvm: ruby-head
@@ -32,8 +32,8 @@ matrix:
     - name: 2.5.3 / Rubocop tests
       rvm: 2.5.3
       script: ./ci/run_rubocop_specs
-    - name: 2.6.0 / Rubocop tests
-      rvm: 2.6.0
+    - name: 2.6.1 / Rubocop tests
+      rvm: 2.6.1
       script: ./ci/run_rubocop_specs
   allow_failures:
     - rvm: ruby-head
