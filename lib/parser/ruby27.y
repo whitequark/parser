@@ -567,14 +567,11 @@ rule
                 | op
                 | reswords
 
-            fsym: fname
+           fitem: fname
                     {
                       result = @builder.symbol(val[0])
                     }
                 | symbol
-
-           fitem: fsym
-                | dsym
 
       undef_list: fitem
                     {
@@ -1720,7 +1717,6 @@ opt_block_args_tail:
 
          literal: numeric
                 | symbol
-                | dsym
 
          strings: string
                     {
@@ -1890,8 +1886,10 @@ regexp_contents: # nothing
                     }
                 | backref
 
+          symbol: ssym
+                | dsym
 
-          symbol: tSYMBOL
+            ssym: tSYMBOL
                     {
                       @lexer.state = :expr_end
                       result = @builder.symbol(val[0])
