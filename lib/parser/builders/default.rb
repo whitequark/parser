@@ -963,6 +963,11 @@ module Parser
       end
     end
 
+    def method_ref(receiver, dot_t, selector_t)
+      n(:meth_ref, [ receiver, value(selector_t).to_sym ],
+          send_map(receiver, dot_t, selector_t, nil, [], nil))
+    end
+
     #
     # Control flow
     #

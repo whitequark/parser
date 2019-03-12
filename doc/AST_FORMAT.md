@@ -583,6 +583,18 @@ Format:
  ~~~~~~~~~~~~~ expression
 ~~~
 
+### Method reference operator
+
+Format:
+
+~~~
+(meth-ref (self) :foo)
+"self.:foo"
+     ^^ dot
+       ^^^ selector
+ ^^^^^^^^^ expression
+~~~
+
 ### Multiple assignment
 
 #### Multiple left hand side

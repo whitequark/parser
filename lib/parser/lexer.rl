@@ -446,7 +446,7 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
-    '!@'  => :tBANG,    '&.'  => :tANDDOT,
+    '!@'  => :tBANG,    '&.'  => :tANDDOT,  '.:'  => :tMETHREF
   }
 
   PUNCTUATION_BEGIN = {
@@ -2215,7 +2215,13 @@ class Parser::Lexer
       # METHOD CALLS
       #
 
-      '.' | '&.' | '::'
+      '.:' w_space+
+      => { emit(:tDOT, '.', @ts, @ts + 1)
+           emit(:tCOLON, ':', @ts + 1, @ts + 2)
+           p = p - tok.length + 2
+           fnext expr_dot; fbreak; };
+
+      '.:' | '.' | '&.' | '::'
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
 

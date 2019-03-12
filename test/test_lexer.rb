@@ -3540,4 +3540,45 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 're', [1, 3])
   end
 
+  def test_meth_ref
+    assert_scanned('foo.:bar',
+                  :tIDENTIFIER, 'foo', [0, 3],
+                  :tMETHREF,   '.:',   [3, 5],
+                  :tIDENTIFIER, 'bar', [5, 8])
+
+    assert_scanned('foo .:bar',
+                   :tIDENTIFIER, 'foo', [0, 3],
+                   :tMETHREF,   '.:',   [4, 6],
+                   :tIDENTIFIER, 'bar', [6, 9])
+  end
+
+  def test_meth_ref_unary_op
+    assert_scanned('foo.:+',
+                  :tIDENTIFIER, 'foo', [0, 3],
+                  :tMETHREF,    '.:',  [3, 5],
+                  :tPLUS,       '+',   [5, 6])
+
+    assert_scanned('foo.:-@',
+                  :tIDENTIFIER, 'foo', [0, 3],
+                  :tMETHREF,    '.:',  [3, 5],
+                  :tUMINUS,     '-@',  [5, 7])
+  end
+
+  def test_meth_ref_unsupported_newlines
+    # MRI emits exactly the same sequence of tokens,
+    # the error happens later in the parser
+
+    assert_scanned('foo. :+',
+                  :tIDENTIFIER, 'foo', [0, 3],
+                  :tDOT,        '.',   [3, 4],
+                  :tCOLON,      ':',   [5, 6],
+                  :tUPLUS,       '+',  [6, 7])
+
+    assert_scanned('foo.: +',
+                  :tIDENTIFIER, 'foo', [0, 3],
+                  :tDOT,        '.',   [3, 4],
+                  :tCOLON,      ':',   [4, 5],
+                  :tPLUS,       '+',   [6, 7])
+  end
+
 end
