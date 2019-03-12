@@ -7085,4 +7085,36 @@ class TestParser < Minitest::Test
         SINCE_2_0)
     end
   end
+
+  def test_meth_ref
+    assert_parses(
+      s(:meth_ref, s(:lvar, :foo), :bar),
+      %q{foo.:bar},
+      %q{   ^^ dot
+        |     ~~~ selector
+        |~~~~~~~~ expression},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:meth_ref, s(:lvar, :foo), :+@),
+      %q{foo.:+@},
+      %q{   ^^ dot
+        |     ~~ selector
+        |~~~~~~~ expression},
+      SINCE_2_7)
+  end
+
+  def test_meth_ref_unsupported_newlines
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tCOLON' }],
+      %Q{foo. :+},
+      %q{     ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tCOLON' }],
+      %Q{foo.: +},
+      %q{    ^ location},
+      SINCE_2_7)
+  end
 end
