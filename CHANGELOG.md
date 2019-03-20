@@ -1,6 +1,19 @@
 Changelog
 =========
 
+Not released (2019-03-21)
+-------------------------
+
+API modifications:
+ * Bump ruby versions to 2.5.5 and 2.6.2. (#563) (Ilya Bylich)
+ * Bump Ruby version to 2.6.1. (#554) (Ilya Bylich)
+
+Features implemented:
+ * ruby27.y: dsym should be treated as string. (#560) (Ilya Bylich)
+ * ruby27.y: Refactored symbol rules. (#557) (Ilya Bylich)
+ * ruby27.y: Added method reference operator. (#556) (Ilya Bylich)
+ * ruby27.y: branch parser. (#546) (Ilya Bylich)
+
 v2.6.0.0 (2019-01-16)
 ---------------------
 
