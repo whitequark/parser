@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2019-03-21)
--------------------------
+v2.6.2.0 (2019-03-21)
+---------------------
 
 API modifications:
  * Bump ruby versions to 2.5.5 and 2.6.2. (#563) (Ilya Bylich)
