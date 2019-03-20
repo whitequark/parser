@@ -14,11 +14,11 @@ matrix:
     - name: 2.4.5 / Parser tests
       rvm: 2.4.5
       script: bundle exec rake test_cov
-    - name: 2.5.3 / Parser tests
-      rvm: 2.5.3
+    - name: 2.5.5 / Parser tests
+      rvm: 2.5.5
       script: bundle exec rake test_cov
-    - name: 2.6.1 / Parser tests
-      rvm: 2.6.1
+    - name: 2.6.2 / Parser tests
+      rvm: 2.6.2
       script: bundle exec rake test_cov
     - name: ruby-head / Parser tests
       rvm: ruby-head
@@ -29,11 +29,11 @@ matrix:
     - name: rbx-2 / Parser tests
       rvm: rbx-2
       script: bundle exec rake test_cov
-    - name: 2.5.3 / Rubocop tests
-      rvm: 2.5.3
+    - name: 2.5.5 / Rubocop tests
+      rvm: 2.5.5
       script: ./ci/run_rubocop_specs
-    - name: 2.6.1 / Rubocop tests
-      rvm: 2.6.1
+    - name: 2.6.2 / Rubocop tests
+      rvm: 2.6.2
       script: ./ci/run_rubocop_specs
   allow_failures:
     - rvm: ruby-head
