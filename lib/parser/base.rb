@@ -123,13 +123,16 @@ module Parser
 
       @static_env  = StaticEnvironment.new
 
+      # Stack that holds current parsing context
+      @context = Context.new
+
       @lexer = Lexer.new(version)
       @lexer.diagnostics = @diagnostics
       @lexer.static_env  = @static_env
+      @lexer.context     = @context
 
       @builder = builder
       @builder.parser = self
-      @context = Context.new
 
       # Last emitted token
       @last_token = nil
