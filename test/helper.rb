@@ -50,3 +50,10 @@ require 'minitest/autorun'
 
 $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
 require 'parser'
+
+class Parser::AST::Node
+  def initialize(type, *)
+    raise "Type #{type} missing from Parser::Meta::NODE_TYPES" unless Parser::Meta::NODE_TYPES.include?(type)
+    super
+  end
+end
