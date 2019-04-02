@@ -173,6 +173,14 @@ module Parser
       alias on_block    process_regular_node
       alias on_lambda   process_regular_node
 
+      def on_numblock(node)
+        method_call, max_numparam, body = *node
+
+        node.updated(nil, [
+          process(method_call), max_numparam, process(body)
+        ])
+      end
+
       alias on_while      process_regular_node
       alias on_while_post process_regular_node
       alias on_until      process_regular_node

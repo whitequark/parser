@@ -7174,6 +7174,224 @@ class TestParser < Minitest::Test
         %q{^ location},
         SINCE_2_7)
     end
+  end
 
+  def test_numbered_args_before_27
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{m { @1 }},
+      %q{    ^^ location},
+      ALL_VERSIONS - SINCE_2_7
+    )
+  end
+
+  def test_numbered_args_after_27
+    assert_parses(
+      s(:numblock,
+        s(:send, nil, :m),
+        15,
+        s(:send,
+          s(:numparam, 1), :+,
+          s(:numparam, 15))),
+      %q{m { @1 + @15 }},
+      %q{^^^^^^^^^^^^^^ expression
+        |    ^^ name (send/2.numparam/1)
+        |    ^^ expression (send/2.numparam/1)
+        |         ^^^ name (send/2.numparam/2)
+        |         ^^^ expression (send/2.numparam/2)},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:numblock,
+        s(:send, nil, :m),
+        15,
+        s(:send,
+          s(:numparam, 1), :+,
+          s(:numparam, 15))),
+      %q{m do @1 + @15 end},
+      %q{^^^^^^^^^^^^^^^^^ expression
+        |     ^^ name (send/2.numparam/1)
+        |     ^^ expression (send/2.numparam/1)
+        |          ^^^ name (send/2.numparam/2)
+        |          ^^^ expression (send/2.numparam/2)},
+      SINCE_2_7)
+
+    # Lambdas
+
+    assert_parses(
+      s(:numblock,
+        s(:lambda),
+        15,
+        s(:send,
+          s(:numparam, 1), :+,
+          s(:numparam, 15))),
+      %q{-> { @1 + @15}},
+      %q{^^^^^^^^^^^^^^ expression
+        |     ^^ name (send.numparam/1)
+        |     ^^ expression (send.numparam/1)
+        |          ^^^ name (send.numparam/2)
+        |          ^^^ expression (send.numparam/2)},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:numblock,
+        s(:lambda),
+        15,
+        s(:send,
+          s(:numparam, 1), :+,
+          s(:numparam, 15))),
+      %q{-> do @1 + @15 end},
+      %q{^^^^^^^^^^^^^^^^^^ expression
+        |      ^^ name (send.numparam/1)
+        |      ^^ expression (send.numparam/1)
+        |           ^^^ name (send.numparam/2)
+        |           ^^^ expression (send.numparam/2)},
+      SINCE_2_7)
+  end
+
+  def test_numbered_and_ordinary_parameters
+    # Blocks
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{m { || @1 } },
+      %q{       ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{m { |a| @1 } },
+      %q{        ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{m do || @1 end },
+      %q{        ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{m do |a, b| @1 end },
+      %q{            ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{m { |x = @1| }},
+      %q{         ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{m { |x: @1| }},
+      %q{        ^^ location},
+      SINCE_2_7)
+
+    # Lambdas
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{->() { @1 } },
+      %q{       ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{->(a) { @1 } },
+      %q{        ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{->() do @1 end },
+      %q{        ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{->(a, b) do @1 end},
+      %q{            ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{->(x=@1) {}},
+      %q{     ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{->(x: @1) {}},
+      %q{      ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      %q{proc {|;a| @1}},
+      %q{           ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ordinary_param_defined],
+      "proc {|\n| @1}",
+      %q{          ^^ location},
+      SINCE_2_7)
+  end
+
+  def test_numparam_outside_block
+    assert_diagnoses(
+      [:error, :numparam_outside_block],
+      %q{class A; @1; end},
+      %q{         ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :numparam_outside_block],
+      %q{module A; @1; end},
+      %q{          ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :numparam_outside_block],
+      %q{class << foo; @1; end},
+      %q{              ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :numparam_outside_block],
+      %q{def self.m; @1; end},
+      %q{            ^^ location},
+      SINCE_2_7)
+  end
+
+  def test_ruby_bug_15789
+    assert_parses(
+      s(:send, nil, :m,
+        s(:block,
+          s(:lambda),
+          s(:args,
+            s(:optarg, :a,
+              s(:numblock,
+                s(:lambda), 1,
+                s(:numparam, 1)))),
+          s(:lvar, :a))),
+      %q{m ->(a = ->{@1}) {a}},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:send, nil, :m,
+        s(:block,
+          s(:lambda),
+          s(:args,
+            s(:kwoptarg, :a,
+              s(:numblock,
+                s(:lambda), 1,
+                s(:numparam, 1)))),
+          s(:lvar, :a))),
+      %q{m ->(a: ->{@1}) {a}},
+      %q{},
+      SINCE_2_7)
   end
 end

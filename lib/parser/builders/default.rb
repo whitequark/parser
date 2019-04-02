@@ -437,6 +437,11 @@ module Parser
         variable_map(token))
     end
 
+    def numparam(token)
+      n(:numparam, [ value(token).to_i ],
+        variable_map(token))
+    end
+
     def back_ref(token)
       n(:back_ref, [ value(token).to_sym ],
         token_map(token))
@@ -663,6 +668,10 @@ module Parser
         collection_map(begin_t, args, end_t))
     end
 
+    def numargs(max_numparam)
+      n(:numargs, [ max_numparam ], nil)
+    end
+
     def arg(name_t)
       n(:arg, [ value(name_t).to_sym ],
         variable_map(name_t))
@@ -835,15 +844,23 @@ module Parser
         diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
       end
 
+
+      if args.type == :numargs
+        block_type = :numblock
+        args = args.children[0]
+      else
+        block_type = :block
+      end
+
       if [:send, :csend, :index, :super, :zsuper, :lambda].include?(method_call.type)
-        n(:block, [ method_call, args, body ],
+        n(block_type, [ method_call, args, body ],
           block_map(method_call.loc.expression, begin_t, end_t))
       else
         # Code like "return foo 1 do end" is reduced in a weird sequence.
         # Here, method_call is actually (return).
         actual_send, = *method_call
         block =
-          n(:block, [ actual_send, args, body ],
+          n(block_type, [ actual_send, args, body ],
             block_map(actual_send.loc.expression, begin_t, end_t))
 
         n(method_call.type, [ block ],

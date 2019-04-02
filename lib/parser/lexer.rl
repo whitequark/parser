@@ -89,7 +89,10 @@ class Parser::Lexer
 
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
 
+  NUMPARAM_MAX = 100
+
   attr_reader   :source_buffer
+  attr_reader   :max_numparam_stack
 
   attr_accessor :diagnostics
   attr_accessor :static_env
@@ -176,6 +179,9 @@ class Parser::Lexer
 
     # State before =begin / =end block comment
     @cs_before_block_comment = self.class.lex_en_line_begin
+
+    # Maximum numbered parameters stack
+    @max_numparam_stack = MaxNumparamStack.new
   end
 
   def source_buffer=(source_buffer)
@@ -247,6 +253,10 @@ class Parser::Lexer
 
   def pop_cond
     @cond = @cond_stack.pop
+  end
+
+  def max_numparam
+    @max_numparam_stack.top
   end
 
   def dedent_level
@@ -1298,6 +1308,36 @@ class Parser::Lexer
         end
 
         emit(:tCVAR)
+        fnext *stack_pop; fbreak;
+      };
+
+      '@' [0-9]+
+      => {
+        if @version < 27
+          diagnostic :error, :ivar_name, { :name => tok }
+        end
+
+        value = tok[1..-1]
+
+        if value[0] == '0'
+          diagnostic :error, :leading_zero_in_numparam, nil, range(@ts, @te)
+        end
+
+        if value.to_i > NUMPARAM_MAX
+          diagnostic :error, :too_large_numparam, nil, range(@ts, @te)
+        end
+
+        if !@context.in_block? && !@context.in_lambda?
+          diagnostic :error, :numparam_outside_block, nil, range(@ts, @te)
+        end
+
+        if !@max_numparam_stack.can_have_numparams?
+          diagnostic :error, :ordinary_param_defined, nil, range(@ts, @te)
+        end
+
+        @max_numparam_stack.register(value.to_i)
+
+        emit(:tNUMPARAM, tok[1..-1])
         fnext *stack_pop; fbreak;
       };
 
