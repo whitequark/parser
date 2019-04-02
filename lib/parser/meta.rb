@@ -23,6 +23,9 @@ module Parser
         until_post for break next redo return resbody
         kwbegin begin retry preexe postexe iflipflop eflipflop
         shadowarg complex rational __FILE__ __LINE__ __ENCODING__
+        ident root lambda indexasgn index procarg0
+        meth_ref restarg_expr blockarg_expr
+        objc_kwarg objc_restarg objc_varargs
       ).map(&:to_sym).to_set.freeze
 
   end # Meta
