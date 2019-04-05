@@ -339,6 +339,22 @@ Format:
  ~~~~ expression
 ~~~
 
+### Beginless (2.7)
+
+Format:
+
+~~~
+(irange nil (int 1))
+"..1"
+ ~~ operator
+ ~~~ expression
+
+(erange nil (int 1))
+"...1"
+ ~~~ operator
+ ~~~~ expression
+~~~
+
 ## Access
 
 ### Self

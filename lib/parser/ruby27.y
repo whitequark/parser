@@ -17,7 +17,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
-      tRATIONAL tIMAGINARY tLABEL_END tANDDOT tMETHREF
+      tRATIONAL tIMAGINARY tLABEL_END tANDDOT tMETHREF tBDOT2 tBDOT3
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -32,7 +32,7 @@ prechigh
   nonassoc tCMP tEQ tEQQ tNEQ tMATCH tNMATCH
   left     tANDOP
   left     tOROP
-  nonassoc tDOT2 tDOT3
+  nonassoc tDOT2 tDOT3 tBDOT2 tBDOT3
   right    tEH tCOLON
   left     kRESCUE_MOD
   right    tEQL tOP_ASGN
@@ -669,6 +669,14 @@ rule
                 | arg tDOT3
                     {
                       result = @builder.range_exclusive(val[0], val[1], nil)
+                    }
+                | tBDOT2 arg
+                    {
+                      result = @builder.range_inclusive(nil, val[0], val[1])
+                    }
+                | tBDOT3 arg
+                    {
+                      result = @builder.range_exclusive(nil, val[0], val[1])
                     }
                 | arg tPLUS arg
                     {

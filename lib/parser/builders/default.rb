@@ -1394,10 +1394,12 @@ module Parser
     end
 
     def range_map(start_e, op_t, end_e)
-      if end_e
+      if start_e && end_e
         expr_l = join_exprs(start_e, end_e)
-      else
+      elsif start_e
         expr_l = start_e.loc.expression.join(loc(op_t))
+      elsif end_e
+        expr_l = loc(op_t).join(end_e.loc.expression)
       end
 
       Source::Map::Operator.new(loc(op_t), expr_l)
