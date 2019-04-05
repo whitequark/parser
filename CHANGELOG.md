@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Not released (2019-04-05)
+-------------------------
+
+API modifications:
+ * Bump 2.4 branch to 2.4.6. (#569) (Ilya Bylich)
+ * Lexer should know about current parsing context. (#566) (Ilya Bylich)
+
 v2.6.2.0 (2019-03-21)
 ---------------------
 
