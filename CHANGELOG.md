@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2019-04-05)
--------------------------
+v2.6.2.1 (2019-04-05)
+---------------------
 
 API modifications:
  * Bump 2.4 branch to 2.4.6. (#569) (Ilya Bylich)
