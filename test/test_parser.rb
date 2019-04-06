@@ -852,6 +852,42 @@ class TestParser < Minitest::Test
       SINCE_2_6)
   end
 
+  def test_beginless_range_before_27
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT2' }],
+      %q{..42},
+      %q{^^ location},
+      ALL_VERSIONS - SINCE_2_7
+    )
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT3' }],
+      %q{...42},
+      %q{^^^ location},
+      ALL_VERSIONS - SINCE_2_7
+    )
+  end
+
+  def test_beginless_range
+    assert_parses(
+      s(:irange, nil,
+        s(:int, 100)),
+      %q{..100},
+      %q{~~~~~ expression
+        |~~ operator},
+      SINCE_2_7
+    )
+
+    assert_parses(
+      s(:erange, nil,
+        s(:int, 100)),
+      %q{...100},
+      %q{~~~~~~ expression
+        |~~~ operator},
+      SINCE_2_7
+    )
+  end
+
   #
   # Access
   #
