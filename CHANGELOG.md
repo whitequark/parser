@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2019-04-28)
+-------------------------
+
+Features implemented:
+ * ruby27.y: Added beginless ranges support. (#570) (Ilya Bylich)
+
 v2.6.2.1 (2019-04-05)
 ---------------------
 
