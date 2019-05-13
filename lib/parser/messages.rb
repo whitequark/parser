@@ -30,6 +30,7 @@ module Parser
     :embedded_document       => 'embedded document meets end of file (and they embark on a romantic journey)',
     :heredoc_id_has_newline  => 'here document identifier across newlines, never match',
     :heredoc_id_ends_with_nl => 'here document identifier ends with a newline',
+    :unterminated_heredoc_id => 'unterminated heredoc id',
 
     # Lexer warnings
     :invalid_escape_use      => 'invalid character syntax; use ?%{escape}',
