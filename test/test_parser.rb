@@ -7153,4 +7153,27 @@ class TestParser < Minitest::Test
       %q{    ^ location},
       SINCE_2_7)
   end
+
+  def test_unterimated_heredoc_id__27
+    assert_diagnoses(
+      [:error, :unterminated_heredoc_id],
+      %Q{<<\"EOS\n\nEOS\n},
+      %q{^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unterminated_heredoc_id],
+      %Q{<<\"EOS\n\"\nEOS\n},
+      %q{^ location},
+      SINCE_2_7)
+
+    %W[\r\n \n].each do |nl|
+      assert_diagnoses(
+        [:error, :unterminated_heredoc_id],
+        %Q{<<\"\r\"#{nl}\r#{nl}},
+        %q{^ location},
+        SINCE_2_7)
+    end
+
+  end
 end

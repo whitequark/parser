@@ -1733,7 +1733,11 @@ class Parser::Lexer
         type        =  $3.empty? ? '<<"'.freeze : ('<<'.freeze + $3)
         delimiter   =  $4
 
-        if @version >= 24
+        if @version >= 27
+          if delimiter.count("\n") > 0 || delimiter.count("\r") > 0
+            diagnostic :error, :unterminated_heredoc_id, nil, range(@ts, @ts + 1)
+          end
+        elsif @version >= 24
           if delimiter.count("\n") > 0
             if delimiter.end_with?("\n")
               diagnostic :warning, :heredoc_id_ends_with_nl, nil, range(@ts, @ts + 1)
@@ -1754,6 +1758,21 @@ class Parser::Lexer
           @herebody_s ||= new_herebody_s
           p = @herebody_s - 1
         end
+      };
+
+      # Escaped unterminated heredoc start
+      # <<'END  | <<"END  | <<`END  |
+      # <<-'END | <<-"END | <<-`END |
+      # <<~'END | <<~"END | <<~`END
+      #
+      # If the heredoc is terminated the rule above should handle it
+      '<<' [~\-]?
+        ('"' (any - c_nl - '"')*
+        |"'" (any - c_nl - "'")*
+        |"`" (any - c_nl - "`")
+        )
+      => {
+        diagnostic :error, :unterminated_heredoc_id, nil, range(@ts, @ts + 1)
       };
 
       #
