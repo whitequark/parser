@@ -3581,4 +3581,61 @@ class TestLexer < Minitest::Test
                   :tPLUS,       '+',   [6, 7])
   end
 
+  def lex_numbered_parameter(input)
+    @lex.max_numparam_stack.push
+
+    @lex.context = Parser::Context.new
+    @lex.context.push(:block)
+
+    source_buffer = Parser::Source::Buffer.new('(assert_lex_numbered_parameter)')
+    source_buffer.source = input
+
+    @lex.source_buffer = source_buffer
+
+    @lex.advance
+  end
+
+  def assert_scanned_numbered_parameter(input)
+    lex_token, (lex_value, lex_range) = lex_numbered_parameter(input)
+
+    assert_equal(lex_token, :tNUMPARAM)
+    assert_equal(lex_value, input.tr('@', ''))
+    assert_equal(lex_range.begin_pos, 0)
+    assert_equal(lex_range.end_pos, input.length)
+  end
+
+  def refute_scanned_numbered_parameter(input, message = nil)
+    err = assert_raises Parser::SyntaxError do
+      lex_token, (lex_value, lex_range) = lex_numbered_parameter(input)
+    end
+
+    if message
+      assert_equal(err.message, Parser::MESSAGES[message])
+
+      assert_equal(err.diagnostic.location.begin_pos, 0)
+      assert_equal(err.diagnostic.location.end_pos, input.length)
+    end
+  end
+
+  def test_numbered_args_before_27
+    setup_lexer(26)
+    refute_scanned_numbered_parameter('@1')
+  end
+
+  def test_numbered_args_27
+    setup_lexer(27)
+    assert_scanned_numbered_parameter('@1')
+    assert_equal(@lex.max_numparam, 1)
+
+    setup_lexer(27)
+    assert_scanned_numbered_parameter('@100')
+    assert_equal(@lex.max_numparam, 100)
+
+    setup_lexer(27)
+    refute_scanned_numbered_parameter('@101', :too_large_numparam)
+
+    setup_lexer(27)
+    refute_scanned_numbered_parameter('@01', :leading_zero_in_numparam)
+  end
+
 end

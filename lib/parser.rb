@@ -67,6 +67,7 @@ module Parser
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
   require 'parser/lexer/dedenter'
+  require 'parser/lexer/max_numparam_stack'
 
   module Builders
     require 'parser/builders/default'

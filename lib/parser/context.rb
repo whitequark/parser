@@ -47,5 +47,13 @@ module Parser
     end
     alias module_definition_allowed? class_definition_allowed?
     alias dynamic_const_definition_allowed? class_definition_allowed?
+
+    def in_block?
+      @stack.last == :block
+    end
+
+    def in_lambda?
+      @stack.last == :lambda
+    end
   end
 end

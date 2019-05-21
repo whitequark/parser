@@ -26,6 +26,7 @@ module Parser
         ident root lambda indexasgn index procarg0
         meth_ref restarg_expr blockarg_expr
         objc_kwarg objc_restarg objc_varargs
+        numargs numblock numparam
       ).map(&:to_sym).to_set.freeze
 
   end # Meta
