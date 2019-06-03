@@ -7394,4 +7394,43 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_2_7)
   end
+
+  def test_ruby_bug_15839
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{# encoding: cp932
+        <<-TEXT
+        \xe9\x9d\u1234
+        TEXT
+      })
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{
+        # encoding: cp932
+        <<-TEXT
+        \xe9\x9d
+        \u1234
+        TEXT
+      })
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{
+        # encoding: cp932
+        <<-TEXT
+        \u1234\xe9\x9d
+        TEXT
+      })
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{
+        # encoding: cp932
+        <<-TEXT
+        \u1234
+        \xe9\x9d
+        TEXT
+      })
+  end
 end
