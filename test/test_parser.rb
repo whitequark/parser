@@ -7433,4 +7433,30 @@ class TestParser < Minitest::Test
         TEXT
       })
   end
+
+  def test_numparam_as_symbols
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@' }],
+      %q{:@},
+      %q{ ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{:@1},
+      %q{ ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@' }],
+      %q{:@@},
+      %q{ ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{:@@1},
+      %q{ ^^^ location},
+      SINCE_2_7)
+  end
 end
