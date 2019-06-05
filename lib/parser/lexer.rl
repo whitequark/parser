@@ -1855,6 +1855,20 @@ class Parser::Lexer
         fnext expr_end; fbreak;
       };
 
+      ':' ( '@'  %{ tm = p - 1; diag_msg = :ivar_name }
+          | '@@' %{ tm = p - 2; diag_msg = :cvar_name }
+          ) [0-9]*
+      => {
+        if @version >= 27
+          diagnostic :error, diag_msg, { name: tok(tm, @te) }, range(tm, @te)
+        else
+          emit(:tCOLON, tok(@ts, @ts + 1), @ts, @ts + 1)
+          p = @ts
+        end
+
+        fnext expr_end; fbreak;
+      };
+
       #
       # AMBIGUOUS TERNARY OPERATOR
       #
