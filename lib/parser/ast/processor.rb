@@ -124,7 +124,22 @@ module Parser
       alias on_kwarg          process_argument_node
       alias on_kwoptarg       process_argument_node
       alias on_kwrestarg      process_argument_node
-      alias on_procarg0       process_argument_node
+
+      def on_procarg0(node)
+        if node.children[0].is_a?(Symbol)
+          # This branch gets executed when the builder
+          # is not configured to emit and 'arg' inside 'procarg0', i.e. when
+          #   Parser::Builders::Default.emit_arg_inside_procarg0
+          # is set to false.
+          #
+          # If this flag is set to true this branch is unreachable.
+          # s(:procarg0, :a)
+          on_argument(node)
+        else
+          # s(:procarg0, s(:arg, :a), s(:arg, :b))
+          process_regular_node(node)
+        end
+      end
 
       alias on_arg_expr       process_regular_node
       alias on_restarg_expr   process_regular_node
