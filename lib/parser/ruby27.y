@@ -480,6 +480,10 @@ rule
                     }
                 | primary_value call_op tIDENTIFIER
                     {
+                      if (val[1][0] == :anddot)
+                        diagnostic :error, :csend_in_lhs_of_masgn, nil, val[1]
+                      end
+
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tIDENTIFIER
@@ -488,6 +492,10 @@ rule
                     }
                 | primary_value call_op tCONSTANT
                     {
+                      if (val[1][0] == :anddot)
+                        diagnostic :error, :csend_in_lhs_of_masgn, nil, val[1]
+                      end
+
                       result = @builder.attr_asgn(val[0], val[1], val[2])
                     }
                 | primary_value tCOLON2 tCONSTANT

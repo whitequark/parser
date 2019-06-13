@@ -7459,4 +7459,24 @@ class TestParser < Minitest::Test
       %q{ ^^^ location},
       SINCE_2_7)
   end
+
+  def test_csend_inside_lhs_of_masgn__since_27
+    assert_diagnoses(
+      [:error, :csend_in_lhs_of_masgn],
+      %q{*a&.x = 0},
+      %q{  ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :csend_in_lhs_of_masgn],
+      %q{a&.x, = 0},
+      %q{ ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :csend_in_lhs_of_masgn],
+      %q{*a&.A = 0},
+      %q{  ^^ location},
+      SINCE_2_7)
+  end
 end
