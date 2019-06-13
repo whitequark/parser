@@ -715,6 +715,14 @@ class Parser::Lexer
     diagnostic :fatal, :invalid_escape
   }
 
+  action read_post_meta_or_ctrl_char {
+    @escape = @source_buffer.slice(p - 1).chr
+
+    if @version >= 27 && ((0..8).include?(@escape.ord) || (14..31).include?(@escape.ord))
+      diagnostic :fatal, :invalid_escape
+    end
+  }
+
   action slash_c_char {
     @escape = encode_escape(@escape[0].ord & 0x9f)
   }
@@ -725,13 +733,13 @@ class Parser::Lexer
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
-    | ( c_any - [\\] )  % { @escape = @source_buffer.slice(p - 1).chr }
+    | ( c_any - [\\] )  %read_post_meta_or_ctrl_char
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
-    | ( c_any - [\\?] ) % { @escape = @source_buffer.slice(p - 1).chr } %slash_c_char
+    | ( c_any - [\\?] ) %read_post_meta_or_ctrl_char %slash_c_char
   );
 
   escape = (
