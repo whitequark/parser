@@ -162,6 +162,24 @@ class TestLexer < Minitest::Test
     refute_escape 'u{123 f0'
   end
 
+  def test_read_escape_whitespaces__27
+    setup_lexer 27
+
+    [ *(0..8), *(14..31) ].each do |code|
+      @lex.reset
+      refute_scanned "\"\\C-" + code.chr + "\""
+
+      @lex.reset
+      refute_scanned "\"\\M-" + code.chr + "\""
+
+      @lex.reset
+      refute_scanned "\"\\C-\\M-" + code.chr + "\""
+
+      @lex.reset
+      refute_scanned "\"\\M-\\C-" + code.chr + "\""
+    end
+  end
+
   def test_ambiguous_uminus
     assert_scanned("m -3",
                    :tIDENTIFIER, "m", [0, 1],
