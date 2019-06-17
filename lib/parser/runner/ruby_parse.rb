@@ -123,7 +123,7 @@ module Parser
       opts.on '--emit-ruby', 'Emit S-expressions as valid Ruby code' do
         @emit_ruby = true
       end
-      
+
       opts.on '--emit-json', 'Emit S-expressions as valid JSON' do
         @emit_json = true
       end
@@ -146,7 +146,7 @@ module Parser
         if @emit_ruby
           puts ast.inspect
         elsif @emit_json
-          puts JSON.generate(ast.to_sexp_array)
+          puts(ast ? JSON.generate(ast.to_sexp_array) : nil)
         else
           puts ast.to_s
         end
