@@ -2457,7 +2457,7 @@ class TestParser < Minitest::Test
     # f_arg                                                      opt_f_block_arg
     # f_arg tCOMMA
     assert_parses_blockargs(
-      s(:args, s(:procarg0, :a)),
+      s(:args, s(:procarg0, s(:arg, :a))),
       %q{|a|},
       SINCE_1_9)
 
@@ -2698,6 +2698,39 @@ class TestParser < Minitest::Test
     )
   ensure
     Parser::Builders::Default.emit_procarg0 = true
+  end
+
+  def test_emit_arg_inside_procarg0_legacy
+    Parser::Builders::Default.emit_arg_inside_procarg0 = false
+    assert_parses_blockargs(
+      s(:args,
+        s(:procarg0, :a)),
+      %q{|a|},
+      SINCE_1_9)
+  ensure
+    Parser::Builders::Default.emit_arg_inside_procarg0 = true
+  end
+
+  def test_procarg0
+    assert_parses(
+      s(:block,
+        s(:send, nil, :m),
+        s(:args,
+          s(:procarg0, s(:arg, :foo))), nil),
+      %q{m { |foo| } },
+      %q{     ^^^ expression (args.procarg0)},
+      SINCE_1_9)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :m),
+        s(:args,
+          s(:procarg0, s(:arg, :foo), s(:arg, :bar))), nil),
+      %q{m { |(foo, bar)| } },
+      %q{     ^ begin (args.procarg0)
+        |              ^ end (args.procarg0)
+        |     ^^^^^^^^^^ expression (args.procarg0)},
+      SINCE_1_9)
   end
 
   def test_block_kwarg_combinations
@@ -5675,7 +5708,7 @@ class TestParser < Minitest::Test
           s(:send,
             s(:int, 1), :tap),
           s(:args,
-            s(:procarg0, :n)),
+            s(:procarg0, s(:arg, :n))),
           s(:send, nil, :p,
             s(:lvar, :n))),
         s(:int, 0)),
@@ -6286,7 +6319,7 @@ class TestParser < Minitest::Test
         s(:send, nil, :a,
           s(:ivar, :@b)),
         s(:args,
-          s(:procarg0, :c)), nil),
+          s(:procarg0, s(:arg, :c))), nil),
       %q{a @b do |c|;end},
       %q{},
       SINCE_1_9)

@@ -933,10 +933,15 @@ the sole argument (e.g. `|foo,|`).
 Format:
 
 ~~~
-(procarg0 :foo)
+(procarg0 (arg :foo))
 "|foo|"
   ~~~ expression
-  ~~~ name
+
+(procarg0 (arg :foo) (arg :bar))
+"|(foo, bar)|"
+  ~ begin
+           ~ end
+  ~~~~~~~~~~ expression
 ~~~
 
 ### Expression arguments

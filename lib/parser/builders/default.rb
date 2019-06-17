@@ -80,6 +80,21 @@ module Parser
       attr_accessor :emit_index
     end
 
+    class << self
+      ##
+      # AST compatibility attribute; causes a single non-mlhs
+      # block argument to be wrapped in s(:procarg0).
+      #
+      # If set to false (the default), block arguments `|a|` are emitted as
+      # `s(:args, s(:procarg0, :a))`
+      #
+      # If set to true, block arguments `|a|` are emitted as
+      # `s(:args, s(:procarg0, s(:arg, :a))`
+      #
+      # @return [Boolean]
+      attr_accessor :emit_arg_inside_procarg0
+    end
+
     @emit_index = false
 
     class << self
@@ -90,6 +105,7 @@ module Parser
         @emit_procarg0 = true
         @emit_encoding = true
         @emit_index = true
+        @emit_arg_inside_procarg0 = true
       end
     end
 
@@ -726,7 +742,12 @@ module Parser
 
     def procarg0(arg)
       if self.class.emit_procarg0
-        arg.updated(:procarg0)
+        if arg.type == :arg && self.class.emit_arg_inside_procarg0
+          n(:procarg0, [ arg ],
+            Source::Map::Collection.new(nil, nil, arg.location.expression))
+        else
+          arg.updated(:procarg0)
+        end
       else
         arg
       end
@@ -1232,23 +1253,37 @@ module Parser
         case this_arg.type
         when :arg, :optarg, :restarg, :blockarg,
              :kwarg, :kwoptarg, :kwrestarg,
-             :shadowarg, :procarg0
+             :shadowarg
 
-          this_name, = *this_arg
+          check_duplicate_arg(this_arg, map)
 
-          that_arg   = map[this_name]
-          that_name, = *that_arg
+        when :procarg0
 
-          if that_arg.nil?
-            map[this_name] = this_arg
-          elsif arg_name_collides?(this_name, that_name)
-            diagnostic :error, :duplicate_argument, nil,
-                       this_arg.loc.name, [ that_arg.loc.name ]
+          if this_arg.children[0].is_a?(Symbol)
+            # s(:procarg0, :a)
+            check_duplicate_arg(this_arg, map)
+          else
+            # s(:procarg0, s(:arg, :a), ...)
+            check_duplicate_args(this_arg.children, map)
           end
 
         when :mlhs
           check_duplicate_args(this_arg.children, map)
         end
+      end
+    end
+
+    def check_duplicate_arg(this_arg, map={})
+      this_name, = *this_arg
+
+      that_arg   = map[this_name]
+      that_name, = *that_arg
+
+      if that_arg.nil?
+        map[this_name] = this_arg
+      elsif arg_name_collides?(this_name, that_name)
+        diagnostic :error, :duplicate_argument, nil,
+                   this_arg.loc.name, [ that_arg.loc.name ]
       end
     end
 
