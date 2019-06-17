@@ -102,10 +102,13 @@ Format:
 Format:
 
 ~~~
-(dstr (str "foo") (lvar bar) (str "baz"))
+(dstr (str "foo") (begin (lvar bar)) (str "baz"))
 '"foo#{bar}baz"'
  ^ begin      ^ end
  ~~~~~~~~~~~~~~ expression
+     ^^ begin (begin)
+          ^ end (begin)
+     ^^^^^^ expression (begin)
 ~~~
 
 #### Here document
