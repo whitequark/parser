@@ -2358,6 +2358,18 @@ class Parser::Lexer
         fgoto expr_value;
       };
 
+      '|>'
+      => {
+        if @version >= 27
+          emit(:tPIPE2)
+          fnext expr_dot; fbreak;
+        else
+          emit(:tPIPE)
+          p -= 1
+          fnext expr_value; fbreak;
+        end
+      };
+
       # When '|', '~', '!', '=>' are used as operators
       # they do not accept any symbols (or quoted labels) after.
       # Other binary operators accept it.
@@ -2442,7 +2454,7 @@ class Parser::Lexer
       # Insane leading dots:
       # a #comment
       #  .b: a.b
-      c_space* %{ tm = p } ('.' | '&.')
+      c_space* %{ tm = p } ('.' | '&.' | '|>')
       => { p = tm - 1; fgoto expr_end; };
 
       any
