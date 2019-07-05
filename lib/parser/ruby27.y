@@ -1336,45 +1336,33 @@ rule
                     }
 
          f_margs: f_marg_list
-                | f_marg_list tCOMMA tSTAR f_norm_arg
+                | f_marg_list tCOMMA f_rest_marg
                     {
                       result = val[0].
-                                  push(@builder.restarg(val[2], val[3]))
+                                  push(val[2])
                     }
-                | f_marg_list tCOMMA tSTAR f_norm_arg tCOMMA f_marg_list
+                | f_marg_list tCOMMA f_rest_marg tCOMMA f_marg_list
                     {
                       result = val[0].
-                                  push(@builder.restarg(val[2], val[3])).
-                                  concat(val[5])
-                    }
-                | f_marg_list tCOMMA tSTAR
-                    {
-                      result = val[0].
-                                  push(@builder.restarg(val[2]))
-                    }
-                | f_marg_list tCOMMA tSTAR            tCOMMA f_marg_list
-                    {
-                      result = val[0].
-                                  push(@builder.restarg(val[2])).
+                                  push(val[2]).
                                   concat(val[4])
                     }
-                |                    tSTAR f_norm_arg
+                |                    f_rest_marg
                     {
-                      result = [ @builder.restarg(val[0], val[1]) ]
+                      result = [ val[0] ]
                     }
-                |                    tSTAR f_norm_arg tCOMMA f_marg_list
+                |                    f_rest_marg tCOMMA f_marg_list
                     {
-                      result = [ @builder.restarg(val[0], val[1]),
-                                 *val[3] ]
+                      result = [ val[0], *val[2] ]
                     }
-                |                    tSTAR
+
+     f_rest_marg: tSTAR f_norm_arg
                     {
-                      result = [ @builder.restarg(val[0]) ]
+                      result = @builder.restarg(val[0], val[1])
                     }
-                |                    tSTAR tCOMMA f_marg_list
+                | tSTAR
                     {
-                      result = [ @builder.restarg(val[0]),
-                                 *val[2] ]
+                      result = @builder.restarg(val[0])
                     }
 
  block_args_tail: f_block_kwarg tCOMMA f_kwrest opt_f_block_arg
