@@ -18,7 +18,6 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
       tRATIONAL tIMAGINARY tLABEL_END tANDDOT tMETHREF tBDOT2 tBDOT3 tNUMPARAM
-      tPIPE2
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -37,7 +36,6 @@ prechigh
   right    tEH tCOLON
   left     kRESCUE_MOD
   right    tEQL tOP_ASGN
-  left     tPIPE2
   nonassoc kDEFINED
   right    kNOT
   left     kOR kAND
@@ -277,38 +275,6 @@ rule
                       result = @builder.not_op(val[0], nil, val[1], nil)
                     }
                 | arg
-                | pipeline
-
-        pipeline: expr tPIPE2 operation opt_paren_args
-                  {
-                    lparen_t, args, rparen_t = val[3]
-                    result      = @builder.call_method(val[0], val[1], val[2],
-                                    lparen_t, args, rparen_t)
-                  }
-                | expr tPIPE2 operation opt_paren_args brace_block
-                  {
-                    lparen_t, args, rparen_t = val[3]
-                    method_call = @builder.call_method(val[0], val[1], val[2],
-                                    lparen_t, args, rparen_t)
-
-                    begin_t, args, body, end_t = val[4]
-                    result      = @builder.block(method_call,
-                                    begin_t, args, body, end_t)
-                  }
-                | expr tPIPE2 operation command_args
-                  {
-                    result = @builder.call_method(val[0], val[1], val[2],
-                                  nil, val[3], nil)
-                  }
-                | expr tPIPE2 operation command_args do_block
-                  {
-                    method_call = @builder.call_method(val[0], val[1], val[2],
-                                      nil, val[3], nil)
-
-                    begin_t, args, body, end_t = val[4]
-                    result      = @builder.block(method_call,
-                                    begin_t, args, body, end_t)
-                  }
 
       expr_value: expr
 
