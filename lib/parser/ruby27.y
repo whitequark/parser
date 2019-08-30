@@ -195,6 +195,15 @@ rule
                       result = @builder.assign(val[0], val[1],
                                   @builder.array(nil, val[2], nil))
                     }
+                | mlhs tEQL mrhs_arg kRESCUE_MOD stmt
+                    {
+                      rescue_body = @builder.rescue_body(val[3],
+                                                         nil, nil, nil,
+                                                         nil, val[4])
+                      begin_body = @builder.begin_body(val[2], [ rescue_body ])
+
+                      result = @builder.multi_assign(val[0], val[1], begin_body)
+                    }
                 | mlhs tEQL mrhs_arg
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
