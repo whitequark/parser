@@ -5149,6 +5149,26 @@ class TestParser < Minitest::Test
         |~~~~~~~~~~~~~~~~~~~~~ expression})
   end
 
+  def test_rescue_mod_masgn
+    assert_parses(
+      s(:masgn,
+        s(:mlhs,
+          s(:lvasgn, :foo),
+          s(:lvasgn, :bar)),
+        s(:rescue,
+          s(:send, nil, :meth),
+          s(:resbody, nil, nil,
+            s(:array,
+              s(:int, 1),
+              s(:int, 2))), nil)),
+      %q{foo, bar = meth rescue [1, 2]},
+      %q{                ~~~~~~ keyword (rescue.resbody)
+        |                ~~~~~~~~~~~~~ expression (rescue.resbody)
+        |           ~~~~~~~~~~~~~~~~~~ expression (rescue)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_2_7)
+  end
+
   def test_rescue_mod_op_assign
     assert_parses(
       s(:op_asgn,
