@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2019-08-30)
--------------------------
+v2.6.4.0 (2019-08-30)
+---------------------
 
 API modifications:
  * Added specs for heredocs with mixed encoding. (#581) (Ilya Bylich)
