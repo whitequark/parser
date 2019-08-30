@@ -1,6 +1,28 @@
 Changelog
 =========
 
+Not released (2019-08-30)
+-------------------------
+
+API modifications:
+ * Added specs for heredocs with mixed encoding. (#581) (Ilya Bylich)
+
+Features implemented:
+ * ruby27.y: Revert "pipeline operator" (#601) (Koichi ITO)
+ * ruby27.y: Fix parsing of mutiple assignment with rescue modifier (#600) (Koichi ITO)
+ * ruby27.y: hoisted out f_rest_marg. (#594) (Ilya Bylich)
+ * ruby27.y: added pipeline operator. (#592) (Ilya Bylich)
+ * ruby27.y: reject safe navigator in LHS of mass-assignment. (#586) (Ilya Bylich)
+ * lexer.rl: reject whitespaces in meta and control chars. (#585) (Ilya Bylich)
+ * lexer.rl: Reject numparams as symbol literals. (#582) (Ilya Bylich)
+ * ruby27.y: Added numbered parameters support. (#565) (Ilya Bylich)
+ * lexer.rl: Reject \n and \r in heredoc identifiers starting from 2.7. (#575) (Ilya Bylich)
+
+Bugs fixed:
+ * ruby-parse: print empty string when --emit-json and empty input are given. (#590) (Ilya Bylich)
+ * AST_FORMAT: fixed documentation of the string with interpolation. (#589) (Ilya Bylich)
+ * builder.rb, processor.rb: Changed format of the procarg0 node. (#587) (Ilya Bylich)
+
 v2.6.3.0 (2019-04-28)
 ---------------------
 
