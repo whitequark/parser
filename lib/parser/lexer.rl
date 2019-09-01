@@ -172,7 +172,7 @@ class Parser::Lexer
     # If the lexer is in `command state' (aka expr_value)
     # at the entry to #advance, it will transition to expr_cmdarg
     # instead of expr_arg at certain points.
-    @command_state = false
+    @command_start = true
 
     # True at the end of "def foo a:"
     @in_kwarg      = false
@@ -287,8 +287,8 @@ class Parser::Lexer
     pe = @source_pts.size + 2
     p, eof = @p, pe
 
-    @command_state = (@cs == klass.lex_en_expr_value ||
-                      @cs == klass.lex_en_line_begin)
+    cmd_state = @command_start
+    @command_start = false
 
     %% write exec;
     # %
@@ -358,8 +358,8 @@ class Parser::Lexer
     end
   end
 
-  def arg_or_cmdarg
-    if @command_state
+  def arg_or_cmdarg(cmd_state)
+    if cmd_state
       self.class.lex_en_expr_cmdarg
     else
       self.class.lex_en_expr_arg
@@ -1089,6 +1089,7 @@ class Parser::Lexer
     end
 
     current_literal.start_interp_brace
+    @command_start = true
     fnext expr_value;
     fbreak;
   }
@@ -1275,6 +1276,10 @@ class Parser::Lexer
     @cond.push(false); @cmdarg.push(false)
 
     @paren_nest += 1
+
+    if version?(18)
+      @command_start = true
+    end
   };
 
   e_rparen = ')' % {
@@ -1288,7 +1293,7 @@ class Parser::Lexer
     if !@static_env.nil? && @static_env.declared?(tok)
       fnext expr_endfn; fbreak;
     else
-      fnext *arg_or_cmdarg; fbreak;
+      fnext *arg_or_cmdarg(cmd_state); fbreak;
     end
   }
 
@@ -1445,15 +1450,15 @@ class Parser::Lexer
   expr_dot := |*
       constant
       => { emit(:tCONSTANT)
-           fnext *arg_or_cmdarg; fbreak; };
+           fnext *arg_or_cmdarg(cmd_state); fbreak; };
 
       call_or_var
       => { emit(:tIDENTIFIER)
-           fnext *arg_or_cmdarg; fbreak; };
+           fnext *arg_or_cmdarg(cmd_state); fbreak; };
 
       bareword ambiguous_fid_suffix
       => { emit(:tFID, tok(@ts, tm), @ts, tm)
-           fnext *arg_or_cmdarg; p = tm - 1; fbreak; };
+           fnext *arg_or_cmdarg(cmd_state); p = tm - 1; fbreak; };
 
       # See the comment in `expr_fname`.
       operator_fname      |
@@ -1513,6 +1518,7 @@ class Parser::Lexer
         else
           emit(:tLCURLY, '{'.freeze, @te - 1, @te)
         end
+        @command_start = true
         fnext expr_value; fbreak;
       };
 
@@ -1673,6 +1679,7 @@ class Parser::Lexer
         else
           emit(:tLBRACE_ARG, '{'.freeze)
         end
+        @command_start = true
         fnext expr_value; fbreak;
       };
 
@@ -1929,6 +1936,7 @@ class Parser::Lexer
       => {
         if @lambda_stack.last == @paren_nest
           @lambda_stack.pop
+          @command_start = true
           emit(:tLAMBEG, '{'.freeze)
         else
           emit(:tLBRACE, '{'.freeze)
@@ -1961,6 +1969,7 @@ class Parser::Lexer
       # if a: Statement if.
       keyword_modifier
       => { emit_table(KEYWORDS_BEGIN)
+           @command_start = true
            fnext expr_value; fbreak; };
 
       #
@@ -1981,7 +1990,7 @@ class Parser::Lexer
           if !@static_env.nil? && @static_env.declared?(ident)
             fnext expr_end;
           else
-            fnext *arg_or_cmdarg;
+            fnext *arg_or_cmdarg(cmd_state);
           end
         else
           emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
@@ -2150,6 +2159,7 @@ class Parser::Lexer
             emit_do
           end
         end
+        @command_start = true
 
         fnext expr_value; fbreak;
       };
@@ -2175,6 +2185,7 @@ class Parser::Lexer
       # elsif b:c: elsif b(:c)
       keyword_with_value
       => { emit_table(KEYWORDS)
+           @command_start = true
            fnext expr_value; fbreak; };
 
       keyword_with_mid
@@ -2198,7 +2209,7 @@ class Parser::Lexer
           emit(:tIDENTIFIER)
 
           unless !@static_env.nil? && @static_env.declared?(tok)
-            fnext *arg_or_cmdarg;
+            fnext *arg_or_cmdarg(cmd_state);
           end
         else
           emit(:k__ENCODING__, '__ENCODING__'.freeze)
@@ -2309,7 +2320,7 @@ class Parser::Lexer
 
       constant
       => { emit(:tCONSTANT)
-           fnext *arg_or_cmdarg; fbreak; };
+           fnext *arg_or_cmdarg(cmd_state); fbreak; };
 
       constant ambiguous_const_suffix
       => { emit(:tCONSTANT, tok(@ts, tm), @ts, tm)
@@ -2423,6 +2434,7 @@ class Parser::Lexer
 
       ';'
       => { emit(:tSEMI, ';'.freeze)
+           @command_start = true
            fnext expr_value; fbreak; };
 
       '\\' c_line {
@@ -2481,7 +2493,7 @@ class Parser::Lexer
       => { p = pe - 3 };
 
       c_any
-      => { fhold; fgoto expr_value; };
+      => { cmd_state = true; fhold; fgoto expr_value; };
 
       c_eof => do_eof;
   *|;

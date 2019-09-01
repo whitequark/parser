@@ -7532,4 +7532,17 @@ class TestParser < Minitest::Test
       %q{  ^^ location},
       SINCE_2_7)
   end
+
+  def test_parser_bug_604
+    assert_parses(
+      s(:block,
+        s(:send, nil, :m,
+          s(:send,
+            s(:send, nil, :a), :+,
+            s(:send, nil, :b))),
+        s(:args), nil),
+      %q{m a + b do end},
+      %q{},
+      ALL_VERSIONS)
+  end
 end
