@@ -730,6 +730,11 @@ module Parser
       end
     end
 
+    def kwnilarg(dstar_t, nil_t)
+      n0(:kwnilarg,
+        arg_prefix_map(dstar_t, nil_t))
+    end
+
     def shadowarg(name_t)
       n(:shadowarg, [ value(name_t).to_sym ],
         variable_map(name_t))

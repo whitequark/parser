@@ -18,7 +18,7 @@ module Parser
         match_with_lvasgn match_current_line
         module class sclass def defs undef alias args
         cbase arg optarg restarg blockarg block_pass kwarg kwoptarg
-        kwrestarg send csend super zsuper yield block
+        kwrestarg kwnilarg send csend super zsuper yield block
         and not or if when case while until while_post
         until_post for break next redo return resbody
         kwbegin begin retry preexe postexe iflipflop eflipflop

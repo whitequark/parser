@@ -2095,6 +2095,37 @@ class TestParser < Minitest::Test
       SINCE_2_0)
   end
 
+  def test_kwnilarg
+    assert_parses(
+      s(:def, :f,
+        s(:args, s(:kwnilarg)),
+        nil),
+      %q{def f(**nil); end},
+      %q{      ~~~~~ expression (args.kwnilarg)
+        |        ~~~ name (args.kwnilarg)},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :m),
+        s(:args,
+          s(:kwnilarg)), nil),
+      %q{m { |**nil| }},
+      %q{     ~~~~~ expression (args.kwnilarg)
+        |       ~~~ name (args.kwnilarg)},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:block,
+        s(:lambda),
+        s(:args,
+          s(:kwnilarg)), nil),
+      %q{->(**nil) {}},
+      %q{   ~~~~~ expression (args.kwnilarg)
+        |     ~~~ name (args.kwnilarg)},
+      SINCE_2_7)
+  end
+
   def test_blockarg
     assert_parses(
       s(:def, :f,
