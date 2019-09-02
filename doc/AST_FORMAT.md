@@ -1032,6 +1032,17 @@ Format:
  ~~ expression
 ~~~
 
+### Keyword nil argument
+
+Format:
+
+~~~
+(kwnilarg)
+"**nil"
+   ~~~ name
+ ~~~~~ expression
+~~~
+
 ### Objective-C arguments
 
 MacRuby includes a few more syntactic "arguments" whose name becomes

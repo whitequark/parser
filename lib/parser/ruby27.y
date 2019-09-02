@@ -1352,6 +1352,10 @@ rule
                     {
                       result = val[0].concat(val[1])
                     }
+                | f_no_kwarg opt_f_block_arg
+                    {
+                      result = val[0].concat(val[1])
+                    }
                 | f_block_arg
                     {
                       result = [ val[0] ]
@@ -2092,6 +2096,10 @@ keyword_variable: kNIL
                     {
                       result = val[0].concat(val[1])
                     }
+                | f_no_kwarg opt_f_block_arg
+                    {
+                      result = val[0].concat(val[1])
+                    }
                 | f_block_arg
                     {
                       result = [ val[0] ]
@@ -2294,6 +2302,11 @@ keyword_variable: kNIL
                     }
 
      kwrest_mark: tPOW | tDSTAR
+
+      f_no_kwarg: kwrest_mark kNIL
+                    {
+                      result = [ @builder.kwnilarg(val[0], val[1]) ]
+                    }
 
         f_kwrest: kwrest_mark tIDENTIFIER
                     {
