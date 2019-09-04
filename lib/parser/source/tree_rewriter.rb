@@ -281,7 +281,7 @@ module Parser
       def enforce_policy(event)
         return if @policy[event] == :accept
         return unless (values = yield)
-        trigger_policy(event, values)
+        trigger_policy(event, **values)
       end
 
       POLICY_TO_LEVEL = {warn: :warning, raise: :error}.freeze
