@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v2.6.4.1 (2019-09-12)
+---------------------
+
+Features implemented:
+ * ruby27.y: Add `kwnilarg` for `**nil` argument (#606) (Ilya Bylich)
+
+Bugs fixed:
+ * lexer.rl: fix parsing of 'm a + b do end' (#605) (Ilya Bylich)
+
 v2.6.4.0 (2019-08-30)
 ---------------------
 
@@ -988,4 +997,3 @@ Bugs fixed:
  * lexer.rl: /= at expr_beg. (Peter Zotov)
  * lexer.rl: class\<\<self. (Peter Zotov)
  * fix lexing comments at expr_beg "{#1\n}". (Peter Zotov)
-
