@@ -53,7 +53,7 @@ rule
                       else_t,   else_   = val[2]
                       ensure_t, ensure_ = val[3]
 
-                      if rescue_bodies.empty? && !else_.nil?
+                      if rescue_bodies.empty? && !else_t.nil?
                         diagnostic :warning, :useless_else, nil, else_t
                       end
 

@@ -5094,6 +5094,12 @@ class TestParser < Minitest::Test
       %q{begin; 1; else; 2; end},
       %q{          ~~~~ location},
       SINCE_2_6)
+
+    assert_diagnoses(
+      [:error, :useless_else],
+      %q{begin; 1; else; end},
+      %q{          ~~~~ location},
+      SINCE_2_6)
   end
 
   def test_ensure
@@ -5668,7 +5674,9 @@ class TestParser < Minitest::Test
       s(:def, :foo, s(:args),
         s(:begin,
           s(:begin, nil))),
-      %q{def foo; else; end})
+      %q{def foo; else; end},
+      %q{},
+      ALL_VERSIONS - SINCE_2_6)
   end
 
   def test_bug_heredoc_do
