@@ -7598,4 +7598,47 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_comments_before_leading_dot__27
+    assert_parses(
+      s(:send,
+        s(:send, nil, :a), :foo),
+      %Q{a #\n#\n.foo\n},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:csend,
+        s(:send, nil, :a), :foo),
+      %Q{a #\n#\n&.foo\n},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:meth_ref,
+        s(:send, nil, :a), :foo),
+      %Q{a #\n#\n.:foo\n},
+      %q{},
+      SINCE_2_7)
+  end
+
+  def test_comments_before_leading_dot__before_27
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT' }],
+      %q{a #!#!.foo!}.gsub('!', "\n"),
+      %q{      ^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tAMPER' }],
+      %q{a #!#!&.foo!}.gsub('!', "\n"),
+      %q{      ^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT' }],
+      %q{a #!#!.:foo!}.gsub('!', "\n"),
+      %q{      ^ location},
+      ALL_VERSIONS - SINCE_2_7)
+  end
 end

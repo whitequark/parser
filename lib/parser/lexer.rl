@@ -2465,7 +2465,25 @@ class Parser::Lexer
   leading_dot := |*
       # Insane leading dots:
       # a #comment
+      #  # post-2.7 comment
       #  .b: a.b
+
+      # Here we use '\n' instead of w_newline to not modify @newline_s
+      # and eventually properly emit tNL
+      (w_space_comment '\n')+
+      => {
+        if @version < 27
+          # Ruby before 2.7 doesn't support comments before leading dot.
+          # If a line after "a" starts with a comment then "a" is a self-contained statement.
+          # So in that case we emit a special tNL token and start reading the
+          # next line as a separate statement.
+          #
+          # Note: block comments before leading dot are not supported on any version of Ruby.
+          emit(:tNL, nil, @newline_s, @newline_s + 1)
+          fhold; fnext line_begin; fbreak;
+        end
+      };
+
       c_space* %{ tm = p } ('.' | '&.')
       => { p = tm - 1; fgoto expr_end; };
 
