@@ -3559,6 +3559,8 @@ class TestLexer < Minitest::Test
   end
 
   def test_meth_ref
+    setup_lexer(27)
+
     assert_scanned('foo.:bar',
                   :tIDENTIFIER, 'foo', [0, 3],
                   :tMETHREF,   '.:',   [3, 5],
@@ -3571,6 +3573,8 @@ class TestLexer < Minitest::Test
   end
 
   def test_meth_ref_unary_op
+    setup_lexer(27)
+
     assert_scanned('foo.:+',
                   :tIDENTIFIER, 'foo', [0, 3],
                   :tMETHREF,    '.:',  [3, 5],
