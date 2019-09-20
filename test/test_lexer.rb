@@ -477,14 +477,18 @@ class TestLexer < Minitest::Test
   end
 
   def test_comment
-    assert_scanned("1 # one\n# two\n2",
-                   :tINTEGER, 1,   [0, 1],
-                   :tNL,      nil, [7, 8],
-                   :tINTEGER, 2,   [14, 15])
+    [26, 27].each do |version|
+      setup_lexer(version)
 
-    assert_equal 2, @lex.comments.length
-    assert_equal '# one', @lex.comments[0].text
-    assert_equal '# two', @lex.comments[1].text
+      assert_scanned("1 # one\n# two\n2",
+                     :tINTEGER, 1,   [0, 1],
+                     :tNL,      nil, [7, 8],
+                     :tINTEGER, 2,   [14, 15])
+
+      assert_equal 2, @lex.comments.length
+      assert_equal '# one', @lex.comments[0].text
+      assert_equal '# two', @lex.comments[1].text
+    end
   end
 
   def test_comment_expr_beg
