@@ -266,7 +266,7 @@ module Parser
 
       def combine(range, attributes)
         range = check_range_validity(range)
-        action = TreeRewriter::Action.new(range, @enforcer, attributes)
+        action = TreeRewriter::Action.new(range, @enforcer, **attributes)
         @action_root = @action_root.combine(action)
         self
       end
