@@ -89,7 +89,7 @@ class Parser::Lexer
 
   REGEXP_META_CHARACTERS = Regexp.union(*"\\$()*+.<>?[]^{|}".chars).freeze
 
-  NUMPARAM_MAX = 100
+  NUMPARAM_MAX = 9
 
   attr_reader   :source_buffer
   attr_reader   :max_numparam_stack
