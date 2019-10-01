@@ -7295,31 +7295,31 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:numblock,
         s(:send, nil, :m),
-        15,
+        9,
         s(:send,
           s(:numparam, 1), :+,
-          s(:numparam, 15))),
-      %q{m { @1 + @15 }},
-      %q{^^^^^^^^^^^^^^ expression
+          s(:numparam, 9))),
+      %q{m { @1 + @9 }},
+      %q{^^^^^^^^^^^^^ expression
         |    ^^ name (send/2.numparam/1)
         |    ^^ expression (send/2.numparam/1)
-        |         ^^^ name (send/2.numparam/2)
-        |         ^^^ expression (send/2.numparam/2)},
+        |         ^^ name (send/2.numparam/2)
+        |         ^^ expression (send/2.numparam/2)},
       SINCE_2_7)
 
     assert_parses(
       s(:numblock,
         s(:send, nil, :m),
-        15,
+        9,
         s(:send,
           s(:numparam, 1), :+,
-          s(:numparam, 15))),
-      %q{m do @1 + @15 end},
-      %q{^^^^^^^^^^^^^^^^^ expression
+          s(:numparam, 9))),
+      %q{m do @1 + @9 end},
+      %q{^^^^^^^^^^^^^^^^ expression
         |     ^^ name (send/2.numparam/1)
         |     ^^ expression (send/2.numparam/1)
-        |          ^^^ name (send/2.numparam/2)
-        |          ^^^ expression (send/2.numparam/2)},
+        |          ^^ name (send/2.numparam/2)
+        |          ^^ expression (send/2.numparam/2)},
       SINCE_2_7)
 
     # Lambdas
@@ -7327,31 +7327,31 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:numblock,
         s(:lambda),
-        15,
+        9,
         s(:send,
           s(:numparam, 1), :+,
-          s(:numparam, 15))),
-      %q{-> { @1 + @15}},
-      %q{^^^^^^^^^^^^^^ expression
+          s(:numparam, 9))),
+      %q{-> { @1 + @9}},
+      %q{^^^^^^^^^^^^^ expression
         |     ^^ name (send.numparam/1)
         |     ^^ expression (send.numparam/1)
-        |          ^^^ name (send.numparam/2)
-        |          ^^^ expression (send.numparam/2)},
+        |          ^^ name (send.numparam/2)
+        |          ^^ expression (send.numparam/2)},
       SINCE_2_7)
 
     assert_parses(
       s(:numblock,
         s(:lambda),
-        15,
+        9,
         s(:send,
           s(:numparam, 1), :+,
-          s(:numparam, 15))),
-      %q{-> do @1 + @15 end},
-      %q{^^^^^^^^^^^^^^^^^^ expression
+          s(:numparam, 9))),
+      %q{-> do @1 + @9 end},
+      %q{^^^^^^^^^^^^^^^^^ expression
         |      ^^ name (send.numparam/1)
         |      ^^ expression (send.numparam/1)
-        |           ^^^ name (send.numparam/2)
-        |           ^^^ expression (send.numparam/2)},
+        |           ^^ name (send.numparam/2)
+        |           ^^ expression (send.numparam/2)},
       SINCE_2_7)
   end
 
