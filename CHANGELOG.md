@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v2.6.5.0 (2019-10-03)
+---------------------
+
+API modifications:
+ * Bump ruby versions to 2.4.9, 2.5.7 and 2.6.5. (#619) (Ilya Bylich)
+
+Features implemented:
+ * lexer.rl: changed max numparam to `@9` (#617) (Ilya Bylich)
+ * lexer.rl: support comments before leading dot in 27 mode. (#613) (Ilya Bylich)
+
+Bugs fixed:
+ * lexer.rl: emit tMETHREF as tDOT+tCOLON for rubies \< 27. (#614) (Ilya Bylich)
+
 v2.6.4.1 (2019-09-12)
 ---------------------
 
