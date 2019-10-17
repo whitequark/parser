@@ -17,7 +17,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
-      tRATIONAL tIMAGINARY tLABEL_END tANDDOT tMETHREF tBDOT2 tBDOT3 tNUMPARAM
+      tRATIONAL tIMAGINARY tLABEL_END tANDDOT tMETHREF tBDOT2 tBDOT3
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -1469,17 +1469,17 @@ opt_block_args_tail:
 
  block_param_def: tPIPE opt_bv_decl tPIPE
                     {
-                      @lexer.max_numparam_stack.cant_have_numparams!
+                      @max_numparam_stack.has_ordinary_params!
                       result = @builder.args(val[0], val[1], val[2])
                     }
                 | tOROP
                     {
-                      @lexer.max_numparam_stack.cant_have_numparams!
+                      @max_numparam_stack.has_ordinary_params!
                       result = @builder.args(val[0], [], val[0])
                     }
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
-                      @lexer.max_numparam_stack.cant_have_numparams!
+                      @max_numparam_stack.has_ordinary_params!
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
 
@@ -1510,7 +1510,7 @@ opt_block_args_tail:
 
           lambda:   {
                       @static_env.extend_dynamic
-                      @lexer.max_numparam_stack.push
+                      @max_numparam_stack.push
                       @context.push(:lambda)
                     }
                   f_larglist
@@ -1520,23 +1520,23 @@ opt_block_args_tail:
                     }
                   lambda_body
                     {
-                      args = @lexer.max_numparam > 0 ? @builder.numargs(@lexer.max_numparam) : val[1]
+                      args = @max_numparam_stack.top > 0 ? @builder.numargs(@max_numparam_stack.top) : val[1]
                       result = [ args, val[3] ]
 
-                      @lexer.max_numparam_stack.pop
+                      @max_numparam_stack.pop
                       @static_env.unextend
                       @lexer.cmdarg.pop
                     }
 
      f_larglist: tLPAREN2 f_args opt_bv_decl tRPAREN
                     {
-                      @lexer.max_numparam_stack.cant_have_numparams!
+                      @max_numparam_stack.has_ordinary_params!
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
                 | f_args
                     {
                       if val[0].any?
-                        @lexer.max_numparam_stack.cant_have_numparams!
+                        @max_numparam_stack.has_ordinary_params!
                       end
                       result = @builder.args(nil, val[0], nil)
                     }
@@ -1672,30 +1672,30 @@ opt_block_args_tail:
 
       brace_body:   {
                       @static_env.extend_dynamic
-                      @lexer.max_numparam_stack.push
+                      @max_numparam_stack.push
                     }
                     opt_block_param compstmt
                     {
-                      args = @lexer.max_numparam > 0 ? @builder.numargs(@lexer.max_numparam) : val[1]
+                      args = @max_numparam_stack.top > 0 ? @builder.numargs(@max_numparam_stack.top) : val[1]
                       result = [ args, val[2] ]
 
-                      @lexer.max_numparam_stack.pop
+                      @max_numparam_stack.pop
                       @static_env.unextend
                     }
 
          do_body:   {
                       @static_env.extend_dynamic
-                      @lexer.max_numparam_stack.push
+                      @max_numparam_stack.push
                     }
                     {
                       @lexer.cmdarg.push(false)
                     }
                     opt_block_param bodystmt
                     {
-                      args = @lexer.max_numparam > 0 ? @builder.numargs(@lexer.max_numparam) : val[2]
+                      args = @max_numparam_stack.top > 0 ? @builder.numargs(@max_numparam_stack.top) : val[2]
                       result = [ args, val[3] ]
 
-                      @lexer.max_numparam_stack.pop
+                      @max_numparam_stack.pop
                       @static_env.unextend
                       @lexer.cmdarg.pop
                     }
@@ -1918,10 +1918,6 @@ regexp_contents: # nothing
                     {
                       result = @builder.cvar(val[0])
                     }
-                | tNUMPARAM
-                    {
-                      result = @builder.numparam(val[0])
-                    }
                 | backref
 
           symbol: ssym
@@ -1994,10 +1990,6 @@ regexp_contents: # nothing
                     {
                       result = @builder.cvar(val[0])
                     }
-                | tNUMPARAM
-                    {
-                      result = @builder.numparam(val[0])
-                    }
 
 keyword_variable: kNIL
                     {
@@ -2030,6 +2022,50 @@ keyword_variable: kNIL
 
          var_ref: user_variable
                     {
+                      if (node = val[0]) && node.type == :ident
+                        name = node.children[0]
+
+                        if name =~ /\A_[1-9]\z/ && !static_env.declared?(name)
+                          # definitely an implicit param
+                          location = node.loc.expression
+
+                          if !context.in_block? && !context.in_lambda?
+                            diagnostic :error, :numparam_outside_block, nil, [nil, location]
+                          end
+
+                          if max_numparam_stack.has_ordinary_params?
+                            diagnostic :error, :ordinary_param_defined, nil, [nil, location]
+                          end
+
+                          raw_context = context.stack.dup
+                          raw_max_numparam_stack = max_numparam_stack.stack.dup
+
+                          # ignore current block scope
+                          raw_context.pop
+                          raw_max_numparam_stack.pop
+
+                          raw_context.reverse_each do |outer_scope|
+                            if outer_scope == :block || outer_scope == :lambda
+                              outer_scope_has_numparams = raw_max_numparam_stack.pop > 0
+
+                              if outer_scope_has_numparams
+                                diagnostic :error, :numparam_used_in_outer_scope, nil, [nil, location]
+                              else
+                                # for now it's ok, but an outer scope can also be a block
+                                # with numparams, so we need to continue
+                              end
+                            else
+                              # found an outer scope that can't have numparams
+                              # like def/class/etc
+                              break
+                            end
+                          end
+
+                          static_env.declare(name)
+                          max_numparam_stack.register(name[1].to_i)
+                        end
+                      end
+
                       result = @builder.accessible(val[0])
                     }
                 | keyword_variable
@@ -2226,7 +2262,7 @@ keyword_variable: kNIL
                     {
                       @static_env.declare val[0][0]
 
-                      @lexer.max_numparam_stack.cant_have_numparams!
+                      @max_numparam_stack.has_ordinary_params!
 
                       result = val[0]
                     }
@@ -2260,7 +2296,7 @@ keyword_variable: kNIL
 
                       @static_env.declare val[0][0]
 
-                      @lexer.max_numparam_stack.cant_have_numparams!
+                      @max_numparam_stack.has_ordinary_params!
 
                       result = val[0]
                     }

@@ -1118,22 +1118,11 @@ Format:
 s(:numblock,
   s(:send, nil, :proc), 3,
   s(:send,
-    s(:numparam, 1), :+,
-    s(:numparam, 3)))
-"proc { @1 + @3 }"
+    s(:lvar, :_1), :+,
+    s(:lvar, :_3)))
+"proc { _1 + _3 }"
       ~ begin   ~ end
  ~~~~~~~~~~~~~~~~ expression
-~~~
-
-### Numbered parameter
-
-Format:
-
-~~~
-(numparam 10)
-"@10"
- ~~~ name
- ~~~ expression
 ~~~
 
 ## Send
