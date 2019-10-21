@@ -7282,29 +7282,20 @@ class TestParser < Minitest::Test
     end
   end
 
-  def test_numbered_args_before_27
-    assert_diagnoses(
-      [:error, :ivar_name, { :name => '@1' }],
-      %q{m { @1 }},
-      %q{    ^^ location},
-      ALL_VERSIONS - SINCE_2_7
-    )
-  end
-
   def test_numbered_args_after_27
     assert_parses(
       s(:numblock,
         s(:send, nil, :m),
         9,
         s(:send,
-          s(:numparam, 1), :+,
-          s(:numparam, 9))),
-      %q{m { @1 + @9 }},
+          s(:lvar, :_1), :+,
+          s(:lvar, :_9))),
+      %q{m { _1 + _9 }},
       %q{^^^^^^^^^^^^^ expression
-        |    ^^ name (send/2.numparam/1)
-        |    ^^ expression (send/2.numparam/1)
-        |         ^^ name (send/2.numparam/2)
-        |         ^^ expression (send/2.numparam/2)},
+        |    ^^ name (send/2.lvar/1)
+        |    ^^ expression (send/2.lvar/1)
+        |         ^^ name (send/2.lvar/2)
+        |         ^^ expression (send/2.lvar/2)},
       SINCE_2_7)
 
     assert_parses(
@@ -7312,14 +7303,14 @@ class TestParser < Minitest::Test
         s(:send, nil, :m),
         9,
         s(:send,
-          s(:numparam, 1), :+,
-          s(:numparam, 9))),
-      %q{m do @1 + @9 end},
+          s(:lvar, :_1), :+,
+          s(:lvar, :_9))),
+      %q{m do _1 + _9 end},
       %q{^^^^^^^^^^^^^^^^ expression
-        |     ^^ name (send/2.numparam/1)
-        |     ^^ expression (send/2.numparam/1)
-        |          ^^ name (send/2.numparam/2)
-        |          ^^ expression (send/2.numparam/2)},
+        |     ^^ name (send/2.lvar/1)
+        |     ^^ expression (send/2.lvar/1)
+        |          ^^ name (send/2.lvar/2)
+        |          ^^ expression (send/2.lvar/2)},
       SINCE_2_7)
 
     # Lambdas
@@ -7329,14 +7320,14 @@ class TestParser < Minitest::Test
         s(:lambda),
         9,
         s(:send,
-          s(:numparam, 1), :+,
-          s(:numparam, 9))),
-      %q{-> { @1 + @9}},
+          s(:lvar, :_1), :+,
+          s(:lvar, :_9))),
+      %q{-> { _1 + _9}},
       %q{^^^^^^^^^^^^^ expression
-        |     ^^ name (send.numparam/1)
-        |     ^^ expression (send.numparam/1)
-        |          ^^ name (send.numparam/2)
-        |          ^^ expression (send.numparam/2)},
+        |     ^^ name (send.lvar/1)
+        |     ^^ expression (send.lvar/1)
+        |          ^^ name (send.lvar/2)
+        |          ^^ expression (send.lvar/2)},
       SINCE_2_7)
 
     assert_parses(
@@ -7344,14 +7335,14 @@ class TestParser < Minitest::Test
         s(:lambda),
         9,
         s(:send,
-          s(:numparam, 1), :+,
-          s(:numparam, 9))),
-      %q{-> do @1 + @9 end},
+          s(:lvar, :_1), :+,
+          s(:lvar, :_9))),
+      %q{-> do _1 + _9 end},
       %q{^^^^^^^^^^^^^^^^^ expression
-        |      ^^ name (send.numparam/1)
-        |      ^^ expression (send.numparam/1)
-        |           ^^ name (send.numparam/2)
-        |           ^^ expression (send.numparam/2)},
+        |      ^^ name (send.lvar/1)
+        |      ^^ expression (send.lvar/1)
+        |           ^^ name (send.lvar/2)
+        |           ^^ expression (send.lvar/2)},
       SINCE_2_7)
   end
 
@@ -7360,37 +7351,37 @@ class TestParser < Minitest::Test
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{m { || @1 } },
+      %q{m { || _1 } },
       %q{       ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{m { |a| @1 } },
+      %q{m { |a| _1 } },
       %q{        ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{m do || @1 end },
+      %q{m do || _1 end },
       %q{        ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{m do |a, b| @1 end },
+      %q{m do |a, b| _1 end },
       %q{            ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{m { |x = @1| }},
+      %q{m { |x = _1| }},
       %q{         ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{m { |x: @1| }},
+      %q{m { |x: _1| }},
       %q{        ^^ location},
       SINCE_2_7)
 
@@ -7398,49 +7389,49 @@ class TestParser < Minitest::Test
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{->() { @1 } },
+      %q{->() { _1 } },
       %q{       ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{->(a) { @1 } },
+      %q{->(a) { _1 } },
       %q{        ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{->() do @1 end },
+      %q{->() do _1 end },
       %q{        ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{->(a, b) do @1 end},
+      %q{->(a, b) do _1 end},
       %q{            ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{->(x=@1) {}},
+      %q{->(x=_1) {}},
       %q{     ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{->(x: @1) {}},
+      %q{->(x: _1) {}},
       %q{      ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      %q{proc {|;a| @1}},
+      %q{proc {|;a| _1}},
       %q{           ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :ordinary_param_defined],
-      "proc {|\n| @1}",
+      "proc {|\n| _1}",
       %q{          ^^ location},
       SINCE_2_7)
   end
@@ -7448,27 +7439,56 @@ class TestParser < Minitest::Test
   def test_numparam_outside_block
     assert_diagnoses(
       [:error, :numparam_outside_block],
-      %q{class A; @1; end},
+      %q{class A; _1; end},
       %q{         ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :numparam_outside_block],
-      %q{module A; @1; end},
+      %q{module A; _1; end},
       %q{          ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :numparam_outside_block],
-      %q{class << foo; @1; end},
+      %q{class << foo; _1; end},
       %q{              ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :numparam_outside_block],
-      %q{def self.m; @1; end},
+      %q{def self.m; _1; end},
       %q{            ^^ location},
       SINCE_2_7)
+  end
+
+  def test_numparams_in_nested_blocks
+    assert_diagnoses(
+      [:error, :numparam_used_in_outer_scope],
+      %q{foo { _1; bar { _2 }; }},
+      %q{                ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :numparam_used_in_outer_scope],
+      %q{-> { _1; -> { _2 }; }},
+      %q{              ^^ location},
+      SINCE_2_7)
+
+    [
+      ['class A', 'end'],
+      ['class << foo', 'end'],
+      ['def m', 'end'],
+      ['def self.m', 'end']
+    ].each do |open_scope, close_scope|
+      refute_diagnoses(
+        "proc { _1; #{open_scope}; proc { _2 }; #{close_scope}; }",
+        SINCE_2_7)
+
+      refute_diagnoses(
+        "-> { _1; #{open_scope}; -> { _2 }; #{close_scope}; }",
+        SINCE_2_7)
+    end
   end
 
   def test_ruby_bug_15789
@@ -7480,9 +7500,9 @@ class TestParser < Minitest::Test
             s(:optarg, :a,
               s(:numblock,
                 s(:lambda), 1,
-                s(:numparam, 1)))),
+                s(:lvar, :_1)))),
           s(:lvar, :a))),
-      %q{m ->(a = ->{@1}) {a}},
+      %q{m ->(a = ->{_1}) {a}},
       %q{},
       SINCE_2_7)
 
@@ -7494,9 +7514,9 @@ class TestParser < Minitest::Test
             s(:kwoptarg, :a,
               s(:numblock,
                 s(:lambda), 1,
-                s(:numparam, 1)))),
+                s(:lvar, :_1)))),
           s(:lvar, :a))),
-      %q{m ->(a: ->{@1}) {a}},
+      %q{m ->(a: ->{_1}) {a}},
       %q{},
       SINCE_2_7)
   end

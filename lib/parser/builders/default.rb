@@ -453,11 +453,6 @@ module Parser
         variable_map(token))
     end
 
-    def numparam(token)
-      n(:numparam, [ value(token).to_i ],
-        variable_map(token))
-    end
-
     def back_ref(token)
       n(:back_ref, [ value(token).to_sym ],
         token_map(token))

@@ -67,13 +67,13 @@ module Parser
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
   require 'parser/lexer/dedenter'
-  require 'parser/lexer/max_numparam_stack'
 
   module Builders
     require 'parser/builders/default'
   end
 
   require 'parser/context'
+  require 'parser/max_numparam_stack'
 
   require 'parser/base'
 

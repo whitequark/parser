@@ -3643,25 +3643,4 @@ class TestLexer < Minitest::Test
     end
   end
 
-  def test_numbered_args_before_27
-    setup_lexer(26)
-    refute_scanned_numbered_parameter('@1')
-  end
-
-  def test_numbered_args_27
-    setup_lexer(27)
-    assert_scanned_numbered_parameter('@1')
-    assert_equal(@lex.max_numparam, 1)
-
-    setup_lexer(27)
-    assert_scanned_numbered_parameter('@9')
-    assert_equal(@lex.max_numparam, 9)
-
-    setup_lexer(27)
-    refute_scanned_numbered_parameter('@10', :too_large_numparam)
-
-    setup_lexer(27)
-    refute_scanned_numbered_parameter('@01', :leading_zero_in_numparam)
-  end
-
 end

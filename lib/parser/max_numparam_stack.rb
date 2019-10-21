@@ -2,17 +2,19 @@
 
 module Parser
 
-  class Lexer::MaxNumparamStack
+  class MaxNumparamStack
+    attr_reader :stack
+
     def initialize
       @stack = []
     end
 
-    def cant_have_numparams!
+    def has_ordinary_params!
       set(-1)
     end
 
-    def can_have_numparams?
-      top >= 0
+    def has_ordinary_params?
+      top < 0
     end
 
     def register(numparam)
