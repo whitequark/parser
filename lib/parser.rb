@@ -75,6 +75,10 @@ module Parser
   require 'parser/context'
   require 'parser/max_numparam_stack'
 
+  module Helpers
+    require 'parser/helpers/circular_argument_reference'
+  end
+
   require 'parser/base'
 
   require 'parser/rewriter'

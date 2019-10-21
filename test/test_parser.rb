@@ -2168,7 +2168,7 @@ class TestParser < Minitest::Test
         s(:lvar, :var)),
       %q{def f(var = defined?(var)) var end},
       %q{},
-      SINCE_2_1)
+      SINCE_2_7 - SINCE_2_1)
 
     assert_parses(
       s(:def, :f,
@@ -2176,7 +2176,7 @@ class TestParser < Minitest::Test
         s(:lvar, :var)),
       %q{def f(var: defined?(var)) var end},
       %q{},
-      SINCE_2_1)
+      SINCE_2_7 - SINCE_2_1)
 
     assert_parses(
       s(:block,
@@ -7660,5 +7660,72 @@ class TestParser < Minitest::Test
       %q{a #!#!.:foo!}.gsub('!', "\n"),
       %q{      ^ location},
       ALL_VERSIONS - SINCE_2_7)
+  end
+
+  def test_circular_argument_reference_error
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{def m(foo = foo) end},
+      %q{      ^^^ location
+        |            ~~~ highlights (0)},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{def m(foo: foo) end},
+      %q{      ^^^ location
+        |           ~~~ highlights (0)},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{m { |foo = foo| } },
+      %q{     ^^^ location
+        |           ~~~ highlights (0)},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{m { |foo: foo| } },
+      %q{     ^^^ location
+        |          ~~~ highlights (0)},
+      SINCE_2_7)
+
+    # Traversing
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{def m(foo = class << foo; end) end},
+      %q{      ^^^ location
+        |                     ~~~ highlights (0)},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{def m(foo = def foo.m; end); end},
+      %q{      ^^^ location
+        |                ~~~ highlights (0)},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{m { |foo = proc { 1 + foo }| } },
+      %q{     ^^^ location
+        |                      ~~~ highlights (0)},
+      SINCE_2_7)
+
+    # Valid cases
+
+    [
+      'm { |foo = class A; foo; end| }',
+      'm { |foo = class << self; foo; end| }',
+      'm { |foo = def m(foo = bar); foo; end| }',
+      'm { |foo = def m(bar = foo); foo; end| }',
+      'm { |foo = def self.m(bar = foo); foo; end| }',
+      'def m(foo = def m; foo; end) end',
+      'def m(foo = def self.m; foo; end) end',
+    ].each do |code|
+      refute_diagnoses(code, SINCE_2_7)
+    end
   end
 end
