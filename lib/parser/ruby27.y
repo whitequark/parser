@@ -2304,6 +2304,7 @@ keyword_variable: kNIL
             f_kw: f_label arg_value
                     {
                       result = @builder.kwoptarg(val[0], val[1])
+                      check_optarg_for_circular_reference(result)
                     }
                 | f_label
                     {
@@ -2313,6 +2314,7 @@ keyword_variable: kNIL
       f_block_kw: f_label primary_value
                     {
                       result = @builder.kwoptarg(val[0], val[1])
+                      check_optarg_for_circular_reference(result)
                     }
                 | f_label
                     {
@@ -2358,11 +2360,13 @@ keyword_variable: kNIL
            f_opt: f_arg_asgn tEQL arg_value
                     {
                       result = @builder.optarg(val[0], val[1], val[2])
+                      check_optarg_for_circular_reference(result)
                     }
 
      f_block_opt: f_arg_asgn tEQL primary_value
                     {
                       result = @builder.optarg(val[0], val[1], val[2])
+                      check_optarg_for_circular_reference(result)
                     }
 
   f_block_optarg: f_block_opt
@@ -2503,4 +2507,25 @@ require 'parser'
 
   def default_encoding
     Encoding::UTF_8
+  end
+
+  # @private
+  #
+  # Checks and throws an error for code like
+  #   def m(a=a); end
+  #
+  def check_optarg_for_circular_reference(node)
+    arg_name, arg_value = *node
+    checker = Parser::Helpers::CircularArgumentReference.new(arg_name) do |referencing_node|
+      @diagnostics.process(
+        Diagnostic.new(
+          :error, :circular_argument_reference,
+          { :var_name => arg_name.to_s },
+          node.loc.name,
+          [referencing_node.loc.name]
+        )
+      )
+    end
+
+    checker.process(arg_value)
   end

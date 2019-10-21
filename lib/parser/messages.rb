@@ -66,6 +66,7 @@ module Parser
     :numparam_outside_block       => 'numbered parameter outside block',
     :ordinary_param_defined       => 'ordinary parameter is defined',
     :numparam_used_in_outer_scope => 'numbered parameter is already used in an outer scope',
+    :circular_argument_reference  => 'circular argument reference %{var_name}',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',
