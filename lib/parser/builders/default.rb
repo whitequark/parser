@@ -683,6 +683,10 @@ module Parser
       n(:numargs, [ max_numparam ], nil)
     end
 
+    def forward_args(begin_t, dots_t, end_t)
+      n(:forward_args, [], collection_map(begin_t, token_map(dots_t), end_t))
+    end
+
     def arg(name_t)
       n(:arg, [ value(name_t).to_sym ],
         variable_map(name_t))
@@ -832,6 +836,10 @@ module Parser
       end
     end
 
+    def forwarded_args(dots_t)
+      n(:forwarded_args, [], token_map(dots_t))
+    end
+
     def call_method(receiver, dot_t, selector_t,
                     lparen_t=nil, args=[], rparen_t=nil)
       type = call_type_for_dot(dot_t)
@@ -861,10 +869,9 @@ module Parser
       end
 
       last_arg = call_args.last
-      if last_arg && last_arg.type == :block_pass
+      if last_arg && (last_arg.type == :block_pass || last_arg.type == :forwarded_args)
         diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
       end
-
 
       if args.type == :numargs
         block_type = :numblock

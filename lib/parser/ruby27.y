@@ -843,6 +843,14 @@ rule
                     {
                       result = val
                     }
+                | tLPAREN2 args_forward rparen
+                    {
+                      unless @static_env.declared_forward_args?
+                        diagnostic :error, :unexpected_token, { :token => 'tBDOT3' } , val[1]
+                      end
+
+                      result = [val[0], [@builder.forwarded_args(val[1])], val[2]]
+                    }
 
   opt_paren_args: # nothing
                     {
@@ -2110,6 +2118,13 @@ keyword_variable: kNIL
 
                       @lexer.state = :expr_value
                     }
+                | tLPAREN2 args_forward rparen
+                    {
+                      result = @builder.forward_args(val[0], val[1], val[2])
+                      @static_env.declare_forward_args
+
+                      @lexer.state = :expr_value
+                    }
                 |   {
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
@@ -2238,6 +2253,11 @@ keyword_variable: kNIL
                 | # nothing
                     {
                       result = []
+                    }
+
+    args_forward: tBDOT3
+                    {
+                      result = val[0]
                     }
 
        f_bad_arg: tCONSTANT

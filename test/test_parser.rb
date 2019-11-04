@@ -7728,4 +7728,131 @@ class TestParser < Minitest::Test
       refute_diagnoses(code, SINCE_2_7)
     end
   end
+
+  def test_forward_args
+    assert_parses(
+      s(:def, :foo,
+        s(:forward_args),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      %q{def foo(...); bar(...); end},
+      %q{       ~ begin (forward_args)
+        |       ~~~~~ expression (forward_args)
+        |           ~ end (forward_args)
+        |                  ~~~ expression (send.forwarded_args)},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:forward_args),
+        s(:super,
+          s(:forwarded_args))),
+      %q{def foo(...); super(...); end},
+      %q{       ~ begin (forward_args)
+        |       ~~~~~ expression (forward_args)
+        |           ~ end (forward_args)
+        |                    ~~~ expression (super.forwarded_args)},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:forward_args),
+        nil),
+      %q{def foo(...); end},
+      %q{},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :block_and_blockarg],
+      %q{def foo(...) bar(...) { }; end},
+      %q{                 ^^^ location
+        |                      ~ highlights (0)},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      %q{foo do |...| end},
+      %q{        ^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      %q{foo { |...| }},
+      %q{       ^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      %q{def foo(x,y,z); bar(...); end},
+      %q{                    ^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      %q{def foo(x,y,z); super(...); end},
+      %q{                      ^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT3' }],
+      %q{->... {}},
+      %q{  ^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      %q{->(...) {}},
+      %q{   ^^^ location},
+      SINCE_2_7)
+
+    # Here and below the parser asssumes that
+    # it can be a beginningless range, so the error comes after reducing right paren
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRPAREN' }],
+      %q{def foo(...); yield(...); end},
+      %q{                       ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRPAREN' }],
+      %q{def foo(...); return(...); end},
+      %q{                        ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRPAREN' }],
+      %q{def foo(...); a = (...); end},
+      %q{                      ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRBRACK' }],
+      %q{def foo(...); [...]; end},
+      %q{                  ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRBRACK' }],
+      %q{def foo(...) bar[...]; end},
+      %q{                    ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRBRACK' }],
+      %q{def foo(...) bar[...] = x; end},
+      %q{                    ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRPAREN' }],
+      %q{def foo(...) defined?(...); end},
+      %q{                         ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT3' }],
+      %q{def foo ...; end},
+      %q{        ^^^ location},
+      SINCE_2_7)
+  end
 end

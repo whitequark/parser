@@ -3,6 +3,8 @@
 module Parser
 
   class StaticEnvironment
+    FORWARD_ARGS = :FORWARD_ARGS
+
     def initialize
       reset
     end
@@ -40,6 +42,14 @@ module Parser
 
     def declared?(name)
       @variables.include?(name.to_sym)
+    end
+
+    def declare_forward_args
+      declare(FORWARD_ARGS)
+    end
+
+    def declared_forward_args?
+      declared?(FORWARD_ARGS)
     end
   end
 
