@@ -1125,6 +1125,36 @@ s(:numblock,
  ~~~~~~~~~~~~~~~~ expression
 ~~~
 
+## Forward arguments
+
+### Method definition accepting forwarding arguments
+
+Ruby 2.7 introduced a feature called "arguments forwarding".
+When a method takes any arguments for forwarding them in the future
+the whole `args` node gets replaced with `forward-args` node.
+
+Format:
+
+~~~
+(def :foo
+  (forward-args) nil)
+"def foo(...); end"
+            ~ end
+        ~ begin
+        ~~~~~ expression
+~~~
+
+### Method call taking arguments of the currently forwarding method
+
+Format:
+
+~~~
+(send nil :foo
+  (forwarded-args))
+"foo(...)"
+     ~~~ expression
+~~~
+
 ## Send
 
 ### To self
