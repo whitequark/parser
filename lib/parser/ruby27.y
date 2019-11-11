@@ -1208,6 +1208,7 @@ rule
                       @lexer.cmdarg.push(false)
                       @lexer.cond.push(false)
                       @context.push(:def)
+                      @current_arg_stack.push(nil)
                     }
                     f_arglist bodystmt kEND
                     {
@@ -1218,6 +1219,7 @@ rule
                       @lexer.cond.pop
                       @static_env.unextend
                       @context.pop
+                      @current_arg_stack.pop
                     }
                 | kDEF singleton dot_or_colon
                     {
@@ -1229,6 +1231,7 @@ rule
                       @lexer.cmdarg.push(false)
                       @lexer.cond.push(false)
                       @context.push(:defs)
+                      @current_arg_stack.push(nil)
                     }
                     f_arglist bodystmt kEND
                     {
@@ -1239,6 +1242,7 @@ rule
                       @lexer.cond.pop
                       @static_env.unextend
                       @context.pop
+                      @current_arg_stack.pop
                     }
                 | kBREAK
                     {
@@ -1478,6 +1482,7 @@ opt_block_args_tail:
  block_param_def: tPIPE opt_bv_decl tPIPE
                     {
                       @max_numparam_stack.has_ordinary_params!
+                      @current_arg_stack.set(nil)
                       result = @builder.args(val[0], val[1], val[2])
                     }
                 | tOROP
@@ -1488,6 +1493,7 @@ opt_block_args_tail:
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
                       @max_numparam_stack.has_ordinary_params!
+                      @current_arg_stack.set(nil)
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
 
@@ -2289,11 +2295,13 @@ keyword_variable: kNIL
 
       f_arg_asgn: f_norm_arg
                     {
+                      @current_arg_stack.set(val[0][0])
                       result = val[0]
                     }
 
       f_arg_item: f_arg_asgn
                     {
+                      @current_arg_stack.set(0)
                       result = @builder.arg(val[0])
                     }
                 | tLPAREN f_margs rparen
@@ -2318,23 +2326,25 @@ keyword_variable: kNIL
 
                       @max_numparam_stack.has_ordinary_params!
 
+                      @current_arg_stack.set(val[0][0])
+
                       result = val[0]
                     }
 
             f_kw: f_label arg_value
                     {
+                      @current_arg_stack.set(nil)
                       result = @builder.kwoptarg(val[0], val[1])
-                      check_optarg_for_circular_reference(result)
                     }
                 | f_label
                     {
+                      @current_arg_stack.set(nil)
                       result = @builder.kwarg(val[0])
                     }
 
       f_block_kw: f_label primary_value
                     {
                       result = @builder.kwoptarg(val[0], val[1])
-                      check_optarg_for_circular_reference(result)
                     }
                 | f_label
                     {
@@ -2379,14 +2389,14 @@ keyword_variable: kNIL
 
            f_opt: f_arg_asgn tEQL arg_value
                     {
+                      @current_arg_stack.set(0)
                       result = @builder.optarg(val[0], val[1], val[2])
-                      check_optarg_for_circular_reference(result)
                     }
 
      f_block_opt: f_arg_asgn tEQL primary_value
                     {
+                      @current_arg_stack.set(0)
                       result = @builder.optarg(val[0], val[1], val[2])
-                      check_optarg_for_circular_reference(result)
                     }
 
   f_block_optarg: f_block_opt
@@ -2527,25 +2537,4 @@ require 'parser'
 
   def default_encoding
     Encoding::UTF_8
-  end
-
-  # @private
-  #
-  # Checks and throws an error for code like
-  #   def m(a=a); end
-  #
-  def check_optarg_for_circular_reference(node)
-    arg_name, arg_value = *node
-    checker = Parser::Helpers::CircularArgumentReference.new(arg_name) do |referencing_node|
-      @diagnostics.process(
-        Diagnostic.new(
-          :error, :circular_argument_reference,
-          { :var_name => arg_name.to_s },
-          node.loc.name,
-          [referencing_node.loc.name]
-        )
-      )
-    end
-
-    checker.process(arg_value)
   end

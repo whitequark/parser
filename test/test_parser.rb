@@ -7666,29 +7666,31 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo = foo) end},
-      %q{      ^^^ location
-        |            ~~~ highlights (0)},
+      %q{            ^^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo: foo) end},
-      %q{      ^^^ location
-        |           ~~~ highlights (0)},
+      %q{           ^^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{m { |foo = foo| } },
-      %q{     ^^^ location
-        |           ~~~ highlights (0)},
+      %q{           ^^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{m { |foo: foo| } },
-      %q{     ^^^ location
-        |          ~~~ highlights (0)},
+      %q{          ^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :circular_argument_reference, { :var_name => 'foo' }],
+      %q{m { |foo = proc { || 1 + foo }| }},
+      %q{                         ^^^ location},
       SINCE_2_7)
 
     # Traversing
@@ -7696,22 +7698,19 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo = class << foo; end) end},
-      %q{      ^^^ location
-        |                     ~~~ highlights (0)},
+      %q{                     ^^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo = def foo.m; end); end},
-      %q{      ^^^ location
-        |                ~~~ highlights (0)},
+      %q{                ^^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{m { |foo = proc { 1 + foo }| } },
-      %q{     ^^^ location
-        |                      ~~~ highlights (0)},
+      %q{                      ^^^ location},
       SINCE_2_7)
 
     # Valid cases
@@ -7724,6 +7723,7 @@ class TestParser < Minitest::Test
       'm { |foo = def self.m(bar = foo); foo; end| }',
       'def m(foo = def m; foo; end) end',
       'def m(foo = def self.m; foo; end) end',
+      'm { |foo = proc { |bar| 1 + foo }| }'
     ].each do |code|
       refute_diagnoses(code, SINCE_2_7)
     end

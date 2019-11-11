@@ -493,6 +493,11 @@ module Parser
         name, = *node
 
         if @parser.static_env.declared?(name)
+          if name.to_s == parser.current_arg_stack.top
+            diagnostic :error, :circular_argument_reference,
+                       { :var_name => name.to_s }, node.loc.expression
+          end
+
           node.updated(:lvar)
         else
           name, = *node
