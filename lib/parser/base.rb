@@ -115,6 +115,7 @@ module Parser
     attr_reader :source_buffer
     attr_reader :context
     attr_reader :max_numparam_stack
+    attr_reader :current_arg_stack
 
     ##
     # @param [Parser::Builders::Default] builder The AST builder to use.
@@ -129,6 +130,9 @@ module Parser
 
       # Maximum numbered parameters stack
       @max_numparam_stack = MaxNumparamStack.new
+
+      # Current argument names stack
+      @current_arg_stack = CurrentArgStack.new
 
       @lexer = Lexer.new(version)
       @lexer.diagnostics = @diagnostics
@@ -157,6 +161,7 @@ module Parser
       @lexer.reset
       @static_env.reset
       @context.reset
+      @current_arg_stack.reset
 
       self
     end
