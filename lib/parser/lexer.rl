@@ -1050,6 +1050,7 @@ class Parser::Lexer
           emit(:tRCURLY, '}'.freeze, p - 1, p)
           @cond.lexpop
           @cmdarg.lexpop
+          @paren_nest -= 1
         else
           emit(:tSTRING_DEND, '}'.freeze, p - 1, p)
         end
@@ -1257,6 +1258,12 @@ class Parser::Lexer
 
   e_lbrack = '[' % {
     @cond.push(false); @cmdarg.push(false)
+
+    @paren_nest += 1
+  };
+
+  e_rbrack = ']' % {
+    @paren_nest -= 1
   };
 
   # Ruby 1.9 lambdas require parentheses counting in order to
@@ -1479,6 +1486,7 @@ class Parser::Lexer
           emit(:tLCURLY, '{'.freeze, @te - 1, @te)
         end
         @command_start = true
+        @paren_nest += 1
         fnext expr_value; fbreak;
       };
 
@@ -1639,6 +1647,7 @@ class Parser::Lexer
         else
           emit(:tLBRACE_ARG, '{'.freeze)
         end
+        @paren_nest += 1
         @command_start = true
         fnext expr_value; fbreak;
       };
@@ -1919,6 +1928,7 @@ class Parser::Lexer
         else
           emit(:tLBRACE, '{'.freeze)
         end
+        @paren_nest += 1
         fbreak;
       };
 
@@ -2354,7 +2364,7 @@ class Parser::Lexer
       => { emit_table(PUNCTUATION)
            fnext expr_beg; fbreak; };
 
-      e_rbrace | e_rparen | ']'
+      e_rbrace | e_rparen | e_rbrack
       => {
         emit_table(PUNCTUATION)
 
@@ -2390,6 +2400,17 @@ class Parser::Lexer
       e_lbrack
       => { emit(:tLBRACK2, '['.freeze)
            fnext expr_beg; fbreak; };
+
+      '...' c_nl
+      => {
+        if @paren_nest == 0
+          diagnostic :warning, :triple_dot_at_eol, nil, range(@ts, @te - 1)
+        end
+
+        emit(:tDOT3, '...'.freeze, @ts, @te - 1)
+        fhold;
+        fnext expr_beg; fbreak;
+      };
 
       punctuation_end
       => { emit_table(PUNCTUATION)
