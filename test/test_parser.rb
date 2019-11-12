@@ -7437,28 +7437,83 @@ class TestParser < Minitest::Test
   end
 
   def test_numparam_outside_block
-    assert_diagnoses(
-      [:error, :numparam_outside_block],
+    assert_parses(
+      s(:class,
+        s(:const, nil, :A), nil,
+        s(:send, nil, :_1)),
       %q{class A; _1; end},
-      %q{         ^^ location},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:module,
+        s(:const, nil, :A),
+        s(:send, nil, :_1)),
+      %q{module A; _1; end},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:sclass,
+        s(:lvar, :foo),
+        s(:send, nil, :_1)),
+      %q{class << foo; _1; end},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:defs,
+        s(:self), :m,
+        s(:args),
+        s(:send, nil, :_1)),
+      %q{def self.m; _1; end},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:send, nil, :_1),
+      %q{_1},
+      %q{},
+      SINCE_2_7)
+  end
+
+  def test_assignment_to_numparams
+    assert_parses(
+      s(:block,
+        s(:send, nil, :proc),
+        s(:args),
+        s(:lvasgn, :_1,
+          s(:nil))),
+      %q{proc {_1 = nil}},
+      %q{},
       SINCE_2_7)
 
     assert_diagnoses(
-      [:error, :numparam_outside_block],
-      %q{module A; _1; end},
+      [:error, :cant_assign_to_numparam, { :name => '_1' }],
+      %q{proc {_1; _1 = nil}},
       %q{          ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
-      [:error, :numparam_outside_block],
-      %q{class << foo; _1; end},
-      %q{              ^^ location},
+      [:error, :cant_assign_to_numparam, { :name => '_1' }],
+      %q{proc {_1; _1, foo = [nil, nil]}},
+      %q{          ^^ location},
       SINCE_2_7)
 
     assert_diagnoses(
-      [:error, :numparam_outside_block],
-      %q{def self.m; _1; end},
-      %q{            ^^ location},
+      [:error, :cant_assign_to_numparam, { :name => '_1' }],
+      %q{proc {_9; _1 = nil}},
+      %q{          ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cant_assign_to_numparam, { :name => '_9' }],
+      %q{proc {_1; _9 = nil}},
+      %q{          ^^ location},
+      SINCE_2_7)
+
+    refute_diagnoses(
+      %q{proc { _1 = nil; _1}},
       SINCE_2_7)
   end
 

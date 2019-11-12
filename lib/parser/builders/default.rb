@@ -551,6 +551,9 @@ module Parser
 
       when :ident
         name, = *node
+
+        check_assignment_to_numparam(node)
+
         @parser.static_env.declare(name)
 
         node.updated(:lvasgn)
@@ -1291,6 +1294,19 @@ module Parser
       elsif arg_name_collides?(this_name, that_name)
         diagnostic :error, :duplicate_argument, nil,
                    this_arg.loc.name, [ that_arg.loc.name ]
+      end
+    end
+
+    def check_assignment_to_numparam(node)
+      name = node.children[0].to_s
+
+      assigning_to_numparam =
+        @parser.context.in_dynamic_block? &&
+        name =~ /\A_([1-9])\z/ &&
+        @parser.max_numparam_stack.has_numparams?
+
+      if assigning_to_numparam
+        diagnostic :error, :cant_assign_to_numparam, { :name => name }, node.loc.expression
       end
     end
 
