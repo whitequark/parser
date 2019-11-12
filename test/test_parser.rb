@@ -7852,4 +7852,17 @@ class TestParser < Minitest::Test
       %q{        ^^^ location},
       SINCE_2_7)
   end
+
+  def test_erange_without_parentheses_at_eol
+    assert_diagnoses(
+      [:warning, :triple_dot_at_eol],
+      %Q{1...\n2},
+      %q{ ^^^ location},
+      SINCE_2_7)
+
+    refute_diagnoses('(1...)', SINCE_2_7)
+    refute_diagnoses("(1...\n)", SINCE_2_7)
+    refute_diagnoses("[1...\n]", SINCE_2_7)
+    refute_diagnoses("{a: 1...\n2}", SINCE_2_7)
+  end
 end
