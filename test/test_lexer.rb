@@ -1507,6 +1507,13 @@ class TestLexer < Minitest::Test
     assert_scanned "||", :tOROP, "||", [0, 2]
   end
 
+  def test_or2__after_27
+    setup_lexer(27)
+    assert_scanned("||",
+                   :tPIPE, "|", [0, 1],
+                   :tPIPE, "|", [1, 2])
+  end
+
   def test_or2_equals
     assert_scanned "||=", :tOP_ASGN, "||", [0, 3]
   end
