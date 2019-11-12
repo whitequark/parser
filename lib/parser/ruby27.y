@@ -1534,7 +1534,7 @@ opt_block_args_tail:
                     }
                   lambda_body
                     {
-                      args = @max_numparam_stack.top > 0 ? @builder.numargs(@max_numparam_stack.top) : val[1]
+                      args = @max_numparam_stack.has_numparams? ? @builder.numargs(@max_numparam_stack.top) : val[1]
                       result = [ args, val[3] ]
 
                       @max_numparam_stack.pop
@@ -1690,7 +1690,7 @@ opt_block_args_tail:
                     }
                     opt_block_param compstmt
                     {
-                      args = @max_numparam_stack.top > 0 ? @builder.numargs(@max_numparam_stack.top) : val[1]
+                      args = @max_numparam_stack.has_numparams? ? @builder.numargs(@max_numparam_stack.top) : val[1]
                       result = [ args, val[2] ]
 
                       @max_numparam_stack.pop
@@ -1706,7 +1706,7 @@ opt_block_args_tail:
                     }
                     opt_block_param bodystmt
                     {
-                      args = @max_numparam_stack.top > 0 ? @builder.numargs(@max_numparam_stack.top) : val[2]
+                      args = @max_numparam_stack.has_numparams? ? @builder.numargs(@max_numparam_stack.top) : val[2]
                       result = [ args, val[3] ]
 
                       @max_numparam_stack.pop
@@ -2039,13 +2039,9 @@ keyword_variable: kNIL
                       if (node = val[0]) && node.type == :ident
                         name = node.children[0]
 
-                        if name =~ /\A_[1-9]\z/ && !static_env.declared?(name)
+                        if name =~ /\A_[1-9]\z/ && !static_env.declared?(name) && context.in_dynamic_block?
                           # definitely an implicit param
                           location = node.loc.expression
-
-                          if !context.in_block? && !context.in_lambda?
-                            diagnostic :error, :numparam_outside_block, nil, [nil, location]
-                          end
 
                           if max_numparam_stack.has_ordinary_params?
                             diagnostic :error, :ordinary_param_defined, nil, [nil, location]

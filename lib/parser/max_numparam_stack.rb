@@ -17,6 +17,10 @@ module Parser
       top < 0
     end
 
+    def has_numparams?
+      top > 0
+    end
+
     def register(numparam)
       set( [top, numparam].max )
     end

@@ -55,5 +55,9 @@ module Parser
     def in_lambda?
       @stack.last == :lambda
     end
+
+    def in_dynamic_block?
+      in_block? || in_lambda?
+    end
   end
 end
