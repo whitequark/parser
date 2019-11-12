@@ -269,6 +269,13 @@ follows 2.1 behavior.
 
 No known code is affected by this issue.
 
+### EOF characters after embedded documents before 2.7
+
+Code like `"=begin\n""=end\0"` is invalid for all versions of Ruby before 2.7. Ruby 2.7 and later parses it
+normally. Parser follows 2.7 behavior.
+
+It is unknown whether any gems are affected by this issue.
+
 ## Contributors
 
 * [whitequark][]

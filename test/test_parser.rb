@@ -7865,4 +7865,23 @@ class TestParser < Minitest::Test
     refute_diagnoses("[1...\n]", SINCE_2_7)
     refute_diagnoses("{a: 1...\n2}", SINCE_2_7)
   end
+
+  def test_embedded_document_with_eof
+    refute_diagnoses("=begin\n""=end", SINCE_2_7)
+    refute_diagnoses("=begin\n""=end\0", SINCE_2_7)
+    refute_diagnoses("=begin\n""=end\C-d", SINCE_2_7)
+    refute_diagnoses("=begin\n""=end\C-z", SINCE_2_7)
+
+    assert_diagnoses(
+      [:fatal, :embedded_document],
+      "=begin\n",
+      %q{},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:fatal, :embedded_document],
+      "=begin",
+      %q{},
+      SINCE_2_7)
+  end
 end
