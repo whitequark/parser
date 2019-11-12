@@ -17,7 +17,7 @@ token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       tWORDS_BEG tQWORDS_BEG tSYMBOLS_BEG tQSYMBOLS_BEG tSTRING_DBEG
       tSTRING_DVAR tSTRING_END tSTRING_DEND tSTRING tSYMBOL
       tNL tEH tCOLON tCOMMA tSPACE tSEMI tLAMBDA tLAMBEG tCHARACTER
-      tRATIONAL tIMAGINARY tLABEL_END tANDDOT tMETHREF tBDOT2 tBDOT3
+      tRATIONAL tIMAGINARY tLABEL_END tANDDOT tBDOT2 tBDOT3
 
 prechigh
   right    tBANG tTILDE tUPLUS
@@ -1259,10 +1259,6 @@ rule
                 | kRETRY
                     {
                       result = @builder.keyword_cmd(:retry, val[0])
-                    }
-                | primary_value tMETHREF operation2
-                    {
-                      result = @builder.method_ref(val[0], val[1], val[2])
                     }
 
    primary_value: primary

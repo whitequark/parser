@@ -7214,52 +7214,6 @@ class TestParser < Minitest::Test
     end
   end
 
-  def test_meth_ref__27
-    assert_parses(
-      s(:meth_ref, s(:lvar, :foo), :bar),
-      %q{foo.:bar},
-      %q{   ^^ dot
-        |     ~~~ selector
-        |~~~~~~~~ expression},
-      SINCE_2_7)
-
-    assert_parses(
-      s(:meth_ref, s(:lvar, :foo), :+@),
-      %q{foo.:+@},
-      %q{   ^^ dot
-        |     ~~ selector
-        |~~~~~~~ expression},
-      SINCE_2_7)
-  end
-
-  def test_meth_ref__before_27
-    assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tCOLON' }],
-      %q{foo.:bar},
-      %q{    ^ location },
-      ALL_VERSIONS - SINCE_2_7)
-
-    assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tCOLON' }],
-      %q{foo.:+@},
-      %q{    ^ location },
-      ALL_VERSIONS - SINCE_2_7)
-  end
-
-  def test_meth_ref_unsupported_newlines
-    assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tCOLON' }],
-      %Q{foo. :+},
-      %q{     ^ location},
-      SINCE_2_7)
-
-    assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tCOLON' }],
-      %Q{foo.: +},
-      %q{    ^ location},
-      SINCE_2_7)
-  end
-
   def test_unterimated_heredoc_id__27
     assert_diagnoses(
       [:error, :unterminated_heredoc_id],
@@ -7686,13 +7640,6 @@ class TestParser < Minitest::Test
       s(:csend,
         s(:send, nil, :a), :foo),
       %Q{a #\n#\n&.foo\n},
-      %q{},
-      SINCE_2_7)
-
-    assert_parses(
-      s(:meth_ref,
-        s(:send, nil, :a), :foo),
-      %Q{a #\n#\n.:foo\n},
       %q{},
       SINCE_2_7)
   end
