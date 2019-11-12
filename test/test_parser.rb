@@ -2477,7 +2477,7 @@ class TestParser < Minitest::Test
       %Q{|;\na\n|},
       SINCE_2_0)
 
-    # tOROP
+    # tOROP before 2.7 / tPIPE+tPIPE after
     assert_parses_blockargs(
       s(:args),
       %q{||})
@@ -7689,12 +7689,6 @@ class TestParser < Minitest::Test
       %q{          ^^^ location},
       SINCE_2_7)
 
-    assert_diagnoses(
-      [:error, :circular_argument_reference, { :var_name => 'foo' }],
-      %q{m { |foo = proc { || 1 + foo }| }},
-      %q{                         ^^^ location},
-      SINCE_2_7)
-
     # Traversing
 
     assert_diagnoses(
@@ -7725,7 +7719,8 @@ class TestParser < Minitest::Test
       'm { |foo = def self.m(bar = foo); foo; end| }',
       'def m(foo = def m; foo; end) end',
       'def m(foo = def self.m; foo; end) end',
-      'm { |foo = proc { |bar| 1 + foo }| }'
+      'm { |foo = proc { |bar| 1 + foo }| }',
+      'm { |foo = proc { || 1 + foo }| }'
     ].each do |code|
       refute_diagnoses(code, SINCE_2_7)
     end

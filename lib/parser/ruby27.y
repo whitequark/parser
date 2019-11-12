@@ -1481,11 +1481,6 @@ opt_block_args_tail:
                       @current_arg_stack.set(nil)
                       result = @builder.args(val[0], val[1], val[2])
                     }
-                | tOROP
-                    {
-                      @max_numparam_stack.has_ordinary_params!
-                      result = @builder.args(val[0], [], val[0])
-                    }
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
                       @max_numparam_stack.has_ordinary_params!

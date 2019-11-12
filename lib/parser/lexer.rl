@@ -1888,6 +1888,24 @@ class Parser::Lexer
       };
 
       #
+      # AMBIGUOUS EMPTY BLOCK ARGUMENTS
+      #
+
+      # Ruby >= 2.7 emits it as two tPIPE terminals
+      # while Ruby < 2.7 as a single tOROP (like in `a || b`)
+      '||'
+      => {
+        if @version >= 27
+          emit(:tPIPE, tok(@ts, @ts + 1), @ts, @ts + 1)
+          fhold;
+          fnext expr_beg; fbreak;
+        else
+          p -= 2
+          fgoto expr_end;
+        end
+      };
+
+      #
       # KEYWORDS AND PUNCTUATION
       #
 
