@@ -236,6 +236,21 @@ module Parser
       alias on_preexe   process_regular_node
       alias on_postexe  process_regular_node
 
+      alias on_case_match              process_regular_node
+      alias on_in_match                process_regular_node
+      alias on_in_pattern              process_regular_node
+      alias on_if_guard                process_regular_node
+      alias on_unless_guard            process_regular_node
+      alias on_match_var               process_variable_node
+      alias on_match_rest              process_regular_node
+      alias on_pin                     process_regular_node
+      alias on_match_alt               process_regular_node
+      alias on_match_as                process_regular_node
+      alias on_array_pattern           process_regular_node
+      alias on_array_pattern_with_tail process_regular_node
+      alias on_hash_pattern            process_regular_node
+      alias on_const_pattern           process_regular_node
+
       # @private
       def process_variable_node(node)
         warn 'Parser::AST::Processor#process_variable_node is deprecated as a' \

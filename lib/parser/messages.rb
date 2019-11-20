@@ -68,6 +68,10 @@ module Parser
     :ordinary_param_defined       => 'ordinary parameter is defined',
     :numparam_used_in_outer_scope => 'numbered parameter is already used in an outer scope',
     :circular_argument_reference  => 'circular argument reference %{var_name}',
+    :pm_interp_in_var_name        => 'symbol literal with interpolation is not allowed',
+    :lvar_name                    => "`%{name}' is not allowed as a local variable name",
+    :duplicate_variable_name      => 'duplicate variable name %{name}',
+    :duplicate_pattern_key        => 'duplicate hash pattern key %{name}',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',

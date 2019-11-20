@@ -95,7 +95,7 @@ class Parser::Lexer
   attr_accessor :static_env
   attr_accessor :force_utf32
 
-  attr_accessor :cond, :cmdarg, :in_kwarg, :context
+  attr_accessor :cond, :cmdarg, :in_kwarg, :context, :command_start
 
   attr_accessor :tokens, :comments
 

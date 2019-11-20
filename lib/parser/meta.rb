@@ -27,6 +27,10 @@ module Parser
         restarg_expr blockarg_expr
         objc_kwarg objc_restarg objc_varargs
         numargs numblock forward_args forwarded_args
+        case_match in_match in_pattern
+        match_var pin match_alt match_as match_rest
+        array_pattern match_with_trailing_comma array_pattern_with_tail
+        hash_pattern const_pattern if_guard unless_guard match_nil_pattern
       ).map(&:to_sym).to_set.freeze
 
   end # Meta
