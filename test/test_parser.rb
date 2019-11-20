@@ -7884,4 +7884,425 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_2_7)
   end
+
+  def test_interp_digit_var
+    # '#@1'
+    assert_parses(
+      s(:str, '#@1'),
+      %q{ '#@1' },
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:str, '#@@1'),
+      %q{ '#@@1' },
+      %q{},
+      ALL_VERSIONS)
+
+    # <<-'HERE'
+    #   #@1
+    # HERE
+    assert_parses(
+      s(:str, '#@1' + "\n"),
+      %q{<<-'HERE'!#@1!HERE}.gsub('!', "\n"),
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:str, '#@@1' + "\n"),
+      %q{<<-'HERE'!#@@1!HERE}.gsub('!', "\n"),
+      %q{},
+      ALL_VERSIONS)
+
+    # %q{#@1}
+    assert_parses(
+      s(:str, '#@1'),
+      %q{ %q{#@1} },
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:str, '#@@1'),
+      %q{ %q{#@@1} },
+      %q{},
+      ALL_VERSIONS)
+
+    # "#@1"
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ "#@1" },
+      %q{   ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ "#@@1" },
+      %q{   ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@1'),
+      %q{ "#@1" },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@@1'),
+      %q{ "#@@1" },
+      %q{},
+      SINCE_2_7)
+
+    # <<-"HERE"
+    #   #@1
+    # HERE
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ <<-"HERE"!#@1!HERE }.gsub('!', "\n"),
+      %q{            ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ <<-"HERE"!#@@1!HERE }.gsub('!', "\n"),
+      %q{            ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@1' + "\n"),
+      %q{<<-"HERE"!#@1!HERE}.gsub('!', "\n"),
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@@1' + "\n"),
+      %q{<<-"HERE"!#@@1!HERE}.gsub('!', "\n"),
+      %q{},
+      SINCE_2_7)
+
+    # %{#@1}
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ %{#@1} },
+      %q{    ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ %{#@@1} },
+      %q{    ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@1'),
+      %q{ %{#@1} },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@@1'),
+      %q{ %{#@@1} },
+      %q{},
+      SINCE_2_7)
+
+    # %Q{#@1}
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ %Q{#@1} },
+      %q{     ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ %Q{#@@1} },
+      %q{     ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@1'),
+      %q{ %Q{#@1} },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:str, '#@@1'),
+      %q{ %Q{#@@1} },
+      %q{},
+      SINCE_2_7)
+
+    # %w[#@1]
+    assert_parses(
+      s(:array,
+        s(:str, '#@1')),
+      %q{ %w[ #@1 ] },
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:array,
+        s(:str, '#@@1')),
+      %q{ %w[ #@@1 ] },
+      %q{},
+      ALL_VERSIONS)
+
+    # %W[#@1]
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ %W[#@1] },
+      %q{     ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ %W[#@@1] },
+      %q{     ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:array,
+        s(:str, '#@1')),
+      %q{ %W[#@1] },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:array,
+        s(:str, '#@@1')),
+      %q{ %W[#@@1] },
+      %q{},
+      SINCE_2_7)
+
+    # %i[#@1]
+    assert_parses(
+      s(:array,
+        s(:sym, :'#@1')),
+      %q{ %i[ #@1 ] },
+      %q{},
+      SINCE_2_0)
+
+    assert_parses(
+      s(:array,
+        s(:sym, :'#@@1')),
+      %q{ %i[ #@@1 ] },
+      %q{},
+      SINCE_2_0)
+
+    # %I[#@1]
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ %I[#@1] },
+      %q{     ^^ location},
+      SINCE_2_0 - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ %I[#@@1] },
+      %q{     ^^^ location},
+      SINCE_2_0 - SINCE_2_7)
+
+    assert_parses(
+      s(:array,
+        s(:sym, :'#@1')),
+      %q{ %I[#@1] },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:array,
+        s(:sym, :'#@@1')),
+      %q{ %I[#@@1] },
+      %q{},
+      SINCE_2_7)
+
+    # :'#@1'
+    assert_parses(
+      s(:sym, :'#@1'),
+      %q{ :'#@1' },
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:sym, :'#@@1'),
+      %q{ :'#@@1' },
+      %q{},
+      ALL_VERSIONS)
+
+    # %s{#@1}
+    assert_parses(
+      s(:sym, :'#@1'),
+      %q{ %s{#@1} },
+      %q{},
+      ALL_VERSIONS)
+
+    assert_parses(
+      s(:sym, :'#@@1'),
+      %q{ %s{#@@1} },
+      %q{},
+      ALL_VERSIONS)
+
+    # :"#@1"
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ :"#@1" },
+      %q{    ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ :"#@@1" },
+      %q{    ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:sym, :'#@1'),
+      %q{ :"#@1" },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:sym, :'#@@1'),
+      %q{ :"#@@1" },
+      %q{},
+      SINCE_2_7)
+
+    # /#@1/
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ /#@1/ },
+      %q{   ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ /#@@1/ },
+      %q{   ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:regexp,
+        s(:str, '#@1'),
+        s(:regopt)),
+      %q{ /#@1/ },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:regexp,
+        s(:str, '#@@1'),
+        s(:regopt)),
+      %q{ /#@@1/ },
+      %q{},
+      SINCE_2_7)
+
+    # %r{#@1}
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ %r{#@1} },
+      %q{     ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ %r{#@@1} },
+      %q{     ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:regexp,
+        s(:str, '#@1'),
+        s(:regopt)),
+      %q{ %r{#@1} },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:regexp,
+        s(:str, '#@@1'),
+        s(:regopt)),
+      %q{ %r{#@@1} },
+      %q{},
+      SINCE_2_7)
+
+    # %x{#@1}
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ %x{#@1} },
+      %q{     ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ %x{#@@1} },
+      %q{     ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:xstr,
+        s(:str, '#@1')),
+      %q{ %x{#@1} },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:xstr,
+        s(:str, '#@@1')),
+      %q{ %x{#@@1} },
+      %q{},
+      SINCE_2_7)
+
+    # `#@1`
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ `#@1` },
+      %q{   ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ `#@@1` },
+      %q{   ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:xstr,
+        s(:str, '#@1')),
+      %q{ `#@1` },
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:xstr,
+        s(:str, '#@@1')),
+      %q{ `#@@1` },
+      %q{},
+      SINCE_2_7)
+
+    # <<-`HERE`
+    #   #@1
+    # HERE
+    assert_diagnoses(
+      [:error, :ivar_name, { :name => '@1' }],
+      %q{ <<-`HERE`!#@1!HERE }.gsub('!', "\n"),
+      %q{            ^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :cvar_name, { :name => '@@1' }],
+      %q{ <<-`HERE`!#@@1!HERE }.gsub('!', "\n"),
+      %q{            ^^^ location},
+      ALL_VERSIONS - SINCE_2_7)
+
+    assert_parses(
+      s(:xstr,
+        s(:str, '#@1' + "\n")),
+      %q{<<-`HERE`!#@1!HERE}.gsub('!', "\n"),
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:xstr,
+        s(:str, '#@@1' + "\n")),
+      %q{<<-`HERE`!#@@1!HERE}.gsub('!', "\n"),
+      %q{},
+      SINCE_2_7)
+  end
 end
