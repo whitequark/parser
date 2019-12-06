@@ -324,7 +324,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :p,
         s(:dstr,
-          s(:str, "x\n"),
+          s(:str, "\tx\n"),
           s(:str, "y\n"))),
       %Q{p <<~E\n\tx\n    y\nE},
       %q{},
@@ -428,6 +428,14 @@ class TestParser < Minitest::Test
             s(:str, "  y")),
           s(:str, "\n"))),
       %Q{p <<~"E"\n    x\n  \#{"  y"}\nE},
+      %q{},
+      SINCE_2_3)
+  end
+
+  def test_parser_bug_640
+    assert_parses(
+      s(:str, "bazqux\n"),
+      %Q{<<~FOO\n  baz\\\n  qux\nFOO},
       %q{},
       SINCE_2_3)
   end
