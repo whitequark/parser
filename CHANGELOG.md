@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2019-12-26)
--------------------------
+v2.7.0.0 (2019-12-26)
+---------------------
 
 API modifications:
  * README.md: documented compatibility issue with EOF chars after… (#637) (Ilya Bylich)
