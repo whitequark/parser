@@ -1,6 +1,27 @@
 Changelog
 =========
 
+Not released (2019-12-26)
+-------------------------
+
+API modifications:
+ * README.md: documented compatibility issue with EOF chars after… (#637) (Ilya Bylich)
+ * ruby27.y: refactor logic around 'circular argument reference'(#628) (Ilya Bylich)
+
+Features implemented:
+ * ruby27.y: added pattern matching (#574) (Ilya Bylich)
+ * lexer.rl: parse embedded ivars/cvars starting with digit as str (#639) (Ilya Bylich)
+ * lexer.rl: warn on `...` at EOL. (#636) (Ilya Bylich)
+ * ruby27.y: removed opt_block_args_tail: tOROP rule. (#635) (Ilya Bylich)
+ * ruby27.y: reverted method reference operator (added in #634) (Ilya Bylich)
+ * ruby27.y: treat numparams as locals outside numblock. (#633) (Ilya Bylich)
+
+Bugs fixed:
+ * dedenter.rb: fixed over-dedenting of squiggly heredocs (#641) (Ilya Bylich)
+ * ruby27.y: added "arguments forwarding" (#625) (Ilya Bylich)
+ * ruby27.y: reject circular argument reference. (#622) (Ilya Bylich)
+ * ruby27.y: changed prefix of numparams to "_" (#620) (Ilya Bylich)
+
 v2.6.5.0 (2019-10-03)
 ---------------------
 
