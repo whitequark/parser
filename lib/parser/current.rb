@@ -75,7 +75,7 @@ module Parser
     CurrentRuby = Ruby26
 
   when /^2\.7\./
-    current_version = '2.7.0-dev'
+    current_version = '2.7.0'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby27', current_version
     end
@@ -85,8 +85,8 @@ module Parser
 
   else # :nocov:
     # Keep this in sync with released Ruby.
-    warn_syntax_deviation 'parser/ruby26', '2.6.x'
-    require 'parser/ruby26'
-    CurrentRuby = Ruby26
+    warn_syntax_deviation 'parser/ruby27', '2.7.x'
+    require 'parser/ruby27'
+    CurrentRuby = Ruby27
   end
 end
