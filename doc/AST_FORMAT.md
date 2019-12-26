@@ -1821,3 +1821,322 @@ Format:
 "__ENCODING__"
  ~~~~~~~~~~~~ expression
 ~~~
+
+## Pattern matching
+
+### Using `in` modifier
+
+Format:
+
+~~~
+(in-match
+  (int 1)
+  (match-var :a))
+"1 in a"
+   ~~ operator
+ ~~~~~~ expression
+~~~
+
+### Case with pattern matching
+
+#### Without else
+
+Format:
+
+~~~
+(case-match
+  (str "str")
+  (in-pattern
+    (match-var :foo)
+    (lvar :bar)) nil)
+"case "str"; in foo; bar; end"
+ ~~~~ keyword             ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+~~~
+
+#### With else
+
+Format:
+
+~~~
+(case-match,
+  (str "str")
+  (in-pattern
+    (match-var :foo)
+    (lvar :bar))
+  (lvar :baz))
+"case "str"; in foo; bar; else; baz; end"
+ ~~~~ keyword             ~~~~ else  ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+~~~
+
+### In clause
+
+Format:
+
+~~~
+(in-pattern
+  (match-var :foo)
+  (lvar :bar))
+"in foo then bar"
+ ~~ keyword
+        ~~~~ begin
+ ~~~~~~~~~~~~~~~ expression
+~~~
+
+### If guard
+
+This guard runs after matching, so it's not an `if` modifier.
+
+Format:
+
+~~~
+(in-pattern
+  (match-var :foo)
+  (if-guard
+    (lvar :bar)) nil)
+"in foo if bar"
+        ~~ keyword
+        ~~~~~~ expression
+~~~
+
+### Unless guard
+
+This guard runs after matching, so it's not an `unless` modifier.
+
+Format:
+
+~~~
+(in-pattern
+  (match-var :foo)
+  (unless-guard
+    (lvar :bar)) nil)
+"in foo unless bar"
+        ~~~~~~ keyword
+        ~~~~~~~~~~ expression
+~~~
+
+### Match variable
+
+Format:
+
+~~~
+(match-var :foo)
+"in foo"
+    ~~~ name
+    ~~~ expression
+~~~
+
+### Match rest
+
+#### With name
+
+Format:
+
+~~~
+(match-rest
+  (match-var :foo))
+"in *foo"
+    ~ operator
+    ~~~~ expression
+~~~
+
+#### Without name
+
+Format:
+
+~~~
+(match-rest)
+"in *"
+    ~ operator
+    ~ expression
+~~~
+
+### Pin operator
+
+Format:
+
+~~~
+(pin
+  (lvar :foo))
+"in ^foo"
+    ~ selector
+    ~~~~ expression
+~~~
+
+### Match alternative
+
+Format:
+
+~~~
+(match-alt
+  (pin
+    (lvar :foo))
+  (int 1))
+"in ^foo | 1"
+         ~ operator
+    ~~~~~~~~ expression
+~~~
+
+### Match with alias
+
+Format:
+
+~~~
+(match-as
+  (int 1)
+  (match-var :foo))
+"in 1 => foo"
+      ~~ operator
+    ~~~~~~~~ expression
+~~~
+
+### Match using array pattern
+
+#### Explicit
+
+Format:
+
+~~~
+(array-pattern
+  (pin
+    (lvar :foo))
+  (match-var :bar))
+"in [^foo, bar]"
+    ~ begin   ~ end
+    ~~~~~~~~~~~ expression
+~~~
+
+#### Explicit with tail
+
+Adding a trailing comma in the end works as `, *`
+
+Format:
+
+~~~
+(array-pattern-with-tail
+  (pin
+    (lvar :foo))
+  (match-var :bar))
+"in [^foo, bar,]"
+    ~ begin    ~ end
+    ~~~~~~~~~~~~ expression
+~~~
+
+#### Implicit
+
+Format:
+
+~~~
+(array-pattern
+  (pin
+    (lvar :foo))
+  (match-var :bar))
+"in ^foo, bar"
+    ~~~~~~~~~ expression
+~~~
+
+#### Implicit with tail
+
+Format:
+
+Adding a trailing comma in the end works as `, *`,
+so a single item match with comma gets interpreted as an array.
+
+~~~
+(array-pattern-with-tail
+  (match-var :foo))
+"in foo,"
+    ~~~ expression
+~~~
+
+### Matching using hash pattern
+
+#### Explicit
+
+Format:
+
+~~~
+(hash-pattern
+  (pair
+    (sym :a)
+    (int 10)))
+"in { a: 10 }"
+    ~ begin ~ end
+    ~~~~~~~~~ expression
+~~~
+
+#### Implicit
+
+Format:
+
+~~~
+(hash-pattern
+  (pair
+    (sym :a)
+    (int 10)))
+"in a: 10"
+    ~~~~~ expression
+~~~
+
+#### Assignment using hash pattern
+
+Format:
+
+~~~
+(hash-pattern
+  (match-var :a))
+"in a:"
+    ~ name (match-var)
+    ~~ expression (match-var)
+~~~
+
+#### Nil hash pattern
+
+Format:
+~~~
+(hash-pattern
+  (match-nil-pattern))
+"in **nil"
+    ~~~~~ expression (match-nil-pattern)
+      ~~~ name (match-nil-pattern)
+~~~
+
+### Matching using const pattern
+
+#### With array pattern
+
+Format:
+
+~~~
+(const-pattern
+  (const nil :X)
+  (array-pattern
+    (pin
+      (lvar :foo))
+    (match-var :bar)))
+"in X[^foo bar]"
+     ~ begin (const-pattern)
+               ~ end (const-pattern)
+     ~~~~~~~~~~~ expression (const-pattern)
+    ~ name (const-pattern.const)
+    ~ expression (const-pattern.const)
+~~~
+
+#### With hash pattern
+
+Format:
+
+~~~
+(const-pattern
+  (const nil :X)
+  (hash-pattern
+    (match-var :foo)
+    (match-var :bar)))
+"in X[foo:, bar:]"
+     ~ begin (const-pattern)
+                ~ end (const-pattern)
+     ~~~~~~~~~~~~ expression (const-pattern)
+    ~ name (const-pattern.const)
+    ~ expression (const-pattern.const)
+~~~

@@ -39,7 +39,7 @@ prechigh
   nonassoc kDEFINED
   right    kNOT
   left     kOR kAND
-  nonassoc kIF_MOD kUNLESS_MOD kWHILE_MOD kUNTIL_MOD
+  nonassoc kIF_MOD kUNLESS_MOD kWHILE_MOD kUNTIL_MOD kIN
   nonassoc tLBRACE_ARG
   nonassoc tLOWEST
 preclow
@@ -283,7 +283,21 @@ rule
                     {
                       result = @builder.not_op(val[0], nil, val[1], nil)
                     }
-                | arg
+                | arg kIN
+                    {
+                      @lexer.state = :expr_beg
+                      @lexer.command_start = false
+                      pattern_variables.push
+
+                      result = @lexer.in_kwarg
+                      @lexer.in_kwarg = true
+                    }
+                  p_expr
+                    {
+                      @lexer.in_kwarg = val[2]
+                      result = @builder.in_match(val[0], val[1], val[3])
+                    }
+                | arg =tLBRACE_ARG
 
       expr_value: expr
 
@@ -1141,6 +1155,14 @@ rule
                                              when_bodies, else_t, else_body,
                                              val[3])
                     }
+                | kCASE expr_value opt_terms p_case_body kEND
+                    {
+                      *in_bodies, (else_t, else_body) = *val[3]
+
+                      result = @builder.case_match(val[0], val[1],
+                                             in_bodies, else_t, else_body,
+                                             val[4])
+                    }
                 | kFOR for_var kIN expr_value_do compstmt kEND
                     {
                       result = @builder.for(val[0], val[1], val[2], *val[3], val[4], val[5])
@@ -1716,6 +1738,380 @@ opt_block_args_tail:
                       result = [ val[0] ]
                     }
                 | case_body
+
+     p_case_body: kIN
+                    {
+                      @lexer.state = :expr_beg
+                      @lexer.command_start = false
+                      @pattern_variables.push
+                      @pattern_hash_keys.push
+
+                      result = @lexer.in_kwarg
+                      @lexer.in_kwarg = true
+                    }
+                  p_top_expr then
+                    {
+                      @lexer.in_kwarg = val[1]
+                    }
+                  compstmt p_cases
+                    {
+                      result = [ @builder.in_pattern(val[0], *val[2], val[3], val[5]),
+                                 *val[6] ]
+                    }
+
+         p_cases: opt_else
+                    {
+                      result = [ val[0] ]
+                    }
+                | p_case_body
+
+      p_top_expr: p_top_expr_body
+                    {
+                      result = [ val[0], nil ]
+                    }
+                | p_top_expr_body kIF_MOD expr_value
+                    {
+                      result = [ val[0], @builder.if_guard(val[1], val[2]) ]
+                    }
+                | p_top_expr_body kUNLESS_MOD expr_value
+                    {
+                      result = [ val[0], @builder.unless_guard(val[1], val[2]) ]
+                    }
+
+ p_top_expr_body: p_expr
+                | p_expr tCOMMA
+                    {
+                      # array patterns that end with comma
+                      # like 1, 2,
+                      # must be emitted as `array_pattern_with_tail`
+                      item = @builder.match_with_trailing_comma(val[0])
+                      result = @builder.array_pattern(nil, [ item ], nil)
+                    }
+                | p_expr tCOMMA p_args
+                    {
+                      result = @builder.array_pattern(nil, [val[0]].concat(val[2]), nil)
+                    }
+                | p_args_tail
+                    {
+                      result = @builder.array_pattern(nil, val[0], nil)
+                    }
+                | p_kwargs
+                    {
+                      result = @builder.hash_pattern(nil, val[0], nil)
+                    }
+
+          p_expr: p_as
+
+            p_as: p_expr tASSOC p_variable
+                    {
+                      result = @builder.match_as(val[0], val[1], val[2])
+                    }
+                | p_alt
+
+           p_alt: p_alt tPIPE p_expr_basic
+                    {
+                      result = @builder.match_alt(val[0], val[1], val[2])
+                    }
+                | p_expr_basic
+
+        p_lparen: tLPAREN2
+                    {
+                      result = val[0]
+                      @pattern_hash_keys.push
+                    }
+
+      p_lbracket: tLBRACK2
+                    {
+                      result = val[0]
+                      @pattern_hash_keys.push
+                    }
+
+    p_expr_basic: p_value
+                | p_const p_lparen p_args rparen
+                    {
+                      @pattern_hash_keys.pop
+                      pattern = @builder.array_pattern(nil, val[2], nil)
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[3])
+                    }
+                | p_const p_lparen p_kwargs rparen
+                    {
+                      @pattern_hash_keys.pop
+                      pattern = @builder.hash_pattern(nil, val[2], nil)
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[3])
+                    }
+                | p_const tLPAREN2 rparen
+                    {
+                      result = @builder.const_pattern(val[0], val[1], nil, val[2])
+                    }
+                | p_const p_lbracket p_args rbracket
+                    {
+                      @pattern_hash_keys.pop
+                      pattern = @builder.array_pattern(nil, val[2], nil)
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[3])
+                    }
+                | p_const p_lbracket p_kwargs rbracket
+                    {
+                      @pattern_hash_keys.pop
+                      pattern = @builder.hash_pattern(nil, val[2], nil)
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[3])
+                    }
+                | p_const tLBRACK2 rbracket
+                    {
+                      result = @builder.const_pattern(val[0], val[1], nil, val[2])
+                    }
+                | tLBRACK
+                    {
+                      @pattern_hash_keys.push
+                    }
+                  p_args rbracket
+                    {
+                      @pattern_hash_keys.pop
+                      result = @builder.array_pattern(val[0], val[2], val[3])
+                    }
+                | tLBRACK rbracket
+                    {
+                      result = @builder.array_pattern(val[0], [], val[1])
+                    }
+                | tLBRACE
+                    {
+                      @pattern_hash_keys.push
+                    }
+                  p_kwargs tRCURLY
+                    {
+                      @pattern_hash_keys.pop
+                      result = @builder.hash_pattern(val[0], val[2], val[3])
+                    }
+                | tLBRACE tRCURLY
+                    {
+                      result = @builder.hash_pattern(val[0], [], val[1])
+                    }
+                | tLPAREN
+                    {
+                      @pattern_hash_keys.push
+                    }
+                  p_expr rparen
+                    {
+                      @pattern_hash_keys.pop
+                      result = @builder.begin(val[0], val[2], val[3])
+                    }
+
+          p_args: p_expr
+                    {
+                      result = [ val[0] ]
+                    }
+                | p_args_head
+                    {
+                      result = val[0]
+                    }
+                | p_args_head p_arg
+                    {
+                      result = [ *val[0], val[1] ]
+                    }
+                | p_args_head tSTAR tIDENTIFIER
+                    {
+                      match_rest = @builder.match_rest(val[1], val[2])
+                      result = [ *val[0], match_rest ]
+                    }
+                | p_args_head tSTAR tIDENTIFIER tCOMMA p_args_post
+                    {
+                      match_rest = @builder.match_rest(val[1], val[2])
+                      result = [ *val[0], match_rest, *val[4] ]
+                    }
+                | p_args_head tSTAR
+                    {
+                      result = [ *val[0], @builder.match_rest(val[1]) ]
+                    }
+                | p_args_head tSTAR tCOMMA p_args_post
+                    {
+                      result = [ *val[0], @builder.match_rest(val[1]), *val[3] ]
+                    }
+                | p_args_tail
+
+     p_args_head: p_arg tCOMMA
+                    {
+                      # array patterns that end with comma
+                      # like [1, 2,]
+                      # must be emitted as `array_pattern_with_tail`
+                      item = @builder.match_with_trailing_comma(val[0])
+                      result = [ item ]
+                    }
+                | p_args_head p_arg tCOMMA
+                    {
+                      # array patterns that end with comma
+                      # like [1, 2,]
+                      # must be emitted as `array_pattern_with_tail`
+                      last_item = @builder.match_with_trailing_comma(val[1])
+                      result = [ *val[0], last_item ]
+                    }
+
+     p_args_tail: tSTAR tIDENTIFIER
+                    {
+                      match_rest = @builder.match_rest(val[0], val[1])
+                      result = [ match_rest ]
+                    }
+                | tSTAR tIDENTIFIER tCOMMA p_args_post
+                    {
+                      match_rest = @builder.match_rest(val[0], val[1])
+                      result = [ match_rest, *val[3] ]
+                    }
+                | tSTAR
+                    {
+                      match_rest = @builder.match_rest(val[0])
+                      result = [ match_rest ]
+                    }
+                | tSTAR tCOMMA p_args_post
+                    {
+                      match_rest = @builder.match_rest(val[0])
+                      result = [ match_rest, *val[2] ]
+                    }
+
+     p_args_post: p_arg
+                    {
+                      result = [ val[0] ]
+                    }
+                | p_args_post tCOMMA p_arg
+                    {
+                      result = [ *val[0], val[2] ]
+                    }
+
+           p_arg: p_expr
+
+        p_kwargs: p_kwarg tCOMMA p_kwrest
+                    {
+                      result = [ *val[0], *val[2] ]
+                    }
+                | p_kwarg
+                    {
+                      result = val[0]
+                    }
+                | p_kwrest
+                    {
+                      result = val[0]
+                    }
+                | p_kwarg tCOMMA p_kwnorest
+                    {
+                      result = [ *val[0], *val[2] ]
+                    }
+                | p_kwnorest
+                    {
+                      result = [ *val[0], *val[2] ]
+                    }
+
+         p_kwarg: p_kw
+                    {
+                      result = [ val[0] ]
+                    }
+                | p_kwarg tCOMMA p_kw
+                    {
+                      result = [ *val[0], val[2] ]
+                    }
+
+            p_kw: p_kw_label p_expr
+                    {
+                      result = @builder.match_pair(*val[0], val[1])
+                    }
+                | p_kw_label
+                    {
+                      result = @builder.match_label(*val[0])
+                    }
+
+      p_kw_label: tLABEL
+                  {
+                    check_kwarg_name(val[0])
+                    result = [:label, val[0]]
+                  }
+                | tSTRING_BEG string_contents tLABEL_END
+                  {
+                    result = [:quoted, [val[0], val[1], val[2]]]
+                  }
+
+        p_kwrest: kwrest_mark tIDENTIFIER
+                    {
+                      result = [ @builder.match_rest(val[0], val[1]) ]
+                    }
+                | kwrest_mark
+                    {
+                      result = [ @builder.match_rest(val[0], nil) ]
+                    }
+
+      p_kwnorest: kwrest_mark kNIL
+                    {
+                      result = [ @builder.match_nil_pattern(val[0], val[1]) ]
+                    }
+
+         p_value: p_primitive
+                | p_primitive tDOT2 p_primitive
+                    {
+                      result = @builder.range_inclusive(val[0], val[1], val[2])
+                    }
+                | p_primitive tDOT3 p_primitive
+                    {
+                      result = @builder.range_exclusive(val[0], val[1], val[2])
+                    }
+                | p_primitive tDOT2
+                    {
+                      result = @builder.range_inclusive(val[0], val[1], nil)
+                    }
+                | p_primitive tDOT3
+                    {
+                      result = @builder.range_exclusive(val[0], val[1], nil)
+                    }
+                | p_variable
+                | p_var_ref
+                | p_const
+                | tBDOT2 p_primitive
+                    {
+                      result = @builder.range_inclusive(nil, val[0], val[1])
+                    }
+                | tBDOT3 p_primitive
+                    {
+                      result = @builder.range_exclusive(nil, val[0], val[1])
+                    }
+
+     p_primitive: literal
+                | strings
+                | xstring
+                | regexp
+                | words
+                | qwords
+                | symbols
+                | qsymbols
+                | keyword_variable
+                    {
+                      result = @builder.accessible(val[0])
+                    }
+                | tLAMBDA lambda
+                    {
+                      lambda_call = @builder.call_lambda(val[0])
+
+                      args, (begin_t, body, end_t) = val[1]
+                      result      = @builder.block(lambda_call,
+                                      begin_t, args, body, end_t)
+                    }
+
+      p_variable: tIDENTIFIER
+                    {
+                      result = @builder.match_var(val[0])
+                    }
+
+       p_var_ref: tCARET tIDENTIFIER
+                    {
+                      lvar = @builder.accessible(@builder.ident(val[1]))
+                      result = @builder.pin(val[0], lvar)
+                    }
+
+         p_const: tCOLON3 cname
+                    {
+                      result = @builder.const_global(val[0], val[1])
+                    }
+                | p_const tCOLON2 cname
+                    {
+                      result = @builder.const_fetch(val[0], val[1], val[2])
+                    }
+                | tCONSTANT
+                   {
+                      result = @builder.const(val[0])
+                   }
 
       opt_rescue: kRESCUE exc_list exc_var then compstmt opt_rescue
                     {

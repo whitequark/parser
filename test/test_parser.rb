@@ -8313,4 +8313,985 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_2_7)
   end
+
+  def assert_parses_pattern_match(ast, code, source_maps = '', versions = SINCE_2_7)
+    case_pre = "case foo; "
+    source_maps_offset = case_pre.length
+    source_maps_prefix = ' ' * source_maps_offset
+    source_maps = source_maps
+      .lines
+      .map { |line| source_maps_prefix + line.sub(/^\s*\|/, '') }
+      .join("\n")
+
+    assert_parses(
+      s(:case_match,
+        s(:lvar, :foo),
+        ast,
+        nil),
+      "#{case_pre}#{code}; end",
+      source_maps,
+      SINCE_2_7
+    )
+  end
+
+  def test_pattern_matching_single_match
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:match_var, :x),
+        nil,
+        s(:lvar, :x)),
+      %q{in x then x},
+      %q{~~ keyword (in_pattern)
+        |~~~~~~~~~~~ expression (in_pattern)
+        |     ~~~~ begin (in_pattern)
+        |   ~ expression (in_pattern.match_var)
+        |   ~ name (in_pattern.match_var)}
+    )
+  end
+
+  def test_pattern_matching_no_body
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:int, 1), nil, nil),
+      %q{in 1}
+    )
+  end
+
+  def test_pattern_matching_if_unless_modifiers
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:match_var, :x),
+        s(:if_guard, s(:true)),
+        s(:nil)
+      ),
+      %q{in x if true; nil},
+      %q{~~ keyword (in_pattern)
+        |~~~~~~~~~~~~~~~~~ expression (in_pattern)
+        |            ~ begin (in_pattern)
+        |     ~~ keyword (in_pattern.if_guard)
+        |     ~~~~~~~ expression (in_pattern.if_guard)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:match_var, :x),
+        s(:unless_guard, s(:true)),
+        s(:nil)
+      ),
+      %q{in x unless true; nil},
+      %q{~~ keyword (in_pattern)
+        |~~~~~~~~~~~~~~~~~~~~~ expression (in_pattern)
+        |                ~ begin (in_pattern)
+        |     ~~~~~~ keyword (in_pattern.unless_guard)
+        |     ~~~~~~~~~~~ expression (in_pattern.unless_guard)}
+    )
+  end
+
+  def test_pattern_matching_pin_variable
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin, s(:lvar, :foo)),
+        nil,
+        s(:nil)),
+      %q{in ^foo then nil},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~~ expression (in_pattern.pin)
+        |    ~~~ name (in_pattern.pin.lvar)}
+    )
+  end
+
+  def test_pattern_matching_implicit_array_match
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern_with_tail,
+          s(:match_var, :x)),
+        nil,
+        s(:nil)),
+      %q{in x, then nil},
+      %q{   ~ expression (in_pattern.array_pattern_with_tail)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_rest,
+            s(:match_var, :x))),
+        nil,
+        s(:nil)),
+      %q{in *x then nil},
+      %q{   ~~ expression (in_pattern.array_pattern)
+        |   ~ operator (in_pattern.array_pattern.match_rest)
+        |    ~ name (in_pattern.array_pattern.match_rest.match_var)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_rest)),
+        nil,
+        s(:nil)),
+      %q{in * then nil},
+      %q{   ~ expression (in_pattern.array_pattern)
+        |   ~ operator (in_pattern.array_pattern.match_rest)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_var, :y)),
+        nil,
+        s(:nil)),
+      %q{in x, y then nil},
+      %q{   ~~~~ expression (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern_with_tail,
+          s(:match_var, :x),
+          s(:match_var, :y)),
+        nil,
+        s(:nil)),
+      %q{in x, y, then nil},
+      %q{   ~~~~ expression (in_pattern.array_pattern_with_tail)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_rest, s(:match_var, :y)),
+          s(:match_var, :z)),
+        nil,
+        s(:nil)),
+      %q{in x, *y, z then nil},
+      %q{   ~~~~~~~~ expression (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_rest, s(:match_var, :x)),
+          s(:match_var, :y),
+          s(:match_var, :z)),
+        nil,
+        s(:nil)),
+      %q{in *x, y, z then nil},
+      %q{   ~~~~~~~~ expression (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:int, 1),
+          s(:str, 'a'),
+          s(:array_pattern),
+          s(:hash_pattern)),
+        nil,
+        s(:nil)),
+      %q{in 1, "a", [], {} then nil},
+      %q{   ~~~~~~~~~~~~~~ expression (in_pattern.array_pattern)}
+    )
+  end
+
+  def test_pattern_matching_explicit_array_match
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x)),
+        nil,
+        s(:nil)),
+      %q{in [x] then nil},
+      %q{   ~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |     ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern_with_tail,
+          s(:match_var, :x)),
+        nil,
+        s(:nil)),
+      %q{in [x,] then nil},
+      %q{   ~~~~ expression (in_pattern.array_pattern_with_tail)
+        |   ~ begin (in_pattern.array_pattern_with_tail)
+        |      ~ end (in_pattern.array_pattern_with_tail)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_var, :y)),
+        nil,
+        s(:true)),
+      %q{in [x, y] then true},
+      %q{   ~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |        ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern_with_tail,
+          s(:match_var, :x),
+          s(:match_var, :y)),
+        nil,
+        s(:true)),
+      %q{in [x, y,] then true},
+      %q{   ~~~~~~~ expression (in_pattern.array_pattern_with_tail)
+        |   ~ begin (in_pattern.array_pattern_with_tail)
+        |         ~ end (in_pattern.array_pattern_with_tail)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_var, :y),
+          s(:match_rest)),
+        nil,
+        s(:true)),
+      %q{in [x, y, *] then true},
+      %q{   ~~~~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |           ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_var, :y),
+          s(:match_rest, s(:match_var, :z))),
+        nil,
+        s(:true)),
+      %q{in [x, y, *z] then true},
+      %q{   ~~~~~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |            ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_rest, s(:match_var, :y)),
+          s(:match_var, :z)),
+        nil,
+        s(:true)),
+      %q{in [x, *y, z] then true},
+      %q{   ~~~~~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |            ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_var, :x),
+          s(:match_rest),
+          s(:match_var, :y)),
+        nil,
+        s(:true)),
+      %q{in [x, *, y] then true},
+      %q{   ~~~~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |           ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_rest, s(:match_var, :x)),
+          s(:match_var, :y)),
+        nil,
+        s(:true)),
+      %q{in [*x, y] then true},
+      %q{   ~~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |         ~ end (in_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:array_pattern,
+          s(:match_rest),
+          s(:match_var, :x)),
+        nil,
+        s(:true)),
+      %q{in [*, x] then true},
+      %q{   ~~~~~~ expression (in_pattern.array_pattern)
+        |   ~ begin (in_pattern.array_pattern)
+        |        ~ end (in_pattern.array_pattern)}
+    )
+  end
+
+  def test_pattern_matching_hash
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern),
+        nil,
+        s(:true)),
+      %q{in {} then true},
+      %q{   ~~ expression (in_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair, s(:sym, :a), s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in a: 1 then true},
+      %q{   ~~~~ expression (in_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair, s(:sym, :a), s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in { a: 1 } then true},
+      %q{   ~~~~~~~~ expression (in_pattern.hash_pattern)
+        |   ~ begin (in_pattern.hash_pattern)
+        |          ~ end (in_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a)),
+        nil,
+        s(:true)),
+      %q{in a: then true},
+      %q{   ~~ expression (in_pattern.hash_pattern)
+        |   ~ name (in_pattern.hash_pattern.match_var)
+        |   ~~ expression (in_pattern.hash_pattern.match_var)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_rest, s(:match_var, :a))),
+        nil,
+        s(:true)),
+      %q{in **a then true},
+      %q{   ~~~ expression (in_pattern.hash_pattern)
+        |   ~~~ expression (in_pattern.hash_pattern.match_rest)
+        |   ~~ operator (in_pattern.hash_pattern.match_rest)
+        |     ~ expression (in_pattern.hash_pattern.match_rest.match_var)
+        |     ~ name (in_pattern.hash_pattern.match_rest.match_var)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_rest)),
+        nil,
+        s(:true)),
+      %q{in ** then true},
+      %q{   ~~ expression (in_pattern.hash_pattern)
+        |   ~~ expression (in_pattern.hash_pattern.match_rest)
+        |   ~~ operator (in_pattern.hash_pattern.match_rest)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair, s(:sym, :a), s(:int, 1)),
+          s(:pair, s(:sym, :b), s(:int, 2))),
+        nil,
+        s(:true)),
+      %q{in a: 1, b: 2 then true},
+      %q{   ~~~~~~~~~~ expression (in_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a),
+          s(:match_var, :b)),
+        nil,
+        s(:true)),
+      %q{in a:, b: then true},
+      %q{   ~~~~~~ expression (in_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair, s(:sym, :a), s(:int, 1)),
+          s(:match_var, :_a),
+          s(:match_rest)),
+        nil,
+        s(:true)),
+      %q{in a: 1, _a:, ** then true},
+      %q{   ~~~~~~~~~~~~~ expression (in_pattern.hash_pattern)}
+    )
+  end
+
+  def test_pattern_matching_hash_with_string_keys
+    # Match + assign
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a)),
+        nil,
+        s(:true)),
+      %q{in "a": then true},
+      %q{   ~~~~ expression (in_pattern.hash_pattern.match_var)
+        |    ~ name (in_pattern.hash_pattern.match_var)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a)),
+        nil,
+        s(:true)),
+      %q{in "#{ 'a' }": then true},
+      %q{   ~~~~~~~~~~~ expression (in_pattern.hash_pattern.match_var)
+        |        ~ name (in_pattern.hash_pattern.match_var)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a)),
+        nil,
+        s(:true)),
+      %q{in "#{ %q{a} }": then true},
+      %q{   ~~~~~~~~~~~~~ expression (in_pattern.hash_pattern.match_var)
+        |          ~ name (in_pattern.hash_pattern.match_var)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a)),
+        nil,
+        s(:true)),
+      %q{in "#{ %Q{a} }": then true},
+      %q{   ~~~~~~~~~~~~~ expression (in_pattern.hash_pattern.match_var)
+        |          ~ name (in_pattern.hash_pattern.match_var)}
+    )
+
+    # Only match
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair, s(:sym, :a), s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in "a": 1 then true},
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:dsym, s(:begin, s(:str, "a"))),
+            s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in "#{ 'a' }": 1 then true},
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:dsym, s(:begin, s(:str, "a"))),
+            s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in "#{ %q{a} }": 1 then true},
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:dsym, s(:begin, s(:str, "a"))),
+            s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in "#{ %Q{a} }": 1 then true},
+    )
+  end
+
+  def test_pattern_matching_hash_with_heredoc_keys
+    # Ruby <3, the following case is acceptable by the MRI's grammar,
+    # so it has to be reducable by parser.
+    # We have a code for that in the builder.rb that reject it via
+    # diagnostic error because of the wrong lvar name
+    assert_diagnoses(
+      [:error, :lvar_name, { name: "a\n" }],
+      %Q{case nil; in "\#{ <<-HERE }":;\na\nHERE\nelse\nend},
+      %q{                 ~~~~~~~ location},
+      SINCE_2_7
+    )
+  end
+
+  def test_pattern_matching_keyword_variable
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:self),
+        nil,
+        s(:true)),
+      %q{in self then true}
+    )
+  end
+
+  def test_pattern_matching_lambda
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:block,
+          s(:lambda),
+          s(:args),
+          s(:int, 42)),
+        nil,
+        s(:true)),
+      %q{in ->{ 42 } then true}
+    )
+  end
+
+  def test_pattern_matching_ranges
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:irange, s(:int, 1), s(:int, 2)),
+        nil,
+        s(:true)),
+      %q{in 1..2 then true}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:irange, s(:int, 1), nil),
+        nil,
+        s(:true)),
+      %q{in 1.. then true}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:irange, nil, s(:int, 2)),
+        nil,
+        s(:true)),
+      %q{in ..2 then true}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:erange, s(:int, 1), s(:int, 2)),
+        nil,
+        s(:true)),
+      %q{in 1...2 then true}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:erange, s(:int, 1), nil),
+        nil,
+        s(:true)),
+      %q{in 1... then true}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:erange, nil, s(:int, 2)),
+        nil,
+        s(:true)),
+      %q{in ...2 then true}
+    )
+  end
+
+  def test_pattern_matching_expr_in_paren
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:begin, s(:int, 1)),
+        nil,
+        s(:true)),
+      %q{in (1) then true},
+      %q{   ~~~ expression (in_pattern.begin)
+        |   ~ begin (in_pattern.begin)
+        |     ~ end (in_pattern.begin)}
+    )
+  end
+
+  def test_pattern_matching_constants
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const, nil, :A),
+        nil,
+        s(:true)),
+      %q{in A then true},
+      %q{   ~ expression (in_pattern.const)
+        |   ~ name (in_pattern.const)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const, s(:const, nil, :A), :B),
+        nil,
+        s(:true)),
+      %q{in A::B then true},
+      %q{   ~~~~ expression (in_pattern.const)
+        |    ~~ double_colon (in_pattern.const)
+        |      ~ name (in_pattern.const)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const, s(:cbase), :A),
+        nil,
+        s(:true)),
+      %q{in ::A then true},
+      %q{   ~~~ expression (in_pattern.const)
+        |   ~~ double_colon (in_pattern.const)
+        |     ~ name (in_pattern.const)}
+    )
+  end
+
+  def test_pattern_matching_const_pattern
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :A),
+          s(:array_pattern,
+            s(:int, 1),
+            s(:int, 2))),
+        nil,
+        s(:true)),
+      %q{in A(1, 2) then true},
+      %q{    ~~~~~~ expression (in_pattern.const_pattern)
+        |    ~ begin (in_pattern.const_pattern)
+        |         ~ end (in_pattern.const_pattern)
+        |   ~ expression (in_pattern.const_pattern.const)
+        |     ~~~~ expression (in_pattern.const_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :A),
+          s(:hash_pattern,
+            s(:match_var, :x))),
+        nil,
+        s(:true)),
+      %q{in A(x:) then true},
+      %q{    ~~~~ expression (in_pattern.const_pattern)
+        |    ~ begin (in_pattern.const_pattern)
+        |       ~ end (in_pattern.const_pattern)
+        |   ~ expression (in_pattern.const_pattern.const)
+        |     ~~ expression (in_pattern.const_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :A),
+          nil),
+        nil,
+        s(:true)),
+      %q{in A() then true},
+      %q{    ~~ expression (in_pattern.const_pattern)
+        |    ~ begin (in_pattern.const_pattern)
+        |     ~ end (in_pattern.const_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :A),
+          s(:array_pattern,
+            s(:int, 1),
+            s(:int, 2))),
+        nil,
+        s(:true)),
+      %q{in A[1, 2] then true},
+      %q{    ~~~~~~ expression (in_pattern.const_pattern)
+        |    ~ begin (in_pattern.const_pattern)
+        |         ~ end (in_pattern.const_pattern)
+        |   ~ expression (in_pattern.const_pattern.const)
+        |     ~~~~ expression (in_pattern.const_pattern.array_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :A),
+          s(:hash_pattern,
+            s(:match_var, :x))),
+        nil,
+        s(:true)),
+      %q{in A[x:] then true},
+      %q{    ~~~~ expression (in_pattern.const_pattern)
+        |    ~ begin (in_pattern.const_pattern)
+        |       ~ end (in_pattern.const_pattern)
+        |   ~ expression (in_pattern.const_pattern.const)
+        |     ~~ expression (in_pattern.const_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :A),
+          nil),
+        nil,
+        s(:true)),
+      %q{in A[] then true},
+      %q{    ~~ expression (in_pattern.const_pattern)
+        |    ~ begin (in_pattern.const_pattern)
+        |     ~ end (in_pattern.const_pattern)}
+    )
+  end
+
+  def test_pattern_matching_match_alt
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:match_alt, s(:int, 1), s(:int, 2)),
+        nil,
+        s(:true)),
+      %q{in 1 | 2 then true},
+      %q{   ~~~~~ expression (in_pattern.match_alt)
+        |     ~ operator (in_pattern.match_alt)}
+    )
+  end
+
+  def test_pattern_matching_match_as
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:match_as,
+          s(:int, 1),
+          s(:match_var, :a)),
+        nil,
+        s(:true)),
+      %q{in 1 => a then true},
+      %q{   ~~~~~~ expression (in_pattern.match_as)
+        |     ~~ operator (in_pattern.match_as)}
+    )
+  end
+
+  def test_pattern_matching_else
+    assert_parses(
+      s(:case_match,
+        s(:int, 1),
+        s(:in_pattern,
+          s(:int, 2), nil,
+          s(:int, 3)),
+        s(:int, 4)),
+      %q{case 1; in 2; 3; else; 4; end},
+      %q{                 ~~~~ else},
+      SINCE_2_7
+    )
+  end
+
+  def assert_pattern_matching_defines_local_variables(match_code, lvar_names, versions = SINCE_2_7)
+    code = "case 1; #{match_code}; then [#{lvar_names.join(', ')}]; end"
+
+    with_versions(versions) do |version, parser|
+      source_file = Parser::Source::Buffer.new('(assert_context)')
+      source_file.source = code
+
+      lvar_names.each do |lvar_name|
+        refute parser.static_env.declared?(lvar_name),
+          "(#{version}) local variable #{lvar_name.to_s.inspect} has to be undefined before asserting"
+      end
+
+      before = parser.static_env.instance_variable_get(:@variables).to_a
+
+      begin
+        parsed_ast = parser.parse(source_file)
+      rescue Parser::SyntaxError => exc
+        backtrace = exc.backtrace
+        Exception.instance_method(:initialize).bind(exc).
+          call("(#{version}) #{exc.message}")
+        exc.set_backtrace(backtrace)
+        raise
+      end
+
+      lvar_names.each do |lvar_name|
+        assert parser.static_env.declared?(lvar_name),
+          "(#{version}) expected local variable #{lvar_name.to_s.inspect} to be defined after parsing"
+      end
+
+      after = parser.static_env.instance_variable_get(:@variables).to_a
+      extra = after - before - lvar_names
+
+      assert extra.empty?,
+             "(#{version}) expected only #{lvar_names.inspect} " \
+             "to be defined during parsing, but also got #{extra.inspect}"
+    end
+  end
+
+  def test_pattern_matching_creates_locals
+    assert_pattern_matching_defines_local_variables(
+      %q{in a, *b, c},
+      [:a, :b, :c]
+    )
+
+    assert_pattern_matching_defines_local_variables(
+      %q{in d | e | f},
+      [:d, :e, :f]
+    )
+
+    assert_pattern_matching_defines_local_variables(
+      %q{in { g:, **h }},
+      [:g, :h]
+    )
+
+    assert_pattern_matching_defines_local_variables(
+      %q{in A(i, *j, k)},
+      [:i, :j, :k]
+    )
+
+    assert_pattern_matching_defines_local_variables(
+      %q{in 1 => l},
+      [:l]
+    )
+
+    assert_pattern_matching_defines_local_variables(
+      %q{in "m":},
+      [:m]
+    )
+  end
+
+  def test_pattern_matching__FILE__LINE_literals
+    assert_parses(
+      s(:case_match,
+        s(:array,
+          s(:str, "(assert_parses)"),
+          s(:send,
+            s(:int, 1), :+,
+            s(:int, 1)),
+          s(:__ENCODING__)),
+        s(:in_pattern,
+          s(:array_pattern,
+            s(:str, "(assert_parses)"),
+            s(:int, 2),
+            s(:__ENCODING__)), nil, nil), nil),
+      <<-RUBY,
+        case [__FILE__, __LINE__ + 1, __ENCODING__]
+          in [__FILE__, __LINE__, __ENCODING__]
+        end
+      RUBY
+      %q{},
+      SINCE_2_7)
+  end
+
+  def test_pattern_matching_nil_pattern
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_nil_pattern)),
+        nil,
+        s(:true)),
+      %q{in **nil then true},
+      %q{   ~~~~~ expression (in_pattern.hash_pattern.match_nil_pattern)
+        |     ~~~ name (in_pattern.hash_pattern.match_nil_pattern)}
+    )
+  end
+
+  def test_pattern_matching_single_line
+    assert_parses(
+      s(:begin,
+        s(:in_match,
+          s(:int, 1),
+          s(:array_pattern,
+            s(:match_var, :a))),
+        s(:lvar, :a)),
+      %q{1 in [a]; a},
+      %q{~~~~~~~~ expression (in_match)
+        |  ~~ operator (in_match)},
+      SINCE_2_7)
+  end
+
+  def test_ruby_bug_pattern_matching_restore_in_kwarg_flag
+    refute_diagnoses(
+      "p(({} in {a:}), a:\n 1)",
+      SINCE_2_7)
+  end
+
+  def test_pattern_matching_duplicate_variable_name
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{case 0; in a, a; end},
+      %q{              ^ location},
+      SINCE_2_7)
+
+    refute_diagnoses(
+      %q{case [0, 1, 2, 3]; in _, _, _a, _a; end},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{case 0; in a, {a:}; end},
+      %q{               ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{case 0; in a, {"a":}; end},
+      %q{                ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{0 in [a, a]},
+      %q{         ^ location},
+      SINCE_2_7)
+  end
+
+  def test_pattern_matching_duplicate_hash_keys
+    assert_diagnoses(
+      [:error, :duplicate_pattern_key, { :name => 'a' }],
+      %q{ case 0; in a: 1, a: 2; end },
+      %q{                  ^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_pattern_key, { :name => 'a' }],
+      %q{ case 0; in a: 1, "a": 2; end },
+      %q{                  ^^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_pattern_key, { :name => 'a' }],
+      %q{ case 0; in "a": 1, "a": 2; end },
+      %q{                    ^^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_pattern_key, { :name => "a\0" }],
+      %q{ case 0; in "a\x0":a1, "a\0":a2; end },
+      %q{                       ^^^^^^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :duplicate_pattern_key, { :name => "abc" }],
+      %q{ case 0; in "abc":a1, "a#{"b"}c":a2; end },
+      %q{                      ^^^^^^^^^^^ location},
+      SINCE_2_7)
+  end
+
+  def test_pattern_matching_required_parentheses_for_in_match
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tCOMMA' }],
+      %{1 in a, b},
+      %{      ^ location},
+      SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tLABEL' }],
+      %{1 in a:},
+      %{     ^^ location},
+      SINCE_2_7)
+  end
 end

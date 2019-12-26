@@ -75,6 +75,7 @@ module Parser
   require 'parser/context'
   require 'parser/max_numparam_stack'
   require 'parser/current_arg_stack'
+  require 'parser/variables_stack'
 
   require 'parser/base'
 
