@@ -34,7 +34,11 @@ module Parser
     # Of course, lexer could do it but once again: it's all because of dedenting.
     #
     def dedent(string)
-      lines = string.split("\\\n")
+      original_encoding = string.encoding
+      # Prevent the following error when processing binary encoded source.
+      # "\xC0".split # => ArgumentError (invalid byte sequence in UTF-8)
+      lines = string.force_encoding(Encoding::BINARY).split("\\\n")
+      lines.map! {|s| s.force_encoding(original_encoding) }
 
       if @at_line_begin
         lines_to_dedent = lines
