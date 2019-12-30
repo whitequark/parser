@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2019-12-30)
+-------------------------
+
+Bugs fixed:
+ * dedenter.rb: prevent `ArgumentError` when processing binary en… (#642) (Koichi ITO)
+
 v2.7.0.0 (2019-12-26)
 ---------------------
 
