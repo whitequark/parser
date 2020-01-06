@@ -127,6 +127,9 @@ module ParseHelper
 
     assert parser.instance_eval { @lexer }.cmdarg.empty?,
       "(#{version}) expected cmdarg to be empty after parsing"
+
+    assert_equal 0, parser.instance_eval { @lexer.instance_eval { @paren_nest } },
+      "(#{version}) expected paren_nest to be 0 after parsing"
   end
 
   # Use like this:

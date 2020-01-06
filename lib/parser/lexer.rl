@@ -1064,7 +1064,6 @@ class Parser::Lexer
           emit(:tRCURLY, '}'.freeze, p - 1, p)
           @cond.lexpop
           @cmdarg.lexpop
-          @paren_nest -= 1
         else
           emit(:tSTRING_DEND, '}'.freeze, p - 1, p)
         end
@@ -1079,6 +1078,8 @@ class Parser::Lexer
         fbreak;
       end
     end
+
+    @paren_nest -= 1
   };
 
   action extend_interp_code {
@@ -2164,6 +2165,9 @@ class Parser::Lexer
           else # 'do'
             emit_do
           end
+        end
+        if tok == '{'.freeze
+          @paren_nest += 1
         end
         @command_start = true
 
