@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2020-01-08)
+-------------------------
+
+Bugs fixed:
+ * lexer.rl: fix paren_nest for curly braces (#646) (Ilya Bylich)
+
 v2.7.0.1 (2019-12-30)
 ---------------------
 
