@@ -13,6 +13,13 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/whitequark/parser'
   spec.license       = 'MIT'
 
+  spec.metadata = {
+    'bug_tracker_uri' => 'https://github.com/whitequark/parser/issues',
+    'changelog_uri' => "https://github.com/whitequark/parser/blob/v#{spec.version}/CHANGELOG.md",
+    'documentation_uri' => "https://www.rubydoc.info/gems/parser/#{spec.version}",
+    'source_code_uri' => "https://github.com/whitequark/parser/tree/v#{spec.version}"
+  }
+
   spec.files         = `git ls-files`.split + %w(
                           lib/parser/lexer.rb
                           lib/parser/ruby18.rb
