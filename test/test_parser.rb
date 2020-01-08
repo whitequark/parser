@@ -9294,4 +9294,16 @@ class TestParser < Minitest::Test
       %{     ^^ location},
       SINCE_2_7)
   end
+
+  def test_parser_bug_645
+    assert_parses(
+      s(:block,
+        s(:lambda),
+        s(:args,
+          s(:optarg, :arg,
+            s(:hash))), nil),
+      '-> (arg={}) {}',
+      %{},
+      SINCE_1_9)
+  end
 end
