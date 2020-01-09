@@ -56,11 +56,11 @@ module Parser
         if action.range == @range
           merge(action)
         else
-          place_in_hierachy(action)
+          place_in_hierarchy(action)
         end
       end
 
-      def place_in_hierachy(action)
+      def place_in_hierarchy(action)
         family = @children.group_by { |child| child.relationship_with(action) }
 
         if family[:fusible]

@@ -234,7 +234,7 @@ Parser implements the MacRuby 0.12 and RubyMotion mid-2015 parsers precisely. Ho
 
 ## Known issues
 
-Adding support for the following Ruby MRI features in Parser would needlessly complicate it, and as they all are very specific and rarely occuring corner cases, this is not done.
+Adding support for the following Ruby MRI features in Parser would needlessly complicate it, and as they all are very specific and rarely occurring corner cases, this is not done.
 
 Parser has been extensively tested; in particular, it parses almost entire [Rubygems][rg] corpus. For every issue, a breakdown of affected gems is offered.
 

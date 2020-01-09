@@ -31,16 +31,16 @@ class TestSourceCommentAssociator < Minitest::Test
     ast, associations = associate(<<-END)
 #!/usr/bin/env ruby
 # coding: utf-8
-# class preceeding
-# another class preceeding
+# class preceding
+# another class preceding
 class Foo # class keyword line
-  # method foo preceeding
+  # method foo preceding
   def foo
     puts 'foo'
   end # method foo decorating
-  # method bar preceeding
+  # method bar preceding
   def bar
-    # expression preceeding
+    # expression preceding
     1 + # 1 decorating
       2
     # method bar sparse
@@ -58,8 +58,8 @@ end # class decorating
 
     assert_equal 6, associations.size
     assert_equal [
-      '# class preceeding',
-      '# another class preceeding',
+      '# class preceding',
+      '# another class preceding',
       '# class sparse',
       '# class decorating'
     ], associations[klass_node].map(&:text)
@@ -67,16 +67,16 @@ end # class decorating
       '# class keyword line'
     ], associations[klass_name_node].map(&:text)
     assert_equal [
-      '# method foo preceeding',
+      '# method foo preceding',
       '# method foo decorating'
     ], associations[foo_node].map(&:text)
     assert_equal [
-      '# method bar preceeding',
+      '# method bar preceding',
       '# method bar sparse',
       '# method bar decorating'
     ], associations[bar_node].map(&:text)
     assert_equal [
-      '# expression preceeding'
+      '# expression preceding'
     ], associations[expr_node].map(&:text)
     assert_equal [
       '# 1 decorating'
@@ -112,16 +112,16 @@ end
     ast, associations = associate_locations(<<-END)
 #!/usr/bin/env ruby
 # coding: utf-8
-# class preceeding
-# another class preceeding
+# class preceding
+# another class preceding
 class Foo # class keyword line
-  # method foo preceeding
+  # method foo preceding
   def foo
     puts 'foo'
   end # method foo decorating
-  # method bar preceeding
+  # method bar preceding
   def bar
-    # expression preceeding
+    # expression preceding
     1 + # 1 decorating
       2
     # method bar sparse
@@ -139,8 +139,8 @@ end # class decorating
 
     assert_equal 6, associations.size
     assert_equal [
-      '# class preceeding',
-      '# another class preceeding',
+      '# class preceding',
+      '# another class preceding',
       '# class sparse',
       '# class decorating'
     ], associations[klass_node.loc].map(&:text)
@@ -148,16 +148,16 @@ end # class decorating
       '# class keyword line'
     ], associations[klass_name_node.loc].map(&:text)
     assert_equal [
-      '# method foo preceeding',
+      '# method foo preceding',
       '# method foo decorating'
     ], associations[foo_node.loc].map(&:text)
     assert_equal [
-      '# method bar preceeding',
+      '# method bar preceding',
       '# method bar sparse',
       '# method bar decorating'
     ], associations[bar_node.loc].map(&:text)
     assert_equal [
-      '# expression preceeding'
+      '# expression preceding'
     ], associations[expr_node.loc].map(&:text)
     assert_equal [
       '# 1 decorating'
