@@ -9295,6 +9295,14 @@ class TestParser < Minitest::Test
       SINCE_2_7)
   end
 
+  def test_pattern_matching_required_bound_variable_before_pin
+    assert_diagnoses(
+      [:error, :undefined_lvar, { :name => 'a' }],
+      %{case 0; in ^a; true; end},
+      %{            ^ location},
+      SINCE_2_7)
+  end
+
   def test_parser_bug_645
     assert_parses(
       s(:block,
