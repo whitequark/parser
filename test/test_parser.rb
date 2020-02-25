@@ -8997,13 +8997,15 @@ class TestParser < Minitest::Test
       s(:in_pattern,
         s(:const_pattern,
           s(:const, nil, :A),
-          nil),
+          s(:array_pattern)),
         nil,
         s(:true)),
       %q{in A() then true},
       %q{    ~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
-        |     ~ end (in_pattern.const_pattern)}
+        |     ~ end (in_pattern.const_pattern)
+        |   ~ expression (in_pattern.const_pattern.const)
+        |    ~~ expression (in_pattern.const_pattern.array_pattern)}
     )
 
     assert_parses_pattern_match(
@@ -9043,13 +9045,14 @@ class TestParser < Minitest::Test
       s(:in_pattern,
         s(:const_pattern,
           s(:const, nil, :A),
-          nil),
+          s(:array_pattern)),
         nil,
         s(:true)),
       %q{in A[] then true},
       %q{    ~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
-        |     ~ end (in_pattern.const_pattern)}
+        |     ~ end (in_pattern.const_pattern)
+        |    ~~ expression (in_pattern.const_pattern.array_pattern)}
     )
   end
 

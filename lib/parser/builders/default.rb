@@ -1313,6 +1313,8 @@ module Parser
     end
 
     def array_pattern(lbrack_t, elements, rbrack_t)
+      return n(:array_pattern, nil, collection_map(lbrack_t, [], rbrack_t)) if elements.nil?
+
       trailing_comma = false
 
       elements = elements.map do |element|

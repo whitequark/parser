@@ -2140,3 +2140,20 @@ Format:
     ~ name (const-pattern.const)
     ~ expression (const-pattern.const)
 ~~~
+
+#### With array pattern without elements
+
+Format:
+
+~~~
+(const-pattern
+  (const nil :X)
+  (array-pattern))
+"in X[]"
+     ~ begin (const-pattern)
+      ~ end (const-pattern)
+     ~~ expression (const-pattern)
+    ~ name (const-pattern.const)
+    ~ expression (const-pattern.const)
+     ~~ expression (const-pattern.array_pattern)
+~~~
