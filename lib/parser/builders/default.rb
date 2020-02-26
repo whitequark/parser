@@ -1213,6 +1213,7 @@ module Parser
     #
 
     def case_match(case_t, expr, in_bodies, else_t, else_body, end_t)
+      else_body = n(:empty_else, nil, token_map(else_t)) if else_t && !else_body
       n(:case_match, [ expr, *(in_bodies << else_body)],
         condition_map(case_t, expr, nil, nil, else_t, else_body, end_t))
     end

@@ -9105,6 +9105,20 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_pattern_matching_blank_else
+    assert_parses(
+      s(:case_match,
+        s(:int, 1),
+        s(:in_pattern,
+          s(:int, 2), nil,
+          s(:int, 3)),
+        s(:empty_else)),
+      %q{case 1; in 2; 3; else; end},
+      %q{                 ~~~~ else},
+      SINCE_2_7
+    )
+  end
+
   def assert_pattern_matching_defines_local_variables(match_code, lvar_names, versions = SINCE_2_7)
     code = "case 1; #{match_code}; then [#{lvar_names.join(', ')}]; end"
 

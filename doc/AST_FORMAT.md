@@ -1870,6 +1870,27 @@ Format:
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
 ~~~
 
+#### With empty else
+
+Empty `else` differs from the missing (or _implicit_) `else` for pattern matching, since
+the latter one raises a `NoMatchingPattern` exception. Thus, we need a way to distinguish this
+two cases in the resulting AST.
+
+Format:
+
+~~~
+(case-match,
+  (str "str")
+  (in-pattern
+    (match-var :foo)
+    (lvar :bar))
+  (empty-else))
+"case "str"; in foo; bar; else; end"
+ ~~~~ keyword             ~~~~ else
+                                ~~~ end
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression
+~~~
+
 ### In clause
 
 Format:
