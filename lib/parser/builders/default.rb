@@ -1213,6 +1213,7 @@ module Parser
     #
 
     def case_match(case_t, expr, in_bodies, else_t, else_body, end_t)
+      else_body = n(:empty_else, nil, token_map(else_t)) if else_t && !else_body
       n(:case_match, [ expr, *(in_bodies << else_body)],
         condition_map(case_t, expr, nil, nil, else_t, else_body, end_t))
     end
@@ -1313,6 +1314,8 @@ module Parser
     end
 
     def array_pattern(lbrack_t, elements, rbrack_t)
+      return n(:array_pattern, nil, collection_map(lbrack_t, [], rbrack_t)) if elements.nil?
+
       trailing_comma = false
 
       elements = elements.map do |element|
@@ -1369,11 +1372,13 @@ module Parser
         pair_keyword(label, value)
       else
         begin_t, parts, end_t = label
+        label_loc = loc(begin_t).join(loc(end_t))
 
         # quoted label like "label": value
         if (var_name = static_string(parts))
-          loc = loc(begin_t).join(loc(end_t))
-          check_duplicate_pattern_key(var_name, loc)
+          check_duplicate_pattern_key(var_name, label_loc)
+        else
+          diagnostic :error, :pm_interp_in_var_name, nil, label_loc
         end
 
         pair_quoted(begin_t, parts, end_t, value)

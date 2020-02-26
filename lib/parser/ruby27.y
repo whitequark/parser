@@ -1841,7 +1841,8 @@ opt_block_args_tail:
                     }
                 | p_const tLPAREN2 rparen
                     {
-                      result = @builder.const_pattern(val[0], val[1], nil, val[2])
+                      pattern = @builder.array_pattern(val[1], nil, val[2])
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[2])
                     }
                 | p_const p_lbracket p_args rbracket
                     {
@@ -1857,7 +1858,8 @@ opt_block_args_tail:
                     }
                 | p_const tLBRACK2 rbracket
                     {
-                      result = @builder.const_pattern(val[0], val[1], nil, val[2])
+                      pattern = @builder.array_pattern(val[1], nil, val[2])
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[2])
                     }
                 | tLBRACK
                     {
@@ -2096,6 +2098,11 @@ opt_block_args_tail:
 
        p_var_ref: tCARET tIDENTIFIER
                     {
+                      name = val[1][0]
+                      unless static_env.declared?(name)
+                        diagnostic :error, :undefined_lvar, { :name => name }, val[1]
+                      end
+
                       lvar = @builder.accessible(@builder.ident(val[1]))
                       result = @builder.pin(val[0], lvar)
                     }

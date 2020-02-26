@@ -274,6 +274,10 @@ module Parser
           'Parser::AST::Processor#on_argument instead.'
         on_argument(node)
       end
+
+      def on_empty_else(node)
+        node
+      end
     end
   end
 end

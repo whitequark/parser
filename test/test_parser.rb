@@ -8839,6 +8839,15 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_pattern_matching_hash_with_string_interpolation_keys
+    assert_diagnoses(
+      [:error, :pm_interp_in_var_name],
+      %q{case a; in "#{a}": 1; end},
+      %q{           ~~~~~~~ location},
+      SINCE_2_7
+    )
+  end
+
   def test_pattern_matching_keyword_variable
     assert_parses_pattern_match(
       s(:in_pattern,
@@ -8997,13 +9006,15 @@ class TestParser < Minitest::Test
       s(:in_pattern,
         s(:const_pattern,
           s(:const, nil, :A),
-          nil),
+          s(:array_pattern)),
         nil,
         s(:true)),
       %q{in A() then true},
       %q{    ~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
-        |     ~ end (in_pattern.const_pattern)}
+        |     ~ end (in_pattern.const_pattern)
+        |   ~ expression (in_pattern.const_pattern.const)
+        |    ~~ expression (in_pattern.const_pattern.array_pattern)}
     )
 
     assert_parses_pattern_match(
@@ -9043,13 +9054,14 @@ class TestParser < Minitest::Test
       s(:in_pattern,
         s(:const_pattern,
           s(:const, nil, :A),
-          nil),
+          s(:array_pattern)),
         nil,
         s(:true)),
       %q{in A[] then true},
       %q{    ~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
-        |     ~ end (in_pattern.const_pattern)}
+        |     ~ end (in_pattern.const_pattern)
+        |    ~~ expression (in_pattern.const_pattern.array_pattern)}
     )
   end
 
@@ -9088,6 +9100,20 @@ class TestParser < Minitest::Test
           s(:int, 3)),
         s(:int, 4)),
       %q{case 1; in 2; 3; else; 4; end},
+      %q{                 ~~~~ else},
+      SINCE_2_7
+    )
+  end
+
+  def test_pattern_matching_blank_else
+    assert_parses(
+      s(:case_match,
+        s(:int, 1),
+        s(:in_pattern,
+          s(:int, 2), nil,
+          s(:int, 3)),
+        s(:empty_else)),
+      %q{case 1; in 2; 3; else; end},
       %q{                 ~~~~ else},
       SINCE_2_7
     )
@@ -9292,6 +9318,14 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tLABEL' }],
       %{1 in a:},
       %{     ^^ location},
+      SINCE_2_7)
+  end
+
+  def test_pattern_matching_required_bound_variable_before_pin
+    assert_diagnoses(
+      [:error, :undefined_lvar, { :name => 'a' }],
+      %{case 0; in ^a; true; end},
+      %{            ^ location},
       SINCE_2_7)
   end
 
