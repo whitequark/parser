@@ -1371,11 +1371,13 @@ module Parser
         pair_keyword(label, value)
       else
         begin_t, parts, end_t = label
+        label_loc = loc(begin_t).join(loc(end_t))
 
         # quoted label like "label": value
         if (var_name = static_string(parts))
-          loc = loc(begin_t).join(loc(end_t))
-          check_duplicate_pattern_key(var_name, loc)
+          check_duplicate_pattern_key(var_name, label_loc)
+        else
+          diagnostic :error, :pm_interp_in_var_name, nil, label_loc
         end
 
         pair_quoted(begin_t, parts, end_t, value)

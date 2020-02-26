@@ -8839,6 +8839,15 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_pattern_matching_hash_with_string_interpolation_keys
+    assert_diagnoses(
+      [:error, :pm_interp_in_var_name],
+      %q{case a; in "#{a}": 1; end},
+      %q{           ~~~~~~~ location},
+      SINCE_2_7
+    )
+  end
+
   def test_pattern_matching_keyword_variable
     assert_parses_pattern_match(
       s(:in_pattern,
