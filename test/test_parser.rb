@@ -7645,9 +7645,23 @@ class TestParser < Minitest::Test
       SINCE_2_7)
 
     assert_parses(
+      s(:send,
+        s(:send, nil, :a), :foo),
+      %Q{a #\n  #\n.foo\n},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
       s(:csend,
         s(:send, nil, :a), :foo),
       %Q{a #\n#\n&.foo\n},
+      %q{},
+      SINCE_2_7)
+
+    assert_parses(
+      s(:csend,
+        s(:send, nil, :a), :foo),
+      %Q{a #\n  #\n&.foo\n},
       %q{},
       SINCE_2_7)
   end
