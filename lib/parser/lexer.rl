@@ -2473,7 +2473,7 @@ class Parser::Lexer
 
       # Here we use '\n' instead of w_newline to not modify @newline_s
       # and eventually properly emit tNL
-      (w_space_comment '\n')+
+      (c_space* w_space_comment '\n')+
       => {
         if @version < 27
           # Ruby before 2.7 doesn't support comments before leading dot.
