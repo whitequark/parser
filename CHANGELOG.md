@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2020-03-02)
+-------------------------
+
+Bugs fixed:
+ * lexer.rl: allow spaces before comments-before-leading-dot. (#654) (Ilya Bylich)
+
 v2.7.0.2 (2020-01-08)
 ---------------------
 
