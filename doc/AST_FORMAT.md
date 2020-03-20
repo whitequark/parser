@@ -2139,7 +2139,7 @@ Format:
 "in X[^foo bar]"
      ~ begin (const-pattern)
                ~ end (const-pattern)
-     ~~~~~~~~~~~ expression (const-pattern)
+    ~~~~~~~~~~~~ expression (const-pattern)
     ~ name (const-pattern.const)
     ~ expression (const-pattern.const)
 ~~~
@@ -2157,7 +2157,7 @@ Format:
 "in X[foo:, bar:]"
      ~ begin (const-pattern)
                 ~ end (const-pattern)
-     ~~~~~~~~~~~~ expression (const-pattern)
+    ~~~~~~~~~~~~~ expression (const-pattern)
     ~ name (const-pattern.const)
     ~ expression (const-pattern.const)
 ~~~
@@ -2173,7 +2173,7 @@ Format:
 "in X[]"
      ~ begin (const-pattern)
       ~ end (const-pattern)
-     ~~ expression (const-pattern)
+    ~~~ expression (const-pattern)
     ~ name (const-pattern.const)
     ~ expression (const-pattern.const)
      ~~ expression (const-pattern.array_pattern)

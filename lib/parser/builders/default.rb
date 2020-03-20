@@ -1340,7 +1340,11 @@ module Parser
 
     def const_pattern(const, ldelim_t, pattern, rdelim_t)
       n(:const_pattern, [const, pattern],
-        collection_map(ldelim_t, [pattern], rdelim_t))
+        Source::Map::Collection.new(
+          loc(ldelim_t), loc(rdelim_t),
+          const.loc.expression.join(loc(rdelim_t))
+        )
+      )
     end
 
     def pin(pin_t, var)

@@ -8993,7 +8993,7 @@ class TestParser < Minitest::Test
         nil,
         s(:true)),
       %q{in A(1, 2) then true},
-      %q{    ~~~~~~ expression (in_pattern.const_pattern)
+      %q{   ~~~~~~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
         |         ~ end (in_pattern.const_pattern)
         |   ~ expression (in_pattern.const_pattern.const)
@@ -9009,7 +9009,7 @@ class TestParser < Minitest::Test
         nil,
         s(:true)),
       %q{in A(x:) then true},
-      %q{    ~~~~ expression (in_pattern.const_pattern)
+      %q{   ~~~~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
         |       ~ end (in_pattern.const_pattern)
         |   ~ expression (in_pattern.const_pattern.const)
@@ -9024,7 +9024,7 @@ class TestParser < Minitest::Test
         nil,
         s(:true)),
       %q{in A() then true},
-      %q{    ~~ expression (in_pattern.const_pattern)
+      %q{   ~~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
         |     ~ end (in_pattern.const_pattern)
         |   ~ expression (in_pattern.const_pattern.const)
@@ -9041,7 +9041,7 @@ class TestParser < Minitest::Test
         nil,
         s(:true)),
       %q{in A[1, 2] then true},
-      %q{    ~~~~~~ expression (in_pattern.const_pattern)
+      %q{   ~~~~~~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
         |         ~ end (in_pattern.const_pattern)
         |   ~ expression (in_pattern.const_pattern.const)
@@ -9057,7 +9057,7 @@ class TestParser < Minitest::Test
         nil,
         s(:true)),
       %q{in A[x:] then true},
-      %q{    ~~~~ expression (in_pattern.const_pattern)
+      %q{   ~~~~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
         |       ~ end (in_pattern.const_pattern)
         |   ~ expression (in_pattern.const_pattern.const)
@@ -9072,7 +9072,7 @@ class TestParser < Minitest::Test
         nil,
         s(:true)),
       %q{in A[] then true},
-      %q{    ~~ expression (in_pattern.const_pattern)
+      %q{   ~~~ expression (in_pattern.const_pattern)
         |    ~ begin (in_pattern.const_pattern)
         |     ~ end (in_pattern.const_pattern)
         |    ~~ expression (in_pattern.const_pattern.array_pattern)}
