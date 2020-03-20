@@ -1,8 +1,17 @@
 Changelog
 =========
 
-Not released (2020-03-02)
+Not released (2020-03-20)
 -------------------------
+
+Features implemented:
+ * ruby27.y: fix array pattern with tail source map (#659) (Vladimir Dementyev)
+
+Bugs fixed:
+ * builder.rb: fix constant_pattern source map (#660) (Vladimir Dementyev)
+
+v2.7.0.4 (2020-03-02)
+---------------------
 
 Bugs fixed:
  * lexer.rl: allow spaces before comments-before-leading-dot. (#654) (Ilya Bylich)
