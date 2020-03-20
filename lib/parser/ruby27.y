@@ -1784,7 +1784,7 @@ opt_block_args_tail:
                       # array patterns that end with comma
                       # like 1, 2,
                       # must be emitted as `array_pattern_with_tail`
-                      item = @builder.match_with_trailing_comma(val[0])
+                      item = @builder.match_with_trailing_comma(val[0], val[1])
                       result = @builder.array_pattern(nil, [ item ], nil)
                     }
                 | p_expr tCOMMA p_args
@@ -1934,7 +1934,7 @@ opt_block_args_tail:
                       # array patterns that end with comma
                       # like [1, 2,]
                       # must be emitted as `array_pattern_with_tail`
-                      item = @builder.match_with_trailing_comma(val[0])
+                      item = @builder.match_with_trailing_comma(val[0], val[1])
                       result = [ item ]
                     }
                 | p_args_head p_arg tCOMMA
@@ -1942,7 +1942,7 @@ opt_block_args_tail:
                       # array patterns that end with comma
                       # like [1, 2,]
                       # must be emitted as `array_pattern_with_tail`
-                      last_item = @builder.match_with_trailing_comma(val[1])
+                      last_item = @builder.match_with_trailing_comma(val[1], val[2])
                       result = [ *val[0], last_item ]
                     }
 
