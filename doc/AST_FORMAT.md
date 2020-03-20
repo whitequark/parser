@@ -2068,7 +2068,7 @@ so a single item match with comma gets interpreted as an array.
 (array-pattern-with-tail
   (match-var :foo))
 "in foo,"
-    ~~~ expression
+    ~~~~ expression
 ~~~
 
 ### Matching using hash pattern

@@ -1318,7 +1318,7 @@ module Parser
 
       trailing_comma = false
 
-      elements = elements.map do |element|
+      node_elements = elements.map do |element|
         if element.type == :match_with_trailing_comma
           trailing_comma = true
           element.children.first
@@ -1329,12 +1329,13 @@ module Parser
       end
 
       node_type = trailing_comma ? :array_pattern_with_tail : :array_pattern
-      n(node_type, elements,
+
+      n(node_type, node_elements,
         collection_map(lbrack_t, elements, rbrack_t))
     end
 
-    def match_with_trailing_comma(match)
-      n(:match_with_trailing_comma, [ match ], nil)
+    def match_with_trailing_comma(match, comma_t)
+      n(:match_with_trailing_comma, [ match ], expr_map(match.loc.expression.join(loc(comma_t))))
     end
 
     def const_pattern(const, ldelim_t, pattern, rdelim_t)

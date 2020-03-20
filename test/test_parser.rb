@@ -8422,7 +8422,7 @@ class TestParser < Minitest::Test
         nil,
         s(:nil)),
       %q{in x, then nil},
-      %q{   ~ expression (in_pattern.array_pattern_with_tail)}
+      %q{   ~~ expression (in_pattern.array_pattern_with_tail)}
     )
 
     assert_parses_pattern_match(
@@ -8468,7 +8468,7 @@ class TestParser < Minitest::Test
         nil,
         s(:nil)),
       %q{in x, y, then nil},
-      %q{   ~~~~ expression (in_pattern.array_pattern_with_tail)}
+      %q{   ~~~~~ expression (in_pattern.array_pattern_with_tail)}
     )
 
     assert_parses_pattern_match(
