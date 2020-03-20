@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-03-20)
--------------------------
+v2.7.0.5 (2020-03-20)
+---------------------
 
 Features implemented:
  * ruby27.y: fix array pattern with tail source map (#659) (Vladimir Dementyev)
