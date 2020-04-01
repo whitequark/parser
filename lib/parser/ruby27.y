@@ -1986,6 +1986,10 @@ opt_block_args_tail:
                     {
                       result = val[0]
                     }
+                | p_kwarg tCOMMA
+                    {
+                      result = val[0]
+                    }
                 | p_kwrest
                     {
                       result = val[0]

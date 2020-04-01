@@ -8678,6 +8678,18 @@ class TestParser < Minitest::Test
     assert_parses_pattern_match(
       s(:in_pattern,
         s(:hash_pattern,
+          s(:pair, s(:sym, :a), s(:int, 1))),
+        nil,
+        s(:true)),
+      %q{in { a: 1, } then true},
+      %q{   ~~~~~~~~~ expression (in_pattern.hash_pattern)
+        |   ~ begin (in_pattern.hash_pattern)
+        |           ~ end (in_pattern.hash_pattern)}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
           s(:match_var, :a)),
         nil,
         s(:true)),
