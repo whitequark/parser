@@ -2,8 +2,8 @@ dist: trusty
 language: ruby
 matrix:
   include:
-    - name: 2.4.10 / Parser tests
-      rvm: 2.4.10
+    - name: 2.4.9 / Parser tests
+      rvm: 2.4.9
       script: bundle exec rake test_cov
     - name: 2.5.8 / Parser tests
       rvm: 2.5.8
