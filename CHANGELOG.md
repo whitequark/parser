@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Not released (2020-04-03)
+-------------------------
+
+API modifications:
+ * Bump ruby versions to 2.4.10, 2.5.8, 2.6.6, 2.7.1. (#665) (Ilya Bylich)
+
+Features implemented:
+ * ruby27.y: allow newlines inside braced pattern. (#664) (Ilya Bylich)
+ * ruby27.y: Allow trailing comma in hash pattern (#661) (Koichi ITO)
+
 v2.7.0.5 (2020-03-20)
 ---------------------
 
