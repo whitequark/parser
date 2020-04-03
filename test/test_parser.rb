@@ -8758,6 +8758,67 @@ class TestParser < Minitest::Test
       %q{in a: 1, _a:, ** then true},
       %q{   ~~~~~~~~~~~~~ expression (in_pattern.hash_pattern)}
     )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:sym, :a),
+            s(:int, 1))), nil,
+        s(:false)),
+      %q{
+        in {a: 1
+        }
+          false
+      },
+      %q{}
+    )
+
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:sym, :a),
+            s(:int, 2))), nil,
+        s(:false)),
+      %q{
+        in {a:
+              2}
+          false
+      },
+      %q{}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:sym, :a),
+            s(:hash_pattern,
+              s(:match_var, :b))),
+          s(:match_var, :c)), nil,
+        s(:send, nil, :p,
+          s(:lvar, :c))),
+      %q{
+        in a: {b:}, c:
+          p c
+      },
+      %q{}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:match_var, :a)), nil,
+        s(:true)),
+      %q{
+        in {a:
+        }
+          true
+      },
+      %q{}
+    )
   end
 
   def test_pattern_matching_hash_with_string_keys

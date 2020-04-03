@@ -1877,13 +1877,16 @@ opt_block_args_tail:
                 | tLBRACE
                     {
                       @pattern_hash_keys.push
+                      result = @lexer.in_kwarg
+                      @lexer.in_kwarg = false
                     }
-                  p_kwargs tRCURLY
+                  p_kwargs rbrace
                     {
                       @pattern_hash_keys.pop
+                      @lexer.in_kwarg = val[1]
                       result = @builder.hash_pattern(val[0], val[2], val[3])
                     }
-                | tLBRACE tRCURLY
+                | tLBRACE rbrace
                     {
                       result = @builder.hash_pattern(val[0], [], val[1])
                     }
@@ -2899,6 +2902,10 @@ keyword_variable: kNIL
                       result = val[1]
                     }
         rbracket: opt_nl tRBRACK
+                    {
+                      result = val[1]
+                    }
+          rbrace: opt_nl tRCURLY
                     {
                       result = val[1]
                     }
