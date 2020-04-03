@@ -2,26 +2,17 @@ dist: trusty
 language: ruby
 matrix:
   include:
-    - name: 2.0.0 / Parser tests
-      rvm: 2.0.0
-      script: bundle exec rake test_cov
-    - name: 2.2.10 / Parser tests
-      rvm: 2.2.10
-      script: bundle exec rake test_cov
-    - name: 2.3.8 / Parser tests
-      rvm: 2.3.8
-      script: bundle exec rake test_cov
     - name: 2.4.9 / Parser tests
       rvm: 2.4.9
       script: bundle exec rake test_cov
-    - name: 2.5.7 / Parser tests
-      rvm: 2.5.7
+    - name: 2.5.8 / Parser tests
+      rvm: 2.5.8
       script: bundle exec rake test_cov
-    - name: 2.6.5 / Parser tests
-      rvm: 2.6.5
+    - name: 2.6.6 / Parser tests
+      rvm: 2.6.6
       script: bundle exec rake test_cov
-    - name: 2.7.0 / Parser tests
-      rvm: 2.7.0
+    - name: 2.7.1 / Parser tests
+      rvm: 2.7.1
       script: bundle exec rake test_cov
     - name: ruby-head / Parser tests
       rvm: ruby-head
@@ -32,14 +23,14 @@ matrix:
     - name: rbx-2 / Parser tests
       rvm: rbx-2
       script: bundle exec rake test_cov
-    - name: 2.5.7 / Rubocop tests
-      rvm: 2.5.7
+    - name: 2.5.8 / Rubocop tests
+      rvm: 2.5.8
       script: ./ci/run_rubocop_specs
-    - name: 2.6.5 / Rubocop tests
-      rvm: 2.6.5
+    - name: 2.6.6 / Rubocop tests
+      rvm: 2.6.6
       script: ./ci/run_rubocop_specs
-    - name: 2.7.0 / Rubocop tests
-      rvm: 2.7.0
+    - name: 2.7.1 / Rubocop tests
+      rvm: 2.7.1
       script: ./ci/run_rubocop_specs
   allow_failures:
     - rvm: ruby-head
