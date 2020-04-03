@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-04-03)
--------------------------
+v2.7.1.0 (2020-04-03)
+---------------------
 
 API modifications:
  * Bump ruby versions to 2.4.10, 2.5.8, 2.6.6, 2.7.1. (#665) (Ilya Bylich)
