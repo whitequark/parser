@@ -37,6 +37,14 @@ module Parser
     attr_reader   :heredoc_e, :str_s, :dedent_level
     attr_accessor :saved_herebody_s
 
+    class << self
+      attr_writer :buffer_prototype
+
+      def buffer_prototype
+        @buffer_prototype || ''
+      end
+    end
+
     def initialize(lexer, str_type, delimiter, str_s, heredoc_e = nil,
                    indent = false, dedent_body = false, label_allowed = false)
       @lexer       = lexer
@@ -151,7 +159,7 @@ module Parser
           emit(:tLABEL_END, @end_delim, ts, te + 1)
         elsif @monolithic
           # Emit the string as a single token.
-          emit(:tSTRING, @buffer, @str_s, te)
+          emit(:tSTRING, @buffer.to_s, @str_s, te)
         else
           # If this is a heredoc, @buffer contains the sentinel now.
           # Just throw it out. Lexer flushes the heredoc after each
@@ -206,7 +214,7 @@ module Parser
       end
 
       unless @buffer.empty?
-        emit(:tSTRING_CONTENT, @buffer, @buffer_s, @buffer_e)
+        emit(:tSTRING_CONTENT, @buffer.to_s, @buffer_s, @buffer_e)
 
         clear_buffer
         extend_content
@@ -246,7 +254,7 @@ module Parser
     end
 
     def clear_buffer
-      @buffer = ''.dup
+      @buffer = self.class.buffer_prototype.dup
 
       # Prime the buffer with lexer encoding; otherwise,
       # concatenation will produce varying results.

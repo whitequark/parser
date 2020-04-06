@@ -3605,4 +3605,37 @@ class TestLexer < Minitest::Test
     end
   end
 
+  class StringIOBuffer < StringIO
+    def << (s)
+      super
+
+      # Yes, we need to set the encoding here and not in
+      # `force_encoding' or some tests will break (when using this
+      # alternate buffer implementation for all tests.)
+
+      set_encoding(s.encoding)
+    end
+
+    def force_encoding(encoding)
+      # see above
+    end
+
+    def empty?
+      length == 0
+    end
+
+    def to_s
+      string + '_custom_buffer' # suffix only for testing
+    end
+  end
+
+  def test_alternate_string_buffer
+    begin
+      Parser::Lexer::Literal.buffer_prototype = StringIOBuffer.new
+
+      assert_escape "\x09_custom_buffer", 'u{9}'
+    ensure
+      Parser::Lexer::Literal.buffer_prototype = nil
+    end
+  end
 end
