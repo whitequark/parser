@@ -203,10 +203,9 @@ module Parser
       ##
       # Provides a protected block where a sequence of multiple rewrite actions
       # are handled atomically. If any of the actions failed by clobbering,
-      # all the actions are rolled back.
+      # all the actions are rolled back. Transactions can be nested.
       #
       # @raise [RuntimeError] when no block is passed
-      # @raise [RuntimeError] when already in a transaction
       #
       def transaction
         unless block_given?
