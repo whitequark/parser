@@ -298,6 +298,15 @@ module Parser
         (@end_pos <=> other.end_pos)
       end
 
+      alias_method :eql?, :==
+
+      ##
+      # Support for Ranges be used in as Hash indices and in Sets.
+      #
+      def hash
+        [@source_buffer, @begin_pos, @end_pos].hash
+      end
+
       ##
       # @return [String] a human-readable representation of this range.
       #

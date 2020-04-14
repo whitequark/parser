@@ -169,4 +169,19 @@ class TestSourceRange < Minitest::Test
     assert_equal 1, sr3.begin_pos
     assert_equal 4, sr3.end_pos
   end
+
+  def test_eql_and_hash
+    assert_equal false, @sr1_3.eql?(@sr3_3)
+    assert @sr1_3.hash != @sr3_3.hash
+
+    also_1_3 = @sr3_3.with(begin_pos: 1)
+    assert_equal true, @sr1_3.eql?(also_1_3)
+    assert_equal @sr1_3.hash, also_1_3.hash
+
+    buf2 = Parser::Source::Buffer.new('(string)')
+    buf2.source = "foobar\nbaz"
+    from_other_buf = Parser::Source::Range.new(buf2, 1, 3)
+    assert_equal false, @sr1_3.eql?(from_other_buf)
+    assert @sr1_3.hash != from_other_buf.hash
+  end
 end
