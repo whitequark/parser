@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Not released (2020-04-15)
+-------------------------
+
+Features implemented:
+ * Add Source::Range#eql? and hash (#675) (Marc-André Lafortune)
+ * Source::TreeRewriter: Add #merge, #merge! and #empty? (#674) (Marc-André Lafortune)
+
 v2.7.1.0 (2020-04-03)
 ---------------------
 
