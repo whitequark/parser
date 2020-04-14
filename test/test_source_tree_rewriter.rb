@@ -8,8 +8,10 @@ class TestSourceTreeRewriter < Minitest::Test
     @buf.source = 'puts(:hello, :world)'
 
     @hello = range(5, 6)
+    @ll = range(7, 2)
     @comma_space = range(11,2)
     @world = range(13,6)
+    @whole = range(0, @buf.source.length)
   end
 
   def range(from, len)
@@ -17,11 +19,11 @@ class TestSourceTreeRewriter < Minitest::Test
   end
 
   # Returns either:
-  #  - String (Normal operation)
+  #  - yield rewriter
   #  - [diagnostic, ...] (Diagnostics)
   #  - Parser::ClobberingError
   #
-  def apply(actions, **policy)
+  def build(actions, **policy)
     diagnostics = []
     diags = -> { diagnostics.flatten.map(&:strip).join("\n") }
     rewriter = Parser::Source::TreeRewriter.new(@buf, **policy)
@@ -30,12 +32,21 @@ class TestSourceTreeRewriter < Minitest::Test
       rewriter.public_send(action, range, *args)
     end
     if diagnostics.empty?
-      rewriter.process
+      yield rewriter
     else
       diags.call
     end
   rescue ::Parser::ClobberingError => e
     [::Parser::ClobberingError, diags.call]
+  end
+
+  # Returns either:
+  #  - String (Normal operation)
+  #  - [diagnostic, ...] (Diagnostics)
+  #  - Parser::ClobberingError
+  #
+  def apply(actions, **policy)
+    build(actions, **policy) { |rewriter| rewriter.process }
   end
 
   # Expects ordered actions to be grouped together
@@ -169,5 +180,74 @@ DIAGNOSTIC
   def test_out_of_range_ranges
     rewriter = Parser::Source::TreeRewriter.new(@buf)
     assert_raises(IndexError) { rewriter.insert_before(range(0, 100), 'hola') }
+  end
+
+  def test_empty
+    rewriter = Parser::Source::TreeRewriter.new(@buf)
+    assert_equal true, rewriter.empty?
+
+    # This is a trivial wrap
+    rewriter.wrap(range(2,3), '', '')
+    assert_equal true, rewriter.empty?
+
+    # This is a trivial deletion
+    rewriter.remove(range(2,0))
+    assert_equal true, rewriter.empty?
+
+    rewriter.remove(range(2,3))
+    assert_equal false, rewriter.empty?
+  end
+
+  # splits array into two groups, yield all such possible pairs of groups
+  # each_split([1, 2, 3, 4]) yields [1, 2], [3, 4];
+  #                            then [1, 3], [2, 4]
+  #                                 ...
+  #                     and finally [3, 4], [1, 2]
+  def each_split(array)
+    n = array.size
+    first_split_size = n.div(2)
+    splitting = (0...n).to_set
+    splitting.to_a.combination(first_split_size) do |indices|
+      yield array.values_at(*indices),
+            array.values_at(*(splitting - indices))
+    end
+  end
+
+  # Checks that `actions+extra` give the same result when
+  # made in order or from subgroups that are later merged.
+  # The `extra` actions are always added at the end of the second group.
+  #
+  def check_all_merge_possibilities(actions, extra, **policy)
+    expected = apply(actions + extra, **policy)
+
+    each_split(actions) do |actions_1, actions_2|
+      build(actions_1, **policy) do |rewriter_1|
+        build(actions_2 + extra, **policy) do |rewriter_2|
+          result = rewriter_1.merge(rewriter_2).process
+          assert_equal(expected, result,
+            "Group 1: #{actions_1.inspect}\n\n" +
+            "Group 2: #{(actions_2 + extra).inspect}"
+          )
+        end
+      end
+    end
+  end
+
+  def test_merge
+    check_all_merge_possibilities([
+      [:wrap, @whole, '<', '>'],
+      [:replace, @comma_space, ' => '],
+      [:wrap, @hello, '!', '!'],
+      # Following two wraps must have same value as they
+      # will be applied in different orders...
+      [:wrap, @hello.join(@world), '{', '}'],
+      [:wrap, @hello.join(@world), '{', '}'],
+      [:remove, @ll],
+      [:replace, @world, ':everybody'],
+      [:wrap, @world, '[', ']']
+    ],
+    [ # ... but this one is always going to be applied last (extra)
+      [:wrap, @hello.join(@world), '@', '@'],
+    ])
   end
 end
