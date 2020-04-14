@@ -118,6 +118,43 @@ module Parser
       end
 
       ##
+      # Returns true iff no (non trivial) update has been recorded
+      #
+      # @return [Boolean]
+      #
+      def empty?
+        @action_root.empty?
+      end
+
+      ##
+      # Merges the updates of argument with the receiver.
+      # Policies of the receiver are used.
+      #
+      # @param [Rewriter] with
+      # @return [Rewriter] self
+      # @raise [ClobberingError] when clobbering is detected
+      #
+      def merge!(with)
+        raise 'TreeRewriter are not for the same source_buffer' unless
+          source_buffer == with.source_buffer
+
+        @action_root = @action_root.combine(with.action_root)
+        self
+      end
+
+      ##
+      # Returns a new rewriter that consists of the updates of the received
+      # and the given argument. Policies of the receiver are used.
+      #
+      # @param [Rewriter] with
+      # @return [Rewriter] merge of receiver and argument
+      # @raise [ClobberingError] when clobbering is detected
+      #
+      def merge(with)
+        dup.merge!(with)
+      end
+
+      ##
       # Replaces the code of the source range `range` with `content`.
       #
       # @param [Range] range
@@ -254,6 +291,10 @@ module Parser
       ].join("\n").freeze
 
       extend Deprecation
+
+      protected
+
+      attr_reader :action_root
 
       private
 

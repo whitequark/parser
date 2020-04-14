@@ -25,10 +25,16 @@ module Parser
         freeze
       end
 
-      # Assumes action.children.empty?
       def combine(action)
-        return self unless action.insertion? || action.replacement # Ignore empty action
+        return self if action.empty? # Ignore empty action
         do_combine(action)
+      end
+
+      def empty?
+        @insert_before.empty? &&
+          @insert_after.empty? &&
+          @children.empty? &&
+          (@replacement == nil || (@replacement.empty? && @range.empty?))
       end
 
       def ordered_replacements
@@ -46,9 +52,11 @@ module Parser
 
       protected
 
-      def with(range: @range, children: @children, insert_before: @insert_before, replacement: @replacement, insert_after: @insert_after)
+      attr_reader :children
+
+      def with(range: @range, enforcer: @enforcer, children: @children, insert_before: @insert_before, replacement: @replacement, insert_after: @insert_after)
         children = swallow(children) if replacement
-        self.class.new(range, @enforcer, children: children, insert_before: insert_before, replacement: replacement, insert_after: insert_after)
+        self.class.new(range, enforcer, children: children, insert_before: insert_before, replacement: replacement, insert_after: insert_after)
       end
 
       # Assumes range.contains?(action.range) && action.children.empty?
@@ -69,11 +77,19 @@ module Parser
           extra_sibbling = if family[:parent]  # action should be a descendant of one of the children
             family[:parent][0].do_combine(action)
           elsif family[:child]                 # or it should become the parent of some of the children,
-            action.with(children: family[:child])
+            action.with(children: family[:child], enforcer: @enforcer)
+              .combine_children(action.children)
           else                                 # or else it should become an additional child
             action
           end
           with(children: [*family[:sibbling], extra_sibbling])
+        end
+      end
+
+      # Assumes more_children all contained within @range
+      def combine_children(more_children)
+        more_children.inject(self) do |parent, new_child|
+          parent.place_in_hierarchy(new_child)
         end
       end
 
@@ -109,7 +125,7 @@ module Parser
           insert_before: "#{action.insert_before}#{insert_before}",
           replacement: action.replacement || @replacement,
           insert_after: "#{insert_after}#{action.insert_after}",
-        )
+        ).combine_children(action.children)
       end
 
       def call_enforcer_for_merge(action)
