@@ -20,6 +20,7 @@ if ENV.include?('COVERAGE') && SimpleCov.usable?
       ruby25.y
       ruby26.y
       ruby27.y
+      ruby28.y
     ),
     File.expand_path('../../lib/parser', __FILE__))
 
