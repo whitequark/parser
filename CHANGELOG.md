@@ -2,7 +2,7 @@ Changelog
 =========
 
 v2.7.1.1 (2020-04-15)
--------------------------
+---------------------
 
 Features implemented:
  * Add Source::Range#eql? and hash (#675) (Marc-André Lafortune)
@@ -1072,4 +1072,3 @@ Bugs fixed:
  * lexer.rl: /= at expr_beg. (Peter Zotov)
  * lexer.rl: class\<\<self. (Peter Zotov)
  * fix lexing comments at expr_beg "{#1\n}". (Peter Zotov)
-
