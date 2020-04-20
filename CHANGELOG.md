@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Not released (2020-04-15)
+v2.7.1.1 (2020-04-15)
 -------------------------
 
 Features implemented:
