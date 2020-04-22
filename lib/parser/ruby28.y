@@ -310,6 +310,35 @@ rule
                       result = [ val[1], val[2] ]
                     }
 
+        def_name:  fname
+                    {
+                      @static_env.extend_static
+                      @lexer.cmdarg.push(false)
+                      @lexer.cond.push(false)
+                      @current_arg_stack.push(nil)
+
+                      result = val[0]
+                    }
+
+       defn_head: kDEF def_name
+                    {
+                      @context.push(:def)
+
+                      result = [ val[0], val[1] ]
+                    }
+
+       defs_head: kDEF singleton dot_or_colon
+                    {
+                      @lexer.state = :expr_fname
+                    }
+                  def_name
+                    {
+                      @context.push(:defs)
+
+                      result = [ val[0], val[1], val[2], val[4] ]
+                    }
+
+
     command_call: command
                 | block_command
 
@@ -1224,18 +1253,10 @@ rule
                       @lexer.cmdarg.pop
                       @static_env.unextend
                     }
-                | kDEF fname
+                | defn_head f_arglist bodystmt kEND
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:def)
-                      @current_arg_stack.push(nil)
-                    }
-                    f_arglist bodystmt kEND
-                    {
-                      result = @builder.def_method(val[0], val[1],
-                                  val[3], val[4], val[5])
+                      result = @builder.def_method(*val[0], val[1],
+                                  val[2], val[3])
 
                       @lexer.cmdarg.pop
                       @lexer.cond.pop
@@ -1243,22 +1264,10 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | kDEF singleton dot_or_colon
+                | defs_head f_arglist bodystmt kEND
                     {
-                      @lexer.state = :expr_fname
-                    }
-                    fname
-                    {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:defs)
-                      @current_arg_stack.push(nil)
-                    }
-                    f_arglist bodystmt kEND
-                    {
-                      result = @builder.def_singleton(val[0], val[1], val[2],
-                                  val[4], val[6], val[7], val[8])
+                      result = @builder.def_singleton(*val[0], val[1],
+                                  val[2], val[3])
 
                       @lexer.cmdarg.pop
                       @lexer.cond.pop
