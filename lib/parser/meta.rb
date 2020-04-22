@@ -16,7 +16,7 @@ module Parser
         op_asgn and_asgn ensure rescue arg_expr
         or_asgn back_ref nth_ref
         match_with_lvasgn match_current_line
-        module class sclass def defs undef alias args
+        module class sclass def defs def_e defs_e undef alias args
         cbase arg optarg restarg blockarg block_pass kwarg kwoptarg
         kwrestarg kwnilarg send csend super zsuper yield block
         and not or if when case while until while_post

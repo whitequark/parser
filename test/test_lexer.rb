@@ -3569,6 +3569,16 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER, 're', [1, 3])
   end
 
+  def test_endless_method
+    setup_lexer(28)
+
+    assert_scanned('def foo = 42',
+                    :kDEF, "def", [0, 3],
+                    :tIDENTIFIER, 'foo', [4, 7],
+                    :tEQL, "=", [8, 9],
+                    :tINTEGER, 42, [10, 12])
+  end
+
   def lex_numbered_parameter(input)
     @lex.max_numparam_stack.push
 

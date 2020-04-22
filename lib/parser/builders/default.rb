@@ -652,19 +652,28 @@ module Parser
         definition_map(def_t, nil, name_t, end_t))
     end
 
+    def def_endless_method(def_t, name_t, args,
+                           assignment_t, body)
+      n(:def_e, [ value(name_t).to_sym, args, body ],
+        endless_definition_map(def_t, nil, name_t, assignment_t, body))
+    end
+
     def def_singleton(def_t, definee, dot_t,
                       name_t, args,
                       body, end_t)
-      case definee.type
-      when :int, :str, :dstr, :sym, :dsym,
-           :regexp, :array, :hash
+      return unless validate_definee(definee)
 
-        diagnostic :error, :singleton_literal, nil, definee.loc.expression
+      n(:defs, [ definee, value(name_t).to_sym, args, body ],
+        definition_map(def_t, dot_t, name_t, end_t))
+    end
 
-      else
-        n(:defs, [ definee, value(name_t).to_sym, args, body ],
-          definition_map(def_t, dot_t, name_t, end_t))
-      end
+    def def_endless_singleton(def_t, definee, dot_t,
+                              name_t, args,
+                              assignment_t, body)
+      return unless validate_definee(definee)
+
+      n(:defs_e, [ definee, value(name_t).to_sym, args, body ],
+        endless_definition_map(def_t, dot_t, name_t, assignment_t, body))
     end
 
     def undef_method(undef_t, names)
@@ -1743,6 +1752,14 @@ module Parser
                                   loc(end_t))
     end
 
+    def endless_definition_map(keyword_t, operator_t, name_t, assignment_t, body_e)
+      body_l = body_e.loc.expression
+
+      Source::Map::EndlessDefinition.new(loc(keyword_t),
+                                         loc(operator_t), loc(name_t),
+                                         loc(assignment_t), body_l)
+    end
+
     def send_map(receiver_e, dot_t, selector_t, begin_t=nil, args=[], end_t=nil)
       if receiver_e
         begin_l = receiver_e.loc.expression
@@ -1983,6 +2000,18 @@ module Parser
 
       if type == :error
         @parser.send :yyerror
+      end
+    end
+
+    def validate_definee(definee)
+      case definee.type
+      when :int, :str, :dstr, :sym, :dsym,
+           :regexp, :array, :hash
+
+        diagnostic :error, :singleton_literal, nil, definee.loc.expression
+        false
+      else
+        true
       end
     end
   end
