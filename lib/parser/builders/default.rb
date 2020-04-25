@@ -1239,8 +1239,10 @@ module Parser
 
     def match_var(name_t)
       name = value(name_t).to_sym
+      name_l = loc(name_t)
 
-      check_duplicate_pattern_variable(name, loc(name_t))
+      check_lvar_name(name, name_l)
+      check_duplicate_pattern_variable(name, name_l)
       @parser.static_env.declare(name)
 
       n(:match_var, [ name ],
@@ -1253,6 +1255,7 @@ module Parser
       expr_l = loc(name_t)
       name_l = expr_l.adjust(end_pos: -1)
 
+      check_lvar_name(name, name_l)
       check_duplicate_pattern_variable(name, name_l)
       @parser.static_env.declare(name)
 

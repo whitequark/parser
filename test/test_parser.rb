@@ -8943,6 +8943,15 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_pattern_matching_invalid_lvar_name
+    assert_diagnoses(
+      [:error, :lvar_name, { name: :a? }],
+      %q{case a; in a?:; end},
+      %q{           ~~ location},
+      SINCE_2_7
+    )
+  end
+
   def test_pattern_matching_keyword_variable
     assert_parses_pattern_match(
       s(:in_pattern,
