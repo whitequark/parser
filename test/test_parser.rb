@@ -8934,6 +8934,13 @@ class TestParser < Minitest::Test
       %q{           ~~~~~~~ location},
       SINCE_2_7
     )
+
+    assert_diagnoses(
+      [:error, :pm_interp_in_var_name],
+      %q{case a; in "#{a}": 1; end},
+      %q{           ~~~~~~~ location},
+      SINCE_2_7
+    )
   end
 
   def test_pattern_matching_keyword_variable

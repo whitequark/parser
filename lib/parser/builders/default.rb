@@ -1293,6 +1293,9 @@ module Parser
           Source::Map::Variable.new(name_l, expr_l))
       when :begin
         match_hash_var_from_str(begin_t, string.children, end_t)
+      else
+        # we only can get here if there is an interpolation, e.g., ``in "#{ a }":`
+        diagnostic :error, :pm_interp_in_var_name, nil, loc(begin_t).join(loc(end_t))
       end
     end
 
