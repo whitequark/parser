@@ -846,7 +846,7 @@ rule
                       result = @builder.ternary(val[0], val[1],
                                                 val[2], val[4], val[5])
                     }
-                | defn_head f_arglist_opt tEQL arg
+                | defn_head f_paren_args tEQL arg
                     {
                       result = @builder.def_endless_method(*val[0],
                                  val[1], val[2], val[3])
@@ -857,7 +857,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defs_head f_arglist_opt tEQL arg
+                | defs_head f_paren_args tEQL arg
                     {
                       result = @builder.def_endless_singleton(*val[0],
                                  val[1], val[2], val[3])
@@ -2546,13 +2546,7 @@ keyword_variable: kNIL
                       result = nil
                     }
 
-   f_arglist_opt: # nothing
-                    {
-                      result = @builder.args(nil, [], nil)
-                    }
-                | f_arglist
-
-       f_arglist: tLPAREN2 f_args rparen
+   f_paren_args: tLPAREN2 f_args rparen
                     {
                       result = @builder.args(val[0], val[1], val[2])
 
@@ -2565,6 +2559,8 @@ keyword_variable: kNIL
 
                       @lexer.state = :expr_value
                     }
+
+       f_arglist: f_paren_args
                 |   {
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
