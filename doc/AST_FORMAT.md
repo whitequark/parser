@@ -637,7 +637,7 @@ Format:
 (masgn (mlhs (ivasgn :@a) (cvasgn :@@b)) (array (splat (lvar :c))))
 "@a, @@b = *c"
 
-(masgn (mlhs (mlhs (lvasgn :a) (lvasgn :b)) (lvasgn :c)) (lvar :d))
+(masgn (mlhs (lvasgn :a) (mlhs (lvasgn :b)) (lvasgn :c)) (lvar :d))
 "a, (b, c) = d"
 
 (masgn (mlhs (send (self) :a=) (send (self) :[]= (int 1))) (lvar :a))
