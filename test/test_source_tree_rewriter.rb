@@ -151,6 +151,16 @@ DIAGNOSTIC
                             [:wrap, @hello, '[', ']']]
   end
 
+  def test_inserts_on_empty_ranges
+    assert_actions_result 'puts({x}:hello[y], :world)',
+      [:insert_before, @hello.begin, '{'],
+      [:replace, @hello.begin, 'x'],
+      [:insert_after, @hello.begin, '}'],
+      [:insert_before, @hello.end, '['],
+      [:replace, @hello.end, 'y'],
+      [:insert_after, @hello.end, ']']
+  end
+
   def test_replace_same_range
     assert_actions_result 'puts(:hey, :world)',
                            [[:replace, @hello, ':hi'],
