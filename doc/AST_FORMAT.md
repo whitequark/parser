@@ -730,6 +730,28 @@ Format:
 
 ~~~
 
+### Right-hand assignment
+
+Format:
+
+~~~
+(rasgn (int 1) (lvasgn :a))
+"1 => a"
+ ~~~~~~ expression
+   ~~ operator
+~~~
+
+#### Multiple right-hand assignment
+
+Format:
+
+~~~
+(mrasgn (send (int 13) :divmod (int 5)) (mlhs (lvasgn :a) (lvasgn :b)))
+"13.divmod(5) => a,b"
+ ~~~~~~~~~~~~~~~~~~~ expression
+              ^^ operator
+~~~
+
 ## Class and module definition
 
 ### Module
