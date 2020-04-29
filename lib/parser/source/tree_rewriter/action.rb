@@ -7,7 +7,7 @@ module Parser
     #
     # Actions are arranged in a tree and get combined so that:
     #   children are strictly contained by their parent
-    #   sibblings all disjoint from one another
+    #   sibblings all disjoint from one another and ordered
     #   only actions with replacement==nil may have children
     #
     class TreeRewriter::Action
@@ -41,7 +41,7 @@ module Parser
         reps = []
         reps << [@range.begin, @insert_before] unless @insert_before.empty?
         reps << [@range, @replacement] if @replacement
-        reps.concat(@children.sort_by(&:range).flat_map(&:ordered_replacements))
+        reps.concat(@children.flat_map(&:ordered_replacements))
         reps << [@range.end, @insert_after] unless @insert_after.empty?
         reps
       end
@@ -69,24 +69,24 @@ module Parser
       end
 
       def place_in_hierarchy(action)
-        family = @children.group_by { |child| child.relationship_with(action) }
+        family = analyse_hierarchy(action)
 
         if family[:fusible]
-          fuse_deletions(action, family[:fusible], [*family[:sibbling], *family[:child]])
+          fuse_deletions(action, family[:fusible], [*family[:sibbling_left], *family[:child], *family[:sibbling_right]])
         else
           extra_sibbling = if family[:parent]  # action should be a descendant of one of the children
-            family[:parent][0].do_combine(action)
+            family[:parent].do_combine(action)
           elsif family[:child]                 # or it should become the parent of some of the children,
             action.with(children: family[:child], enforcer: @enforcer)
               .combine_children(action.children)
           else                                 # or else it should become an additional child
             action
           end
-          with(children: [*family[:sibbling], extra_sibbling])
+          with(children: [*family[:sibbling_left], extra_sibbling, *family[:sibbling_right]])
         end
       end
 
-      # Assumes more_children all contained within @range
+      # Assumes `more_children` all contained within `@range`
       def combine_children(more_children)
         more_children.inject(self) do |parent, new_child|
           parent.place_in_hierarchy(new_child)
@@ -100,22 +100,76 @@ module Parser
         without_fusible.do_combine(fused_deletion)
       end
 
-      # Returns what relationship self should have with `action`; either of
-      #   :sibbling, :parent, :child, :fusible or raises a CloberingError
-      # In case of equal range, returns :parent
-      def relationship_with(action)
-        if action.range == @range || @range.contains?(action.range)
-          :parent
-        elsif @range.contained?(action.range)
-          :child
-        elsif @range.disjoint?(action.range)
-          :sibbling
-        elsif !action.insertion? && !insertion?
-          @enforcer.call(:crossing_deletions) { {range: action.range, conflict: @range} }
-          :fusible
+      # Similar to @children.bsearch_index || size
+      # except allows for a starting point
+      # and `bsearch_index` is only Ruby 2.3+
+      def bsearch_child_index(from = 0)
+        size = @children.size
+        (from...size).bsearch { |i| yield @children[i] } || size
+      end
+
+      # Returns the children in a hierarchy with respect to `action`:
+      #   :sibbling_left, sibbling_right (for those that are disjoint from `action`)
+      #   :parent (in case one of our children contains `action`)
+      #   :child (in case `action` strictly contains some of our children)
+      #   :fusible (in case `action` overlaps some children but they can be fused in one deletion)
+      #   or raises a `CloberingError`
+      # In case a child has equal range to `action`, it is returned as `:parent`
+      # Reminder: an empty range 1...1 is considered disjoint from 1...10
+      def analyse_hierarchy(action)
+        r = action.range
+        # left_index is the index of the first child that isn't completely to the left of action
+        left_index = bsearch_child_index { |child| child.range.end_pos > r.begin_pos }
+        # right_index is the index of the first child that is completely on the right of action
+        start = left_index == 0 ? 0 : left_index - 1  # See "corner case" below for reason of -1
+        right_index = bsearch_child_index(start) { |child| child.range.begin_pos >= r.end_pos }
+        center = right_index - left_index
+        case center
+        when 0
+          # All children are disjoint from action, nothing else to do
+        when -1
+          # Corner case: if a child has empty range == action's range
+          # then it will appear to be both disjoint and to the left of action,
+          # as well as disjoint and to the right of action.
+          # Since ranges are equal, we return it as parent
+          left_index -= 1  # Fix indices, as otherwise this child would be
+          right_index += 1 # considered as a sibbling (both left and right!)
+          parent = @children[left_index]
         else
-          @enforcer.call(:crossing_insertions) { {range: action.range, conflict: @range} }
+          overlap_left = @children[left_index].range.begin_pos <=> r.begin_pos
+          overlap_right = @children[right_index-1].range.end_pos <=> r.end_pos
+
+          # For one child to be the parent of action, we must have:
+          if center == 1 && overlap_left <= 0 && overlap_right >= 0
+            parent = @children[left_index]
+          else
+            # Otherwise consider all non disjoint elements (center) to be contained...
+            contained = @children[left_index...right_index]
+            fusible = check_fusible(action,
+              (contained.shift if overlap_left < 0),  # ... but check first and last one
+              (contained.pop if overlap_right > 0)    # ... for overlaps
+            )
+          end
         end
+
+        {
+          parent: parent,
+          sibbling_left: @children[0...left_index],
+          sibbling_right: @children[right_index...@children.size],
+          fusible: fusible,
+          child: contained,
+        }
+      end
+
+      # @param [Array(Action | nil)] fusible
+      def check_fusible(action, *fusible)
+        fusible.compact!
+        return if fusible.empty?
+        fusible.each do |child|
+          kind = action.insertion? || child.insertion? ? :crossing_insertions : :crossing_deletions
+          @enforcer.call(kind) { {range: action.range, conflict: child.range} }
+        end
+        fusible
       end
 
       # Assumes action.range == range && action.children.empty?
