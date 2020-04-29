@@ -221,20 +221,17 @@ module Parser
       #
       # @return [String]
       #
-      def process
-        source     = @source_buffer.source.dup
-        adjustment = 0
+     def process
+        source     = @source_buffer.source
 
+        chunks = []
+        last_end = 0
         @action_root.ordered_replacements.each do |range, replacement|
-          begin_pos = range.begin_pos + adjustment
-          end_pos   = begin_pos + range.length
-
-          source[begin_pos...end_pos] = replacement
-
-          adjustment += replacement.length - range.length
+          chunks << source[last_end...range.begin_pos] << replacement
+          last_end = range.end_pos
         end
-
-        source
+        chunks << source[last_end...source.length]
+        chunks.join
       end
 
       ##
