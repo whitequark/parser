@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Not released (2020-04-30)
+-------------------------
+
+Features implemented:
+ * ruby28.y: endless method definition (#676) (Vladimir Dementyev)
+ * ruby28.y: branch parser (#677) (Vladimir Dementyev)
+
+Bugs fixed:
+ * ruby27.y: reject invalid lvar in pattern matching (#680) (Vladimir Dementyev)
+
 v2.7.1.1 (2020-04-15)
 ---------------------
 
@@ -1072,3 +1082,4 @@ Bugs fixed:
  * lexer.rl: /= at expr_beg. (Peter Zotov)
  * lexer.rl: class\<\<self. (Peter Zotov)
  * fix lexing comments at expr_beg "{#1\n}". (Peter Zotov)
+
