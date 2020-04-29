@@ -9444,4 +9444,82 @@ class TestParser < Minitest::Test
       %{},
       SINCE_1_9)
   end
+
+  def test_endless_method
+    assert_parses(
+      s(:def_e, :foo,
+        s(:args),
+        s(:int, 42)),
+      %q{def foo() = 42},
+      %q{~~~ keyword
+        |    ~~~ name
+        |          ^ assignment
+        |~~~~~~~~~~~~~~ expression},
+      SINCE_2_8)
+
+    assert_parses(
+      s(:def_e, :inc,
+        s(:args, s(:arg, :x)),
+        s(:send,
+          s(:lvar, :x), :+,
+          s(:int, 1))),
+      %q{def inc(x) = x + 1},
+      %q{~~~ keyword
+        |    ~~~ name
+        |           ^ assignment
+        |~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_2_8)
+
+    assert_parses(
+      s(:defs_e, s(:send, nil, :obj), :foo,
+        s(:args),
+        s(:int, 42)),
+      %q{def obj.foo() = 42},
+      %q{~~~ keyword
+        |       ^ operator
+        |        ~~~ name
+        |              ^ assignment
+        |~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_2_8)
+
+    assert_parses(
+      s(:defs_e, s(:send, nil, :obj), :inc,
+        s(:args, s(:arg, :x)),
+        s(:send,
+          s(:lvar, :x), :+,
+          s(:int, 1))),
+      %q{def obj.inc(x) = x + 1},
+      %q{~~~ keyword
+        |        ~~~ name
+        |       ^ operator
+        |               ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_2_8)
+
+    assert_parses(
+      s(:def_e, :foo,
+        s(:forward_args),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      %q{def foo(...) = bar(...)},
+      %q{~~~ keyword
+        |    ~~~ name
+        |             ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_2_8)
+  end
+
+  def test_endless_method_without_brackets
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tEQL' }],
+      %Q{def foo = 42},
+      %q{        ^ location},
+      SINCE_2_8)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tEQL' }],
+      %Q{def obj.foo = 42},
+      %q{            ^ location},
+      SINCE_2_8)
+  end
 end

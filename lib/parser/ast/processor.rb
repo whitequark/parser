@@ -159,6 +159,8 @@ module Parser
         ])
       end
 
+      alias on_def_e on_def
+
       def on_defs(node)
         definee_node, name, args_node, body_node = *node
 
@@ -167,6 +169,8 @@ module Parser
           process(args_node), process(body_node)
         ])
       end
+
+      alias on_defs_e on_defs
 
       alias on_undef    process_regular_node
       alias on_alias    process_regular_node
