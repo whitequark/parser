@@ -619,6 +619,15 @@ module Parser
         binary_op_map(lhs, eql_t, rhs))
     end
 
+    def rassign(lhs, assoc_t, rhs)
+      n(:rasgn, [lhs, rhs], binary_op_map(lhs, assoc_t, rhs))
+    end
+
+    def multi_rassign(lhs, assoc_t, rhs)
+      n(:mrasgn, [ lhs, rhs ],
+        binary_op_map(lhs, assoc_t, rhs))
+    end
+
     #
     # Class and module definition
     #

@@ -206,7 +206,25 @@ rule
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
                     }
+                | rassign
                 | expr
+
+        rassign: arg_value tASSOC lhs
+                    {
+                      result = @builder.rassign(val[0], val[1], val[2])
+                    }
+                | arg_value tASSOC mlhs
+                    {
+                      result = @builder.multi_rassign(val[0], val[1], val[2])
+                    }
+                | rassign tASSOC lhs
+                    {
+                      result = @builder.rassign(val[0], val[1], val[2])
+                    }
+                | rassign tASSOC mlhs
+                    {
+                      result = @builder.multi_rassign(val[0], val[1], val[2])
+                    }
 
     command_asgn: lhs tEQL command_rhs
                     {
