@@ -3606,7 +3606,7 @@ class TestLexer < Minitest::Test
 
   def refute_scanned_numbered_parameter(input, message = nil)
     err = assert_raises Parser::SyntaxError do
-      lex_token, (lex_value, lex_range) = lex_numbered_parameter(input)
+      _lex_token, (_lex_value, _lex_range) = lex_numbered_parameter(input)
     end
 
     if message

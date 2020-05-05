@@ -11,7 +11,7 @@ task :default => [:test]
 Rake::TestTask.new do |t|
   t.libs       = %w(test/ lib/)
   t.test_files = FileList["test/**/test_*.rb"]
-  t.warning    = false
+  t.warning    = true
 end
 
 task :test_cov do

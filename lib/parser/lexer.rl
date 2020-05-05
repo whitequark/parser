@@ -283,6 +283,13 @@ class Parser::Lexer
     %% write exec;
     # %
 
+    # Ragel creates a local variable called `testEof` but it doesn't use
+    # it in any assignment. This dead code is here to swallow the warning.
+    # It has no runtime cost because Ruby doesn't produce any instructions from it.
+    if false
+      testEof
+    end
+
     @p = p
 
     if @token_queue.any?

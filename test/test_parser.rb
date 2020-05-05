@@ -9238,7 +9238,7 @@ class TestParser < Minitest::Test
       before = parser.static_env.instance_variable_get(:@variables).to_a
 
       begin
-        parsed_ast = parser.parse(source_file)
+        _parsed_ast = parser.parse(source_file)
       rescue Parser::SyntaxError => exc
         backtrace = exc.backtrace
         Exception.instance_method(:initialize).bind(exc).

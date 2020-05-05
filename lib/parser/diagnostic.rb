@@ -67,7 +67,7 @@ module Parser
     # @return [String] the rendered message.
     #
     def message
-      MESSAGES[@reason] % @arguments
+      Messages.compile(@reason, @arguments)
     end
 
     ##

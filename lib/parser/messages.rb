@@ -93,4 +93,19 @@ module Parser
     :crossing_insertions           => 'the rewriting action on:',
     :crossing_insertions_conflict  => 'is crossing that on:',
   }.freeze
+
+  # @api private
+  module Messages
+    # Formats the message, returns a raw template if there's nothing to interpolate
+    #
+    # Code like `format("", {})` gives a warning, and so this method tries interpolating
+    # only if `arguments` hash is not empty.
+    #
+    # @api private
+    def self.compile(reason, arguments)
+      template = MESSAGES[reason]
+      return template if Hash === arguments && arguments.empty?
+      format(template, arguments)
+    end
+  end
 end

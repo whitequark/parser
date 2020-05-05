@@ -106,8 +106,7 @@ module ParseHelper
     assert_equal ast, parsed_ast,
                  "(#{version}) AST equality"
 
-    parse_source_map_descriptions(source_maps) \
-        do |begin_pos, end_pos, map_field, ast_path, line|
+    parse_source_map_descriptions(source_maps) do |begin_pos, end_pos, map_field, ast_path, line|
 
       astlet = traverse_ast(parsed_ast, ast_path)
 
@@ -160,15 +159,14 @@ module ParseHelper
 
       level, reason, arguments = diagnostic
       arguments ||= {}
-      message     = Parser::MESSAGES[reason] % arguments
+      message     = Parser::Messages.compile(reason, arguments)
 
       assert_equal level, emitted_diagnostic.level
       assert_equal reason, emitted_diagnostic.reason
       assert_equal arguments, emitted_diagnostic.arguments
       assert_equal message, emitted_diagnostic.message
 
-      parse_source_map_descriptions(source_maps) \
-          do |begin_pos, end_pos, map_field, ast_path, line|
+      parse_source_map_descriptions(source_maps) do |begin_pos, end_pos, map_field, ast_path, line|
 
         case map_field
         when 'location'
@@ -216,7 +214,7 @@ module ParseHelper
       diagnostics.zip(@diagnostics) do |expected_diagnostic, actual_diagnostic|
         level, reason, arguments = expected_diagnostic
         arguments ||= {}
-        message     = Parser::MESSAGES[reason] % arguments
+        message     = Parser::Messages.compile(reason, arguments)
 
         assert_equal level, actual_diagnostic.level
         assert_equal reason, actual_diagnostic.reason

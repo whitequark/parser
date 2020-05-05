@@ -522,7 +522,7 @@ class TestSourceRewriter < Minitest::Test
       end
     end
 
-    assert_match /nested/i, error.message
+    assert_match(/nested/i, error.message)
   end
 
   def test_process_in_transaction_raises_error
@@ -532,7 +532,7 @@ class TestSourceRewriter < Minitest::Test
       end
     end
 
-    assert_match /transaction/, error.message
+    assert_match(/transaction/, error.message)
   end
 
   def silence_diagnostics

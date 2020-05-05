@@ -45,7 +45,7 @@ class TestSourceBuffer < Minitest::Test
       ].join("\n")
     end
 
-    assert_match /invalid byte sequence in UTF\-8/, error.message
+    assert_match(/invalid byte sequence in UTF\-8/, error.message)
   end
 
   def test_read
