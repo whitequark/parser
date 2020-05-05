@@ -159,7 +159,7 @@ module ParseHelper
 
       level, reason, arguments = diagnostic
       arguments ||= {}
-      message     = Parser::Messages.format(reason, arguments)
+      message     = Parser::Messages.compile(reason, arguments)
 
       assert_equal level, emitted_diagnostic.level
       assert_equal reason, emitted_diagnostic.reason
@@ -214,7 +214,7 @@ module ParseHelper
       diagnostics.zip(@diagnostics) do |expected_diagnostic, actual_diagnostic|
         level, reason, arguments = expected_diagnostic
         arguments ||= {}
-        message     = Parser::Messages.format(reason, arguments)
+        message     = Parser::Messages.compile(reason, arguments)
 
         assert_equal level, actual_diagnostic.level
         assert_equal reason, actual_diagnostic.reason

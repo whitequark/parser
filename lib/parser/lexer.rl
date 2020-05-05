@@ -284,7 +284,7 @@ class Parser::Lexer
     # %
 
     # Ragel creates a local variable called `testEof` but it doesn't use
-    # it any assignment. This dead code is here to swallow the warning.
+    # it in any assignment. This dead code is here to swallow the warning.
     # It has no runtime cost because Ruby doesn't produce any instructions from it.
     if false
       testEof

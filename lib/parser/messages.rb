@@ -98,14 +98,14 @@ module Parser
   module Messages
     # Formats the message, returns a raw template if there's nothing to interpolate
     #
-    # Code like `"" % {}` gives a warning, and so this method tries interpolating
+    # Code like `format("", {})` gives a warning, and so this method tries interpolating
     # only if `arguments` hash is not empty.
     #
     # @api private
-    def self.format(reason, arguments)
+    def self.compile(reason, arguments)
       template = MESSAGES[reason]
       return template if Hash === arguments && arguments.empty?
-      template % arguments
+      format(template, arguments)
     end
   end
 end
