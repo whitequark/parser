@@ -36,7 +36,7 @@ class TestSourceTreeRewriter < Minitest::Test
     else
       diags.call
     end
-  rescue ::Parser::ClobberingError => e
+  rescue ::Parser::ClobberingError => _e
     [::Parser::ClobberingError, diags.call]
   end
 

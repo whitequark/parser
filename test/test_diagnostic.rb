@@ -16,7 +16,7 @@ class TestDiagnostic < Minitest::Test
       Parser::Diagnostic.new(:foobar, :escape_eof, {}, @range1)
     end
 
-    assert_match /level/, error.message
+    assert_match(/level/, error.message)
   end
 
   def test_freezes

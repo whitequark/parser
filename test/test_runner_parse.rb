@@ -7,7 +7,7 @@ class TestRunnerParse < Minitest::Test
   PATH_TO_RUBY_PARSE = File.expand_path('../bin/ruby-parse', __dir__).freeze
 
   def assert_prints(argv, expected_output)
-    stdout, stderr, status = Open3.capture3(PATH_TO_RUBY_PARSE, *argv)
+    stdout, _stderr, status = Open3.capture3(PATH_TO_RUBY_PARSE, *argv)
 
     assert_equal 0, status.to_i
     assert_includes(stdout, expected_output)

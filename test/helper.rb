@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'tempfile'
-require 'minitest/test'
-
 require 'simplecov'
 
 if ENV.include?('COVERAGE') && SimpleCov.usable?
@@ -28,9 +26,9 @@ if ENV.include?('COVERAGE') && SimpleCov.usable?
   at_exit { RaccCoverage.stop }
 
   SimpleCov.start do
-    self.formatter = SimpleCov::Formatter::MultiFormatter[
-      SimpleCov::Formatter::HTMLFormatter,
-    ]
+    self.formatter = SimpleCov::Formatter::MultiFormatter.new(
+      SimpleCov::Formatter::HTMLFormatter
+    )
 
     add_group 'Grammars' do |source_file|
       source_file.filename =~ %r{\.y$}

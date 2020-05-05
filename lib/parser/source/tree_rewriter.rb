@@ -221,7 +221,7 @@ module Parser
       #
       # @return [String]
       #
-     def process
+      def process
         source     = @source_buffer.source
 
         chunks = []

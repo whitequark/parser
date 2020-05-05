@@ -95,7 +95,7 @@ class Foo
 end
     END
 
-    klass_node         = ast
+    _klass_node        = ast
     method_node        = ast.children[2]
     body               = method_node.children[2]
     f1_1_node          = body.children[0]
@@ -175,7 +175,7 @@ class Foo
 end
     END
 
-    klass_node         = ast
+    _klass_node        = ast
     method_node        = ast.children[2]
     body               = method_node.children[2]
     f1_1_node          = body.children[0]
@@ -201,12 +201,12 @@ end
   end
 
   def test_associate_empty_tree
-    ast, associations = associate("")
+    _ast, associations = associate("")
     assert_equal 0, associations.size
   end
 
   def test_associate_shebang_only
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 #!ruby
 class Foo
 end
@@ -216,7 +216,7 @@ end
   end
 
   def test_associate_frozen_string_literal
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # frozen_string_literal: true
 class Foo
 end
@@ -226,7 +226,7 @@ end
   end
 
   def test_associate_frozen_string_literal_dash_star_dash
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # -*- frozen_string_literal: true -*-
 class Foo
 end
@@ -236,7 +236,7 @@ end
   end
 
   def test_associate_frozen_string_literal_no_space_after_colon
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # frozen_string_literal:true
 class Foo
 end
@@ -246,7 +246,7 @@ end
   end
 
   def test_associate_warn_indent
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # warn_indent: true
 class Foo
 end
@@ -256,7 +256,7 @@ end
   end
 
   def test_associate_warn_indent_dash_star_dash
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # -*- warn_indent: true -*-
 class Foo
 end
@@ -266,7 +266,7 @@ end
   end
 
   def test_associate_warn_past_scope
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # warn_past_scope: true
 class Foo
 end
@@ -276,7 +276,7 @@ end
   end
 
   def test_associate_warn_past_scope_dash_star_dash
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # -*- warn_past_scope: true -*-
 class Foo
 end
@@ -286,7 +286,7 @@ end
   end
 
   def test_associate_multiple
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # frozen_string_literal: true; warn_indent: true
 class Foo
 end
@@ -296,7 +296,7 @@ end
   end
 
   def test_associate_multiple_dash_star_dash
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 # -*- frozen_string_literal: true; warn_indent: true -*-
 class Foo
 end
@@ -306,7 +306,7 @@ end
   end
 
   def test_associate_no_comments
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 class Foo
 end
     END
@@ -315,7 +315,7 @@ end
   end
 
   def test_associate_comments_after_root_node
-    ast, associations = associate(<<-END)
+    _ast, associations = associate(<<-END)
 class Foo
 end
 # not associated

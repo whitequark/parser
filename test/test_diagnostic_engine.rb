@@ -4,9 +4,6 @@ require 'helper'
 
 class TestDiagnosticEngine < Minitest::Test
   def setup
-    @buffer  = Parser::Source::Buffer.new('(source)')
-    @buffer.source = 'foobar'
-
     @engine = Parser::Diagnostic::Engine.new
 
     @queue  = []
@@ -14,7 +11,7 @@ class TestDiagnosticEngine < Minitest::Test
   end
 
   def test_process_warnings
-    warn = Parser::Diagnostic.new(:warning, :invalid_escape, @buffer, 1..2)
+    warn = Parser::Diagnostic.new(:warning, :invalid_escape, {}, 1..2)
     @engine.process(warn)
 
     assert_equal [warn], @queue
@@ -23,7 +20,7 @@ class TestDiagnosticEngine < Minitest::Test
   def test_ignore_warnings
     @engine.ignore_warnings = true
 
-    warn = Parser::Diagnostic.new(:warning, :invalid_escape, @buffer, 1..2)
+    warn = Parser::Diagnostic.new(:warning, :invalid_escape, {}, 1..2)
     @engine.process(warn)
 
     assert_equal [], @queue
@@ -32,7 +29,7 @@ class TestDiagnosticEngine < Minitest::Test
   def test_all_errors_are_fatal
     @engine.all_errors_are_fatal = true
 
-    error = Parser::Diagnostic.new(:error, :invalid_escape, @buffer, 1..2)
+    error = Parser::Diagnostic.new(:error, :invalid_escape, {}, 1..2)
 
     err = assert_raises Parser::SyntaxError do
       @engine.process(error)
@@ -44,14 +41,14 @@ class TestDiagnosticEngine < Minitest::Test
   end
 
   def test_all_errors_are_collected
-    error = Parser::Diagnostic.new(:error, :invalid_escape, @buffer, 1..2)
+    error = Parser::Diagnostic.new(:error, :invalid_escape, {}, 1..2)
     @engine.process(error)
 
     assert_equal [error], @queue
   end
 
   def test_fatal_error
-    fatal = Parser::Diagnostic.new(:fatal, :invalid_escape, @buffer, 1..2)
+    fatal = Parser::Diagnostic.new(:fatal, :invalid_escape, {}, 1..2)
 
     assert_raises Parser::SyntaxError do
       @engine.process(fatal)

@@ -21,7 +21,7 @@ class TestRunnerRewrite < Minitest::Test
       expected_file = @fixtures_dir + output
 
       FileUtils.cp(@fixtures_dir + input, sample_file_expanded)
-      stdout, stderr, exit_code = Dir.chdir @test_dir do
+      stdout, stderr, _exit_code = Dir.chdir @test_dir do
         Open3.capture3 %Q{
           #{Shellwords.escape(@ruby_rewrite.to_s)} #{args} \
           #{Shellwords.escape(sample_file_expanded.to_s)}

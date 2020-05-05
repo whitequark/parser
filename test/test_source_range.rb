@@ -95,15 +95,15 @@ class TestSourceRange < Minitest::Test
 
   def test_order
     assert_equal  0, @sr1_3 <=> @sr1_3
-    assert_equal -1, @sr1_3 <=> @sr5_8
-    assert_equal -1, @sr2_2 <=> @sr2_6
-    assert_equal +1, @sr2_6 <=> @sr2_2
+    assert_equal(-1, @sr1_3 <=> @sr5_8)
+    assert_equal(-1, @sr2_2 <=> @sr2_6)
+    assert_equal(+1, @sr2_6 <=> @sr2_2)
 
-    assert_equal -1, @sr1_3 <=> @sr2_6
+    assert_equal(-1, @sr1_3 <=> @sr2_6)
 
-    assert_equal +1, @sr2_2 <=> @sr1_3
-    assert_equal -1, @sr1_3 <=> @sr2_2
-    assert_equal -1, @sr5_7 <=> @sr5_8
+    assert_equal(+1, @sr2_2 <=> @sr1_3)
+    assert_equal(-1, @sr1_3 <=> @sr2_2)
+    assert_equal(-1, @sr5_7 <=> @sr5_8)
 
     assert_nil @sr1_3 <=> Parser::Source::Range.new(@buf.dup, 1, 3)
     assert_nil @sr1_3 <=> 4
