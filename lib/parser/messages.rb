@@ -45,6 +45,7 @@ module Parser
     :invalid_assignment           => 'cannot assign to a keyword',
     :module_name_const            => 'class or module name must be a constant literal',
     :unexpected_token             => 'unexpected token %{token}',
+    :argument_error               => '%{message}',
     :argument_const               => 'formal argument cannot be a constant',
     :argument_ivar                => 'formal argument cannot be an instance variable',
     :argument_gvar                => 'formal argument cannot be a global variable',
