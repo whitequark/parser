@@ -107,6 +107,19 @@ module Parser
 
       private
 
+      POSTFIX_TYPES = Set[:if, :while, :while_post, :until, :until_post].freeze
+      def children_in_source_order(node)
+        if POSTFIX_TYPES.include?(node.type)
+          # All these types have either nodes with expressions, or `nil`
+          # so a compact will do, but they need to be sorted.
+          node.children.compact.sort_by { |child| child.loc.expression.begin_pos }
+        else
+          node.children.select do |child|
+            child.is_a?(AST::Node) && child.loc && child.loc.expression
+          end
+        end
+      end
+
       def do_associate
         @mapping     = Hash.new { |h, k| h[k] = [] }
         @comment_num = -1
@@ -131,10 +144,7 @@ module Parser
         node_loc = node.location
         if @current_comment.location.line <= node_loc.last_line ||
            node_loc.is_a?(Map::Heredoc)
-          node.children.each do |child|
-            next unless child.is_a?(AST::Node) && child.loc && child.loc.expression
-            visit(child)
-          end
+          children_in_source_order(node).each { |child| visit(child) }
 
           process_trailing_comments(node)
         end

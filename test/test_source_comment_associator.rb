@@ -364,4 +364,36 @@ x
     assert_equal ['# bar'],
                  associations[send_node].map(&:text)
   end
+
+  def test_associate_conditional_parent_class
+    ast, associations = associate(<<-END)
+class Foo
+  # bar
+  class Bar
+  end
+end if some_condition
+    END
+
+    if_node = ast
+    _condition, foo_class = if_node.children
+    _foo, _sub_class, bar_class = foo_class.children
+
+    assert_equal 1, associations.size
+    assert_equal ['# bar'],
+                 associations[bar_class].map(&:text)
+  end
+
+  def test_children_in_source_order
+    obj = Parser::Source::Comment::Associator.new(nil, nil)
+    for_each_node do |node|
+      with_loc = node.children.select do |child|
+        child.is_a?(AST::Node) && child.loc && child.loc.expression
+      end
+      slow_sort = with_loc.sort_by.with_index do |child, index| # Index to ensure stable sort
+          [child.loc.expression.begin_pos, index]
+      end
+      optimized = obj.send(:children_in_source_order, node)
+      assert_equal slow_sort, optimized, "children_in_source_order incorrect for #{node}"
+    end
+  end
 end
