@@ -28,8 +28,7 @@ module Parser
   #     EOF
   #
   #     ast           = Parser::CurrentRuby.parse code
-  #     buffer        = Parser::Source::Buffer.new('(example)')
-  #     buffer.source = code
+  #     buffer        = Parser::Source::Buffer.new('(example)', source: code)
   #     rewriter      = RemoveDo.new
   #
   #     # Rewrite the AST, returns a String with the new form.

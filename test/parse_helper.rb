@@ -85,8 +85,7 @@ module ParseHelper
   end
 
   def try_parsing(ast, code, parser, source_maps, version)
-    source_file = Parser::Source::Buffer.new('(assert_parses)')
-    source_file.source = code
+    source_file = Parser::Source::Buffer.new('(assert_parses)', source: code)
 
     begin
       parsed_ast = parser.parse(source_file)
@@ -142,8 +141,7 @@ module ParseHelper
   # ~~~
   def assert_diagnoses(diagnostic, code, source_maps='', versions=ALL_VERSIONS)
     with_versions(versions) do |version, parser|
-      source_file = Parser::Source::Buffer.new('(assert_diagnoses)')
-      source_file.source = code
+      source_file = Parser::Source::Buffer.new('(assert_diagnoses)', source: code)
 
       begin
         parser = parser.parse(source_file)
@@ -200,8 +198,7 @@ module ParseHelper
   # ~~~
   def assert_diagnoses_many(diagnostics, code, versions=ALL_VERSIONS)
     with_versions(versions) do |version, parser|
-      source_file = Parser::Source::Buffer.new('(assert_diagnoses_many)')
-      source_file.source = code
+      source_file = Parser::Source::Buffer.new('(assert_diagnoses_many)', source: code)
 
       begin
         parser = parser.parse(source_file)
@@ -226,8 +223,7 @@ module ParseHelper
 
   def refute_diagnoses(code, versions=ALL_VERSIONS)
     with_versions(versions) do |version, parser|
-      source_file = Parser::Source::Buffer.new('(refute_diagnoses)')
-      source_file.source = code
+      source_file = Parser::Source::Buffer.new('(refute_diagnoses)', source: code)
 
       begin
         parser = parser.parse(source_file)
@@ -243,8 +239,7 @@ module ParseHelper
 
   def assert_context(context, code, versions=ALL_VERSIONS)
     with_versions(versions) do |version, parser|
-      source_file = Parser::Source::Buffer.new('(assert_context)')
-      source_file.source = code
+      source_file = Parser::Source::Buffer.new('(assert_context)', source: code)
 
       begin
         parser.parse(source_file)

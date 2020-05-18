@@ -55,8 +55,8 @@ module Parser
         new_source = rewriter.rewrite(buffer, ast)
 
         new_buffer = Source::Buffer.new(initial_buffer.name +
-                                    '|after ' + rewriter_class.name)
-        new_buffer.source = new_source
+                                    '|after ' + rewriter_class.name,
+                                    source: new_source)
 
         @parser.reset
         new_ast = @parser.parse(new_buffer)

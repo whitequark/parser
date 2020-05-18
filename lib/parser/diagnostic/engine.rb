@@ -7,8 +7,7 @@ module Parser
   # diagnostics by delegating them to registered consumers.
   #
   # @example
-  #  buffer      = Parser::Source::Buffer.new(__FILE__)
-  #  buffer.code = 'foobar'
+  #  buffer      = Parser::Source::Buffer.new(__FILE__, source: 'foobar')
   #
   #  consumer = lambda do |diagnostic|
   #    puts diagnostic.message

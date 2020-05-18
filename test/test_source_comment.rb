@@ -4,8 +4,8 @@ require 'helper'
 
 class TestSourceComment < Minitest::Test
   def setup
-    @buf = Parser::Source::Buffer.new('(string)')
-    @buf.source = "# foo\n=begin foo\nbar\n=end baz\n"
+    @buf = Parser::Source::Buffer.new('(string)',
+      source: "# foo\n=begin foo\nbar\n=end baz\n")
   end
 
   def range(s, e)

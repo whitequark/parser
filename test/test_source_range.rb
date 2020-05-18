@@ -4,8 +4,8 @@ require 'helper'
 
 class TestSourceRange < Minitest::Test
   def setup
-    @buf = Parser::Source::Buffer.new('(string)')
-    @buf.source = "foobar\nbaz"
+    @buf = Parser::Source::Buffer.new('(string)',
+      source: "foobar\nbaz")
     @sr1_3 = Parser::Source::Range.new(@buf, 1, 3)
     @sr2_2 = Parser::Source::Range.new(@buf, 2, 2)
     @sr3_3 = Parser::Source::Range.new(@buf, 3, 3)
@@ -178,8 +178,8 @@ class TestSourceRange < Minitest::Test
     assert_equal true, @sr1_3.eql?(also_1_3)
     assert_equal @sr1_3.hash, also_1_3.hash
 
-    buf2 = Parser::Source::Buffer.new('(string)')
-    buf2.source = "foobar\nbaz"
+    buf2 = Parser::Source::Buffer.new('(string)',
+      source: "foobar\nbaz")
     from_other_buf = Parser::Source::Range.new(buf2, 1, 3)
     assert_equal false, @sr1_3.eql?(from_other_buf)
     assert @sr1_3.hash != from_other_buf.hash

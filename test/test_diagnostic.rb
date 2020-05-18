@@ -4,8 +4,8 @@ require 'helper'
 
 class TestDiagnostic < Minitest::Test
   def setup
-    @buffer = Parser::Source::Buffer.new('(string)')
-    @buffer.source = 'if (this is some bad code + bugs)'
+    @buffer = Parser::Source::Buffer.new('(string)',
+      source: 'if (this is some bad code + bugs)')
 
     @range1 = Parser::Source::Range.new(@buffer, 0, 2) # if
     @range2 = Parser::Source::Range.new(@buffer, 4, 8) # this
@@ -50,8 +50,8 @@ class TestDiagnostic < Minitest::Test
   end
 
   def test_multiline_render
-    @buffer = Parser::Source::Buffer.new('(string)')
-    @buffer.source = "abc abc abc\ndef def def\nghi ghi ghi\n"
+    @buffer = Parser::Source::Buffer.new('(string)',
+      source: "abc abc abc\ndef def def\nghi ghi ghi\n")
 
     location = Parser::Source::Range.new(@buffer, 4, 27)
 
@@ -80,8 +80,7 @@ class TestDiagnostic < Minitest::Test
   }
 }
     CODE
-    @buffer = Parser::Source::Buffer.new('(string)')
-    @buffer.source = source
+    @buffer = Parser::Source::Buffer.new('(string)', source: source)
 
     location = Parser::Source::Range.new(@buffer, 33, 34)
     diag = Parser::Diagnostic.new(:error, :unexpected_token, { :token => 'tNL' },

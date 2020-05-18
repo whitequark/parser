@@ -59,8 +59,7 @@ Parse a chunk of code and display all diagnostics:
       puts diag.render
     end
 
-    buffer = Parser::Source::Buffer.new('(string)')
-    buffer.source = "foo *bar"
+    buffer = Parser::Source::Buffer.new('(string)', source: "foo *bar")
 
     p parser.parse(buffer)
     # (string):1:5: warning: `*' interpreted as argument prefix

@@ -4,8 +4,8 @@ require 'helper'
 
 class TestSourceTreeRewriter < Minitest::Test
   def setup
-    @buf = Parser::Source::Buffer.new('(rewriter)')
-    @buf.source = 'puts(:hello, :world)'
+    @buf = Parser::Source::Buffer.new('(rewriter)',
+      source: 'puts(:hello, :world)')
 
     @hello = range(5, 6)
     @ll = range(7, 2)
