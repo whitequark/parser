@@ -37,9 +37,8 @@ class TestLexer < Minitest::Test
   end
 
   def assert_escape(expected, input)
-    source_buffer = Parser::Source::Buffer.new('(assert_escape)')
-
-    source_buffer.source = "\"\\#{input}\"".encode(input.encoding)
+    source_buffer = Parser::Source::Buffer.new('(assert_escape)',
+      source: "\"\\#{input}\"".encode(input.encoding))
 
     @lex.reset
     @lex.source_buffer = source_buffer
@@ -71,8 +70,7 @@ class TestLexer < Minitest::Test
   end
 
   def assert_scanned(input, *args)
-    source_buffer = Parser::Source::Buffer.new('(assert_scanned)')
-    source_buffer.source = input
+    source_buffer = Parser::Source::Buffer.new('(assert_scanned)', source: input)
 
     @lex.reset(false)
     @lex.source_buffer = source_buffer
@@ -3587,8 +3585,7 @@ class TestLexer < Minitest::Test
     @lex.context = Parser::Context.new
     @lex.context.push(:block)
 
-    source_buffer = Parser::Source::Buffer.new('(assert_lex_numbered_parameter)')
-    source_buffer.source = input
+    source_buffer = Parser::Source::Buffer.new('(assert_lex_numbered_parameter)', source: input)
 
     @lex.source_buffer = source_buffer
 

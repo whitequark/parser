@@ -102,7 +102,7 @@ module Parser
         end
       end
 
-      def initialize(name, first_line = 1)
+      def initialize(name, first_line = 1, source: nil)
         @name        = name.to_s
         @source      = nil
         @first_line  = first_line
@@ -116,6 +116,8 @@ module Parser
         # Cache for fast lookup
         @line_for_position   = {}
         @column_for_position = {}
+
+        self.source = source if source
       end
 
       ##

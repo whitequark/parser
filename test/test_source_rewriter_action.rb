@@ -4,8 +4,8 @@ require 'helper'
 
 class TestSourceRewriterAction < Minitest::Test
   def setup
-    @buf = Parser::Source::Buffer.new('(rewriter_action)')
-    @buf.source = 'foo bar baz'
+    @buf = Parser::Source::Buffer.new('(rewriter_action)',
+      source: 'foo bar baz')
   end
 
   def range(from, len)

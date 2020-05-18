@@ -5360,8 +5360,7 @@ class TestParser < Minitest::Test
 
   def test_crlf_line_endings
     with_versions(ALL_VERSIONS) do |_ver, parser|
-      source_file = Parser::Source::Buffer.new('(comments)')
-      source_file.source = "\r\nfoo"
+      source_file = Parser::Source::Buffer.new('(comments)', source: "\r\nfoo")
 
       range = lambda do |from, to|
         Parser::Source::Range.new(source_file, from, to)
@@ -5434,8 +5433,7 @@ class TestParser < Minitest::Test
     with_versions(ALL_VERSIONS) do |_ver, parser|
       parser.builder.emit_file_line_as_literals = false
 
-      source_file = Parser::Source::Buffer.new('(comments)')
-      source_file.source = "[__FILE__, __LINE__]"
+      source_file = Parser::Source::Buffer.new('(comments)', source: "[__FILE__, __LINE__]")
 
       ast = parser.parse(source_file)
 
@@ -5519,8 +5517,7 @@ class TestParser < Minitest::Test
 
   def assert_parses_with_comments(ast_pattern, source, comments_pattern)
     with_versions(ALL_VERSIONS) do |_ver, parser|
-      source_file = Parser::Source::Buffer.new('(comments)')
-      source_file.source = source
+      source_file = Parser::Source::Buffer.new('(comments)', source: source)
 
       comments_pattern_here = comments_pattern.map do |(from, to)|
         range = Parser::Source::Range.new(source_file, from, to)
@@ -5551,8 +5548,8 @@ class TestParser < Minitest::Test
 
   def test_tokenize
     with_versions(ALL_VERSIONS) do |_ver, parser|
-      source_file = Parser::Source::Buffer.new('(tokenize)')
-      source_file.source = "1 + # foo\n 2"
+      source_file = Parser::Source::Buffer.new('(tokenize)',
+        source: "1 + # foo\n 2")
 
       range = lambda do |from, to|
         Parser::Source::Range.new(source_file, from, to)
@@ -5578,8 +5575,8 @@ class TestParser < Minitest::Test
 
   def test_tokenize_recover
     with_versions(ALL_VERSIONS) do |_ver, parser|
-      source_file = Parser::Source::Buffer.new('(tokenize)')
-      source_file.source = "1 + # foo\n "
+      source_file = Parser::Source::Buffer.new('(tokenize)',
+        source: "1 + # foo\n ")
 
       range = lambda do |from, to|
         Parser::Source::Range.new(source_file, from, to)
@@ -9227,8 +9224,7 @@ class TestParser < Minitest::Test
     code = "case 1; #{match_code}; then [#{lvar_names.join(', ')}]; end"
 
     with_versions(versions) do |version, parser|
-      source_file = Parser::Source::Buffer.new('(assert_context)')
-      source_file.source = code
+      source_file = Parser::Source::Buffer.new('(assert_context)', source: code)
 
       lvar_names.each do |lvar_name|
         refute parser.static_env.declared?(lvar_name),

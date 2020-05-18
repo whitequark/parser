@@ -20,6 +20,9 @@ class TestSourceBuffer < Minitest::Test
 
     buffer = Parser::Source::Buffer.new('(string)', 5)
     assert_equal 5, buffer.first_line
+
+    buffer = Parser::Source::Buffer.new('(string)', source: '2+2')
+    assert_equal '2+2', buffer.source
   end
 
   def test_source_setter
