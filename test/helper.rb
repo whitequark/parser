@@ -51,9 +51,29 @@ require 'minitest/autorun'
 $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
 require 'parser'
 
+module NodeCollector
+  extend self
+  attr_accessor :callbacks, :nodes
+  self.callbacks = []
+  self.nodes = []
+
+  def check
+    @callbacks.each do |callback|
+      @nodes.each { |node| callback.call(node) }
+    end
+    puts "#{callbacks.size} additional tests on #{nodes.size} nodes ran successfully"
+  end
+
+  Minitest.after_run { check }
+end
+
+def for_each_node(&block)
+  NodeCollector.callbacks << block
+end
+
 class Parser::AST::Node
   def initialize(type, *)
-    raise "Type #{type} missing from Parser::Meta::NODE_TYPES" unless Parser::Meta::NODE_TYPES.include?(type)
+    NodeCollector.nodes << self
     super
   end
 end
