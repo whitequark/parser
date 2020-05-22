@@ -20,8 +20,8 @@ matrix:
     - name: jruby-9.1.15.0 / Parser tests
       rvm: jruby-9.1.15.0
       script: bundle exec rake test_cov
-    - name: rbx-4 / Parser tests
-      rvm: rbx-4
+    - name: rbx-3 / Parser tests
+      rvm: rbx-3
       script: bundle exec rake test_cov
     - name: truffleruby / Parser tests
       rvm: truffleruby
@@ -37,7 +37,7 @@ matrix:
       script: ./ci/run_rubocop_specs
   allow_failures:
     - rvm: ruby-head
-    - rvm: rbx-4
+    - rvm: rbx-3
     - script: ./ci/run_rubocop_specs
 before_install:
   - bundle --version
