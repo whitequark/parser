@@ -19,10 +19,10 @@ matrix:
       script: bundle exec rake test_cov
     - name: jruby-9.1.15.0 / Parser tests
       rvm: jruby-9.1.15.0
-      script: bundle exec rake test_cov
+      script: bundle exec rake test
     - name: truffleruby / Parser tests
       rvm: truffleruby
-      script: bundle exec rake test_cov
+      script: bundle exec rake test
     - name: 2.5.8 / Rubocop tests
       rvm: 2.5.8
       script: ./ci/run_rubocop_specs
