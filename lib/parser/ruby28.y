@@ -1419,6 +1419,9 @@ rule
                       result = @builder.restarg(val[0])
                     }
 
+    f_any_kwrest: f_kwrest
+                | f_no_kwarg
+
  block_args_tail: f_block_kwarg tCOMMA f_kwrest opt_f_block_arg
                     {
                       result = val[0].concat(val[2]).concat(val[3])
@@ -1427,11 +1430,7 @@ rule
                     {
                       result = val[0].concat(val[1])
                     }
-                | f_kwrest opt_f_block_arg
-                    {
-                      result = val[0].concat(val[1])
-                    }
-                | f_no_kwarg opt_f_block_arg
+                | f_any_kwrest opt_f_block_arg
                     {
                       result = val[0].concat(val[1])
                     }
@@ -2030,7 +2029,7 @@ opt_block_args_tail:
 
            p_arg: p_expr
 
-        p_kwargs: p_kwarg tCOMMA p_kwrest
+        p_kwargs: p_kwarg tCOMMA p_any_kwrest
                     {
                       result = [ *val[0], *val[2] ]
                     }
@@ -2042,17 +2041,9 @@ opt_block_args_tail:
                     {
                       result = val[0]
                     }
-                | p_kwrest
+                | p_any_kwrest
                     {
                       result = val[0]
-                    }
-                | p_kwarg tCOMMA p_kwnorest
-                    {
-                      result = [ *val[0], *val[2] ]
-                    }
-                | p_kwnorest
-                    {
-                      result = [ *val[0], *val[2] ]
                     }
 
          p_kwarg: p_kw
@@ -2096,6 +2087,9 @@ opt_block_args_tail:
                     {
                       result = [ @builder.match_nil_pattern(val[0], val[1]) ]
                     }
+
+    p_any_kwrest: p_kwrest
+                | p_kwnorest
 
          p_value: p_primitive
                 | p_primitive tDOT2 p_primitive
@@ -2597,11 +2591,7 @@ keyword_variable: kNIL
                     {
                       result = val[0].concat(val[1])
                     }
-                | f_kwrest opt_f_block_arg
-                    {
-                      result = val[0].concat(val[1])
-                    }
-                | f_no_kwarg opt_f_block_arg
+                | f_any_kwrest opt_f_block_arg
                     {
                       result = val[0].concat(val[1])
                     }
