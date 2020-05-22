@@ -875,10 +875,44 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
+                | defn_head f_paren_args tEQL arg kRESCUE_MOD arg
+                    {
+                      rescue_body = @builder.rescue_body(val[4],
+                                        nil, nil, nil,
+                                        nil, val[5])
+
+                      method_body = @builder.begin_body(val[3], [ rescue_body ])
+
+                      result = @builder.def_endless_method(*val[0],
+                                 val[1], val[2], method_body)
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
                 | defs_head f_paren_args tEQL arg
                     {
                       result = @builder.def_endless_singleton(*val[0],
                                  val[1], val[2], val[3])
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defs_head f_paren_args tEQL arg kRESCUE_MOD arg
+                    {
+                      rescue_body = @builder.rescue_body(val[4],
+                                        nil, nil, nil,
+                                        nil, val[5])
+
+                      method_body = @builder.begin_body(val[3], [ rescue_body ])
+
+                      result = @builder.def_endless_singleton(*val[0],
+                                 val[1], val[2], method_body)
 
                       @lexer.cmdarg.pop
                       @lexer.cond.pop

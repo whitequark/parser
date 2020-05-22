@@ -9520,6 +9520,31 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_endless_method_with_rescue_mod
+    assert_parses(
+      s(:def_e, :m,
+        s(:args),
+        s(:rescue,
+          s(:int, 1),
+          s(:resbody, nil, nil,
+            s(:int, 2)), nil)),
+      %q{def m() = 1 rescue 2},
+      %q{},
+      SINCE_2_8)
+
+    assert_parses(
+      s(:defs_e,
+        s(:self), :m,
+        s(:args),
+        s(:rescue,
+          s(:int, 1),
+          s(:resbody, nil, nil,
+            s(:int, 2)), nil)),
+      %q{def self.m() = 1 rescue 2},
+      %q{},
+      SINCE_2_8)
+  end
+
   def test_rasgn
     assert_parses(
       s(:rasgn,
