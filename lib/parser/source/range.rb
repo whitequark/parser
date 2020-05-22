@@ -150,6 +150,13 @@ module Parser
       end
 
       ##
+      # @return [Range] a Ruby range with the same `begin_pos` and `end_pos`
+      #
+      def to_range
+        self.begin_pos...self.end_pos
+      end
+
+      ##
       # Composes a GNU/Clang-style string representation of the beginning of this
       # range.
       #
