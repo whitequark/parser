@@ -155,6 +155,11 @@ class TestSourceRange < Minitest::Test
     refute sr.is?('bar')
   end
 
+  def test_to_range
+    sr = Parser::Source::Range.new(@buf, 10, 20)
+    assert_equal (10...20), sr.to_range
+  end
+
   def test_to_s
     sr = Parser::Source::Range.new(@buf, 8, 9)
     assert_equal '(string):2:2', sr.to_s
