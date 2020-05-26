@@ -18,6 +18,27 @@ class TestRunnerParse < Minitest::Test
                   's(:int, 123)'
   end
 
+  def test_emit_modern_ruby
+    assert_prints ['-e', '->{}'],
+                  '(lambda)'
+    assert_prints ['-e', 'self[1] = 2'],
+                  'indexasgn'
+  end
+
+  def test_emit_legacy
+    assert_prints ['--legacy', '-e', '->{}'],
+                  '(send nil :lambda)'
+    assert_prints ['--legacy', '-e', 'self[1] = 2'],
+                  ':[]='
+  end
+
+  def test_emit_legacy_lambda
+    assert_prints ['--legacy-lambda', '-e', '->{}'],
+                  '(send nil :lambda)'
+    assert_prints ['--legacy-lambda', '-e', 'self[1] = 2'],
+                  'indexasgn'
+  end
+
   def test_emit_json
     assert_prints ['--emit-json', '-e', '123'],
                   '["int",123]'
