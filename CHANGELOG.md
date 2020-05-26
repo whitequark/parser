@@ -1,8 +1,24 @@
 Changelog
 =========
 
-Not released (2020-04-30)
+Not released (2020-05-26)
 -------------------------
+
+API modifications:
+ * fixed all warnings. tests are running in verbose mode now. (#685) (Ilya Bylich)
+
+Features implemented:
+ * ruby-[parse, rewrite]: add legacy switches (#699) (Marc-André Lafortune)
+ * Added Parser::Source::Range#to_range. (#697) (Ilya Bylich)
+ * ruby28.y: support rescue modifier in endless method definition. (#696) (Ilya Bylich)
+ * ruby28.y: unify kwrest and no-kwrest rules. (#694) (Ilya Bylich)
+ * ruby28.y: add right hand assignment (#682) (Vladimir Dementyev)
+
+Bugs fixed:
+ * fix Comment.associate for postfix conditions/loops (#688) (Marc-André Lafortune)
+
+v2.7.1.2 (2020-04-30)
+---------------------
 
 Features implemented:
  * ruby28.y: endless method definition (#676) (Vladimir Dementyev)
