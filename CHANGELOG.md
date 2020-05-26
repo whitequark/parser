@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-05-26)
--------------------------
+v2.7.1.3 (2020-05-26)
+---------------------
 
 API modifications:
  * fixed all warnings. tests are running in verbose mode now. (#685) (Ilya Bylich)
