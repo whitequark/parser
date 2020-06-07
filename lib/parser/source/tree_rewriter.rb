@@ -129,6 +129,8 @@ module Parser
       ##
       # Merges the updates of argument with the receiver.
       # Policies of the receiver are used.
+      # This action is atomic in that it won't change the receiver
+      # unless it succeeds.
       #
       # @param [Rewriter] with
       # @return [Rewriter] self

@@ -13,7 +13,7 @@ module Parser
     #        ^^
     #
     # @!attribute [r] source_buffer
-    #  @return [Parser::Diagnostic::Engine]
+    #  @return [Parser::Source::Buffer]
     #
     # @!attribute [r] begin_pos
     #  @return [Integer] index of the first character in the range
