@@ -46,6 +46,14 @@ module Parser
         reps
       end
 
+      def nested_actions
+        actions = []
+        actions << [:wrap, @range, @insert_before, @insert_after] if !@insert_before.empty? ||
+                                                                     !@insert_after.empty?
+        actions << [:replace, @range, @replacement] if @replacement
+        actions.concat(@children.flat_map(&:nested_actions))
+      end
+
       def insertion?
         !insert_before.empty? || !insert_after.empty? || (replacement && !replacement.empty?)
       end

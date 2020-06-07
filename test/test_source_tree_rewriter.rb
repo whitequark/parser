@@ -265,6 +265,39 @@ DIAGNOSTIC
       [:wrap, @hello.join(@world), '@', '@'],
     ])
   end
+
+  def representation_example
+    Parser::Source::TreeRewriter.new(@buf)
+      .wrap(range(1...10), '(', ')')
+      .insert_after(range(2...6), '!')
+      .replace(range(2...4), 'foo')
+      .remove(range(5...6))
+  end
+
+  def test_nested_actions
+    result = representation_example.as_nested_actions
+
+    assert_equal( [ [:wrap, 1...10, '(', ')'],
+                    [:wrap, 2...6, '', '!'],  # aka "insert_after"
+                    [:replace, 2...4, 'foo'],
+                    [:replace, 5...6, ''],  # aka "removal"
+                  ],
+                  result.each {|arr| arr[1] = arr[1].to_range }
+                )
+  end
+
+  def test_ordered_replacements
+    result = representation_example.as_replacements
+
+    assert_equal( [ [ 1...1, '('],
+                    [ 2...4, 'foo'],
+                    [ 5...6, ''],
+                    [ 6...6, '!'],
+                    [ 10...10, ')'],
+                  ],
+                  result.map {|r, s| [r.to_range, s]}
+                )
+  end
 end
 
 class TestSourceTreeRewriterImport < Minitest::Test

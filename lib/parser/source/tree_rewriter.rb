@@ -261,6 +261,44 @@ module Parser
       end
 
       ##
+      # Returns a representation of the rewriter as an ordered list of replacements.
+      #
+      #     rewriter.as_replacements # => [ [1...1, '('],
+      #                                     [2...4, 'foo'],
+      #                                     [5...6, ''],
+      #                                     [6...6, '!'],
+      #                                     [10...10, ')'],
+      #                                   ]
+      #
+      # This representation is sufficient to recreate the result of `process` but it is
+      # not sufficient to recreate completely the rewriter for further merging/actions.
+      # See `as_nested_actions`
+      #
+      # @return [Array<Range, String>] an ordered list of pairs of range & replacement
+      #
+      def as_replacements
+        @action_root.ordered_replacements
+      end
+
+      ##
+      # Returns a representation of the rewriter as nested insertions (:wrap) and replacements.
+      #
+      #     rewriter.as_actions # =>[ [:wrap, 1...10, '(', ')'],
+      #                               [:wrap, 2...6, '', '!'],  # aka "insert_after"
+      #                               [:replace, 2...4, 'foo'],
+      #                               [:replace, 5...6, ''],  # aka "removal"
+      #                             ],
+      #
+      # Contrary to `as_replacements`, this representation is sufficient to recreate exactly
+      # the rewriter.
+      #
+      # @return [Array<(Symbol, Range, String{, String})>]
+      #
+      def as_nested_actions
+        @action_root.nested_actions
+      end
+
+      ##
       # Provides a protected block where a sequence of multiple rewrite actions
       # are handled atomically. If any of the actions failed by clobbering,
       # all the actions are rolled back. Transactions can be nested.
