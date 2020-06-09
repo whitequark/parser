@@ -46,8 +46,47 @@ module Parser
         reps
       end
 
+      def nested_actions
+        actions = []
+        actions << [:wrap, @range, @insert_before, @insert_after] if !@insert_before.empty? ||
+                                                                     !@insert_after.empty?
+        actions << [:replace, @range, @replacement] if @replacement
+        actions.concat(@children.flat_map(&:nested_actions))
+      end
+
       def insertion?
         !insert_before.empty? || !insert_after.empty? || (replacement && !replacement.empty?)
+      end
+
+      ##
+      # A root action has its range set to the whole source range, even
+      # though it typically do not act on that range.
+      # This method returns the action as if it was a child action with
+      # its range contracted.
+      # @return [Action]
+      def contract
+        raise 'Empty actions can not be contracted' if empty?
+        return self if insertion?
+        range = @range.with(
+          begin_pos: children.first.range.begin_pos,
+          end_pos: children.last.range.end_pos,
+        )
+        with(range: range)
+      end
+
+      ##
+      # @return [Action] that has been moved to the given source_buffer and with the given offset
+      # No check is done on validity of resulting range.
+      def moved(source_buffer, offset)
+        moved_range = ::Parser::Source::Range.new(
+          source_buffer,
+          @range.begin_pos + offset,
+          @range.end_pos + offset
+        )
+        with(
+          range: moved_range,
+          children: children.map { |child| child.moved(source_buffer, offset) }
+        )
       end
 
       protected

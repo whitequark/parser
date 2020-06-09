@@ -3,20 +3,25 @@
 require 'helper'
 
 class TestSourceTreeRewriter < Minitest::Test
-  def setup
-    @buf = Parser::Source::Buffer.new('(rewriter)',
-      source: 'puts(:hello, :world)')
+  module Setup
+    def setup
+      @buf = Parser::Source::Buffer.new('(rewriter)',
+        source: 'puts(:hello, :world)')
 
-    @hello = range(5, 6)
-    @ll = range(7, 2)
-    @comma_space = range(11,2)
-    @world = range(13,6)
-    @whole = range(0, @buf.source.length)
+      @hello = range(5, 6)
+      @ll = range(8, 2)
+      @comma_space = range(11,2)
+      @world = range(13,6)
+      @whole = range(0, @buf.source.length)
+    end
+
+    def range(from, len = nil)
+      from, len = from.begin, from.end - from.begin unless len
+      Parser::Source::Range.new(@buf, from, from + len)
+    end
   end
 
-  def range(from, len)
-    Parser::Source::Range.new(@buf, from, from + len)
-  end
+  include Setup
 
   # Returns either:
   #  - yield rewriter
@@ -259,5 +264,98 @@ DIAGNOSTIC
     [ # ... but this one is always going to be applied last (extra)
       [:wrap, @hello.join(@world), '@', '@'],
     ])
+  end
+
+  def representation_example
+    Parser::Source::TreeRewriter.new(@buf)
+      .wrap(range(1...10), '(', ')')
+      .insert_after(range(2...6), '!')
+      .replace(range(2...4), 'foo')
+      .remove(range(5...6))
+  end
+
+  def test_nested_actions
+    result = representation_example.as_nested_actions
+
+    assert_equal( [ [:wrap, 1...10, '(', ')'],
+                    [:wrap, 2...6, '', '!'],  # aka "insert_after"
+                    [:replace, 2...4, 'foo'],
+                    [:replace, 5...6, ''],  # aka "removal"
+                  ],
+                  result.each {|arr| arr[1] = arr[1].to_range }
+                )
+  end
+
+  def test_ordered_replacements
+    result = representation_example.as_replacements
+
+    assert_equal( [ [ 1...1, '('],
+                    [ 2...4, 'foo'],
+                    [ 5...6, ''],
+                    [ 6...6, '!'],
+                    [ 10...10, ')'],
+                  ],
+                  result.map {|r, s| [r.to_range, s]}
+                )
+  end
+end
+
+class TestSourceTreeRewriterImport < Minitest::Test
+  include TestSourceTreeRewriter::Setup
+  def setup
+    super
+    @buf2 = Parser::Source::Buffer.new('(rewriter 2)',
+      source: ':hello')
+
+    @rewriter = Parser::Source::TreeRewriter.new(@buf)
+
+    @rewriter2 = Parser::Source::TreeRewriter.new(@buf2)
+
+    @hello2 = range2(0, 6)
+    @ll2 = range2(3, 2)
+  end
+
+  def range2(from, len)
+    Parser::Source::Range.new(@buf2, from, from + len)
+  end
+
+  def test_import_with_offset
+    @rewriter2.wrap(@hello2, '[', ']')
+    @rewriter.wrap(@hello.join(@world), '{', '}')
+    @rewriter.import!(@rewriter2, offset: @hello.begin_pos)
+    assert_equal 'puts({[:hello], :world})', @rewriter.process
+  end
+
+  def test_import_with_offset_from_bigger_source
+    @rewriter2.wrap(@ll2, '[', ']')
+    @rewriter.wrap(@hello, '{', '}')
+    @rewriter2.import!(@rewriter, offset: -@hello.begin_pos)
+    assert_equal '{:he[ll]o}', @rewriter2.process
+  end
+
+  def test_import_with_offset_and_self
+    @rewriter.wrap(@ll, '[', ']')
+    @rewriter.import!(@rewriter, offset: +3)
+    @rewriter.replace(range(8,1), '**')
+    assert_equal 'puts(:he[**l]o[, ]:world)', @rewriter.process
+    @rewriter.import!(@rewriter, offset: -6)
+    assert_equal 'pu[**s]([:h]e[**l]o[, ]:world)', @rewriter.process
+  end
+
+  def test_import_with_invalid_offset
+    @rewriter.wrap(@ll, '[', ']')
+    m = @rewriter.dup.import!(@rewriter, offset: -@ll.begin_pos)
+    assert_equal '[pu]ts(:he[ll]o, :world)', m.process
+    off = @buf.source.size - @ll.end_pos
+    m = @rewriter.dup.import!(@rewriter, offset: off)
+    assert_equal 'puts(:he[ll]o, :worl[d)]', m.process
+    assert_raises { @rewriter.import!(@rewriter, offset: -@ll.begin_pos - 1) }
+    assert_raises { @rewriter.import!(@rewriter, offset: off + 1) }
+    assert_equal 'puts(:he[ll]o, :world)', @rewriter.process # Test atomicity of import!
+  end
+
+  def test_empty_import
+    assert_equal @rewriter, @rewriter.import!(@rewriter2)
+    assert_equal @rewriter, @rewriter.import!(@rewriter, offset: 42)
   end
 end

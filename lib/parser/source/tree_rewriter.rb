@@ -129,6 +129,8 @@ module Parser
       ##
       # Merges the updates of argument with the receiver.
       # Policies of the receiver are used.
+      # This action is atomic in that it won't change the receiver
+      # unless it succeeds.
       #
       # @param [Rewriter] with
       # @return [Rewriter] self
@@ -152,6 +154,32 @@ module Parser
       #
       def merge(with)
         dup.merge!(with)
+      end
+
+      ##
+      # For special cases where one needs to merge a rewriter attached to a different source_buffer
+      # or that needs to be offset. Policies of the receiver are used.
+      #
+      # @param [TreeRewriter] rewriter from different source_buffer
+      # @param [Integer] offset
+      # @return [Rewriter] self
+      # @raise [IndexError] if action ranges (once offset) don't fit the current buffer
+      #
+      def import!(foreign_rewriter, offset: 0)
+        return self if foreign_rewriter.empty?
+
+        contracted = foreign_rewriter.action_root.contract
+        merge_effective_range = ::Parser::Source::Range.new(
+          @source_buffer,
+          contracted.range.begin_pos + offset,
+          contracted.range.end_pos + offset,
+        )
+        check_range_validity(merge_effective_range)
+
+        merge_with = contracted.moved(@source_buffer, offset)
+
+        @action_root = @action_root.combine(merge_with)
+        self
       end
 
       ##
@@ -235,6 +263,44 @@ module Parser
       end
 
       ##
+      # Returns a representation of the rewriter as an ordered list of replacements.
+      #
+      #     rewriter.as_replacements # => [ [1...1, '('],
+      #                                     [2...4, 'foo'],
+      #                                     [5...6, ''],
+      #                                     [6...6, '!'],
+      #                                     [10...10, ')'],
+      #                                   ]
+      #
+      # This representation is sufficient to recreate the result of `process` but it is
+      # not sufficient to recreate completely the rewriter for further merging/actions.
+      # See `as_nested_actions`
+      #
+      # @return [Array<Range, String>] an ordered list of pairs of range & replacement
+      #
+      def as_replacements
+        @action_root.ordered_replacements
+      end
+
+      ##
+      # Returns a representation of the rewriter as nested insertions (:wrap) and replacements.
+      #
+      #     rewriter.as_actions # =>[ [:wrap, 1...10, '(', ')'],
+      #                               [:wrap, 2...6, '', '!'],  # aka "insert_after"
+      #                               [:replace, 2...4, 'foo'],
+      #                               [:replace, 5...6, ''],  # aka "removal"
+      #                             ],
+      #
+      # Contrary to `as_replacements`, this representation is sufficient to recreate exactly
+      # the rewriter.
+      #
+      # @return [Array<(Symbol, Range, String{, String})>]
+      #
+      def as_nested_actions
+        @action_root.nested_actions
+      end
+
+      ##
       # Provides a protected block where a sequence of multiple rewrite actions
       # are handled atomically. If any of the actions failed by clobbering,
       # all the actions are rolled back. Transactions can be nested.
@@ -310,7 +376,7 @@ module Parser
 
       def check_range_validity(range)
         if range.begin_pos < 0 || range.end_pos > @source_buffer.source.size
-          raise IndexError, "The range #{range} is outside the bounds of the source"
+          raise IndexError, "The range #{range.to_range} is outside the bounds of the source"
         end
         range
       end
