@@ -155,6 +155,32 @@ module Parser
       end
 
       ##
+      # For special cases where one needs to merge a rewriter attached to a different source_buffer
+      # or that needs to be offset. Policies of the receiver are used.
+      #
+      # @param [TreeRewriter] rewriter from different source_buffer
+      # @param [Integer] offset
+      # @return [Rewriter] self
+      # @raise [IndexError] if action ranges (once offset) don't fit the current buffer
+      #
+      def import!(foreign_rewriter, offset: 0)
+        return self if foreign_rewriter.empty?
+
+        contracted = foreign_rewriter.action_root.contract
+        merge_effective_range = ::Parser::Source::Range.new(
+          @source_buffer,
+          contracted.range.begin_pos + offset,
+          contracted.range.end_pos + offset,
+        )
+        check_range_validity(merge_effective_range)
+
+        merge_with = contracted.moved(@source_buffer, offset)
+
+        @action_root = @action_root.combine(merge_with)
+        self
+      end
+
+      ##
       # Replaces the code of the source range `range` with `content`.
       #
       # @param [Range] range
