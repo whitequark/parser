@@ -1,7 +1,13 @@
 dist: trusty
 language: ruby
-matrix:
+jobs:
   include:
+    - name: jruby-9.1.15.0 / Parser tests
+      rvm: jruby-9.1.15.0
+      script: bundle exec rake test
+    - name: truffleruby / Parser tests
+      rvm: truffleruby
+      script: TRUFFLERUBYOPT=--engine.Mode=latency bundle exec rake test
     - name: 2.4.10 / Parser tests
       rvm: 2.4.10
       script: bundle exec rake test_cov
@@ -17,12 +23,6 @@ matrix:
     - name: ruby-head / Parser tests
       rvm: ruby-head
       script: bundle exec rake test_cov
-    - name: jruby-9.1.15.0 / Parser tests
-      rvm: jruby-9.1.15.0
-      script: bundle exec rake test
-    - name: truffleruby / Parser tests
-      rvm: truffleruby
-      script: bundle exec rake test
     - name: 2.5.8 / Rubocop tests
       rvm: 2.5.8
       script: ./ci/run_rubocop_specs
