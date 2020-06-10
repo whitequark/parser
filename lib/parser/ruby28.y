@@ -1212,14 +1212,7 @@ rule
                       result      = @builder.block(val[0],
                                       begin_t, args, body, end_t)
                     }
-                | tLAMBDA lambda
-                    {
-                      lambda_call = @builder.call_lambda(val[0])
-
-                      args, (begin_t, body, end_t) = val[1]
-                      result      = @builder.block(lambda_call,
-                                      begin_t, args, body, end_t)
-                    }
+                | lambda
                 | kIF expr_value then compstmt if_tail kEND
                     {
                       else_t, else_ = val[4]
@@ -1619,7 +1612,8 @@ opt_block_args_tail:
                     }
                 | f_bad_arg
 
-          lambda:   {
+          lambda: tLAMBDA
+                    {
                       @static_env.extend_dynamic
                       @max_numparam_stack.push
                       @context.push(:lambda)
@@ -1631,12 +1625,16 @@ opt_block_args_tail:
                     }
                   lambda_body
                     {
-                      args = @max_numparam_stack.has_numparams? ? @builder.numargs(@max_numparam_stack.top) : val[1]
-                      result = [ args, val[3] ]
+                      lambda_call = @builder.call_lambda(val[0])
+                      args = @max_numparam_stack.has_numparams? ? @builder.numargs(@max_numparam_stack.top) : val[2]
+                      begin_t, body, end_t = val[4]
 
                       @max_numparam_stack.pop
                       @static_env.unextend
                       @lexer.cmdarg.pop
+
+                      result      = @builder.block(lambda_call,
+                                      begin_t, args, body, end_t)
                     }
 
      f_larglist: tLPAREN2 f_args opt_bv_decl tRPAREN
@@ -2168,14 +2166,7 @@ opt_block_args_tail:
                     {
                       result = @builder.accessible(val[0])
                     }
-                | tLAMBDA lambda
-                    {
-                      lambda_call = @builder.call_lambda(val[0])
-
-                      args, (begin_t, body, end_t) = val[1]
-                      result      = @builder.block(lambda_call,
-                                      begin_t, args, body, end_t)
-                    }
+                | lambda
 
       p_variable: tIDENTIFIER
                     {
