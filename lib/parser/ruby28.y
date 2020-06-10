@@ -1483,6 +1483,8 @@ opt_block_args_tail:
                       result = []
                     }
 
+  excessed_comma: tCOMMA
+
      block_param: f_arg tCOMMA f_block_optarg tCOMMA f_rest_arg              opt_block_args_tail
                     {
                       result = val[0].
@@ -1517,7 +1519,7 @@ opt_block_args_tail:
                                   concat(val[2]).
                                   concat(val[3])
                     }
-                | f_arg tCOMMA
+                | f_arg excessed_comma
                 | f_arg tCOMMA                       f_rest_arg tCOMMA f_arg opt_block_args_tail
                     {
                       result = val[0].
