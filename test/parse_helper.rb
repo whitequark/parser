@@ -241,13 +241,13 @@ module ParseHelper
     with_versions(versions) do |version, parser|
       source_file = Parser::Source::Buffer.new('(assert_context)', source: code)
 
-      begin
-        parser.parse(source_file)
-      rescue Parser::SyntaxError
-        # do nothing; the diagnostic was reported
-      end
+      parsed_ast = parser.parse(source_file)
 
-      assert_equal parser.context.stack, context, "(#{version}) parsing context"
+      nodes = find_matching_nodes(parsed_ast) { |node| node.type == :send && node.children[1] == :get_context }
+      assert_equal 1, nodes.count, "there must exactly 1 `get_context()` call"
+
+      node = nodes.first
+      assert_equal context, node.context, "(#{version}) expect parsing context to match"
     end
   end
 
@@ -309,5 +309,15 @@ module ParseHelper
 
       matching_children[index]
     end
+  end
+
+  def find_matching_nodes(ast, &block)
+    return [] unless ast.is_a?(AST::Node)
+
+    result = []
+    result << ast if block.call(ast)
+    ast.children.each { |child| result += find_matching_nodes(child, &block) }
+
+    result
   end
 end

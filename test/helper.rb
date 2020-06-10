@@ -77,3 +77,27 @@ class Parser::AST::Node
     super
   end
 end
+
+# Special test extension that records a context of the parser
+# for any node that is created
+module NodeContextExt
+  module NodeExt
+    attr_reader :context
+
+    def assign_properties(properties)
+      super
+
+      if (context = properties[:context])
+        @context = context
+      end
+    end
+  end
+  Parser::AST::Node.prepend(NodeExt)
+
+  module BuilderExt
+    def n(type, children, source_map)
+      super.updated(nil, nil, context: @parser.context.stack.dup)
+    end
+  end
+  Parser::Builders::Default.prepend(BuilderExt)
+end
