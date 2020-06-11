@@ -1042,11 +1042,15 @@ rule
                       result      = @builder.block(val[0],
                                       begin_t, args, body, end_t)
                     }
-                | tLAMBDA lambda
+                | tLAMBDA
+                    {
+                      @context.push(:lambda)
+                    }
+                  lambda
                     {
                       lambda_call = @builder.call_lambda(val[0])
 
-                      args, (begin_t, body, end_t) = val[1]
+                      args, (begin_t, body, end_t) = val[2]
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
                     }
@@ -1160,6 +1164,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.push_cmdarg
+                      @context.push(:module)
                     }
                     bodystmt kEND
                     {
@@ -1172,6 +1177,7 @@ rule
 
                       @lexer.pop_cmdarg
                       @static_env.unextend
+                      @context.pop
                     }
                 | kDEF fname
                     {
@@ -1453,9 +1459,13 @@ rule
           lambda:   {
                       @static_env.extend_dynamic
                     }
-                  f_larglist lambda_body
+                  f_larglist
                     {
-                      result = [ val[1], val[2] ]
+                      @context.pop
+                    }
+                  lambda_body
+                    {
+                      result = [ val[1], val[3] ]
 
                       @static_env.unextend
                     }

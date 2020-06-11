@@ -1307,6 +1307,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.cmdarg.push(false)
+                      @context.push(:module)
                     }
                     bodystmt kEND
                     {
@@ -1319,6 +1320,7 @@ rule
 
                       @lexer.cmdarg.pop
                       @static_env.unextend
+                      @context.pop
                     }
                 | defn_head f_arglist bodystmt kEND
                     {

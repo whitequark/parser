@@ -1156,6 +1156,7 @@ rule
                 | kMODULE cpath
                     {
                       @static_env.extend_static
+                      @context.push(:module)
                     }
                     bodystmt kEND
                     {
@@ -1167,6 +1168,7 @@ rule
                                                    val[3], val[4])
 
                       @static_env.unextend
+                      @context.pop
                     }
                 | kDEF fname
                     {

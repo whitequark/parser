@@ -1109,11 +1109,15 @@ rule
                       result      = @builder.block(val[0],
                                       begin_t, args, body, end_t)
                     }
-                | tLAMBDA lambda
+                | tLAMBDA
+                    {
+                      @context.push(:lambda)
+                    }
+                  lambda
                     {
                       lambda_call = @builder.call_lambda(val[0])
 
-                      args, (begin_t, body, end_t) = val[1]
+                      args, (begin_t, body, end_t) = val[2]
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
                     }
@@ -1211,6 +1215,7 @@ rule
                     {
                       @static_env.extend_static
                       @lexer.cmdarg.push(false)
+                      @context.push(:module)
                     }
                     bodystmt kEND
                     {
@@ -1223,6 +1228,7 @@ rule
 
                       @lexer.cmdarg.pop
                       @static_env.unextend
+                      @context.pop
                     }
                 | kDEF fname
                     {
@@ -1538,7 +1544,6 @@ opt_block_args_tail:
           lambda:   {
                       @static_env.extend_dynamic
                       @max_numparam_stack.push
-                      @context.push(:lambda)
                     }
                   f_larglist
                     {
@@ -2089,11 +2094,15 @@ opt_block_args_tail:
                     {
                       result = @builder.accessible(val[0])
                     }
-                | tLAMBDA lambda
+                | tLAMBDA
+                    {
+                      @context.push(:lambda)
+                    }
+                  lambda
                     {
                       lambda_call = @builder.call_lambda(val[0])
 
-                      args, (begin_t, body, end_t) = val[1]
+                      args, (begin_t, body, end_t) = val[2]
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
                     }

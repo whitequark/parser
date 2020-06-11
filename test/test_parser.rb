@@ -6551,39 +6551,64 @@ class TestParser < Minitest::Test
 
   def test_context_class
     [
-      %q{class A;},
-      %q{class A < B;}
+      %q{class A; get_context; end},
+      %q{class A < B; get_context; end}
     ].each do |code|
       assert_context([:class], code, ALL_VERSIONS)
     end
   end
 
+  def test_context_module
+    assert_context(
+      [:module],
+      %q{module M; get_context; end},
+      ALL_VERSIONS)
+  end
+
   def test_context_sclass
     assert_context(
       [:sclass],
-      %q{class << foo;},
+      %q{class << foo; get_context; end},
       ALL_VERSIONS)
   end
 
   def test_context_def
-    assert_context(
-      [:def],
-      %q{def m;},
-      ALL_VERSIONS)
+    [
+      %q{def m; get_context; end},
+      %q{def m(a = get_context); end}
+    ].each do |code|
+      assert_context([:def], code, ALL_VERSIONS)
+    end
+
+    [
+      %q{def m() = get_context},
+      %q{def m(a = get_context) = 42}
+    ].each do |code|
+      assert_context([:def], code, SINCE_2_8)
+    end
   end
 
   def test_context_defs
-    assert_context(
-      [:defs],
-      %q{def foo.m;},
-      ALL_VERSIONS)
+    [
+      %q{def foo.m; get_context; end},
+      %q{def foo.m(a = get_context); end}
+    ].each do |code|
+      assert_context([:defs], code, ALL_VERSIONS)
+    end
+
+    [
+      %q{def foo.m() = get_context},
+      %q{def foo.m(a = get_context) = 42}
+    ].each do |code|
+      assert_context([:defs], code, SINCE_2_8)
+    end
   end
 
   def test_context_cmd_brace_block
     [
-      'tap foo {',
-      'foo.tap foo {',
-      'foo::tap foo {'
+      'tap foo { get_context }',
+      'foo.tap foo { get_context }',
+      'foo::tap foo { get_context }'
     ].each do |code|
       assert_context([:block], code, ALL_VERSIONS)
     end
@@ -6591,12 +6616,12 @@ class TestParser < Minitest::Test
 
   def test_context_brace_block
     [
-      'tap {',
-      'foo.tap {',
-      'foo::tap {',
-      'tap do',
-      'foo.tap do',
-      'foo::tap do'
+      'tap { get_context }',
+      'foo.tap { get_context }',
+      'foo::tap { get_context }',
+      'tap do get_context end',
+      'foo.tap do get_context end',
+      'foo::tap do get_context end'
     ].each do |code|
       assert_context([:block], code, ALL_VERSIONS)
     end
@@ -6604,9 +6629,9 @@ class TestParser < Minitest::Test
 
   def test_context_do_block
     [
-      %q{tap 1 do},
-      %q{foo.tap do},
-      %q{foo::tap do}
+      %q{tap 1 do get_context end},
+      %q{foo.tap do get_context end},
+      %q{foo::tap do get_context end}
     ].each do |code|
       assert_context([:block], code, ALL_VERSIONS)
     end
@@ -6614,8 +6639,12 @@ class TestParser < Minitest::Test
 
   def test_context_lambda
     [
-      '->() {',
-      '->() do'
+      '->() { get_context }',
+      '->() do get_context end',
+      '-> { get_context }',
+      '-> do get_context end',
+      '->(a = get_context) {}',
+      '->(a = get_context) do end'
     ].each do |code|
       assert_context([:lambda], code, SINCE_1_9)
     end
@@ -6623,23 +6652,16 @@ class TestParser < Minitest::Test
 
   def test_context_nested
     assert_context(
-      [:class, :sclass, :defs, :def, :block],
-      %q{class A; class << foo; def bar.m; def m; tap do},
-      ALL_VERSIONS)
-
-    assert_context(
-      [:class, :sclass, :defs, :def, :lambda, :block],
-      %q{class A; class << foo; def bar.m; def m; -> do; tap do},
-      SINCE_1_9)
-
-    assert_context(
-      [],
+      [:class, :module, :sclass, :defs, :def, :block],
       %q{
         class A
-          class << foo
-            def bar.m
-              def m
-                tap do
+          module M
+            class << foo
+              def bar.m
+                def m
+                  tap do
+                    get_context
+                  end
                 end
               end
             end
@@ -6649,13 +6671,34 @@ class TestParser < Minitest::Test
       ALL_VERSIONS)
 
     assert_context(
+      [:class, :module, :sclass, :defs, :def, :lambda, :block],
+      %q{
+        class A
+          module M
+            class << foo
+              def bar.m
+                def m
+                  -> do
+                    tap do
+                      get_context
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      },
+      SINCE_1_9)
+
+    assert_context(
       [],
       %q{
         class A
-          class << foo
-            def bar.m
-              def m
-                -> do
+          module M
+            class << foo
+              def bar.m
+                def m
                   tap do
                   end
                 end
@@ -6663,6 +6706,28 @@ class TestParser < Minitest::Test
             end
           end
         end
+        get_context
+      },
+      ALL_VERSIONS)
+
+    assert_context(
+      [],
+      %q{
+        class A
+          module M
+            class << foo
+              def bar.m
+                def m
+                  -> do
+                    tap do
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        get_context
       },
       SINCE_1_9)
   end

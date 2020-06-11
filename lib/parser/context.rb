@@ -5,6 +5,7 @@ module Parser
   #
   # Supported states:
   # + :class - in the class body (class A; end)
+  # + :module - in the module body (module M; end)
   # + :sclass - in the singleton class body (class << obj; end)
   # + :def - in the method body (def m; end)
   # + :defs - in the singleton method body (def self.m; end)
