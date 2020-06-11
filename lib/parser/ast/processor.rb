@@ -127,6 +127,7 @@ module Parser
       alias on_kwarg          process_argument_node
       alias on_kwoptarg       process_argument_node
       alias on_kwrestarg      process_argument_node
+      alias on_forward_arg    process_argument_node
 
       def on_procarg0(node)
         if node.children[0].is_a?(Symbol)

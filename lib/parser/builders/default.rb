@@ -80,6 +80,8 @@ module Parser
       attr_accessor :emit_index
     end
 
+    @emit_index = false
+
     class << self
       ##
       # AST compatibility attribute; causes a single non-mlhs
@@ -95,7 +97,36 @@ module Parser
       attr_accessor :emit_arg_inside_procarg0
     end
 
-    @emit_index = false
+    @emit_arg_inside_procarg0 = false
+
+    class << self
+      ##
+      # AST compatibility attribute; arguments forwarding initially
+      # didn't have support for leading arguments
+      # (i.e. `def m(a, ...); end` was a syntax error). However, Ruby 2.8
+      # added support for any number of arguments in front of the `...`.
+      #
+      # If set to false (the default):
+      #   1. `def m(...) end` is emitted as
+      #      s(:def, :m, s(:forward_args), nil)
+      #   2. `def m(a, b, ...) end` is emitted as
+      #      s(:def, :m,
+      #        s(:args, s(:arg, :a), s(:arg, :b), s(:forward_arg)))
+      #
+      # If set to true it uses a single format:
+      #   1. `def m(...) end` is emitted as
+      #      s(:def, :m, s(:args, s(:forward_arg)))
+      #   2. `def m(a, b, ...) end` is emitted as
+      #      s(:def, :m, s(:args, s(:arg, :a), s(:arg, :b), s(:forward_arg)))
+      #
+      # It does't matter that much on 2.7 (because there can't be any leading arguments),
+      # but on 2.8 it should be better enabled to use a single AST format.
+      #
+      # @return [Boolean]
+      attr_accessor :emit_forward_arg
+    end
+
+    @emit_forward_arg = false
 
     class << self
       ##
@@ -106,6 +137,7 @@ module Parser
         @emit_encoding = true
         @emit_index = true
         @emit_arg_inside_procarg0 = true
+        @emit_forward_arg = true
       end
     end
 
@@ -709,8 +741,14 @@ module Parser
       n(:numargs, [ max_numparam ], nil)
     end
 
-    def forward_args(begin_t, dots_t, end_t)
-      n(:forward_args, [], collection_map(begin_t, token_map(dots_t), end_t))
+    def forward_only_args(begin_t, dots_t, end_t)
+      if self.class.emit_forward_arg
+        forward_arg = n(:forward_arg, [], token_map(dots_t))
+        n(:args, [ forward_arg ],
+          collection_map(begin_t, [ forward_arg ], end_t))
+      else
+        n(:forward_args, [], collection_map(begin_t, token_map(dots_t), end_t))
+      end
     end
 
     def arg(name_t)

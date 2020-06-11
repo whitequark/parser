@@ -29,6 +29,7 @@ below for explanation of `emit_*` calls):
     Parser::Builders::Default.emit_encoding            = true
     Parser::Builders::Default.emit_index               = true
     Parser::Builders::Default.emit_arg_inside_procarg0 = true
+    Parser::Builders::Default.emit_forward_arg         = true
 
 Parse a chunk of code:
 

@@ -37,7 +37,7 @@ module Parser
 
     private
 
-    LEGACY_MODES = %i[lambda procarg0 encoding index arg_inside_procarg0].freeze
+    LEGACY_MODES = %i[lambda procarg0 encoding index arg_inside_procarg0 forward_arg].freeze
 
     def runner_name
       raise NotImplementedError, "implement #{self.class}##{__callee__}"

@@ -7811,7 +7811,8 @@ class TestParser < Minitest::Test
     end
   end
 
-  def test_forward_args
+  def test_forward_args_legacy
+    Parser::Builders::Default.emit_forward_arg = false
     assert_parses(
       s(:def, :foo,
         s(:forward_args),
@@ -7843,7 +7844,27 @@ class TestParser < Minitest::Test
       %q{def foo(...); end},
       %q{},
       SINCE_2_7)
+  ensure
+    Parser::Builders::Default.emit_forward_arg = true
+  end
 
+  def test_forward_arg
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      %q{def foo(...); bar(...); end},
+      %q{       ~ begin (args)
+        |       ~~~~~ expression (args)
+        |           ~ end (args)
+        |        ~~~ expression (args.forward_arg)
+        |                  ~~~ expression (send.forwarded_args)},
+      SINCE_2_7)
+  end
+
+  def test_forward_args_invalid
     assert_diagnoses(
       [:error, :block_and_blockarg],
       %q{def foo(...) bar(...) { }; end},
@@ -9556,7 +9577,10 @@ class TestParser < Minitest::Test
         |               ^ assignment
         |~~~~~~~~~~~~~~~~~~~~~~ expression},
       SINCE_2_8)
+  end
 
+  def test_endless_method_forwarded_args_legacy
+    Parser::Builders::Default.emit_forward_arg = false
     assert_parses(
       s(:def_e, :foo,
         s(:forward_args),
@@ -9568,6 +9592,7 @@ class TestParser < Minitest::Test
         |             ^ assignment
         |~~~~~~~~~~~~~~~~~~~~~~~ expression},
       SINCE_2_8)
+    Parser::Builders::Default.emit_forward_arg = true
   end
 
   def test_endless_method_without_brackets
