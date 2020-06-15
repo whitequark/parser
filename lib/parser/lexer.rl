@@ -2030,7 +2030,14 @@ class Parser::Lexer
 
       '...'
       => {
-        if @version >= 27
+        if @version >= 28
+          if @lambda_stack.any? && @lambda_stack.last + 1 == @paren_nest
+            # To reject `->(...)` like `->...`
+            emit(:tDOT3)
+          else
+            emit(:tBDOT3)
+          end
+        elsif @version >= 27
           emit(:tBDOT3)
         else
           emit(:tDOT3)
