@@ -743,12 +743,16 @@ module Parser
 
     def forward_only_args(begin_t, dots_t, end_t)
       if self.class.emit_forward_arg
-        forward_arg = n(:forward_arg, [], token_map(dots_t))
-        n(:args, [ forward_arg ],
-          collection_map(begin_t, [ forward_arg ], end_t))
+        arg = forward_arg(dots_t)
+        n(:args, [ arg ],
+          collection_map(begin_t, [ arg ], end_t))
       else
         n(:forward_args, [], collection_map(begin_t, token_map(dots_t), end_t))
       end
+    end
+
+    def forward_arg(dots_t)
+      n(:forward_arg, [], token_map(dots_t))
     end
 
     def arg(name_t)
