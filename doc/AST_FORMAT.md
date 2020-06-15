@@ -1164,13 +1164,13 @@ s(:numblock,
 
 ## Forward arguments
 
-### Method definition accepting forwarding arguments
+### Method definition accepting only forwarding arguments
 
 Ruby 2.7 introduced a feature called "arguments forwarding".
 When a method takes any arguments for forwarding them in the future
 the whole `args` node gets replaced with `forward-args` node.
 
-Format:
+Format if `emit_forward_arg` compatibility flag is disabled:
 
 ~~~
 (def :foo
@@ -1180,6 +1180,25 @@ Format:
         ~ begin
         ~~~~~ expression
 ~~~
+
+However, Ruby 2.8 added support for leading arguments before `...`, and so
+it can't be used as a replacement of the `(args)` node anymore. To solve it
+`emit_forward_arg` should be enabled.
+
+Format if `emit_forward_arg` compatibility flag is enabled:
+
+~~~
+(def :foo
+  (args
+    (forward-arg)) nil)
+"def foo(...); end"
+        ~ begin (args)
+            ~ end (args)
+        ~~~~~ expression (args)
+         ~~~ expression (forward_arg)
+~~~
+
+Note that the node is called `forward_arg` when emitted separately.
 
 ### Method call taking arguments of the currently forwarding method
 

@@ -2595,7 +2595,7 @@ keyword_variable: kNIL
                     }
                 | tLPAREN2 args_forward rparen
                     {
-                      result = @builder.forward_args(val[0], val[1], val[2])
+                      result = @builder.forward_only_args(val[0], val[1], val[2])
                       @static_env.declare_forward_args
 
                       @lexer.state = :expr_value
