@@ -7892,6 +7892,12 @@ class TestParser < Minitest::Test
 
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      %q{def foo(x,y,z); bar(x, y, z, ...); end},
+      %q{                             ^^^ location},
+      SINCE_2_8)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tBDOT3' }],
       %q{def foo(x,y,z); super(...); end},
       %q{                      ^^^ location},
       SINCE_2_7)
@@ -7958,6 +7964,26 @@ class TestParser < Minitest::Test
       %q{        ^^^ location},
       SINCE_2_7)
   end
+
+  def test_trailing_forward_arg
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :a),
+          s(:arg, :b),
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:lvar, :a),
+          s(:int, 42),
+          s(:forwarded_args))),
+      %q{def foo(a, b, ...); bar(a, 42, ...); end},
+      %q{       ~ begin (args)
+        |       ~~~~~~~~~~~ expression (args)
+        |                 ~ end (args)
+        |              ~~~ expression (args.forward_arg)},
+      SINCE_2_8)
+  end
+
 
   def test_erange_without_parentheses_at_eol
     assert_diagnoses(
