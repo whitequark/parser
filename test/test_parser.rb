@@ -7912,7 +7912,13 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tBDOT3' }],
       %q{->(...) {}},
       %q{   ^^^ location},
-      SINCE_2_7)
+      ['2.7'])
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tDOT3' }],
+      %q{->(...) {}},
+      %q{   ^^^ location},
+      SINCE_2_8)
 
     # Here and below the parser asssumes that
     # it can be a beginningless range, so the error comes after reducing right paren
