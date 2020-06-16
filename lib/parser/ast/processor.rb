@@ -258,6 +258,7 @@ module Parser
       alias on_array_pattern_with_tail process_regular_node
       alias on_hash_pattern            process_regular_node
       alias on_const_pattern           process_regular_node
+      alias on_find_pattern            process_regular_node
 
       # @private
       def process_variable_node(node)

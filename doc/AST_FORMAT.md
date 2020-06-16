@@ -2191,6 +2191,24 @@ Format:
       ~~~ name (match-nil-pattern)
 ~~~
 
+### Matching using find pattern
+
+Format:
+
+~~~
+(find-pattern
+  (match-rest
+    (match-var :a))
+  (int 42)
+  (match-rest))
+"in [*, 42, *]"
+    ~ begin
+             ~ end
+    ~~~~~~~~~~ expression
+~~~
+
+Note that it can be used as a top-level pattern only when used in a `case` statement. In that case `begin` and `end` are empty.
+
 ### Matching using const pattern
 
 #### With array pattern
@@ -2245,4 +2263,21 @@ Format:
     ~ name (const-pattern.const)
     ~ expression (const-pattern.const)
      ~~ expression (const-pattern.array_pattern)
+~~~
+
+#### With find pattern
+
+Format:
+
+~~~
+(const-pattern
+  (const nil :X)
+  (find-pattern
+    (match-rest)
+    (int 42)
+    (match-rest)))
+"in X[*, 42, *]"
+     ~ begin
+              ~ end
+    ~~~~~~~~~~~ expression
 ~~~

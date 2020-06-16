@@ -1883,6 +1883,10 @@ opt_block_args_tail:
                     {
                       result = @builder.array_pattern(nil, [val[0]].concat(val[2]), nil)
                     }
+                | p_find
+                    {
+                      result = @builder.find_pattern(nil, val[0], nil)
+                    }
                 | p_args_tail
                     {
                       result = @builder.array_pattern(nil, val[0], nil)
@@ -1925,6 +1929,12 @@ opt_block_args_tail:
                       pattern = @builder.array_pattern(nil, val[2], nil)
                       result = @builder.const_pattern(val[0], val[1], pattern, val[3])
                     }
+                | p_const p_lparen p_find rparen
+                    {
+                      @pattern_hash_keys.pop
+                      pattern = @builder.find_pattern(nil, val[2], nil)
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[3])
+                    }
                 | p_const p_lparen p_kwargs rparen
                     {
                       @pattern_hash_keys.pop
@@ -1942,6 +1952,12 @@ opt_block_args_tail:
                       pattern = @builder.array_pattern(nil, val[2], nil)
                       result = @builder.const_pattern(val[0], val[1], pattern, val[3])
                     }
+                | p_const p_lbracket p_find rbracket
+                    {
+                      @pattern_hash_keys.pop
+                      pattern = @builder.find_pattern(nil, val[2], nil)
+                      result = @builder.const_pattern(val[0], val[1], pattern, val[3])
+                    }
                 | p_const p_lbracket p_kwargs rbracket
                     {
                       @pattern_hash_keys.pop
@@ -1953,14 +1969,13 @@ opt_block_args_tail:
                       pattern = @builder.array_pattern(val[1], nil, val[2])
                       result = @builder.const_pattern(val[0], val[1], pattern, val[2])
                     }
-                | tLBRACK
+                | tLBRACK p_args rbracket
                     {
-                      @pattern_hash_keys.push
+                      result = @builder.array_pattern(val[0], val[1], val[2])
                     }
-                  p_args rbracket
+                | tLBRACK p_find rbracket
                     {
-                      @pattern_hash_keys.pop
-                      result = @builder.array_pattern(val[0], val[2], val[3])
+                      result = @builder.find_pattern(val[0], val[1], val[2])
                     }
                 | tLBRACK rbracket
                     {
@@ -2041,25 +2056,27 @@ opt_block_args_tail:
                       result = [ *val[0], last_item ]
                     }
 
-     p_args_tail: tSTAR tIDENTIFIER
+     p_args_tail: p_rest
                     {
-                      match_rest = @builder.match_rest(val[0], val[1])
-                      result = [ match_rest ]
+                      result = [ val[0] ]
                     }
-                | tSTAR tIDENTIFIER tCOMMA p_args_post
+                | p_rest tCOMMA p_args_post
                     {
-                      match_rest = @builder.match_rest(val[0], val[1])
-                      result = [ match_rest, *val[3] ]
+                      result = [ val[0], *val[2] ]
+                    }
+
+          p_find: p_rest tCOMMA p_args_post tCOMMA p_rest
+                    {
+                      result = [ val[0], *val[2], val[4] ]
+                    }
+
+          p_rest: tSTAR tIDENTIFIER
+                    {
+                      result = @builder.match_rest(val[0], val[1])
                     }
                 | tSTAR
                     {
-                      match_rest = @builder.match_rest(val[0])
-                      result = [ match_rest ]
-                    }
-                | tSTAR tCOMMA p_args_post
-                    {
-                      match_rest = @builder.match_rest(val[0])
-                      result = [ match_rest, *val[2] ]
+                      result = @builder.match_rest(val[0])
                     }
 
      p_args_post: p_arg
