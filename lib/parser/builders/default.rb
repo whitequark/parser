@@ -1400,6 +1400,11 @@ module Parser
         collection_map(lbrack_t, elements, rbrack_t))
     end
 
+    def find_pattern(lbrack_t, elements, rbrack_t)
+      n(:find_pattern, elements,
+        collection_map(lbrack_t, elements, rbrack_t))
+    end
+
     def match_with_trailing_comma(match, comma_t)
       n(:match_with_trailing_comma, [ match ], expr_map(match.loc.expression.join(loc(comma_t))))
     end

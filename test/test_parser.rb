@@ -8460,7 +8460,7 @@ class TestParser < Minitest::Test
         nil),
       "#{case_pre}#{code}; end",
       source_maps,
-      SINCE_2_7
+      versions
     )
   end
 
@@ -9713,6 +9713,68 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tASSOC' }],
       %Q{13.divmod(5)\n=> a,b; [a, b]},
       %{             ^^ location},
+      SINCE_2_8)
+  end
+
+  def test_find_pattern
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:find_pattern,
+          s(:match_rest,
+            s(:match_var, :x)),
+          s(:match_as,
+            s(:int, 1),
+            s(:match_var, :a)),
+          s(:match_rest,
+            s(:match_var, :y))),
+        nil,
+        s(:true)),
+      %q{in [*x, 1 => a, *y] then true},
+      %q{   ~~~~~~~~~~~~~~~~ expression (in_pattern.find_pattern)
+        |   ~ begin (in_pattern.find_pattern)
+        |                  ~ end (in_pattern.find_pattern)
+        |    ~~ expression (in_pattern.find_pattern.match_rest/1)
+        |                ~~ expression (in_pattern.find_pattern.match_rest/2)},
+      SINCE_2_8)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :String),
+          s(:find_pattern,
+            s(:match_rest),
+            s(:int, 1),
+            s(:match_rest))),
+        nil,
+        s(:true)),
+      %q{in String(*, 1, *) then true},
+      %q{          ~~~~~~~ expression (in_pattern.const_pattern.find_pattern)},
+      SINCE_2_8)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:const_pattern,
+          s(:const, nil, :Array),
+          s(:find_pattern,
+            s(:match_rest),
+            s(:int, 1),
+            s(:match_rest))),
+        nil,
+        s(:true)),
+      %q{in Array[*, 1, *] then true},
+      %q{         ~~~~~~~ expression (in_pattern.const_pattern.find_pattern)},
+      SINCE_2_8)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:find_pattern,
+          s(:match_rest),
+          s(:int, 42),
+          s(:match_rest)),
+        nil,
+        s(:true)),
+      %q{in *, 42, * then true},
+      %q{   ~~~~~~~~ expression (in_pattern.find_pattern)},
       SINCE_2_8)
   end
 end
