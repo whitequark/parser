@@ -1,6 +1,21 @@
 Changelog
 =========
 
+Not released (2020-06-19)
+-------------------------
+
+Features implemented:
+ * ruby28.y: add find pattern. (#714) (Ilya Bylich)
+ * lexer.rl: reject `->...` and `->(...)` with the same error. (#713) (Ilya Bylich)
+ * ruby28.y: accept leading args before forward arg. (#712) (Ilya Bylich)
+ * Added `emit_forward_arg` compatibility flag. (#710) (Ilya Bylich)
+ * ruby28.y: include entire lambda expr in lambda rule. (#708) (Ilya Bylich)
+ * ruby28.y: extracted excessed_comma rule. (#706) (Ilya Bylich)
+ * Source::TreeRewriter: Improved merging and representations (#703) (Marc-André Lafortune)
+
+Bugs fixed:
+ * ruby*.y: fixed context inside lambda args and module. (#709) (Ilya Bylich)
+
 v2.7.1.3 (2020-05-26)
 ---------------------
 
