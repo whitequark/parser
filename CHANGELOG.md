@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-06-19)
--------------------------
+v2.7.1.4 (2020-06-19)
+---------------------
 
 Features implemented:
  * ruby28.y: add find pattern. (#714) (Ilya Bylich)
