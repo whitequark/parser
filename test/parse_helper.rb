@@ -49,15 +49,17 @@ module ParseHelper
     end
   end
 
-  def assert_source_range(begin_pos, end_pos, range, version, what)
-    assert range.is_a?(Parser::Source::Range),
-           "(#{version}) #{range.inspect}.is_a?(Source::Range) for #{what}"
-
-    assert_equal begin_pos, range.begin_pos,
-                 "(#{version}) begin of #{what}"
-
-    assert_equal end_pos, range.end_pos,
-                 "(#{version}) end of #{what}"
+  def assert_source_range(expect_range, range, version, what)
+    if expect_range == nil
+      # Avoid "Use assert_nil if expecting nil from .... This will fail in Minitest 6.""
+      assert_nil range,
+                   "(#{version}) range of #{what}"
+    else
+      assert range.is_a?(Parser::Source::Range),
+             "(#{version}) #{range.inspect}.is_a?(Source::Range) for #{what}"
+      assert_equal expect_range, range.to_range,
+                   "(#{version}) range of #{what}"
+    end
   end
 
   # Use like this:
@@ -105,7 +107,7 @@ module ParseHelper
     assert_equal ast, parsed_ast,
                  "(#{version}) AST equality"
 
-    parse_source_map_descriptions(source_maps) do |begin_pos, end_pos, map_field, ast_path, line|
+    parse_source_map_descriptions(source_maps) do |range, map_field, ast_path, line|
 
       astlet = traverse_ast(parsed_ast, ast_path)
 
@@ -119,9 +121,9 @@ module ParseHelper
       assert astlet.location.respond_to?(map_field),
              "(#{version}) #{astlet.location.inspect}.respond_to?(#{map_field.inspect}) for:\n#{parsed_ast.inspect}"
 
-      range = astlet.location.send(map_field)
+      found_range = astlet.location.send(map_field)
 
-      assert_source_range(begin_pos, end_pos, range, version, line.inspect)
+      assert_source_range(range, found_range, version, line.inspect)
     end
 
     assert parser.instance_eval { @lexer }.cmdarg.empty?,
@@ -164,18 +166,18 @@ module ParseHelper
       assert_equal arguments, emitted_diagnostic.arguments
       assert_equal message, emitted_diagnostic.message
 
-      parse_source_map_descriptions(source_maps) do |begin_pos, end_pos, map_field, ast_path, line|
+      parse_source_map_descriptions(source_maps) do |range, map_field, ast_path, line|
 
         case map_field
         when 'location'
-          assert_source_range begin_pos, end_pos,
+          assert_source_range range,
                               emitted_diagnostic.location,
                               version, 'location'
 
         when 'highlights'
           index = ast_path.first.to_i
 
-          assert_source_range begin_pos, end_pos,
+          assert_source_range range,
                               emitted_diagnostic.highlights[index],
                               version, "#{index}th highlight"
 
@@ -254,7 +256,7 @@ module ParseHelper
   SOURCE_MAP_DESCRIPTION_RE =
       /(?x)
        ^(?# $1 skip)            ^(\s*)
-        (?# $2 highlight)        ([~\^]+)
+        (?# $2 highlight)        ([~\^]+|\!)
                                  \s+
         (?# $3 source_map_field) ([a-z_]+)
         (?# $5 ast_path)         (\s+\(([a-z_.\/0-9]+)\))?
@@ -272,8 +274,11 @@ module ParseHelper
       next if line.empty?
 
       if (match = SOURCE_MAP_DESCRIPTION_RE.match(line))
-        begin_pos        = match[1].length
-        end_pos          = begin_pos + match[2].length
+        if match[2] != '!'
+          begin_pos        = match[1].length
+          end_pos          = begin_pos + match[2].length
+          range            = begin_pos...end_pos
+        end
         source_map_field = match[3]
 
         if match[5]
@@ -282,7 +287,7 @@ module ParseHelper
           ast_path = []
         end
 
-        yield begin_pos, end_pos, source_map_field, ast_path, line
+        yield range, source_map_field, ast_path, line
       else
         raise "Cannot parse source map description line: #{line.inspect}."
       end
