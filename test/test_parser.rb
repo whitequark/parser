@@ -1976,7 +1976,9 @@ class TestParser < Minitest::Test
       %q{alias :foo bar},
       %q{~~~~~ keyword
         |      ~~~~ expression (sym/1)
+        |      ^ begin (sym/1)
         |           ~~~ expression (sym/2)
+        |           ! begin (sym/2)
         |~~~~~~~~~~~~~~ expression})
   end
 
