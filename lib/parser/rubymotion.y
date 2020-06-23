@@ -512,7 +512,7 @@ rule
 
             fsym: fname
                     {
-                      result = @builder.symbol(val[0])
+                      result = @builder.symbol_internal(val[0])
                     }
                 | symbol
 
