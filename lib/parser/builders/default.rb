@@ -695,7 +695,7 @@ module Parser
 
     def def_endless_method(def_t, name_t, args,
                            assignment_t, body)
-      n(:def_e, [ value(name_t).to_sym, args, body ],
+      n(:def, [ value(name_t).to_sym, args, body ],
         endless_definition_map(def_t, nil, name_t, assignment_t, body))
     end
 
@@ -713,7 +713,7 @@ module Parser
                               assignment_t, body)
       return unless validate_definee(definee)
 
-      n(:defs_e, [ definee, value(name_t).to_sym, args, body ],
+      n(:defs, [ definee, value(name_t).to_sym, args, body ],
         endless_definition_map(def_t, dot_t, name_t, assignment_t, body))
     end
 

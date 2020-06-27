@@ -829,7 +829,7 @@ Format:
 Format:
 
 ~~~
-(def_e :foo (args) (int 42))
+(def :foo (args) (int 42))
 "def foo() = 42"
  ~~~ keyword
      ~~~ name
@@ -843,7 +843,7 @@ Format:
 Format:
 
 ~~~
-(defs_e (self) :foo (args) (int 42))
+(defs (self) :foo (args) (int 42))
 "def self.foo() = 42"
  ~~~ keyword
           ~~~ name
