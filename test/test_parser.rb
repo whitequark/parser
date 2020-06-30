@@ -8912,6 +8912,21 @@ class TestParser < Minitest::Test
       s(:in_pattern,
         s(:hash_pattern,
           s(:pair,
+             s(:sym, :Foo),
+             s(:int, 42))), nil,
+        s(:false)),
+      %q{
+        in {Foo: 42
+        }
+          false
+      },
+      %q{}
+    )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
             s(:sym, :a),
             s(:hash_pattern,
               s(:match_var, :b))),
