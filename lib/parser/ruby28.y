@@ -2127,7 +2127,6 @@ opt_block_args_tail:
 
       p_kw_label: tLABEL
                   {
-                    check_kwarg_name(val[0])
                     result = [:label, val[0]]
                   }
                 | tSTRING_BEG string_contents tLABEL_END
