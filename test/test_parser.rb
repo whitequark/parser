@@ -9578,7 +9578,7 @@ class TestParser < Minitest::Test
 
   def test_endless_method
     assert_parses(
-      s(:def_e, :foo,
+      s(:def, :foo,
         s(:args),
         s(:int, 42)),
       %q{def foo() = 42},
@@ -9589,7 +9589,7 @@ class TestParser < Minitest::Test
       SINCE_2_8)
 
     assert_parses(
-      s(:def_e, :inc,
+      s(:def, :inc,
         s(:args, s(:arg, :x)),
         s(:send,
           s(:lvar, :x), :+,
@@ -9602,7 +9602,7 @@ class TestParser < Minitest::Test
       SINCE_2_8)
 
     assert_parses(
-      s(:defs_e, s(:send, nil, :obj), :foo,
+      s(:defs, s(:send, nil, :obj), :foo,
         s(:args),
         s(:int, 42)),
       %q{def obj.foo() = 42},
@@ -9614,7 +9614,7 @@ class TestParser < Minitest::Test
       SINCE_2_8)
 
     assert_parses(
-      s(:defs_e, s(:send, nil, :obj), :inc,
+      s(:defs, s(:send, nil, :obj), :inc,
         s(:args, s(:arg, :x)),
         s(:send,
           s(:lvar, :x), :+,
@@ -9631,7 +9631,7 @@ class TestParser < Minitest::Test
   def test_endless_method_forwarded_args_legacy
     Parser::Builders::Default.emit_forward_arg = false
     assert_parses(
-      s(:def_e, :foo,
+      s(:def, :foo,
         s(:forward_args),
         s(:send, nil, :bar,
           s(:forwarded_args))),
@@ -9661,7 +9661,7 @@ class TestParser < Minitest::Test
 
   def test_endless_method_with_rescue_mod
     assert_parses(
-      s(:def_e, :m,
+      s(:def, :m,
         s(:args),
         s(:rescue,
           s(:int, 1),
@@ -9672,7 +9672,7 @@ class TestParser < Minitest::Test
       SINCE_2_8)
 
     assert_parses(
-      s(:defs_e,
+      s(:defs,
         s(:self), :m,
         s(:args),
         s(:rescue,
