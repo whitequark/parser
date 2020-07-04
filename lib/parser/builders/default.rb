@@ -1803,17 +1803,17 @@ module Parser
     end
 
     def definition_map(keyword_t, operator_t, name_t, end_t)
-      Source::Map::Definition.new(loc(keyword_t),
-                                  loc(operator_t), loc(name_t),
-                                  loc(end_t))
+      Source::Map::MethodDefinition.new(loc(keyword_t),
+                                        loc(operator_t), loc(name_t),
+                                        loc(end_t), nil, nil)
     end
 
     def endless_definition_map(keyword_t, operator_t, name_t, assignment_t, body_e)
       body_l = body_e.loc.expression
 
-      Source::Map::EndlessDefinition.new(loc(keyword_t),
-                                         loc(operator_t), loc(name_t),
-                                         loc(assignment_t), body_l)
+      Source::Map::MethodDefinition.new(loc(keyword_t),
+                                        loc(operator_t), loc(name_t), nil,
+                                        loc(assignment_t), body_l)
     end
 
     def send_map(receiver_e, dot_t, selector_t, begin_t=nil, args=[], end_t=nil)

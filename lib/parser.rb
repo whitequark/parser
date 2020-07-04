@@ -46,7 +46,7 @@ module Parser
     require 'parser/source/map/variable'
     require 'parser/source/map/keyword'
     require 'parser/source/map/definition'
-    require 'parser/source/map/endless_definition'
+    require 'parser/source/map/method_definition'
     require 'parser/source/map/send'
     require 'parser/source/map/index'
     require 'parser/source/map/condition'
