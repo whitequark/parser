@@ -11,7 +11,7 @@ Features implemented:
  * Added `emit_forward_arg` compatibility flag. (#710) (Ilya Bylich)
  * ruby28.y: include entire lambda expr in lambda rule. (#708) (Ilya Bylich)
  * ruby28.y: extracted excessed_comma rule. (#706) (Ilya Bylich)
- * Source::TreeRewriter: Improved merging and representations (#703) (Marc-André Lafortune)
+ * Source::TreeRewriter: new methods `import!`, `as_replacements` and `as_nested_actions` (#703) (Marc-André Lafortune)
 
 Bugs fixed:
  * ruby*.y: fixed context inside lambda args and module. (#709) (Ilya Bylich)
