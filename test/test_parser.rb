@@ -1856,6 +1856,7 @@ class TestParser < Minitest::Test
       %q{def foo; end},
       %q{~~~ keyword
         |    ~~~ name
+        |! assignment
         |         ~~~ end})
 
     assert_parses(
@@ -9585,6 +9586,7 @@ class TestParser < Minitest::Test
       %q{~~~ keyword
         |    ~~~ name
         |          ^ assignment
+        |! end
         |~~~~~~~~~~~~~~ expression},
       SINCE_2_8)
 
