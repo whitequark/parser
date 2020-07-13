@@ -105,10 +105,9 @@ module Parser
         @source_buffer = source_buffer
         @in_transaction = false
 
-        @policy = {crossing_deletions: crossing_deletions,
-                   different_replacements: different_replacements,
-                   swallowed_insertions: swallowed_insertions}.freeze
-        check_policy_validity
+        @policy = {crossing_deletions: check_policy_value(crossing_deletions),
+                   different_replacements: check_policy_value(different_replacements),
+                   swallowed_insertions: check_policy_value(swallowed_insertions)}.freeze
 
         @enforcer = method(:enforce_policy)
         # We need a range that would be jugded as containing all other ranges,
@@ -361,10 +360,11 @@ module Parser
 
       private
 
-      ACTIONS = %i[accept warn raise].freeze
-      def check_policy_validity
-        invalid = @policy.values - ACTIONS
-        raise ArgumentError, "Invalid policy: #{invalid.join(', ')}" unless invalid.empty?
+      ACTIONS = %i[accept warn raise].to_set.freeze
+      def check_policy_value(value)
+        raise ArgumentError, "Invalid policy value: #{value}" unless ACTIONS.include?(value)
+
+        value
       end
 
       def combine(range, attributes)
