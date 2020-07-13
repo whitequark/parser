@@ -105,9 +105,9 @@ module Parser
         @source_buffer = source_buffer
         @in_transaction = false
 
-        @policy = {crossing_deletions: check_policy_value(crossing_deletions),
-                   different_replacements: check_policy_value(different_replacements),
-                   swallowed_insertions: check_policy_value(swallowed_insertions)}.freeze
+        @crossing_deletions = check_policy_value(crossing_deletions)
+        @different_replacements = check_policy_value(different_replacements)
+        @swallowed_insertions = check_policy_value(swallowed_insertions)
 
         @enforcer = method(:enforce_policy)
         # We need a range that would be jugded as containing all other ranges,
@@ -381,15 +381,27 @@ module Parser
         range
       end
 
+      EVENT_TO_POLICY = {
+        crossing_deletions:     :@crossing_deletions,
+        different_replacements: :@different_replacements,
+        swallowed_insertions:   :@swallowed_insertions,
+      }.freeze
+
+      def policy(event)
+        return :raise if event == :crossing_insertions
+
+        instance_variable_get(EVENT_TO_POLICY.fetch(event))
+      end
+
       def enforce_policy(event)
-        return if @policy[event] == :accept
+        return if policy(event) == :accept
         return unless (values = yield)
         trigger_policy(event, **values)
       end
 
       POLICY_TO_LEVEL = {warn: :warning, raise: :error}.freeze
       def trigger_policy(event, range: raise, conflict: nil, **arguments)
-        action = @policy[event] || :raise
+        action = policy(event)
         diag = Parser::Diagnostic.new(POLICY_TO_LEVEL[action], event, arguments, range)
         @diagnostics.process(diag)
         if conflict
