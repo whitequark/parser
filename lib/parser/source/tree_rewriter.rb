@@ -83,14 +83,10 @@ module Parser
     # @!attribute [r] source_buffer
     #  @return [Source::Buffer]
     #
-    # @!attribute [r] diagnostics
-    #  @return [Diagnostic::Engine]
-    #
     # @api public
     #
     class TreeRewriter
       attr_reader :source_buffer
-      attr_reader :diagnostics
 
       ##
       # @param [Source::Buffer] source_buffer
@@ -99,9 +95,6 @@ module Parser
                      crossing_deletions: :accept,
                      different_replacements: :accept,
                      swallowed_insertions: :accept)
-        @diagnostics = Diagnostic::Engine.new
-        @diagnostics.consumer = -> diag { $stderr.puts diag.render }
-
         @source_buffer = source_buffer
         @in_transaction = false
 
@@ -322,6 +315,16 @@ module Parser
       ensure
         @action_root = restore_root if restore_root
         @in_transaction = previous
+      end
+
+      ##
+      # Provides access to a diagnostic engine.
+      # By default outputs diagnostic to $stderr
+      #
+      def diagnostics
+        @diagnostics ||= Diagnostic::Engine.new.tap do |engine|
+          engine.consumer = -> diag { $stderr.puts diag.render }
+        end
       end
 
       def in_transaction?
