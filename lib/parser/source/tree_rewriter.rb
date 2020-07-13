@@ -95,6 +95,7 @@ module Parser
                      crossing_deletions: :accept,
                      different_replacements: :accept,
                      swallowed_insertions: :accept)
+        @diagnostics = nil
         @source_buffer = source_buffer
         @in_transaction = false
 
@@ -321,10 +322,18 @@ module Parser
       # Provides access to a diagnostic engine.
       # By default outputs diagnostic to $stderr
       #
-      def diagnostics
-        @diagnostics ||= Diagnostic::Engine.new.tap do |engine|
+      def self.default_diagnostics
+        @default_diagnostics ||= Diagnostic::Engine.new.tap do |engine|
           engine.consumer = -> diag { $stderr.puts diag.render }
         end
+      end
+
+      ##
+      # Provides access to a diagnostic engine.
+      # By default: self.class.default_diagnostics
+      #
+      def diagnostics
+        @diagnostics ||= self.class.default_diagnostics.dup
       end
 
       def in_transaction?
@@ -409,11 +418,12 @@ module Parser
       def trigger_policy(event, range: raise, conflict: nil, **arguments)
         action = policy(event)
         diag = Parser::Diagnostic.new(POLICY_TO_LEVEL[action], event, arguments, range)
-        @diagnostics.process(diag)
+        engine = @diagnostics || self.class.default_diagnostics
+        engine.process(diag)
         if conflict
           range, *highlights = conflict
           diag = Parser::Diagnostic.new(POLICY_TO_LEVEL[action], :"#{event}_conflict", arguments, range, highlights)
-          @diagnostics.process(diag)
+          engine.process(diag)
         end
         raise Parser::ClobberingError, "Parser::Source::TreeRewriter detected clobbering" if action == :raise
       end
