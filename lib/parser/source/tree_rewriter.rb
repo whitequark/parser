@@ -109,11 +109,10 @@ module Parser
         @different_replacements = check_policy_value(different_replacements)
         @swallowed_insertions = check_policy_value(swallowed_insertions)
 
-        @enforcer = method(:enforce_policy)
         # We need a range that would be jugded as containing all other ranges,
         # including 0...0 and size...size:
         all_encompassing_range = @source_buffer.source_range.adjust(begin_pos: -1, end_pos: +1)
-        @action_root = TreeRewriter::Action.new(all_encompassing_range, @enforcer)
+        @action_root = TreeRewriter::Action.new(all_encompassing_range, self)
       end
 
       ##
@@ -354,6 +353,16 @@ module Parser
 
       extend Deprecation
 
+      ##
+      # @api private
+      # reserved for TreeAction
+      #
+      def enforce_policy(event)
+        return if policy(event) == :accept
+        return unless (values = yield)
+        trigger_policy(event, **values)
+      end
+
       protected
 
       attr_reader :action_root
@@ -369,7 +378,7 @@ module Parser
 
       def combine(range, attributes)
         range = check_range_validity(range)
-        action = TreeRewriter::Action.new(range, @enforcer, **attributes)
+        action = TreeRewriter::Action.new(range, self, **attributes)
         @action_root = @action_root.combine(action)
         self
       end
@@ -391,12 +400,6 @@ module Parser
         return :raise if event == :crossing_insertions
 
         instance_variable_get(EVENT_TO_POLICY.fetch(event))
-      end
-
-      def enforce_policy(event)
-        return if policy(event) == :accept
-        return unless (values = yield)
-        trigger_policy(event, **values)
       end
 
       POLICY_TO_LEVEL = {warn: :warning, raise: :error}.freeze
