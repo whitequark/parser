@@ -90,27 +90,19 @@ module Parser
     #
     class TreeRewriter
       attr_reader :source_buffer
-      attr_reader :diagnostics
 
+      attr_reader :enforcer
       ##
       # @param [Source::Buffer] source_buffer
       #
       def initialize(source_buffer,
-                     crossing_deletions: :accept,
-                     different_replacements: :accept,
-                     swallowed_insertions: :accept)
-        @diagnostics = Diagnostic::Engine.new
-        @diagnostics.consumer = -> diag { $stderr.puts diag.render }
+                     enforcer: nil,
+                     **policy)
+        @enforcer = enforcer || Enforcer::WithPolicy.new(**policy)
 
         @source_buffer = source_buffer
         @in_transaction = false
 
-        @policy = {crossing_deletions: crossing_deletions,
-                   different_replacements: different_replacements,
-                   swallowed_insertions: swallowed_insertions}.freeze
-        check_policy_validity
-
-        @enforcer = method(:enforce_policy)
         # We need a range that would be jugded as containing all other ranges,
         # including 0...0 and size...size:
         all_encompassing_range = @source_buffer.source_range.adjust(begin_pos: -1, end_pos: +1)
@@ -331,6 +323,13 @@ module Parser
       end
 
       ##
+      # @deprecated Provide different enforcer
+      #
+      def diagnostics
+        enforcer.diagnostics
+      end
+
+      ##
       # @api private
       # @deprecated Use insert_after or wrap
       #
@@ -361,12 +360,6 @@ module Parser
 
       private
 
-      ACTIONS = %i[accept warn raise].freeze
-      def check_policy_validity
-        invalid = @policy.values - ACTIONS
-        raise ArgumentError, "Invalid policy: #{invalid.join(', ')}" unless invalid.empty?
-      end
-
       def combine(range, attributes)
         range = check_range_validity(range)
         action = TreeRewriter::Action.new(range, @enforcer, **attributes)
@@ -379,25 +372,6 @@ module Parser
           raise IndexError, "The range #{range.to_range} is outside the bounds of the source"
         end
         range
-      end
-
-      def enforce_policy(event)
-        return if @policy[event] == :accept
-        return unless (values = yield)
-        trigger_policy(event, **values)
-      end
-
-      POLICY_TO_LEVEL = {warn: :warning, raise: :error}.freeze
-      def trigger_policy(event, range: raise, conflict: nil, **arguments)
-        action = @policy[event] || :raise
-        diag = Parser::Diagnostic.new(POLICY_TO_LEVEL[action], event, arguments, range)
-        @diagnostics.process(diag)
-        if conflict
-          range, *highlights = conflict
-          diag = Parser::Diagnostic.new(POLICY_TO_LEVEL[action], :"#{event}_conflict", arguments, range, highlights)
-          @diagnostics.process(diag)
-        end
-        raise Parser::ClobberingError, "Parser::Source::TreeRewriter detected clobbering" if action == :raise
       end
     end
   end

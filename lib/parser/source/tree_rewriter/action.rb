@@ -205,8 +205,11 @@ module Parser
         fusible.compact!
         return if fusible.empty?
         fusible.each do |child|
-          kind = action.insertion? || child.insertion? ? :crossing_insertions : :crossing_deletions
-          @enforcer.call(kind) { {range: action.range, conflict: child.range} }
+          if action.insertion? || child.insertion?
+            @enforcer.on_crossing_insertions(action.range, child.range) unless @enforcer.ignore?(:crossing_insertions)
+          else
+            @enforcer.on_crossing_deletions(action.range, child.range) unless @enforcer.ignore?(:crossing_deletions)
+          end
         end
         fusible
       end
@@ -214,6 +217,7 @@ module Parser
       # Assumes action.range == range && action.children.empty?
       def merge(action)
         call_enforcer_for_merge(action)
+
         with(
           insert_before: "#{action.insert_before}#{insert_before}",
           replacement: action.replacement || @replacement,
@@ -222,19 +226,20 @@ module Parser
       end
 
       def call_enforcer_for_merge(action)
-        @enforcer.call(:different_replacements) do
-          if @replacement && action.replacement && @replacement != action.replacement
-            {range: @range, replacement: action.replacement, other_replacement: @replacement}
-          end
+        if @replacement && action.replacement && !@enforcer.ignore?(:different_replacements) &&
+           @replacement != action.replacement
+          @enforcer.on_different_replacements(@range, action.replacement, @replacement)
         end
       end
 
       def swallow(children)
-        @enforcer.call(:swallowed_insertions) do
+        unless @enforcer.ignore?(:swallowed_insertions)
           insertions = children.select(&:insertion?)
-
-          {range: @range, conflict: insertions.map(&:range)} unless insertions.empty?
+          unless insertions.empty?
+            @enforcer.on_swallowed_insertions @range, insertions.map(&:range)
+          end
         end
+
         []
       end
     end
