@@ -177,16 +177,16 @@ module Parser
     end
 
     ##
-    # Parses a source buffer and returns the AST.
+    # Parses a source buffer and returns the AST, or `nil` in case of a non fatal error.
     #
     # @param [Parser::Source::Buffer] source_buffer The source buffer to parse.
-    # @return [Parser::AST::Node]
+    # @return [Parser::AST::Node, nil]
     #
     def parse(source_buffer)
       @lexer.source_buffer = source_buffer
       @source_buffer       = source_buffer
 
-      do_parse
+      do_parse || nil # Force `false` to `nil`, see https://github.com/ruby/racc/pull/136
     ensure
       # Don't keep references to the source file.
       @source_buffer       = nil
@@ -210,8 +210,9 @@ module Parser
 
     ##
     # Parses a source buffer and returns the AST, the source code comments,
-    # and the tokens emitted by the lexer. If `recover` is true and a fatal
-    # {SyntaxError} is encountered, `nil` is returned instead of the AST, and
+    # and the tokens emitted by the lexer. In case of a fatal error, a {SyntaxError}
+    # is raised, unless `recover` is true. In case of an error
+    # (non-fatal or recovered), `nil` is returned instead of the AST, and
     # comments as well as tokens are only returned up to the location of
     # the error.
     #
