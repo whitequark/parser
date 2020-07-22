@@ -9796,4 +9796,14 @@ class TestParser < Minitest::Test
       %q{   ~~~~~~~~ expression (in_pattern.find_pattern)},
       SINCE_2_8)
   end
+
+  def test_invalid_source
+    with_versions(ALL_VERSIONS) do |_ver, parser|
+      source_file = Parser::Source::Buffer.new('(comments)', source: "def foo; en")
+
+      parser.diagnostics.all_errors_are_fatal = false
+      ast = parser.parse(source_file)
+      assert_nil(ast)
+    end
+  end
 end
