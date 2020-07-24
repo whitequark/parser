@@ -87,6 +87,27 @@ module Parser
       alias_method :first_line, :line
 
       ##
+      # The range of line numbers spanned by the range.
+      # The range will be exclusive or not depending on the keyword argument;
+      # default is inclusive.
+      #
+      # Assume that `def_node` is the Node corresponding to the following example:
+      #
+      #    def foo
+      #      do_something
+      #      42
+      #    end
+      #
+      # Then:
+      #
+      #    def_node.loc.end.line_span                           # => 4..4
+      #    def_node.loc.expression.line_span(exclude_end: true) # => 1...4
+      #
+      def line_span(exclude_end: false)
+        ::Range.new(first_line, last_line, exclude_end)
+      end
+
+      ##
       # @return [Integer] zero-based column number of the beginning of this range.
       #
       def column

@@ -119,6 +119,12 @@ class TestSourceRange < Minitest::Test
     assert_equal 2, sr.line
   end
 
+  def test_line_span
+    sr = Parser::Source::Range.new(@buf, 2, 8)
+    assert_equal 1..1, @sr1_3.line_span
+    assert_equal 1...2, sr.line_span(exclude_end: true)
+  end
+
   def test_source_line
     sr = Parser::Source::Range.new(@buf, 7, 8)
     assert_equal 'baz', sr.source_line
