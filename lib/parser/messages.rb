@@ -65,6 +65,7 @@ module Parser
     :invalid_return               => 'Invalid return in class/module body',
     :csend_in_lhs_of_masgn        => '&. inside multiple assignment destination',
     :cant_assign_to_numparam      => 'cannot assign to numbered parameter %{name}',
+    :reserved_for_numparam        => '%{name} is reserved for numbered parameter',
     :ordinary_param_defined       => 'ordinary parameter is defined',
     :numparam_used_in_outer_scope => 'numbered parameter is already used in an outer scope',
     :circular_argument_reference  => 'circular argument reference %{var_name}',

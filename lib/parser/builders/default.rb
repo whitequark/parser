@@ -589,7 +589,11 @@ module Parser
       when :ident
         name, = *node
 
-        check_assignment_to_numparam(node)
+        var_name = node.children[0].to_s
+        name_loc = node.loc.expression
+
+        check_assignment_to_numparam(var_name, name_loc)
+        check_reserved_for_numparam(var_name, name_loc)
 
         @parser.static_env.declare(name)
 
@@ -689,12 +693,16 @@ module Parser
 
     def def_method(def_t, name_t, args,
                    body, end_t)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:def, [ value(name_t).to_sym, args, body ],
         definition_map(def_t, nil, name_t, end_t))
     end
 
     def def_endless_method(def_t, name_t, args,
                            assignment_t, body)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:def, [ value(name_t).to_sym, args, body ],
         endless_definition_map(def_t, nil, name_t, assignment_t, body))
     end
@@ -702,7 +710,8 @@ module Parser
     def def_singleton(def_t, definee, dot_t,
                       name_t, args,
                       body, end_t)
-      return unless validate_definee(definee)
+      validate_definee(definee)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
 
       n(:defs, [ definee, value(name_t).to_sym, args, body ],
         definition_map(def_t, dot_t, name_t, end_t))
@@ -711,7 +720,8 @@ module Parser
     def def_endless_singleton(def_t, definee, dot_t,
                               name_t, args,
                               assignment_t, body)
-      return unless validate_definee(definee)
+      validate_definee(definee)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
 
       n(:defs, [ definee, value(name_t).to_sym, args, body ],
         endless_definition_map(def_t, dot_t, name_t, assignment_t, body))
@@ -756,11 +766,15 @@ module Parser
     end
 
     def arg(name_t)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:arg, [ value(name_t).to_sym ],
         variable_map(name_t))
     end
 
     def optarg(name_t, eql_t, value)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:optarg, [ value(name_t).to_sym, value ],
         variable_map(name_t).
           with_operator(loc(eql_t)).
@@ -769,6 +783,7 @@ module Parser
 
     def restarg(star_t, name_t=nil)
       if name_t
+        check_reserved_for_numparam(value(name_t), loc(name_t))
         n(:restarg, [ value(name_t).to_sym ],
           arg_prefix_map(star_t, name_t))
       else
@@ -778,17 +793,23 @@ module Parser
     end
 
     def kwarg(name_t)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:kwarg, [ value(name_t).to_sym ],
         kwarg_map(name_t))
     end
 
     def kwoptarg(name_t, value)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:kwoptarg, [ value(name_t).to_sym, value ],
         kwarg_map(name_t, value))
     end
 
     def kwrestarg(dstar_t, name_t=nil)
       if name_t
+        check_reserved_for_numparam(value(name_t), loc(name_t))
+
         n(:kwrestarg, [ value(name_t).to_sym ],
           arg_prefix_map(dstar_t, name_t))
       else
@@ -803,11 +824,15 @@ module Parser
     end
 
     def shadowarg(name_t)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:shadowarg, [ value(name_t).to_sym ],
         variable_map(name_t))
     end
 
     def blockarg(amper_t, name_t)
+      check_reserved_for_numparam(value(name_t), loc(name_t))
+
       n(:blockarg, [ value(name_t).to_sym ],
         arg_prefix_map(amper_t, name_t))
     end
@@ -1560,8 +1585,10 @@ module Parser
       end
     end
 
-    def check_assignment_to_numparam(node)
-      name = node.children[0].to_s
+    def check_assignment_to_numparam(name, loc)
+      # MRI < 2.7 treats numbered parameters as regular variables
+      # and so it's allowed to perform assignments like `_1 = 42`.
+      return if @parser.version < 27
 
       assigning_to_numparam =
         @parser.context.in_dynamic_block? &&
@@ -1569,7 +1596,17 @@ module Parser
         @parser.max_numparam_stack.has_numparams?
 
       if assigning_to_numparam
-        diagnostic :error, :cant_assign_to_numparam, { :name => name }, node.loc.expression
+        diagnostic :error, :cant_assign_to_numparam, { :name => name }, loc
+      end
+    end
+
+    def check_reserved_for_numparam(name, loc)
+      # MRI < 2.8 accepts assignemnt to variables like _1
+      # if it's not a numbererd parameter. MRI 2.8 and newer throws an error.
+      return if @parser.version < 28
+
+      if name =~ /\A_([1-9])\z/
+        diagnostic :error, :reserved_for_numparam, { :name => name }, loc
       end
     end
 
