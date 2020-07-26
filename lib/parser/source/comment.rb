@@ -10,7 +10,7 @@ module Parser
     #  @return [String]
     #
     # @!attribute [r] location
-    #  @return [Parser::Source::Map]
+    #  @return [Parser::Source::Range]
     #
     # @api public
     #
