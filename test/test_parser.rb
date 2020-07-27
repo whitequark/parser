@@ -7514,7 +7514,7 @@ class TestParser < Minitest::Test
           s(:nil))),
       %q{proc {_1 = nil}},
       %q{},
-      SINCE_2_7)
+      %w(2.7))
 
     assert_diagnoses(
       [:error, :cant_assign_to_numparam, { :name => '_1' }],
@@ -7542,7 +7542,7 @@ class TestParser < Minitest::Test
 
     refute_diagnoses(
       %q{proc { _1 = nil; _1}},
-      SINCE_2_7)
+      %w(2.7))
   end
 
   def test_numparams_in_nested_blocks
@@ -9804,6 +9804,175 @@ class TestParser < Minitest::Test
       parser.diagnostics.all_errors_are_fatal = false
       ast = parser.parse(source_file)
       assert_nil(ast)
+    end
+  end
+
+  def test_reserved_for_numparam__before_28
+    assert_parses(
+      s(:block,
+        s(:send, nil, :proc),
+        s(:args),
+        s(:lvasgn, :_1,
+          s(:nil))),
+      %q{proc {_1 = nil}},
+      %q{},
+      ALL_VERSIONS - SINCE_2_8)
+
+    assert_parses(
+      s(:lvasgn, :_2,
+        s(:int, 1)),
+      %q{_2 = 1},
+      %q{},
+      ALL_VERSIONS - SINCE_2_8)
+
+    assert_parses(
+      s(:block,
+        s(:send, nil, :proc),
+        s(:args,
+          s(:procarg0,
+            s(:arg, :_3))), nil),
+      %q{proc {|_3|}},
+      %q{},
+      SINCE_1_9 - SINCE_2_8)
+
+    assert_parses(
+      s(:def, :x,
+        s(:args,
+          s(:arg, :_4)), nil),
+      %q{def x(_4) end},
+      %q{},
+      ALL_VERSIONS - SINCE_2_8)
+
+    assert_parses(
+      s(:def, :_5,
+        s(:args), nil),
+      %q{def _5; end},
+      %q{},
+      ALL_VERSIONS - SINCE_2_8)
+
+    assert_parses(
+      s(:defs,
+        s(:self), :_6,
+        s(:args), nil),
+      %q{def self._6; end},
+      %q{},
+      ALL_VERSIONS - SINCE_2_8)
+  end
+
+  def test_reserved_for_numparam__since_28
+    # Regular assignments:
+
+    assert_diagnoses(
+      [:error, :reserved_for_numparam, { :name => '_1' }],
+      %q{proc {_1 = nil}},
+      %q{      ^^ location},
+      SINCE_2_8)
+
+    assert_diagnoses(
+      [:error, :reserved_for_numparam, { :name => '_2' }],
+      %q{_2 = 1},
+      %q{^^ location},
+      SINCE_2_8)
+
+    # Arguments:
+
+    [
+      # req (procarg0)
+      [
+        %q{proc {|_3|}},
+        %q{       ^^ location},
+      ],
+
+      # req
+      [
+        %q{proc {|_3,|}},
+        %q{       ^^ location},
+      ],
+
+      # opt
+      [
+        %q{proc {|_3 = 42|}},
+        %q{       ^^ location},
+      ],
+
+      # mlhs
+      [
+        %q{proc {|(_3)|}},
+        %q{        ^^ location},
+      ],
+
+      # rest
+      [
+        %q{proc {|*_3|}},
+        %q{        ^^ location},
+      ],
+
+      # kwarg
+      [
+        %q{proc {|_3:|}},
+        %q{       ^^^ location},
+      ],
+
+      # kwoptarg
+      [
+        %q{proc {|_3: 42|}},
+        %q{       ^^^ location},
+      ],
+
+      # kwrestarg
+      [
+        %q{proc {|**_3|}},
+        %q{         ^^ location},
+      ],
+
+      # block
+      [
+        %q{proc {|&_3|}},
+        %q{        ^^ location},
+      ],
+
+      # shadowarg
+      [
+        %q{proc {|;_3|}},
+        %q{        ^^ location},
+      ],
+    ].each do |(code, location)|
+      assert_diagnoses(
+        [:error, :reserved_for_numparam, { :name => '_3' }],
+        code,
+        location,
+        SINCE_2_8)
+    end
+
+    # Method definitions:
+
+    [
+      # regular method
+      [
+        %q{def _5; end},
+        %q{    ^^ location}
+      ],
+      # regular singleton method
+      [
+        %q{def self._5; end},
+        %q{         ^^ location}
+      ],
+      # endless method
+      [
+        %q{def _5() = nil},
+        %q{    ^^ location}
+      ],
+      # endless singleton method
+      [
+        %q{def self._5() = nil},
+        %q{         ^^ location}
+      ],
+    ].each do |(code, location)|
+      assert_diagnoses(
+        [:error, :reserved_for_numparam, { :name => '_5' }],
+        code,
+        location,
+        SINCE_2_8)
     end
   end
 end
