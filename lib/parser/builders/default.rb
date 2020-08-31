@@ -103,7 +103,7 @@ module Parser
       ##
       # AST compatibility attribute; arguments forwarding initially
       # didn't have support for leading arguments
-      # (i.e. `def m(a, ...); end` was a syntax error). However, Ruby 2.8
+      # (i.e. `def m(a, ...); end` was a syntax error). However, Ruby 3.0
       # added support for any number of arguments in front of the `...`.
       #
       # If set to false (the default):
@@ -120,7 +120,7 @@ module Parser
       #      s(:def, :m, s(:args, s(:arg, :a), s(:arg, :b), s(:forward_arg)))
       #
       # It does't matter that much on 2.7 (because there can't be any leading arguments),
-      # but on 2.8 it should be better enabled to use a single AST format.
+      # but on 3.0 it should be better enabled to use a single AST format.
       #
       # @return [Boolean]
       attr_accessor :emit_forward_arg
@@ -1601,9 +1601,9 @@ module Parser
     end
 
     def check_reserved_for_numparam(name, loc)
-      # MRI < 2.8 accepts assignemnt to variables like _1
-      # if it's not a numbererd parameter. MRI 2.8 and newer throws an error.
-      return if @parser.version < 28
+      # MRI < 3.0 accepts assignemnt to variables like _1
+      # if it's not a numbererd parameter. MRI 3.0 and newer throws an error.
+      return if @parser.version < 30
 
       if name =~ /\A_([1-9])\z/
         diagnostic :error, :reserved_for_numparam, { :name => name }, loc

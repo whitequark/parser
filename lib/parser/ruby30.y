@@ -1,4 +1,4 @@
-class Parser::Ruby28
+class Parser::Ruby30
 
 token kCLASS kMODULE kDEF kUNDEF kBEGIN kRESCUE kENSURE kEND kIF kUNLESS
       kTHEN kELSIF kELSE kCASE kWHEN kWHILE kUNTIL kFOR kBREAK kNEXT
@@ -3034,7 +3034,7 @@ require 'parser'
 ---- inner
 
   def version
-    28
+    30
   end
 
   def default_encoding
