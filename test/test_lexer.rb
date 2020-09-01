@@ -3568,7 +3568,7 @@ class TestLexer < Minitest::Test
   end
 
   def test_endless_method
-    setup_lexer(28)
+    setup_lexer(30)
 
     assert_scanned('def foo() = 42',
                     :kDEF, "def", [0, 3],
