@@ -22,8 +22,8 @@ class TestCurrent < Minitest::Test
       assert_equal Parser::Ruby26, Parser::CurrentRuby
     when /^2\.7\.\d+/
       assert_equal Parser::Ruby27, Parser::CurrentRuby
-    when /^2\.8\.\d+/
-      assert_equal Parser::Ruby28, Parser::CurrentRuby
+    when /^3\.0\.\d+/
+      assert_equal Parser::Ruby30, Parser::CurrentRuby
     else
       flunk "Update test_current for #{RUBY_VERSION}"
     end
