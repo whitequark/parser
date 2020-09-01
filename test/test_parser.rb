@@ -29,7 +29,7 @@ class TestParser < Minitest::Test
   SINCE_2_5 = SINCE_2_4 - %w(2.4)
   SINCE_2_6 = SINCE_2_5 - %w(2.5)
   SINCE_2_7 = SINCE_2_6 - %w(2.6)
-  SINCE_2_8 = SINCE_2_7 - %w(2.7)
+  SINCE_3_0 = SINCE_2_7 - %w(2.7)
 
   # Guidelines for test naming:
   #  * Test structure follows structure of AST_FORMAT.md.
@@ -6587,7 +6587,7 @@ class TestParser < Minitest::Test
       %q{def m() = get_context},
       %q{def m(a = get_context) = 42}
     ].each do |code|
-      assert_context([:def], code, SINCE_2_8)
+      assert_context([:def], code, SINCE_3_0)
     end
   end
 
@@ -6603,7 +6603,7 @@ class TestParser < Minitest::Test
       %q{def foo.m() = get_context},
       %q{def foo.m(a = get_context) = 42}
     ].each do |code|
-      assert_context([:defs], code, SINCE_2_8)
+      assert_context([:defs], code, SINCE_3_0)
     end
   end
 
@@ -7897,7 +7897,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tBDOT3' }],
       %q{def foo(x,y,z); bar(x, y, z, ...); end},
       %q{                             ^^^ location},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tBDOT3' }],
@@ -7921,7 +7921,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tDOT3' }],
       %q{->(...) {}},
       %q{   ^^^ location},
-      SINCE_2_8)
+      SINCE_3_0)
 
     # Here and below the parser asssumes that
     # it can be a beginningless range, so the error comes after reducing right paren
@@ -7990,7 +7990,7 @@ class TestParser < Minitest::Test
         |       ~~~~~~~~~~~ expression (args)
         |                 ~ end (args)
         |              ~~~ expression (args.forward_arg)},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
 
@@ -9588,7 +9588,7 @@ class TestParser < Minitest::Test
         |          ^ assignment
         |! end
         |~~~~~~~~~~~~~~ expression},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses(
       s(:def, :inc,
@@ -9601,7 +9601,7 @@ class TestParser < Minitest::Test
         |    ~~~ name
         |           ^ assignment
         |~~~~~~~~~~~~~~~~~~ expression},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses(
       s(:defs, s(:send, nil, :obj), :foo,
@@ -9613,7 +9613,7 @@ class TestParser < Minitest::Test
         |        ~~~ name
         |              ^ assignment
         |~~~~~~~~~~~~~~~~~~ expression},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses(
       s(:defs, s(:send, nil, :obj), :inc,
@@ -9627,7 +9627,7 @@ class TestParser < Minitest::Test
         |       ^ operator
         |               ^ assignment
         |~~~~~~~~~~~~~~~~~~~~~~ expression},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
   def test_endless_method_forwarded_args_legacy
@@ -9642,7 +9642,7 @@ class TestParser < Minitest::Test
         |    ~~~ name
         |             ^ assignment
         |~~~~~~~~~~~~~~~~~~~~~~~ expression},
-      SINCE_2_8)
+      SINCE_3_0)
     Parser::Builders::Default.emit_forward_arg = true
   end
 
@@ -9651,13 +9651,13 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tEQL' }],
       %Q{def foo = 42},
       %q{        ^ location},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tEQL' }],
       %Q{def obj.foo = 42},
       %q{            ^ location},
-      SINCE_2_8
+      SINCE_3_0
     )
   end
 
@@ -9671,7 +9671,7 @@ class TestParser < Minitest::Test
             s(:int, 2)), nil)),
       %q{def m() = 1 rescue 2},
       %q{},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses(
       s(:defs,
@@ -9683,7 +9683,7 @@ class TestParser < Minitest::Test
             s(:int, 2)), nil)),
       %q{def self.m() = 1 rescue 2},
       %q{},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
   def test_rasgn
@@ -9693,7 +9693,7 @@ class TestParser < Minitest::Test
       %q{1 => a},
       %q{~~~~~~ expression
         |  ^^ operator},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses(
       s(:rasgn,
@@ -9702,7 +9702,7 @@ class TestParser < Minitest::Test
       %q{1 + 2 => $a},
       %q{~~~~~~~~~~~ expression
         |      ^^ operator},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
   def test_mrasgn
@@ -9713,7 +9713,7 @@ class TestParser < Minitest::Test
       %q{13.divmod(5) => a,b},
       %q{~~~~~~~~~~~~~~~~~~~ expression
         |             ^^ operator},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses(
       s(:mrasgn,
@@ -9724,7 +9724,7 @@ class TestParser < Minitest::Test
       %q{13.divmod(5) => a,b => c, d},
       %q{~~~~~~~~~~~~~~~~~~~ expression (mrasgn)
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
   def test_rasgn_line_continuation
@@ -9732,7 +9732,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tASSOC' }],
       %Q{13.divmod(5)\n=> a,b; [a, b]},
       %{             ^^ location},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
   def test_find_pattern
@@ -9754,7 +9754,7 @@ class TestParser < Minitest::Test
         |                  ~ end (in_pattern.find_pattern)
         |    ~~ expression (in_pattern.find_pattern.match_rest/1)
         |                ~~ expression (in_pattern.find_pattern.match_rest/2)},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses_pattern_match(
       s(:in_pattern,
@@ -9768,7 +9768,7 @@ class TestParser < Minitest::Test
         s(:true)),
       %q{in String(*, 1, *) then true},
       %q{          ~~~~~~~ expression (in_pattern.const_pattern.find_pattern)},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses_pattern_match(
       s(:in_pattern,
@@ -9782,7 +9782,7 @@ class TestParser < Minitest::Test
         s(:true)),
       %q{in Array[*, 1, *] then true},
       %q{         ~~~~~~~ expression (in_pattern.const_pattern.find_pattern)},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_parses_pattern_match(
       s(:in_pattern,
@@ -9794,7 +9794,7 @@ class TestParser < Minitest::Test
         s(:true)),
       %q{in *, 42, * then true},
       %q{   ~~~~~~~~ expression (in_pattern.find_pattern)},
-      SINCE_2_8)
+      SINCE_3_0)
   end
 
   def test_invalid_source
@@ -9807,7 +9807,7 @@ class TestParser < Minitest::Test
     end
   end
 
-  def test_reserved_for_numparam__before_28
+  def test_reserved_for_numparam__before_30
     assert_parses(
       s(:block,
         s(:send, nil, :proc),
@@ -9816,14 +9816,14 @@ class TestParser < Minitest::Test
           s(:nil))),
       %q{proc {_1 = nil}},
       %q{},
-      ALL_VERSIONS - SINCE_2_8)
+      ALL_VERSIONS - SINCE_3_0)
 
     assert_parses(
       s(:lvasgn, :_2,
         s(:int, 1)),
       %q{_2 = 1},
       %q{},
-      ALL_VERSIONS - SINCE_2_8)
+      ALL_VERSIONS - SINCE_3_0)
 
     assert_parses(
       s(:block,
@@ -9833,7 +9833,7 @@ class TestParser < Minitest::Test
             s(:arg, :_3))), nil),
       %q{proc {|_3|}},
       %q{},
-      SINCE_1_9 - SINCE_2_8)
+      SINCE_1_9 - SINCE_3_0)
 
     assert_parses(
       s(:def, :x,
@@ -9841,14 +9841,14 @@ class TestParser < Minitest::Test
           s(:arg, :_4)), nil),
       %q{def x(_4) end},
       %q{},
-      ALL_VERSIONS - SINCE_2_8)
+      ALL_VERSIONS - SINCE_3_0)
 
     assert_parses(
       s(:def, :_5,
         s(:args), nil),
       %q{def _5; end},
       %q{},
-      ALL_VERSIONS - SINCE_2_8)
+      ALL_VERSIONS - SINCE_3_0)
 
     assert_parses(
       s(:defs,
@@ -9856,23 +9856,23 @@ class TestParser < Minitest::Test
         s(:args), nil),
       %q{def self._6; end},
       %q{},
-      ALL_VERSIONS - SINCE_2_8)
+      ALL_VERSIONS - SINCE_3_0)
   end
 
-  def test_reserved_for_numparam__since_28
+  def test_reserved_for_numparam__since_30
     # Regular assignments:
 
     assert_diagnoses(
       [:error, :reserved_for_numparam, { :name => '_1' }],
       %q{proc {_1 = nil}},
       %q{      ^^ location},
-      SINCE_2_8)
+      SINCE_3_0)
 
     assert_diagnoses(
       [:error, :reserved_for_numparam, { :name => '_2' }],
       %q{_2 = 1},
       %q{^^ location},
-      SINCE_2_8)
+      SINCE_3_0)
 
     # Arguments:
 
@@ -9941,7 +9941,7 @@ class TestParser < Minitest::Test
         [:error, :reserved_for_numparam, { :name => '_3' }],
         code,
         location,
-        SINCE_2_8)
+        SINCE_3_0)
     end
 
     # Method definitions:
@@ -9972,7 +9972,7 @@ class TestParser < Minitest::Test
         [:error, :reserved_for_numparam, { :name => '_5' }],
         code,
         location,
-        SINCE_2_8)
+        SINCE_3_0)
     end
   end
 end

@@ -1181,7 +1181,7 @@ Format if `emit_forward_arg` compatibility flag is disabled:
         ~~~~~ expression
 ~~~
 
-However, Ruby 2.8 added support for leading arguments before `...`, and so
+However, Ruby 3.0 added support for leading arguments before `...`, and so
 it can't be used as a replacement of the `(args)` node anymore. To solve it
 `emit_forward_arg` should be enabled.
 

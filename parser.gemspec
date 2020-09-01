@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
                           lib/parser/ruby25.rb
                           lib/parser/ruby26.rb
                           lib/parser/ruby27.rb
-                          lib/parser/ruby28.rb
+                          lib/parser/ruby30.rb
                           lib/parser/macruby.rb
                           lib/parser/rubymotion.rb
                        )
