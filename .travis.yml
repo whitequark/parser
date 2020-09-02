@@ -34,6 +34,7 @@ jobs:
       script: ./ci/run_rubocop_specs
   allow_failures:
     - rvm: ruby-head
+    - rvm: truffleruby
     - script: ./ci/run_rubocop_specs
 before_install:
   - bundle --version
