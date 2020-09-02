@@ -866,6 +866,12 @@ rule
                     }
                 | defn_head f_paren_args tEQL arg
                     {
+                      _def_t, name_t = val[0]
+
+                      if name_t[0].end_with?('=')
+                        diagnostic :error, :endless_setter, nil, name_t
+                      end
+
                       result = @builder.def_endless_method(*val[0],
                                  val[1], val[2], val[3])
 
