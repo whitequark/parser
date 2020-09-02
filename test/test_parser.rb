@@ -9975,4 +9975,12 @@ class TestParser < Minitest::Test
         SINCE_3_0)
     end
   end
+
+  def test_endless_setter
+    assert_diagnoses(
+      [:error, :endless_setter],
+      %q{def foo=() = 42},
+      %q{    ^^^^ location},
+      SINCE_3_0)
+  end
 end
