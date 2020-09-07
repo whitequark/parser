@@ -656,12 +656,11 @@ module Parser
     end
 
     def rassign(lhs, assoc_t, rhs)
-      n(:rasgn, [lhs, rhs], binary_op_map(lhs, assoc_t, rhs))
+      assign(rhs, assoc_t, lhs)
     end
 
     def multi_rassign(lhs, assoc_t, rhs)
-      n(:mrasgn, [ lhs, rhs ],
-        binary_op_map(lhs, assoc_t, rhs))
+      multi_assign(rhs, assoc_t, lhs)
     end
 
     #

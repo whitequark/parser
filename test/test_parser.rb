@@ -9688,17 +9688,16 @@ class TestParser < Minitest::Test
 
   def test_rasgn
     assert_parses(
-      s(:rasgn,
-        s(:int, 1), s(:lvasgn, :a)),
+      s(:lvasgn, :a,
+        s(:int, 1)),
       %q{1 => a},
       %q{~~~~~~ expression
         |  ^^ operator},
       SINCE_3_0)
 
     assert_parses(
-      s(:rasgn,
-        s(:send, s(:int, 1), :+, s(:int, 2)),
-        s(:gvasgn, :$a)),
+      s(:gvasgn, :$a,
+        s(:send, s(:int, 1), :+, s(:int, 2))),
       %q{1 + 2 => $a},
       %q{~~~~~~~~~~~ expression
         |      ^^ operator},
@@ -9707,22 +9706,23 @@ class TestParser < Minitest::Test
 
   def test_mrasgn
     assert_parses(
-      s(:mrasgn,
-        s(:send, s(:int, 13), :divmod, s(:int, 5)),
-        s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b))),
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
+        s(:send, s(:int, 13), :divmod, s(:int, 5))),
       %q{13.divmod(5) => a,b},
       %q{~~~~~~~~~~~~~~~~~~~ expression
         |             ^^ operator},
       SINCE_3_0)
 
     assert_parses(
-      s(:mrasgn,
-        s(:mrasgn,
-          s(:send, s(:int, 13), :divmod, s(:int, 5)),
-          s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b))),
-        s(:mlhs, s(:lvasgn, :c), s(:lvasgn, :d))),
+      s(:masgn,
+        s(:mlhs, s(:lvasgn, :c), s(:lvasgn, :d)),
+        s(:masgn,
+          s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
+          s(:send, s(:int, 13), :divmod, s(:int, 5))),
+        ),
       %q{13.divmod(5) => a,b => c, d},
-      %q{~~~~~~~~~~~~~~~~~~~ expression (mrasgn)
+      %q{~~~~~~~~~~~~~~~~~~~ expression (masgn)
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
       SINCE_3_0)
   end
