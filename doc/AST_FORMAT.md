@@ -735,9 +735,10 @@ Format:
 Format:
 
 ~~~
-(rasgn (int 1) (lvasgn :a))
+(lvasgn :a (int 1))
 "1 => a"
  ~~~~~~ expression
+      ~ name
    ~~ operator
 ~~~
 
@@ -746,7 +747,7 @@ Format:
 Format:
 
 ~~~
-(mrasgn (send (int 13) :divmod (int 5)) (mlhs (lvasgn :a) (lvasgn :b)))
+(masgn (mlhs (lvasgn :a) (lvasgn :b)) (send (int 13) :divmod (int 5)))
 "13.divmod(5) => a,b"
  ~~~~~~~~~~~~~~~~~~~ expression
               ^^ operator

@@ -75,9 +75,6 @@ module Parser
       alias on_mlhs     process_regular_node
       alias on_masgn    process_regular_node
 
-      alias on_rasgn    process_regular_node
-      alias on_mrasgn   process_regular_node
-
       def on_const(node)
         scope_node, name = *node
 

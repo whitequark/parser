@@ -12,7 +12,7 @@ module Parser
         sym dsym xstr regopt regexp array splat
         pair kwsplat hash irange erange self
         lvar ivar cvar gvar const defined? lvasgn
-        ivasgn cvasgn gvasgn casgn mlhs masgn rasgn mrasgn
+        ivasgn cvasgn gvasgn casgn mlhs masgn
         op_asgn and_asgn ensure rescue arg_expr
         or_asgn back_ref nth_ref
         match_with_lvasgn match_current_line

@@ -107,7 +107,7 @@ module Parser
 
       private
 
-      POSTFIX_TYPES = Set[:if, :while, :while_post, :until, :until_post].freeze
+      POSTFIX_TYPES = Set[:if, :while, :while_post, :until, :until_post, :masgn].freeze
       def children_in_source_order(node)
         if POSTFIX_TYPES.include?(node.type)
           # All these types have either nodes with expressions, or `nil`
