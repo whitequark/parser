@@ -112,11 +112,11 @@ module Parser
       # @raise RangeError
       #
       def column_range
-        if self.begin.line != self.end.line
+        if line != last_line
           raise RangeError, "#{self.inspect} spans more than one line"
         end
 
-        self.begin.column...self.end.column
+        column...last_column
       end
 
       ##
