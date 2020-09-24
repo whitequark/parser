@@ -35,7 +35,10 @@ Gem::Specification.new do |spec|
                           lib/parser/ruby30.rb
                           lib/parser/macruby.rb
                           lib/parser/rubymotion.rb
+                       ) - %w(
+                          .gitignore
                        )
+
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^test/})
   spec.require_paths = ['lib']
