@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-09-24)
--------------------------
+v2.7.1.5 (2020-09-24)
+---------------------
 
 API modifications:
  * right assignment: use existing AST node types (#738) (#739) (Marc-André Lafortune)
