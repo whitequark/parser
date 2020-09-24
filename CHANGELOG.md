@@ -1,6 +1,27 @@
 Changelog
 =========
 
+Not released (2020-09-24)
+-------------------------
+
+API modifications:
+ * right assignment: use existing AST node types (#738) (#739) (Marc-André Lafortune)
+ * ruby28.y -> ruby30.y (#729) (Vladimir Dementyev)
+
+Features implemented:
+ * Optimize Range#column_range (#741) (Marc-André Lafortune)
+ * ruby30.y: reject endless setter. (#736) (Ilya Bylich)
+ * ruby28.y: reject assignment to numparam. (#725) (Ilya Bylich)
+ * emit "endless method def" as `:def` node. (#716) (Ilya Bylich)
+
+Bugs fixed:
+ * rename 2.8 to 3.0 everywhere (#732) (Ilya Bylich)
+ * test_current.rb: 2.8 -> 3.0 (#731) (Vladimir Dementyev)
+ * Parser#parse returns nil instead of false if error is thrown (#722) (Marc-André Lafortune)
+ * unify locations for normal and endless method definition (#718) (Marc-André Lafortune)
+ * ruby27.y: accept const names as hash keys for pattern matching (#717) (Koichi ITO)
+ * Fix locations for alias / undef nodes with internal symbols (#715) (Marc-André Lafortune)
+
 v2.7.1.4 (2020-06-19)
 ---------------------
 
