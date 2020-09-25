@@ -20,27 +20,8 @@ Gem::Specification.new do |spec|
     'source_code_uri' => "https://github.com/whitequark/parser/tree/v#{spec.version}"
   }
 
-  spec.files         = `git ls-files`.split + %w(
-                          lib/parser/lexer.rb
-                          lib/parser/ruby18.rb
-                          lib/parser/ruby19.rb
-                          lib/parser/ruby20.rb
-                          lib/parser/ruby21.rb
-                          lib/parser/ruby22.rb
-                          lib/parser/ruby23.rb
-                          lib/parser/ruby24.rb
-                          lib/parser/ruby25.rb
-                          lib/parser/ruby26.rb
-                          lib/parser/ruby27.rb
-                          lib/parser/ruby30.rb
-                          lib/parser/macruby.rb
-                          lib/parser/rubymotion.rb
-                       ) - %w(
-                          .gitignore
-                       )
-
+  spec.files         = Dir['bin/*', 'lib/**/*.rb', 'parser.gemspec']
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^test/})
   spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 2.0.0'
