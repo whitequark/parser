@@ -84,6 +84,24 @@ module ParseHelper
       parser.instance_eval { @lexer.force_utf32 = true }
       try_parsing(ast, code, parser, source_maps, version)
     end
+
+    # Also check that it doesn't throw anything
+    # except (possibly) Parser::SyntaxError on other versions of Ruby
+    with_versions(ALL_VERSIONS - versions) do |version, parser|
+      begin
+        source_file = Parser::Source::Buffer.new('(assert_older_rubies)', source: code)
+        parser.parse(source_file)
+      rescue Parser::SyntaxError
+        # ok
+      rescue StandardError
+        # unacceptable
+        raise
+      else
+        # No error means that `code` is valid for `version`, but has a different meaning.
+        # Sometimes Ruby has breaking changes (like numparams)
+        # that re-use constructions from previous versions.
+      end
+    end
   end
 
   def try_parsing(ast, code, parser, source_maps, version)
