@@ -7,7 +7,7 @@ module Parser
     # All node types that parser can produce. Not all parser versions
     # will be able to produce every possible node.
     NODE_TYPES =
-      %w(
+      %i(
         true false nil int float str dstr
         sym dsym xstr regopt regexp array splat
         pair kwsplat hash irange erange self
@@ -32,7 +32,7 @@ module Parser
         array_pattern match_with_trailing_comma array_pattern_with_tail
         hash_pattern const_pattern if_guard unless_guard match_nil_pattern
         empty_else find_pattern
-      ).map(&:to_sym).to_set.freeze
+      ).to_set.freeze
 
   end # Meta
 end # Parser
