@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-10-06)
--------------------------
+v2.7.2.0 (2020-10-06)
+---------------------
 
 API modifications:
  * Bump 2.7 branch to 2.7.2 (#748) (Koichi ITO)
