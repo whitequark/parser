@@ -17,8 +17,8 @@ jobs:
     - name: 2.6.6 / Parser tests
       rvm: 2.6.6
       script: bundle exec rake test_cov
-    - name: 2.7.1 / Parser tests
-      rvm: 2.7.1
+    - name: 2.7.2 / Parser tests
+      rvm: 2.7.2
       script: bundle exec rake test_cov
     - name: ruby-head / Parser tests
       rvm: ruby-head
@@ -29,8 +29,8 @@ jobs:
     - name: 2.6.6 / Rubocop tests
       rvm: 2.6.6
       script: ./ci/run_rubocop_specs
-    - name: 2.7.1 / Rubocop tests
-      rvm: 2.7.1
+    - name: 2.7.2 / Rubocop tests
+      rvm: 2.7.2
       script: ./ci/run_rubocop_specs
   allow_failures:
     - rvm: ruby-head
