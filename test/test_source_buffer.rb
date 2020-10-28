@@ -76,6 +76,8 @@ class TestSourceBuffer < Minitest::Test
     assert_equal [1, 1], @buffer.decompose_position(1)
     assert_equal [2, 0], @buffer.decompose_position(2)
     assert_equal [3, 1], @buffer.decompose_position(7)
+    assert_equal [3, 71], @buffer.decompose_position(42)
+    assert_raises { @buffer.decompose_position(-42) }
   end
 
   def test_decompose_position_mapped
