@@ -164,4 +164,12 @@ class TestSourceBuffer < Minitest::Test
     @buffer.source = "foo\nbar"
     assert_equal ['foo', 'bar'], @buffer.source_lines
   end
+
+  def test_freeze
+    @buffer.source = "1\nfoo\nbar\n"
+    @buffer.freeze
+    @buffer.source_lines
+    @buffer.source_range
+    assert_equal 'foo', @buffer.line_range(2).source
+  end
 end

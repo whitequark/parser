@@ -299,6 +299,12 @@ module Parser
         line_begins.size + @first_line - 2
       end
 
+      # :nodoc:
+      def freeze
+        source_lines; line_begins; source_range # build cache
+        super
+      end
+
       private
 
       # @returns [0, line_begin_of_line_1, ..., source.size + 1]
