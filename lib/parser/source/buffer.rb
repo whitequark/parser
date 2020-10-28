@@ -114,8 +114,7 @@ module Parser
         @slice_source = nil
 
         # Cache for fast lookup
-        @line_for_position   = {}
-        @column_for_position = {}
+        @line_index_for_position = {}
 
         self.source = source if source
       end
@@ -207,9 +206,10 @@ module Parser
       # @return [[Integer, Integer]] `[line, column]`
       #
       def decompose_position(position)
-        line_no, line_begin = line_for(position)
+        line_index = line_index_for_position(position)
+        line_begin = line_begins[line_index]
 
-        [ @first_line + line_no, position - line_begin ]
+        [ @first_line + line_index , position - line_begin ]
       end
 
       ##
@@ -220,10 +220,7 @@ module Parser
       # @api private
       #
       def line_for_position(position)
-        @line_for_position[position] ||= begin
-          line_no, _ = line_for(position)
-          @first_line + line_no
-        end
+        line_index_for_position(position) + @first_line
       end
 
       ##
@@ -234,10 +231,8 @@ module Parser
       # @api private
       #
       def column_for_position(position)
-        @column_for_position[position] ||= begin
-          _, line_begin = line_for(position)
-          position - line_begin
-        end
+        line_index = line_index_for_position(position)
+        position - line_begins[line_index]
       end
 
       ##
@@ -278,15 +273,13 @@ module Parser
       # @raise  [IndexError] if `lineno` is out of bounds
       #
       def line_range(lineno)
-        index = lineno - @first_line + 1
-        if index <= 0 || index > line_begins.size
+        index = lineno - @first_line
+        if index < 0 || index + 1 >= line_begins.size
           raise IndexError, 'Parser::Source::Buffer: range for line ' \
             "#{lineno} requested, valid line numbers are #{@first_line}.." \
-            "#{@first_line + line_begins.size - 1}"
-        elsif index == line_begins.size
-          Range.new(self, line_begins[-index][1], @source.size)
+            "#{@first_line + line_begins.size - 2}"
         else
-          Range.new(self, line_begins[-index][1], line_begins[-index - 1][1] - 1)
+          Range.new(self, line_begins[index], line_begins[index + 1] - 1)
         end
       end
 
@@ -303,27 +296,42 @@ module Parser
       # @return [Integer]
       #
       def last_line
-        line_begins.size + @first_line - 1
+        line_begins.size + @first_line - 2
       end
 
       private
 
+      # @returns [0, line_begin_of_line_1, ..., source.size + 1]
       def line_begins
-        unless @line_begins
-          @line_begins, index = [ [ 0, 0 ] ], 0
-
+        @line_begins ||= begin
+          begins = [0]
+          index = 0
           while index = @source.index("\n".freeze, index)
             index += 1
-            @line_begins.unshift [ @line_begins.length, index ]
+            begins << index
           end
+          begins << @source.size + 1
+          begins
         end
-
-        @line_begins
       end
 
-      def line_for(position)
-        line_begins.bsearch do |line, line_begin|
-          line_begin <= position
+      # @returns 0-based line index of position
+      def line_index_for_position(position)
+        @line_index_for_position[position] ||= bsearch(line_begins, position) - 1
+      end
+
+      if Array.method_defined?(:bsearch_index) # RUBY_VERSION >= 2.3
+        def bsearch(line_begins, position)
+          line_begins.bsearch_index do |line_begin|
+            position < line_begin
+          end || line_begins.size - 1 # || only for out of bound values
+        end
+      else
+        def bsearch(line_begins, position)
+          @line_range ||= 0...line_begins.size
+          @line_range.bsearch do |i|
+            position < line_begins[i]
+          end || line_begins.size - 1 # || only for out of bound values
         end
       end
     end
