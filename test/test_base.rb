@@ -28,4 +28,11 @@ class TestBase < Minitest::Test
     assert_nil ast.loc.dup.node
     Parser::AST::Node.new(:zsuper, [], :location => ast.loc)
   end
+
+  def test_node_ractor
+    ast = Parser::CurrentRuby.parse('1')
+    ::Ractor.make_shareable(ast)
+    assert ::Ractor.shareable?(ast)
+    assert_equal '1', ast.loc.expression.source
+  end if defined?(::Ractor)
 end

@@ -172,4 +172,11 @@ class TestSourceBuffer < Minitest::Test
     @buffer.source_range
     assert_equal 'foo', @buffer.line_range(2).source
   end
+
+  def test_ractor
+    @buffer.source = "hello\n:world\nstrange\nodd"
+    ::Ractor.make_shareable(@buffer)
+    assert ::Ractor.shareable?(@buffer)
+    assert_equal ':world', @buffer.line_range(2).source
+  end if defined?(::Ractor)
 end
