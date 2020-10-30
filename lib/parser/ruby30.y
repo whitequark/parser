@@ -867,10 +867,7 @@ rule
                 | defn_head f_paren_args tEQL arg
                     {
                       _def_t, name_t = val[0]
-
-                      if name_t[0].end_with?('=')
-                        diagnostic :error, :endless_setter, nil, name_t
-                      end
+                      endless_method_name(name_t)
 
                       result = @builder.def_endless_method(*val[0],
                                  val[1], val[2], val[3])
@@ -883,6 +880,9 @@ rule
                     }
                 | defn_head f_paren_args tEQL arg kRESCUE_MOD arg
                     {
+                      _def_t, name_t = val[0]
+                      endless_method_name(name_t)
+
                       rescue_body = @builder.rescue_body(val[4],
                                         nil, nil, nil,
                                         nil, val[5])
@@ -900,6 +900,9 @@ rule
                     }
                 | defs_head f_paren_args tEQL arg
                     {
+                      _def_t, _recv, _dot_t, name_t = val[0]
+                      endless_method_name(name_t)
+
                       result = @builder.def_endless_singleton(*val[0],
                                  val[1], val[2], val[3])
 
@@ -911,6 +914,9 @@ rule
                     }
                 | defs_head f_paren_args tEQL arg kRESCUE_MOD arg
                     {
+                      _def_t, _recv, _dot_t, name_t = val[0]
+                      endless_method_name(name_t)
+
                       rescue_body = @builder.rescue_body(val[4],
                                         nil, nil, nil,
                                         nil, val[5])
@@ -3045,4 +3051,10 @@ require 'parser'
 
   def default_encoding
     Encoding::UTF_8
+  end
+
+  def endless_method_name(name_t)
+    if name_t[0].end_with?('=')
+      diagnostic :error, :endless_setter, nil, name_t
+    end
   end
