@@ -655,14 +655,6 @@ module Parser
         binary_op_map(lhs, eql_t, rhs))
     end
 
-    def rassign(lhs, assoc_t, rhs)
-      assign(rhs, assoc_t, lhs)
-    end
-
-    def multi_rassign(lhs, assoc_t, rhs)
-      multi_assign(rhs, assoc_t, lhs)
-    end
-
     #
     # Class and module definition
     #
