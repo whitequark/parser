@@ -206,25 +206,8 @@ rule
                     {
                       result = @builder.multi_assign(val[0], val[1], val[2])
                     }
-                | rassign
                 | expr
 
-        rassign: arg_value tASSOC lhs
-                    {
-                      result = @builder.rassign(val[0], val[1], val[2])
-                    }
-                | arg_value tASSOC mlhs
-                    {
-                      result = @builder.multi_rassign(val[0], val[1], val[2])
-                    }
-                | rassign tASSOC lhs
-                    {
-                      result = @builder.rassign(val[0], val[1], val[2])
-                    }
-                | rassign tASSOC mlhs
-                    {
-                      result = @builder.multi_rassign(val[0], val[1], val[2])
-                    }
 
     command_asgn: lhs tEQL command_rhs
                     {
@@ -301,7 +284,7 @@ rule
                     {
                       result = @builder.not_op(val[0], nil, val[1], nil)
                     }
-                | arg kIN
+                | arg tASSOC
                     {
                       @lexer.state = :expr_beg
                       @lexer.command_start = false

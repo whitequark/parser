@@ -9461,7 +9461,7 @@ class TestParser < Minitest::Test
     )
   end
 
-  def test_pattern_matching_single_line
+  def test_pattern_matching_single_line__27
     assert_parses(
       s(:begin,
         s(:in_match,
@@ -9472,13 +9472,31 @@ class TestParser < Minitest::Test
       %q{1 in [a]; a},
       %q{~~~~~~~~ expression (in_match)
         |  ~~ operator (in_match)},
-      SINCE_2_7)
+      %w(2.7))
+  end
+
+  def test_pattern_matching_single_line
+    assert_parses(
+      s(:begin,
+        s(:in_match,
+          s(:int, 1),
+          s(:array_pattern,
+            s(:match_var, :a))),
+        s(:lvar, :a)),
+      %q{1 => [a]; a},
+      %q{~~~~~~~~ expression (in_match)
+        |  ~~ operator (in_match)},
+      SINCE_3_0)
   end
 
   def test_ruby_bug_pattern_matching_restore_in_kwarg_flag
     refute_diagnoses(
       "p(({} in {a:}), a:\n 1)",
-      SINCE_2_7)
+      %w(2.7))
+
+    refute_diagnoses(
+      "p(({} => {a:}), a:\n 1)",
+      SINCE_3_0)
   end
 
   def test_pattern_matching_duplicate_variable_name
@@ -9508,7 +9526,13 @@ class TestParser < Minitest::Test
       [:error, :duplicate_variable_name, { :name => 'a' }],
       %q{0 in [a, a]},
       %q{         ^ location},
-      SINCE_2_7)
+      %w(2.7))
+
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{0 => [a, a]},
+      %q{         ^ location},
+      SINCE_3_0)
   end
 
   def test_pattern_matching_duplicate_hash_keys
@@ -9548,13 +9572,25 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tCOMMA' }],
       %{1 in a, b},
       %{      ^ location},
-      SINCE_2_7)
+      %w(2.7))
 
     assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tLABEL' }],
-      %{1 in a:},
-      %{     ^^ location},
-      SINCE_2_7)
+      [:error, :unexpected_token, { :token => 'tCOMMA' }],
+      %{1 => a, b},
+      %{      ^ location},
+      SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tASSOC' }],
+      %{1 => a:},
+      %{  ^^ location},
+      %w(2.7))
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tCOLON' }],
+      %{1 => a:},
+      %{      ^ location},
+      SINCE_3_0)
   end
 
   def test_pattern_matching_required_bound_variable_before_pin
@@ -9683,47 +9719,6 @@ class TestParser < Minitest::Test
             s(:int, 2)), nil)),
       %q{def self.m() = 1 rescue 2},
       %q{},
-      SINCE_3_0)
-  end
-
-  def test_rasgn
-    assert_parses(
-      s(:lvasgn, :a,
-        s(:int, 1)),
-      %q{1 => a},
-      %q{~~~~~~ expression
-        |  ^^ operator},
-      SINCE_3_0)
-
-    assert_parses(
-      s(:gvasgn, :$a,
-        s(:send, s(:int, 1), :+, s(:int, 2))),
-      %q{1 + 2 => $a},
-      %q{~~~~~~~~~~~ expression
-        |      ^^ operator},
-      SINCE_3_0)
-  end
-
-  def test_mrasgn
-    assert_parses(
-      s(:masgn,
-        s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
-        s(:send, s(:int, 13), :divmod, s(:int, 5))),
-      %q{13.divmod(5) => a,b},
-      %q{~~~~~~~~~~~~~~~~~~~ expression
-        |             ^^ operator},
-      SINCE_3_0)
-
-    assert_parses(
-      s(:masgn,
-        s(:mlhs, s(:lvasgn, :c), s(:lvasgn, :d)),
-        s(:masgn,
-          s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b)),
-          s(:send, s(:int, 13), :divmod, s(:int, 5))),
-        ),
-      %q{13.divmod(5) => a,b => c, d},
-      %q{~~~~~~~~~~~~~~~~~~~ expression (masgn)
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
       SINCE_3_0)
   end
 
