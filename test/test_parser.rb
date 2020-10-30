@@ -9982,5 +9982,23 @@ class TestParser < Minitest::Test
       %q{def foo=() = 42},
       %q{    ^^^^ location},
       SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :endless_setter],
+      %q{def obj.foo=() = 42},
+      %q{        ^^^^ location},
+      SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :endless_setter],
+      %q{def foo=() = 42 rescue nil},
+      %q{    ^^^^ location},
+      SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :endless_setter],
+      %q{def obj.foo=() = 42 rescue nil},
+      %q{        ^^^^ location},
+      SINCE_3_0)
   end
 end
