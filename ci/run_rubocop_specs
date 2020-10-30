@@ -2,8 +2,7 @@
 
 set -eux
 
-bundle install
-rake generate
+bundle exec rake generate
 
 git clone https://github.com/rubocop-hq/rubocop.git --depth=1
 cd rubocop
