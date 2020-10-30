@@ -9980,7 +9980,7 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:error, :endless_setter],
       %q{def foo=() = 42},
-      %q{      ^^^^ location},
+      %q{    ^^^^ location},
       SINCE_3_0)
   end
 end
