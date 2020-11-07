@@ -323,7 +323,11 @@ module Parser
 
       # @returns 0-based line index of position
       def line_index_for_position(position)
-        @line_index_for_position[position] ||= bsearch(line_begins, position) - 1
+        @line_index_for_position[position] || begin
+          index = bsearch(line_begins, position) - 1
+          @line_index_for_position[position] = index unless @line_index_for_position.frozen?
+          index
+        end
       end
 
       if Array.method_defined?(:bsearch_index) # RUBY_VERSION >= 2.3
