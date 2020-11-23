@@ -3106,7 +3106,19 @@ class TestParser < Minitest::Test
     assert_diagnoses(
       [:warning, :ambiguous_literal],
       %q{m /foo/},
-      %q{  ^ location})
+      %q{  ^ location},
+      ALL_VERSIONS - SINCE_3_0)
+
+    refute_diagnoses(
+      %q{m %[1]})
+  end
+
+  def test_send_plain_cmd_ambiguous_regexp
+    assert_diagnoses(
+      [:warning, :ambiguous_regexp],
+      %q{m /foo/},
+      %q{  ^ location},
+      SINCE_3_0)
 
     refute_diagnoses(
       %q{m %[1]})
@@ -6987,7 +6999,7 @@ class TestParser < Minitest::Test
         [:error, :unexpected_token, { :token => 'tLCURLY' }]
       ],
       %q{m /foo/ {}},
-      SINCE_2_4)
+      %w(2.4 2.5 2.6 2.7))
 
     assert_diagnoses_many(
       [
@@ -6995,7 +7007,7 @@ class TestParser < Minitest::Test
         [:error, :unexpected_token, { :token => 'tLCURLY' }]
       ],
       %q{m /foo/x {}},
-      SINCE_2_4)
+      %w(2.4 2.5 2.6 2.7))
   end
 
   def test_bug_447

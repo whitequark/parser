@@ -35,6 +35,7 @@ module Parser
     # Lexer warnings
     :invalid_escape_use      => 'invalid character syntax; use ?%{escape}',
     :ambiguous_literal       => 'ambiguous first argument; put parentheses or a space even after the operator',
+    :ambiguous_regexp        => "ambiguity between regexp and two divisions: wrap regexp in parentheses or add a space after `/' operator",
     :ambiguous_prefix        => "`%{prefix}' interpreted as argument prefix",
     :triple_dot_at_eol       => '... at EOL, should be parenthesized',
 
