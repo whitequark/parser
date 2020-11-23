@@ -9587,9 +9587,9 @@ class TestParser < Minitest::Test
       %w(2.7))
 
     assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tCOLON' }],
+      [:error, :unexpected_token, { :token => 'tLABEL' }],
       %{1 => a:},
-      %{      ^ location},
+      %{     ^^ location},
       SINCE_3_0)
   end
 

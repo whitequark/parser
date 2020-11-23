@@ -2384,7 +2384,7 @@ class Parser::Lexer
       '*' | '=>'
       => {
         emit_table(PUNCTUATION)
-        fgoto expr_value;
+        fnext expr_value; fbreak;
       };
 
       # When '|', '~', '!', '=>' are used as operators
