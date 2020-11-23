@@ -847,7 +847,7 @@ rule
                       result = @builder.ternary(val[0], val[1],
                                                 val[2], val[4], val[5])
                     }
-                | defn_head f_paren_args tEQL arg
+                | defn_head f_opt_paren_args tEQL arg
                     {
                       _def_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -861,7 +861,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defn_head f_paren_args tEQL arg kRESCUE_MOD arg
+                | defn_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
                     {
                       _def_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -881,7 +881,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defs_head f_paren_args tEQL arg
+                | defs_head f_opt_paren_args tEQL arg
                     {
                       _def_t, _recv, _dot_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -895,7 +895,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defs_head f_paren_args tEQL arg kRESCUE_MOD arg
+                | defs_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
                     {
                       _def_t, _recv, _dot_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -2604,6 +2604,12 @@ keyword_variable: kNIL
                 | # nothing
                     {
                       result = nil
+                    }
+
+f_opt_paren_args: f_paren_args
+                | none
+                    {
+                      result = @builder.args(nil, [], nil)
                     }
 
    f_paren_args: tLPAREN2 f_args rparen
