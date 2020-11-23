@@ -9682,21 +9682,6 @@ class TestParser < Minitest::Test
     Parser::Builders::Default.emit_forward_arg = true
   end
 
-  def test_endless_method_without_brackets
-    assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tEQL' }],
-      %Q{def foo = 42},
-      %q{        ^ location},
-      SINCE_3_0)
-
-    assert_diagnoses(
-      [:error, :unexpected_token, { :token => 'tEQL' }],
-      %Q{def obj.foo = 42},
-      %q{            ^ location},
-      SINCE_3_0
-    )
-  end
-
   def test_endless_method_with_rescue_mod
     assert_parses(
       s(:def, :m,
@@ -9994,6 +9979,48 @@ class TestParser < Minitest::Test
       [:error, :endless_setter],
       %q{def obj.foo=() = 42 rescue nil},
       %q{        ^^^^ location},
+      SINCE_3_0)
+  end
+
+  def test_endless_method_without_args
+    assert_parses(
+      s(:def, :foo,
+        s(:args),
+        s(:int, 42)),
+      %q{def foo = 42},
+      %q{},
+      SINCE_3_0)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args),
+        s(:rescue,
+          s(:int, 42),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{def foo = 42 rescue nil},
+      %q{},
+      SINCE_3_0)
+
+    assert_parses(
+      s(:defs,
+        s(:self), :foo,
+        s(:args),
+        s(:int, 42)),
+      %q{def self.foo = 42},
+      %q{},
+      SINCE_3_0)
+
+    assert_parses(
+      s(:defs,
+        s(:self), :foo,
+        s(:args),
+        s(:rescue,
+          s(:int, 42),
+          s(:resbody, nil, nil,
+            s(:nil)), nil)),
+      %q{def self.foo = 42 rescue nil},
+      %q{},
       SINCE_3_0)
   end
 end
