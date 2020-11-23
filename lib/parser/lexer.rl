@@ -1544,7 +1544,11 @@ class Parser::Lexer
       => {
         if tok(tm, tm + 1) == '/'.freeze
           # Ambiguous regexp literal.
-          diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
+          if @version < 30
+            diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
+          else
+            diagnostic :warning, :ambiguous_regexp, nil, range(tm, tm + 1)
+          end
         end
 
         p = tm - 1
