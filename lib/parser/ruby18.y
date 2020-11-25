@@ -729,6 +729,9 @@ rule
        arg_value: arg
 
        aref_args: none
+                    {
+                      result = []
+                    }
                 | command opt_nl
                     {
                       result = [ val[0] ]

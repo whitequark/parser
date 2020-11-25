@@ -3047,10 +3047,10 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :fun,
         s(:int, 1),
-        s(:hash,
+        s(:kwargs,
           s(:pair, s(:sym, :bar), s(:objc_varargs, s(:int, 2), s(:int, 3), s(:nil))))),
       %q{fun(1, bar: 2, 3, nil)},
-      %q{            ~~~~~~~~~ expression (hash.pair.objc_varargs)},
+      %q{            ~~~~~~~~~ expression (kwargs.pair.objc_varargs)},
       %w(mac))
   end
 
@@ -3901,7 +3901,8 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
-  def test_args_assocs
+  def test_args_assocs_legacy
+    Parser::Builders::Default.emit_kwargs = false
     assert_parses(
       s(:send, nil, :fun,
         s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
@@ -3912,6 +3913,75 @@ class TestParser < Minitest::Test
         s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
         s(:block_pass, s(:lvar, :baz))),
       %q{fun(:foo => 1, &baz)})
+
+    assert_parses(
+      s(:index,
+      s(:self),
+      s(:hash,
+        s(:pair,
+          s(:sym, :bar),
+          s(:int, 1)))),
+      %q{self[:bar => 1]})
+
+    assert_parses(
+      s(:send,
+        s(:self), :[]=,
+        s(:lvar, :foo),
+        s(:hash,
+          s(:pair,
+            s(:sym, :a),
+            s(:int, 1)))),
+      %q{self.[]= foo, :a => 1})
+
+    assert_parses(
+      s(:yield,
+        s(:hash,
+          s(:pair,
+            s(:sym, :foo),
+            s(:int, 42)))),
+      %q{yield(:foo => 42)})
+  ensure
+    Parser::Builders::Default.emit_kwargs = true
+  end
+
+  def test_args_assocs
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{fun(:foo => 1)})
+
+    assert_parses(
+      s(:send, nil, :fun,
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:block_pass, s(:lvar, :baz))),
+      %q{fun(:foo => 1, &baz)})
+
+    assert_parses(
+      s(:index,
+      s(:self),
+      s(:kwargs,
+        s(:pair,
+          s(:sym, :bar),
+          s(:int, 1)))),
+      %q{self[:bar => 1]})
+
+    assert_parses(
+      s(:send,
+        s(:self), :[]=,
+        s(:lvar, :foo),
+        s(:kwargs,
+          s(:pair,
+            s(:sym, :a),
+            s(:int, 1)))),
+      %q{self.[]= foo, :a => 1})
+
+    assert_parses(
+      s(:yield,
+        s(:kwargs,
+          s(:pair,
+            s(:sym, :foo),
+            s(:int, 42)))),
+      %q{yield(:foo => 42)})
   end
 
   def test_args_assocs_star
@@ -3936,7 +4006,7 @@ class TestParser < Minitest::Test
   def test_args_assocs_comma
     assert_parses(
       s(:index, s(:lvar, :foo),
-        s(:hash, s(:pair, s(:sym, :baz), s(:int, 1)))),
+        s(:kwargs, s(:pair, s(:sym, :baz), s(:int, 1)))),
       %q{foo[:baz => 1,]},
       %q{},
       SINCE_1_9)
@@ -3946,13 +4016,13 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo),
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1)))),
       %q{fun(foo, :foo => 1)})
 
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo),
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1))),
         s(:block_pass, s(:lvar, :baz))),
       %q{fun(foo, :foo => 1, &baz)})
   end
@@ -3961,7 +4031,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:index, s(:lvar, :foo),
         s(:lvar, :bar),
-        s(:hash, s(:pair, s(:sym, :baz), s(:int, 1)))),
+        s(:kwargs, s(:pair, s(:sym, :baz), s(:int, 1)))),
       %q{foo[bar, :baz => 1,]},
       %q{},
       SINCE_1_9)
@@ -4143,14 +4213,14 @@ class TestParser < Minitest::Test
   def test_space_args_assocs
     assert_parses(
       s(:send, nil, :fun,
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1)))),
       %q{fun (:foo => 1)},
       %q{},
       %w(1.8))
 
     assert_parses(
       s(:send, nil, :fun,
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1))),
         s(:block_pass, s(:lvar, :baz))),
       %q{fun (:foo => 1, &baz)},
       %q{},
@@ -4180,7 +4250,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo),
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1)))),
       %q{fun (foo, :foo => 1)},
       %q{},
       %w(1.8))
@@ -4188,7 +4258,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo),
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1))),
         s(:block_pass, s(:lvar, :baz))),
       %q{fun (foo, :foo => 1, &baz)},
       %q{},
@@ -4197,7 +4267,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo), s(:int, 1),
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1)))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1)))),
       %q{fun (foo, 1, :foo => 1)},
       %q{},
       %w(1.8))
@@ -4205,7 +4275,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :fun,
         s(:lvar, :foo), s(:int, 1),
-        s(:hash, s(:pair, s(:sym, :foo), s(:int, 1))),
+        s(:kwargs, s(:pair, s(:sym, :foo), s(:int, 1))),
         s(:block_pass, s(:lvar, :baz))),
       %q{fun (foo, 1, :foo => 1, &baz)},
       %q{},
@@ -5422,7 +5492,7 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:send, nil, :assert,
-        s(:hash,
+        s(:kwargs,
           s(:pair, s(:sym, :do), s(:true)))),
       %q{assert do: true},
       %q{},
@@ -5430,7 +5500,7 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:send, nil, :f,
-        s(:hash,
+        s(:kwargs,
           s(:pair,
             s(:sym, :x),
             s(:block,
@@ -5858,7 +5928,7 @@ class TestParser < Minitest::Test
             s(:lambda),
             s(:args),
             s(:sym, :hello)),
-          s(:hash,
+          s(:kwargs,
             s(:pair, s(:sym, :a), s(:int, 1)))),
         s(:args),
         nil),
@@ -5960,7 +6030,7 @@ class TestParser < Minitest::Test
         s(:lvasgn, :a,
           s(:int, 1)),
         s(:send, nil, :a,
-          s(:hash,
+          s(:kwargs,
             s(:pair,
               s(:sym, :b),
               s(:int, 1))))),
@@ -7255,7 +7325,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:block,
         s(:send, nil, :m1,
-          s(:hash,
+          s(:kwargs,
             s(:pair,
               s(:sym, :k),
               s(:send, nil, :m2)))),
