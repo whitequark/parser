@@ -9,7 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.allow_failure }}
     env:
       BUNDLE_JOBS: 4
       BUNDLE_RETRY: 3
@@ -20,17 +19,13 @@ jobs:
       matrix:
         ruby: ["2.4.10", "2.5.8", "2.6.6", "2.7.2", "jruby-9.2"]
         test_command: ["bundle exec rake test"]
-        allow_failure: [false]
         include:
           - ruby: "head"
-            test_command: "bundle exec rake test"
-            allow_failure: true
+            test_command: "bundle exec rake test || true"
           - ruby: "truffleruby"
-            test_command: "bundle exec rake test"
-            allow_failure: true
+            test_command: "bundle exec rake test || true"
           - ruby: "2.7.2"
-            test_command: "./ci/run_rubocop_specs"
-            allow_failure: true
+            test_command: "./ci/run_rubocop_specs || true"
     steps:
     - uses: actions/checkout@v2
     - uses: actions/cache@v1
@@ -54,6 +49,3 @@ jobs:
     - name: Run tests
       run: |
         ${{ matrix.test_command }}
-    - name: ignore failure if the job is allowed to fail
-      if: ${{ matrix.allow_failure }}
-      run: true
