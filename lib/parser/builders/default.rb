@@ -1222,10 +1222,10 @@ module Parser
         if last_arg.type == :block_pass
           diagnostic :error, :block_given_to_yield, nil, loc(keyword_t), [last_arg.loc.expression]
         end
+      end
 
-        if self.class.emit_kwargs
-          rewrite_hash_args_to_kwargs(args)
-        end
+      if %i[yield super].include?(type) && self.class.emit_kwargs
+        rewrite_hash_args_to_kwargs(args)
       end
 
       n(type, args,

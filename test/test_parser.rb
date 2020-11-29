@@ -3940,6 +3940,14 @@ class TestParser < Minitest::Test
             s(:sym, :foo),
             s(:int, 42)))),
       %q{yield(:foo => 42)})
+
+    assert_parses(
+      s(:super,
+        s(:hash,
+          s(:pair,
+            s(:sym, :foo),
+            s(:int, 42)))),
+      %q{super(:foo => 42)})
   ensure
     Parser::Builders::Default.emit_kwargs = true
   end
@@ -3982,6 +3990,14 @@ class TestParser < Minitest::Test
             s(:sym, :foo),
             s(:int, 42)))),
       %q{yield(:foo => 42)})
+
+    assert_parses(
+      s(:super,
+        s(:kwargs,
+          s(:pair,
+            s(:sym, :foo),
+            s(:int, 42)))),
+      %q{super(:foo => 42)})
   end
 
   def test_args_assocs_star
