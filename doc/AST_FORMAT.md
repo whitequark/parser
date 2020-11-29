@@ -277,6 +277,23 @@ Format:
  ~~~~~~~~~~~~~~~~ expression
 ~~~
 
+### Kwargs
+
+Starting from Ruby 2.7 only implicit hash literals (that are not wrapped into `{ .. }`) are passed as keyword arguments.
+Explicit hash literals are passed as positional arguments.
+This is reflected in AST as `kwargs` node that is emitted only for implicit
+hash literals and only if `emit_kwargs` compatibility flag is enabled.
+
+Note that it can be a part of `send`, `csend`, `index` and `yield` nodes.
+
+Format:
+
+~~~
+(kwargs (pair (int 1) (int 2)) (kwsplat (lvar :bar)) (pair (sym :baz) (int 3)))
+"foo(1 => 2, **bar, baz: 3)"
+     ~~~~~~~~~~~~~~~~~~~~~ expression
+~~~
+
 #### Keyword splat (2.0)
 
 Can also be used in argument lists: `foo(bar, **baz)`

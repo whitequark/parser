@@ -130,6 +130,54 @@ module Parser
 
     class << self
       ##
+      # AST compatibility attribute; Starting from Ruby 2.7 keyword arguments
+      # of method calls that are passed explicitly as a hash (i.e. with curly braces)
+      # are treated as positional arguments and Ruby 2.7 emits a warning on such method
+      # call. Ruby 3.0 given an ArgumentError.
+      #
+      # If set to false (the default) the last hash argument is emitted as `hash`:
+      #
+      # ```
+      # (send nil :foo
+      #   (hash
+      #     (pair
+      #       (sym :bar)
+      #       (int 42))))
+      # ```
+      #
+      # If set to true it is emitted as `kwargs`:
+      #
+      # ```
+      # (send nil :foo
+      #   (kwargs
+      #     (pair
+      #       (sym :bar)
+      #       (int 42))))
+      # ```
+      #
+      # Note that `kwargs` node is just a replacement for `hash` argument,
+      # so if there's are multiple arguments (or a `kwsplat`) all of them
+      # are wrapped into `kwargs` instead of `hash`:
+      #
+      # ```
+      # (send nil :foo
+      #   (hash
+      #     (pair
+      #       (sym :a)
+      #       (int 42))
+      #     (kwsplat
+      #       (send nil :b))
+      #     (pair
+      #       (sym :c)
+      #       (int 10))))
+      # ```
+      attr_accessor :emit_kwargs
+    end
+
+    @emit_kwargs = false
+
+    class << self
+      ##
       # @api private
       def modernize
         @emit_lambda = true
@@ -138,6 +186,7 @@ module Parser
         @emit_index = true
         @emit_arg_inside_procarg0 = true
         @emit_forward_arg = true
+        @emit_kwargs = true
       end
     end
 
@@ -927,6 +976,11 @@ module Parser
     def call_method(receiver, dot_t, selector_t,
                     lparen_t=nil, args=[], rparen_t=nil)
       type = call_type_for_dot(dot_t)
+
+      if self.class.emit_kwargs
+        rewrite_hash_args_to_kwargs(args)
+      end
+
       if selector_t.nil?
         n(type, [ receiver, :call, *args ],
           send_map(receiver, dot_t, nil, lparen_t, args, rparen_t))
@@ -1004,6 +1058,10 @@ module Parser
     end
 
     def index(receiver, lbrack_t, indexes, rbrack_t)
+      if self.class.emit_kwargs
+        rewrite_hash_args_to_kwargs(indexes)
+      end
+
       if self.class.emit_index
         n(:index, [ receiver, *indexes ],
           index_map(receiver, lbrack_t, rbrack_t))
@@ -1164,6 +1222,10 @@ module Parser
         if last_arg.type == :block_pass
           diagnostic :error, :block_given_to_yield, nil, loc(keyword_t), [last_arg.loc.expression]
         end
+      end
+
+      if %i[yield super].include?(type) && self.class.emit_kwargs
+        rewrite_hash_args_to_kwargs(args)
       end
 
       n(type, args,
@@ -2097,6 +2159,20 @@ module Parser
       else
         true
       end
+    end
+
+    def rewrite_hash_args_to_kwargs(args)
+      if args.any? && kwargs?(args.last)
+        # foo(..., bar: baz)
+        args[args.length - 1] = args[args.length - 1].updated(:kwargs)
+      elsif args.length > 1 && args.last.type == :block_pass && kwargs?(args[args.length - 2])
+        # foo(..., bar: baz, &blk)
+        args[args.length - 2] = args[args.length - 2].updated(:kwargs)
+      end
+    end
+
+    def kwargs?(node)
+      node.type == :hash && node.loc.begin.nil? && node.loc.end.nil?
     end
   end
 

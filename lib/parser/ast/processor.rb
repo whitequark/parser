@@ -20,6 +20,7 @@ module Parser
       alias on_array    process_regular_node
       alias on_pair     process_regular_node
       alias on_hash     process_regular_node
+      alias on_kwargs   process_regular_node
       alias on_irange   process_regular_node
       alias on_erange   process_regular_node
 
