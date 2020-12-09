@@ -359,18 +359,23 @@ module Parser
       if !dedent_level.nil?
         dedenter = Lexer::Dedenter.new(dedent_level)
 
-        if node.type == :str
+        case node.type
+        when :str
           str = node.children.first
           dedenter.dedent(str)
-        elsif node.type == :dstr || node.type == :xstr
-          node.children.each do |str_node|
+        when :dstr, :xstr
+          children = node.children.map do |str_node|
             if str_node.type == :str
               str = str_node.children.first
               dedenter.dedent(str)
+              next nil if str.empty?
             else
               dedenter.interrupt
             end
+            str_node
           end
+
+          node = node.updated(nil, children.compact)
         end
       end
 

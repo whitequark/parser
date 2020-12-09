@@ -400,7 +400,6 @@ class TestParser < Minitest::Test
       s(:send, nil, :p,
         s(:dstr,
           s(:str, "  x\n"),
-          s(:str, ""),
           s(:begin,
             s(:lvar, :foo)),
           s(:str, "\n"))),
@@ -412,7 +411,6 @@ class TestParser < Minitest::Test
       s(:send, nil, :p,
         s(:xstr,
           s(:str, "  x\n"),
-          s(:str, ""),
           s(:begin,
             s(:lvar, :foo)),
           s(:str, "\n"))),
@@ -424,7 +422,6 @@ class TestParser < Minitest::Test
       s(:send, nil, :p,
         s(:dstr,
           s(:str, "  x\n"),
-          s(:str, ""),
           s(:begin,
             s(:str, "  y")),
           s(:str, "\n"))),
@@ -10120,5 +10117,15 @@ class TestParser < Minitest::Test
       %q{def self.foo = 42 rescue nil},
       %q{},
       SINCE_3_0)
+  end
+
+  def test_parser_drops_truncated_parts_of_squiggly_heredoc
+    assert_parses(
+      s(:dstr,
+        s(:begin),
+        s(:str, "\n")),
+      %q{<<~HERE!  #{}!HERE}.gsub('!', "\n"),
+      %q{},
+      SINCE_2_3)
   end
 end
