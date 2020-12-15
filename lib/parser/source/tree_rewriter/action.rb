@@ -206,7 +206,7 @@ module Parser
         return if fusible.empty?
         fusible.each do |child|
           kind = action.insertion? || child.insertion? ? :crossing_insertions : :crossing_deletions
-          @enforcer.call(kind) { {range: action.range, conflict: child.range} }
+          @enforcer.enforce_policy(kind) { {range: action.range, conflict: child.range} }
         end
         fusible
       end
@@ -222,7 +222,7 @@ module Parser
       end
 
       def call_enforcer_for_merge(action)
-        @enforcer.call(:different_replacements) do
+        @enforcer.enforce_policy(:different_replacements) do
           if @replacement && action.replacement && @replacement != action.replacement
             {range: @range, replacement: action.replacement, other_replacement: @replacement}
           end
@@ -230,7 +230,7 @@ module Parser
       end
 
       def swallow(children)
-        @enforcer.call(:swallowed_insertions) do
+        @enforcer.enforce_policy(:swallowed_insertions) do
           insertions = children.select(&:insertion?)
 
           {range: @range, conflict: insertions.map(&:range)} unless insertions.empty?

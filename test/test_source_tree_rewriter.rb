@@ -298,6 +298,19 @@ DIAGNOSTIC
                   result.map {|r, s| [r.to_range, s]}
                 )
   end
+
+  def test_default_diagnostics
+    default = Parser::Source::TreeRewriter.default_diagnostics
+    before = default.consumer
+    diagnostics = []
+    default.consumer = -> diag { diagnostics << diag.render }
+    rewriter = Parser::Source::TreeRewriter.new(@buf, swallowed_insertions: :warn)
+    rewriter.replace(@ll, 'xx')
+    rewriter.remove(@hello)
+    assert_equal(2, diagnostics.size)
+  ensure
+    default.consumer = before
+  end
 end
 
 class TestSourceTreeRewriterImport < Minitest::Test
