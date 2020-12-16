@@ -240,6 +240,8 @@ module Parser
 
       alias on_case_match              process_regular_node
       alias on_in_match                process_regular_node
+      alias on_match_pattern           process_regular_node
+      alias on_match_pattern_p         process_regular_node
       alias on_in_pattern              process_regular_node
       alias on_if_guard                process_regular_node
       alias on_unless_guard            process_regular_node

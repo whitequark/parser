@@ -1910,15 +1910,56 @@ Format:
 
 ## Pattern matching
 
-### Using `in` modifier
+### Using `in` operator
 
-Format:
+Ruby 2.7 throws a `NoMatchingPatternError` for `foo in bar` if given value doesn't match pattern.
+
+Format when `emit_match_pattern` compatibility attribute is disabled (the default):
 
 ~~~
 (in-match
   (int 1)
   (match-var :a))
 "1 in a"
+   ~~ operator
+ ~~~~~~ expression
+~~~
+
+Format when `emit_match_pattern` is enabled:
+
+~~~
+(match-pattern
+  (int 1)
+  (match-var :a))
+"1 in a"
+   ~~ operator
+ ~~~~~~ expression
+~~~
+
+Starting from 3.0 Ruby returns `true`/`false` for the same code construction.
+
+Ruby 3.0 format (compatibility attribute has no effect):
+
+~~~
+(match-pattern-p
+  (int 1)
+  (match-var :a))
+"1 in a"
+   ~~ operator
+ ~~~~~~ expression
+~~~
+
+### Using `=>` operator
+
+This node appears in AST only starting from Ruby 3.0.
+
+Format:
+
+~~~
+(match-pattern
+  (int 1)
+  (match-var :a))
+"1 => a"
    ~~ operator
  ~~~~~~ expression
 ~~~
