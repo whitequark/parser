@@ -295,7 +295,11 @@ rule
                   p_expr
                     {
                       @lexer.in_kwarg = val[2]
-                      result = @builder.in_match(val[0], val[1], val[3])
+                      if @builder.class.emit_match_pattern
+                        result = @builder.match_pattern(val[0], val[1], val[3])
+                      else
+                        result = @builder.in_match(val[0], val[1], val[3])
+                      end
                     }
                 | arg =tLBRACE_ARG
 

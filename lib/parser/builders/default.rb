@@ -178,6 +178,35 @@ module Parser
 
     class << self
       ##
+      # AST compatibility attribute; Starting from 3.0 Ruby returns
+      # true/false from single-line pattern matching with `in` keyword.
+      #
+      # Before 3.0 there was an exception if given value doesn't match pattern.
+      #
+      # NOTE: This attribute affects only Ruby 2.7 grammar.
+      # 3.0 grammar always emits `match_pattern`/`match_pattern_p`
+      #
+      # If compatibility attribute set to false `foo in bar` is emitted as `in_match`:
+      #
+      # ```
+      # (in-match
+      #   (send nil :foo)
+      #   (match-var :bar))
+      # ```
+      #
+      # If set to true it's emitted as `match_pattern_p`:
+      # ```
+      # (match-pattern-p
+      #   (send nil :foo)
+      #   (match-var :bar))
+      # ```
+      attr_accessor :emit_match_pattern
+    end
+
+    @emit_match_pattern = false
+
+    class << self
+      ##
       # @api private
       def modernize
         @emit_lambda = true
@@ -187,6 +216,7 @@ module Parser
         @emit_arg_inside_procarg0 = true
         @emit_forward_arg = true
         @emit_kwargs = true
+        @emit_match_pattern = true
       end
     end
 
@@ -1364,6 +1394,16 @@ module Parser
     def in_match(lhs, in_t, rhs)
       n(:in_match, [lhs, rhs],
         binary_op_map(lhs, in_t, rhs))
+    end
+
+    def match_pattern(lhs, match_t, rhs)
+      n(:match_pattern, [lhs, rhs],
+        binary_op_map(lhs, match_t, rhs))
+    end
+
+    def match_pattern_p(lhs, match_t, rhs)
+      n(:match_pattern_p, [lhs, rhs],
+        binary_op_map(lhs, match_t, rhs))
     end
 
     def in_pattern(in_t, pattern, guard, then_t, body)

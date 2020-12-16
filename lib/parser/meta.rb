@@ -32,6 +32,7 @@ module Parser
         array_pattern match_with_trailing_comma array_pattern_with_tail
         hash_pattern const_pattern if_guard unless_guard match_nil_pattern
         empty_else find_pattern kwargs
+        match_pattern_p match_pattern
       ).to_set.freeze
 
   end # Meta

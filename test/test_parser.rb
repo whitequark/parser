@@ -9556,7 +9556,8 @@ class TestParser < Minitest::Test
     )
   end
 
-  def test_pattern_matching_single_line__27
+  def test_pattern_matching_single_line__27__legacy
+    Parser::Builders::Default.emit_match_pattern = false
     assert_parses(
       s(:begin,
         s(:in_match,
@@ -9568,19 +9569,47 @@ class TestParser < Minitest::Test
       %q{~~~~~~~~ expression (in_match)
         |  ~~ operator (in_match)},
       %w(2.7))
+  ensure
+    Parser::Builders::Default.emit_match_pattern = true
+  end
+
+  def test_pattern_matching_single_line__27
+    assert_parses(
+      s(:begin,
+        s(:match_pattern,
+          s(:int, 1),
+          s(:array_pattern,
+            s(:match_var, :a))),
+        s(:lvar, :a)),
+      %q{1 in [a]; a},
+      %q{~~~~~~~~ expression (match_pattern)
+        |  ~~ operator (match_pattern)},
+      %w(2.7))
   end
 
   def test_pattern_matching_single_line
     assert_parses(
       s(:begin,
-        s(:in_match,
+        s(:match_pattern,
           s(:int, 1),
           s(:array_pattern,
             s(:match_var, :a))),
         s(:lvar, :a)),
       %q{1 => [a]; a},
-      %q{~~~~~~~~ expression (in_match)
-        |  ~~ operator (in_match)},
+      %q{~~~~~~~~ expression (match_pattern)
+        |  ~~ operator (match_pattern)},
+      SINCE_3_0)
+
+    assert_parses(
+      s(:begin,
+        s(:match_pattern_p,
+          s(:int, 1),
+          s(:array_pattern,
+            s(:match_var, :a))),
+        s(:lvar, :a)),
+      %q{1 in [a]; a},
+      %q{~~~~~~~~ expression (match_pattern_p)
+        |  ~~ operator (match_pattern_p)},
       SINCE_3_0)
   end
 

@@ -31,6 +31,7 @@ below for explanation of `emit_*` calls):
     Parser::Builders::Default.emit_arg_inside_procarg0 = true
     Parser::Builders::Default.emit_forward_arg         = true
     Parser::Builders::Default.emit_kwargs              = true
+    Parser::Builders::Default.emit_match_pattern       = true
 
 Parse a chunk of code:
 

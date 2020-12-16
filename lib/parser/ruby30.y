@@ -296,7 +296,21 @@ rule
                   p_expr
                     {
                       @lexer.in_kwarg = val[2]
-                      result = @builder.in_match(val[0], val[1], val[3])
+                      result = @builder.match_pattern(val[0], val[1], val[3])
+                    }
+                | arg kIN
+                    {
+                      @lexer.state = :expr_beg
+                      @lexer.command_start = false
+                      pattern_variables.push
+
+                      result = @lexer.in_kwarg
+                      @lexer.in_kwarg = true
+                    }
+                  p_expr
+                    {
+                      @lexer.in_kwarg = val[2]
+                      result = @builder.match_pattern_p(val[0], val[1], val[3])
                     }
                 | arg =tLBRACE_ARG
 
