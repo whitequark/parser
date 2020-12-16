@@ -1660,7 +1660,7 @@ module Parser
 
     def check_reserved_for_numparam(name, loc)
       # MRI < 3.0 accepts assignemnt to variables like _1
-      # if it's not a numbererd parameter. MRI 3.0 and newer throws an error.
+      # if it's not a numbered parameter. MRI 3.0 and newer throws an error.
       return if @parser.version < 30
 
       if name =~ /\A_([1-9])\z/
