@@ -19,13 +19,16 @@ module Parser
       freeze
     end
 
+    def empty?
+      @stack.size == 0
+    end
+
     def push(value)
       @stack << value
     end
 
     def set(value)
-      pop
-      push(value)
+      @stack[@stack.length - 1] = value
     end
 
     def pop

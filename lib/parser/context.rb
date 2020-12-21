@@ -32,6 +32,10 @@ module Parser
       @stack.clear
     end
 
+    def empty?
+      @stack.empty?
+    end
+
     def in_class?
       @stack.last == :class
     end

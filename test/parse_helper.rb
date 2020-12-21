@@ -144,11 +144,7 @@ module ParseHelper
       assert_source_range(range, found_range, version, line.inspect)
     end
 
-    assert parser.instance_eval { @lexer }.cmdarg.empty?,
-      "(#{version}) expected cmdarg to be empty after parsing"
-
-    assert_equal 0, parser.instance_eval { @lexer.instance_eval { @paren_nest } },
-      "(#{version}) expected paren_nest to be 0 after parsing"
+    assert_state_is_final(parser, version)
   end
 
   # Use like this:
@@ -342,5 +338,25 @@ module ParseHelper
     ast.children.each { |child| result += find_matching_nodes(child, &block) }
 
     result
+  end
+
+  def assert_state_is_final(parser, version)
+    lexer = parser.lexer
+
+    assert lexer.cmdarg.empty?, "(#{version}) expected cmdarg to be empty after parsing"
+    assert lexer.cond.empty?, "(#{version}) expected cond to be empty after parsing"
+
+    assert lexer.cmdarg_stack.empty?, "(#{version}) expected cmdarg_stack to be empty after parsing"
+    assert lexer.cond_stack.empty?, "(#{version}) expected cond_stack to be empty after parsing"
+
+    assert_equal 0, lexer.paren_nest, "(#{version}) expected paren_nest to be 0 after parsing"
+    assert lexer.lambda_stack.empty?, "(#{version}) expected lambda_stack to be empty after parsing"
+
+    assert parser.static_env.empty?, "(#{version}) expected static_env to be empty after parsing"
+    assert parser.context.empty?, "(#{version}) expected context to be empty after parsing"
+    assert parser.max_numparam_stack.empty?, "(#{version}) expected max_numparam_stack to be empty after parsing"
+    assert parser.current_arg_stack.empty?, "(#{version}) expected current_arg_stack to be empty after parsing"
+    assert parser.pattern_variables.empty?, "(#{version}) expected pattern_variables to be empty after parsing"
+    assert parser.pattern_hash_keys.empty?, "(#{version}) expected pattern_hash_keys to be empty after parsing"
   end
 end

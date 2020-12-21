@@ -2,19 +2,28 @@
 
 module Parser
 
+  # Holds p->max_numparam from parse.y
+  #
+  # @api private
   class MaxNumparamStack
     attr_reader :stack
+
+    ORDINARY_PARAMS = -1
 
     def initialize
       @stack = []
     end
 
+    def empty?
+      @stack.size == 0
+    end
+
     def has_ordinary_params!
-      set(-1)
+      set(ORDINARY_PARAMS)
     end
 
     def has_ordinary_params?
-      top < 0
+      top == ORDINARY_PARAMS
     end
 
     def has_numparams?
@@ -40,8 +49,7 @@ module Parser
     private
 
     def set(value)
-      @stack.pop
-      @stack.push(value)
+      @stack[@stack.length - 1] = value
     end
   end
 

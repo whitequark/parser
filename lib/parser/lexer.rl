@@ -99,6 +99,8 @@ class Parser::Lexer
 
   attr_accessor :tokens, :comments
 
+  attr_reader :paren_nest, :cmdarg_stack, :cond_stack, :lambda_stack
+
   def initialize(version)
     @version    = version
     @static_env = nil
