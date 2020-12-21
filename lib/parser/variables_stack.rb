@@ -8,6 +8,10 @@ module Parser
       push
     end
 
+    def empty?
+      @stack.empty?
+    end
+
     def push
       @stack << Set.new
     end

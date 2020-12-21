@@ -46,7 +46,17 @@ preclow
 
 rule
 
-         program: top_compstmt
+         program:   {
+                      @current_arg_stack.push(nil)
+                      @max_numparam_stack.push
+                    }
+                  top_compstmt
+                    {
+                      result = val[1]
+
+                      @current_arg_stack.pop
+                      @max_numparam_stack.pop
+                    }
 
     top_compstmt: top_stmts opt_terms
                     {
@@ -287,13 +297,14 @@ rule
                     {
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
-                      pattern_variables.push
+                      @pattern_variables.push
 
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
                     }
                   p_expr
                     {
+                      @pattern_variables.pop
                       @lexer.in_kwarg = val[2]
                       if @builder.class.emit_match_pattern
                         result = @builder.match_pattern(val[0], val[1], val[3])
@@ -1760,6 +1771,8 @@ opt_block_args_tail:
                     }
                   p_top_expr then
                     {
+                      @pattern_hash_keys.pop
+                      @pattern_variables.pop
                       @lexer.in_kwarg = val[1]
                     }
                   compstmt p_cases

@@ -51,6 +51,10 @@ module Parser
     def declared_forward_args?
       declared?(FORWARD_ARGS)
     end
+
+    def empty?
+      @stack.empty?
+    end
   end
 
 end

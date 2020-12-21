@@ -109,6 +109,7 @@ module Parser
     end
     private_class_method :setup_source_buffer
 
+    attr_reader :lexer
     attr_reader :diagnostics
     attr_reader :builder
     attr_reader :static_env
