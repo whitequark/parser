@@ -94,8 +94,8 @@ module Parser
 
   else # :nocov:
     # Keep this in sync with released Ruby.
-    warn_syntax_deviation 'parser/ruby27', '2.7.x'
-    require 'parser/ruby27'
-    CurrentRuby = Ruby27
+    warn_syntax_deviation 'parser/ruby30', '3.0.x'
+    require 'parser/ruby30'
+    CurrentRuby = Ruby30
   end
 end
