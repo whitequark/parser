@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2020-12-25)
--------------------------
+v3.0.0.0 (2020-12-25)
+---------------------
 
 API modifications:
  * current.rb: bump default branch to parser/ruby30. (#782) (Ilya Bylich)
