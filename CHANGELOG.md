@@ -1,6 +1,25 @@
 Changelog
 =========
 
+Not released (2020-12-25)
+-------------------------
+
+API modifications:
+ * current.rb: bump default branch to parser/ruby30. (#782) (Ilya Bylich)
+ * do not emit truncated parts of squiggly heredoc (#774) (Ilya Bylich)
+ * Optimize `SourceBuffer` line and column handling (#755) (Marc-André Lafortune)
+
+Features implemented:
+ * ruby30.y: reintroduce `expr in pat` (#777) (Ilya Bylich)
+ * builder: emit implicit hash passed to a method call as kwargs (#769) (Ilya Bylich)
+ * lexer.rl: use more specific warning for ambiguous slash. (#768) (Ilya Bylich)
+ * ruby30.y: allow endless method without arglist. (#765) (Ilya Bylich)
+ * ruby30.y: use `=>` for one-line pattern matching. (#760) (Ilya Bylich)
+ * ruby30.y: reject setters in all endless method defs. (#758) (Ilya Bylich)
+
+Bugs fixed:
+ * lexer.rl: don't perform lookahead after tASSOC. (#764) (Ilya Bylich)
+
 v2.7.2.0 (2020-10-06)
 ---------------------
 
