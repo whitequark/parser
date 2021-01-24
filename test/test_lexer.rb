@@ -2620,7 +2620,7 @@ class TestLexer < Minitest::Test
   def test_eof
     assert_scanned("self",
                    :kSELF, "self", [0, 4])
-    assert_equal([false, ["$eof", Parser::Source::Range.new(@lex.source_buffer, 4, 4)]],
+    assert_equal([false, ["$eof", Parser::Source::Range.new(@lex.source_buffer, 4, 5)]],
                  @lex.advance)
   end
 

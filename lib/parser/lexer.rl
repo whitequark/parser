@@ -300,7 +300,7 @@ class Parser::Lexer
       [ false, [ '$error'.freeze, range(p - 1, p) ] ]
     else
       eof = @source_pts.size
-      [ false, [ '$eof'.freeze,   range(eof, eof) ] ]
+      [ false, [ '$eof'.freeze,   range(eof, eof + 1) ] ]
     end
   end
 

@@ -92,4 +92,16 @@ class TestDiagnostic < Minitest::Test
       '(string):2:                                ^'
     ], diag.render)
   end
+
+  def test_render_eof_error
+    location = Parser::Source::Range.new(@buffer, @buffer.source.length, @buffer.source.length + 1)
+
+    diag = Parser::Diagnostic.new(:error, :unexpected_token, { token: '$end' }, location, [])
+
+    assert_equal([
+      '(string):1:34: error: unexpected token $end',
+      '(string):1: if (this is some bad code + bugs)',
+      '(string):1:                                  ^'
+    ], diag.render)
+  end
 end
