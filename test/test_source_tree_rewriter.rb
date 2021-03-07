@@ -358,4 +358,15 @@ class TestSourceTreeRewriterImport < Minitest::Test
     assert_equal @rewriter, @rewriter.import!(@rewriter2)
     assert_equal @rewriter, @rewriter.import!(@rewriter, offset: 42)
   end
+
+  def test_inspect
+    assert_equal '#<Parser::Source::TreeRewriter (rewriter): empty>', @rewriter.inspect
+    @rewriter.insert_before(@hello, '[')
+    @rewriter.replace(@ll, 'xxx')
+    @rewriter.remove(@comma_space)
+    assert_equal '#<Parser::Source::TreeRewriter (rewriter): +"["@5, ^"xxx"@8...10, -11...13>', @rewriter.inspect
+    @rewriter.insert_before(@hello, '{')
+    @rewriter.remove(@world)
+    assert_equal '#<Parser::Source::TreeRewriter (rewriter): +"{["@5, ^"xxx"@8...10, -11...13, …>', @rewriter.inspect
+  end
 end
