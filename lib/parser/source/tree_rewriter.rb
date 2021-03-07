@@ -330,6 +330,11 @@ module Parser
         @in_transaction
       end
 
+      # :nodoc:
+      def inspect
+        "#<#{self.class} #{source_buffer.name}: #{action_summary}>"
+      end
+
       ##
       # @api private
       # @deprecated Use insert_after or wrap
@@ -360,6 +365,28 @@ module Parser
       attr_reader :action_root
 
       private
+
+      def action_summary
+        replacements = as_replacements
+        case replacements.size
+        when 0 then return 'empty'
+        when 1..3 then #ok
+        else
+          replacements = replacements.first(3)
+          suffix = '…'
+        end
+        parts = replacements.map do |(range, str)|
+          if str.empty? # is this a deletion?
+            "-#{range.to_range}"
+          elsif range.size == 0 # is this an insertion?
+            "+#{str.inspect}@#{range.begin_pos}"
+          else # it is a replacement
+            "^#{str.inspect}@#{range.to_range}"
+          end
+        end
+        parts << suffix if suffix
+        parts.join(', ')
+      end
 
       ACTIONS = %i[accept warn raise].freeze
       def check_policy_validity
