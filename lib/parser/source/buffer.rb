@@ -305,6 +305,11 @@ module Parser
         super
       end
 
+      # :nodoc:
+      def inspect
+        "#<#{self.class} #{name}>"
+      end
+
       private
 
       # @returns [0, line_begin_of_line_1, ..., source.size + 1]
