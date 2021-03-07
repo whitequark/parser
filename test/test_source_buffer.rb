@@ -179,4 +179,8 @@ class TestSourceBuffer < Minitest::Test
     assert ::Ractor.shareable?(@buffer)
     assert_equal ':world', @buffer.line_range(2).source
   end if defined?(::Ractor)
+
+  def test_inspect
+    assert_equal '#<Parser::Source::Buffer (string)>', @buffer.inspect
+  end
 end
