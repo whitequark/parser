@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Not released (2021-04-06)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.0.1, 2.7.3, 2.6.7, and 2.5.9 (#791) (Koichi ITO)
+
+Features implemented:
+ * `Source::TreeRewriter#inspect` [#728] (#788) (Marc-André Lafortune)
+ * `Source::Buffer#inspect` [#728] (#787) (Marc-André Lafortune)
+
 v3.0.0.0 (2020-12-25)
 ---------------------
 
