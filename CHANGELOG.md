@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2021-04-06)
--------------------------
+v3.0.1.0 (2021-04-06)
+---------------------
 
 API modifications:
  * Bump maintenance branches to 3.0.1, 2.7.3, 2.6.7, and 2.5.9 (#791) (Koichi ITO)
