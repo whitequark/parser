@@ -872,6 +872,14 @@ rule
                     {
                       result = val
                     }
+                | tLPAREN2 args tCOMMA args_forward rparen
+                    {
+                      unless @static_env.declared_forward_args?
+                        diagnostic :error, :unexpected_token, { :token => 'tBDOT3' } , val[3]
+                      end
+
+                      result = [val[0], [*val[1], @builder.forwarded_args(val[3])], val[4]]
+                    }
                 | tLPAREN2 args_forward rparen
                     {
                       unless @static_env.declared_forward_args?
@@ -2545,6 +2553,12 @@ keyword_variable: kNIL
                       result = @builder.args(val[0], val[1], val[2])
 
                       @lexer.state = :expr_value
+                    }
+                | tLPAREN2 f_arg tCOMMA args_forward rparen
+                    {
+                      args = [ *val[1], @builder.forward_arg(val[3]) ]
+                      result = @builder.args(val[0], args, val[4])
+                      @static_env.declare_forward_args
                     }
                 | tLPAREN2 args_forward rparen
                     {

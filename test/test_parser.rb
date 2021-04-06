@@ -7992,7 +7992,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tBDOT3' }],
       %q{def foo(x,y,z); bar(x, y, z, ...); end},
       %q{                             ^^^ location},
-      SINCE_3_0)
+      SINCE_2_7)
 
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tBDOT3' }],
@@ -8085,7 +8085,7 @@ class TestParser < Minitest::Test
         |       ~~~~~~~~~~~ expression (args)
         |                 ~ end (args)
         |              ~~~ expression (args.forward_arg)},
-      SINCE_3_0)
+      SINCE_2_7)
   end
 
 
