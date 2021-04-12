@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
     'source_code_uri' => "https://github.com/whitequark/parser/tree/v#{spec.version}"
   }
 
-  spec.files         = Dir['bin/*', 'lib/**/*.rb', 'parser.gemspec', 'LICENSE.txt']
+  spec.files         = Dir['bin/*', 'lib/**/*.rb', 'parser.gemspec']
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
