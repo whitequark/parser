@@ -3071,7 +3071,7 @@ require 'parser'
   end
 
   def endless_method_name(name_t)
-    if name_t[0].end_with?('=')
+    if !%w[=== == != <= >=].include?(name_t[0]) && name_t[0].end_with?('=')
       diagnostic :error, :endless_setter, nil, name_t
     end
   end

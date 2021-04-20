@@ -10107,6 +10107,19 @@ class TestParser < Minitest::Test
       SINCE_3_0)
   end
 
+  def test_endless_comparison_method
+    %i[=== == != <= >= !=].each do |method_name|
+      assert_parses(
+        s(:def, method_name,
+          s(:args,
+            s(:arg, :other)),
+          s(:send, nil, :do_something)),
+        %Q{def #{method_name}(other) = do_something},
+        %q{},
+        SINCE_3_0)
+    end
+  end
+
   def test_endless_method_without_args
     assert_parses(
       s(:def, :foo,
