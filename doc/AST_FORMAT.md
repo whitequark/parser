@@ -2112,6 +2112,24 @@ Format:
     ~~~~ expression
 ~~~
 
+### Pin operator with expression
+
+Format:
+
+~~~
+(pin
+  (begin
+    (send
+      (int 2) :+
+      (int 2))))
+"in ^(2 + 2)"
+    ~ selector
+    ~~~~~~~~ expression
+     ~ begin (begin)
+           ~ end (begin)
+     ~~~~~~~ expression (begin)
+~~~
+
 ### Match alternative
 
 Format:
