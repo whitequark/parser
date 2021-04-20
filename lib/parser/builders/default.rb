@@ -1724,7 +1724,7 @@ module Parser
     end
 
     def check_lvar_name(name, loc)
-      if name =~ /\A[[[:lower:]]|_][[[:alnum:]]_]*\z/
+      if name =~ /\A[[[:lower:]]_][[[:alnum:]]_]*\z/
         # OK
       else
         diagnostic :error, :lvar_name, { name: name }, loc
