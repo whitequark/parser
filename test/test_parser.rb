@@ -10171,4 +10171,53 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_2_3)
   end
+
+  def test_pin_expr
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin,
+          s(:begin,
+            s(:int, 42))), nil,
+        s(:nil)),
+      %q{in ^(42) then nil},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~~~ expression (in_pattern.pin)
+        |    ~ begin (in_pattern.pin.begin)
+        |       ~ end (in_pattern.pin.begin)
+        |    ~~~~ expression (in_pattern.pin.begin)},
+      SINCE_3_1)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:sym, :foo),
+            s(:pin,
+              s(:begin,
+                s(:int, 42))))), nil,
+        s(:nil)),
+      %q{in { foo: ^(42) } then nil},
+      %q{          ~ selector (in_pattern.hash_pattern.pair.pin)
+        |          ~~~~~ expression (in_pattern.hash_pattern.pair.pin)
+        |           ~ begin (in_pattern.hash_pattern.pair.pin.begin)
+        |              ~ end (in_pattern.hash_pattern.pair.pin.begin)
+        |           ~~~~ expression (in_pattern.hash_pattern.pair.pin.begin)},
+      SINCE_3_1)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin,
+          s(:begin,
+            s(:send,
+              s(:int, 0), :+,
+              s(:int, 0)))), nil,
+        s(:nil)),
+      %q{in ^(0+0) then nil},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~~~~ expression (in_pattern.pin)
+        |    ~ begin (in_pattern.pin.begin)
+        |        ~ end (in_pattern.pin.begin)
+        |    ~~~~~ expression (in_pattern.pin.begin)},
+      SINCE_3_1)
+  end
 end

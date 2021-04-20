@@ -1946,6 +1946,7 @@ opt_block_args_tail:
                     }
 
     p_expr_basic: p_value
+                | p_variable
                 | p_const p_lparen p_args rparen
                     {
                       @pattern_hash_keys.pop
@@ -2191,8 +2192,8 @@ opt_block_args_tail:
                     {
                       result = @builder.range_exclusive(val[0], val[1], nil)
                     }
-                | p_variable
                 | p_var_ref
+                | p_expr_ref
                 | p_const
                 | tBDOT2 p_primitive
                     {
@@ -2231,6 +2232,12 @@ opt_block_args_tail:
 
                       lvar = @builder.accessible(@builder.ident(val[1]))
                       result = @builder.pin(val[0], lvar)
+                    }
+
+      p_expr_ref: tCARET tLPAREN expr_value tRPAREN
+                    {
+                      expr = @builder.begin(val[1], val[2], val[3])
+                      result = @builder.pin(val[0], expr)
                     }
 
          p_const: tCOLON3 cname
