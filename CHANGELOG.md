@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2021-05-02)
--------------------------
+v3.0.1.1 (2021-05-02)
+---------------------
 
 Features implemented:
  * Add `associate_by_identity` as an alternate to `associate` (#798) (Marc-André Lafortune)
