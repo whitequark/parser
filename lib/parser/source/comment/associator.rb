@@ -84,12 +84,24 @@ module Parser
       #
       # Note that {associate} produces unexpected result for nodes which are
       # equal but have distinct locations; comments for these nodes are merged.
+      # You may prefer using {associate_by_identity} or {associate_locations}.
       #
       # @return [Hash<Parser::AST::Node, Array<Parser::Source::Comment>>]
       # @deprecated Use {associate_locations}.
       #
       def associate
-        @map_using_locations = false
+        @map_using = :eql
+        do_associate
+      end
+
+      ##
+      # Same as {associate}, but compares by identity, thus producing an unambiguous
+      # result even in presence of equal nodes.
+      #
+      # @return [Hash<Parser::Source::Node, Array<Parser::Source::Comment>>]
+      #
+      def associate_locations
+        @map_using = :location
         do_associate
       end
 
@@ -100,8 +112,8 @@ module Parser
       #
       # @return [Hash<Parser::Source::Map, Array<Parser::Source::Comment>>]
       #
-      def associate_locations
-        @map_using_locations = true
+      def associate_by_identity
+        @map_using = :identity
         do_associate
       end
 
@@ -122,6 +134,7 @@ module Parser
 
       def do_associate
         @mapping     = Hash.new { |h, k| h[k] = [] }
+        @mapping.compare_by_identity if @map_using == :identity
         @comment_num = -1
         advance_comment
 
@@ -191,7 +204,7 @@ module Parser
       end
 
       def associate_and_advance_comment(node)
-        key = @map_using_locations ? node.location : node
+        key = @map_using == :location ? node.location : node
         @mapping[key] << @current_comment
         advance_comment
       end

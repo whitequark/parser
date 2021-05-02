@@ -49,6 +49,19 @@ module Parser
       end
 
       ##
+      # Associate `comments` with `ast` nodes using identity.
+      #
+      # @param [Parser::AST::Node] ast
+      # @param [Array<Comment>]    comments
+      # @return [Hash<Parser::Source::Node, Array<Comment>>]
+      # @see Parser::Source::Comment::Associator#associate_by_identity
+      #
+      def self.associate_by_identity(ast, comments)
+        associator = Associator.new(ast, comments)
+        associator.associate_by_identity
+      end
+
+      ##
       # @param [Parser::Source::Range] range
       #
       def initialize(range)
