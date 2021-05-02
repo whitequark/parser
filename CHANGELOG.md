@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Not released (2021-05-02)
+-------------------------
+
+Features implemented:
+ * Add `associate_by_identity` as an alternate to `associate` (#798) (Marc-André Lafortune)
+ * ruby31.y: pin operator with expression (#797) (Ilya Bylich)
+ * ruby31.y: branch parser (#792) (Koichi ITO)
+
+Bugs fixed:
+ * fix a false positive for endless method definition (#796) (Koichi ITO)
+
 v3.0.1.0 (2021-04-06)
 ---------------------
 
