@@ -27,6 +27,13 @@ class TestSourceCommentAssociator < Minitest::Test
     [ ast, associations ]
   end
 
+  def associate_by_identity(code)
+    ast, comments = parse_with_comments(code)
+    associations  = Parser::Source::Comment.associate_by_identity(ast, comments)
+
+    [ ast, associations ]
+  end
+
   def test_associate
     ast, associations = associate(<<-END)
 #!/usr/bin/env ruby
@@ -83,9 +90,8 @@ end # class decorating
     ], associations[one_node].map(&:text)
   end
 
-  # The bug below is fixed by using associate_locations
-  def test_associate_dupe_statement
-    ast, associations = associate(<<-END)
+  def setup_dupe_statement(method = :associate)
+    @ast, @associations = send(method, <<-END)
 class Foo
   def bar
     f1 # comment on 1st call to f1
@@ -95,17 +101,30 @@ class Foo
 end
     END
 
-    _klass_node        = ast
-    method_node        = ast.children[2]
-    body               = method_node.children[2]
-    f1_1_node          = body.children[0]
-    f1_2_node          = body.children[2]
+    _klass_node        = @ast
+    @method_node        = @ast.children[2]
+    @body               = @method_node.children[2]
+    @f1_1_node          = @body.children[0]
+    @f1_2_node          = @body.children[2]
+  end
 
-    assert_equal 1, associations.size
+  # The bug below is fixed by using associate_locations
+  def test_associate_dupe_statement
+    setup_dupe_statement
+    assert_equal 1, @associations.size
     assert_equal ['# comment on 1st call to f1', '# comment on 2nd call to f1'],
-                 associations[f1_1_node].map(&:text)
+                 @associations[@f1_1_node].map(&:text)
     assert_equal ['# comment on 1st call to f1', '# comment on 2nd call to f1'],
-                 associations[f1_2_node].map(&:text)
+                 @associations[@f1_2_node].map(&:text)
+  end
+
+  def test_associate_by_identity_dupe_statement
+    setup_dupe_statement(:associate_by_identity)
+    assert_equal 2, @associations.size
+    assert_equal ['# comment on 1st call to f1'],
+                 @associations[@f1_1_node].map(&:text)
+    assert_equal ['# comment on 2nd call to f1'],
+                 @associations[@f1_2_node].map(&:text)
   end
 
   def test_associate_locations
