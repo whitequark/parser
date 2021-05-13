@@ -261,6 +261,74 @@ rule
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
+                | defn_head f_opt_paren_args tEQL command
+                    {
+                      _def_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      result = @builder.def_endless_method(*val[0],
+                                 val[1], val[2], val[3])
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defn_head f_opt_paren_args tEQL command kRESCUE_MOD arg
+                    {
+                      _def_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      rescue_body = @builder.rescue_body(val[4],
+                                        nil, nil, nil,
+                                        nil, val[5])
+
+                      method_body = @builder.begin_body(val[3], [ rescue_body ])
+
+                      result = @builder.def_endless_method(*val[0],
+                                 val[1], val[2], method_body)
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defs_head f_opt_paren_args tEQL command
+                    {
+                      _def_t, _recv, _dot_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      result = @builder.def_endless_singleton(*val[0],
+                                 val[1], val[2], val[3])
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defs_head f_opt_paren_args tEQL command kRESCUE_MOD arg
+                    {
+                      _def_t, _recv, _dot_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      rescue_body = @builder.rescue_body(val[4],
+                                        nil, nil, nil,
+                                        nil, val[5])
+
+                      method_body = @builder.begin_body(val[3], [ rescue_body ])
+
+                      result = @builder.def_endless_singleton(*val[0],
+                                 val[1], val[2], method_body)
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
                 | backref tOP_ASGN command_rhs
                     {
                       @builder.op_assign(val[0], val[1], val[2])
