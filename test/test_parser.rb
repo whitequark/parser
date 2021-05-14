@@ -9832,6 +9832,166 @@ class TestParser < Minitest::Test
       SINCE_3_0)
   end
 
+  def test_endless_method_command_syntax
+    assert_parses(
+      s(:def, :foo,
+        s(:args),
+        s(:send, nil, :puts,
+          s(:str, "Hello"))),
+      %q{def foo = puts "Hello"},
+      %q{~~~ keyword
+        |    ~~~ name
+        |        ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args),
+        s(:send, nil, :puts,
+          s(:str, "Hello"))),
+      %q{def foo() = puts "Hello"},
+      %q{~~~ keyword
+        |    ~~~ name
+        |          ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :x)),
+        s(:send, nil, :puts,
+          s(:lvar, :x))),
+      %q{def foo(x) = puts x},
+      %q{~~~ keyword
+        |    ~~~ name
+        |           ^ assignment
+        |~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:defs,
+        s(:send, nil, :obj), :foo,
+        s(:args),
+        s(:send, nil, :puts,
+          s(:str, "Hello"))),
+      %q{def obj.foo = puts "Hello"},
+      %q{~~~ keyword
+        |       ^ operator
+        |        ~~~ name
+        |            ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:defs,
+        s(:send, nil, :obj), :foo,
+        s(:args),
+        s(:send, nil, :puts,
+          s(:str, "Hello"))),
+      %q{def obj.foo() = puts "Hello"},
+      %q{~~~ keyword
+        |       ^ operator
+        |        ~~~ name
+        |              ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :rescued,
+        s(:args,
+          s(:arg, :x)),
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:str, "to be caught")),
+          s(:resbody, nil, nil,
+            s(:dstr,
+              s(:str, "instance "),
+              s(:begin,
+                s(:lvar, :x)))), nil)),
+      %q{def rescued(x) = raise "to be caught" rescue "instance #{x}"},
+      %q{~~~ keyword
+        |    ~~~~~~~ name
+        |               ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:defs,
+        s(:self), :rescued,
+        s(:args,
+          s(:arg, :x)),
+        s(:rescue,
+          s(:send, nil, :raise,
+            s(:str, "to be caught")),
+          s(:resbody, nil, nil,
+            s(:dstr,
+              s(:str, "class "),
+              s(:begin,
+                s(:lvar, :x)))), nil)),
+      %q{def self.rescued(x) = raise "to be caught" rescue "class #{x}"},
+      %q{~~~ keyword
+        |        ^ operator
+        |         ~~~~~~~ name
+        |                    ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:defs,
+        s(:send, nil, :obj), :foo,
+        s(:args,
+          s(:arg, :x)),
+        s(:send, nil, :puts,
+          s(:lvar, :x))),
+      %q{def obj.foo(x) = puts x},
+      %q{~~~ keyword
+        |       ^ operator
+        |        ~~~ name
+        |               ^ assignment
+        |~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_3_1)
+  end
+
+  def test_private_endless_method_command_syntax
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tSTRING' }],
+      %q{private def foo = puts "Hello"},
+      %q{                       ^^^^^^^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tSTRING' }],
+      %q{private def foo() = puts "Hello"},
+      %q{                         ^^^^^^^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],
+      %q{private def foo(x) = puts x},
+      %q{                          ^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tSTRING' }],
+      %q{private def obj.foo = puts "Hello"},
+      %q{                           ^^^^^^^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tSTRING' }],
+      %q{private def obj.foo() = puts "Hello"},
+      %q{                             ^^^^^^^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],
+      %q{private def obj.foo(x) = puts x},
+      %q{                              ^ location},
+      SINCE_3_1)
+  end
+
   def test_rasgn_line_continuation
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tASSOC' }],
