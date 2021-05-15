@@ -10379,5 +10379,32 @@ class TestParser < Minitest::Test
         |        ~ end (in_pattern.pin.begin)
         |    ~~~~~ expression (in_pattern.pin.begin)},
       SINCE_3_1)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin,
+          s(:ivar, :@a)), nil, nil),
+      %q{in ^@a},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~ expression (in_pattern.pin)},
+      SINCE_3_1)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin,
+          s(:cvar, :@@TestPatternMatching)), nil, nil),
+      %q{in ^@@TestPatternMatching},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~~~~~~~~~~~~~~~~~~~~ expression (in_pattern.pin)},
+      SINCE_3_1)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin,
+          s(:gvar, :$TestPatternMatching)), nil, nil),
+      %q{in ^$TestPatternMatching},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~~~~~~~~~~~~~~~~~~~ expression (in_pattern.pin)},
+      SINCE_3_1)
   end
 end
