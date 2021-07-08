@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Not released (2021-07-08)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.0.2, 2.7.4, and 2.6.8 (#805) (Koichi ITO)
+
+Features implemented:
+ * lexer.rl: reject `\u` after control/meta escape chars. (#807) (Ilya Bylich)
+ * ruby31.y: allow "command" syntax in endless method definition (#801) (Koichi ITO)
+
 v3.0.1.1 (2021-05-02)
 ---------------------
 
