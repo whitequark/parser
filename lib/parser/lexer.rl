@@ -705,6 +705,11 @@ class Parser::Lexer
 
   action unescape_char {
     codepoint = @source_pts[p - 1]
+
+    if @version >= 30 && (codepoint == 117 || codepoint == 85) # 'u' or 'U'
+      diagnostic :fatal, :invalid_escape
+    end
+
     if (@escape = ESCAPES[codepoint]).nil?
       @escape = encode_escape(@source_buffer.slice(p - 1))
     end

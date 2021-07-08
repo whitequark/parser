@@ -3614,4 +3614,44 @@ class TestLexer < Minitest::Test
     end
   end
 
+  def test_meta_escape_slash_u__before_30
+    setup_lexer(27)
+    assert_scanned('"\c\u0000"',
+                    :tSTRING, "\u00150000", [0, 10])
+    assert_scanned('"\c\U0000"',
+                    :tSTRING, "\u00150000", [0, 10])
+
+    assert_scanned('"\C-\u0000"',
+                    :tSTRING, "\u00150000", [0, 11])
+    assert_scanned('"\C-\U0000"',
+                    :tSTRING, "\u00150000", [0, 11])
+
+    assert_scanned('"\M-\u0000"',
+                    :tSTRING, "\xF50000", [0, 11])
+    assert_scanned('"\M-\U0000"',
+                    :tSTRING, "\xD50000", [0, 11])
+  end
+
+  def refute_scanned_meta_escape_slash_u(input)
+    setup_lexer(30)
+    source_buffer = Parser::Source::Buffer.new('(refute_scanned_meta_escape_slash_u)', source: input)
+    @lex.source_buffer = source_buffer
+
+    err = assert_raises Parser::SyntaxError do
+      @lex.advance
+    end
+
+    assert_equal :invalid_escape, err.diagnostic.reason
+  end
+
+  def test_meta_escape_slash_u__after_30
+    refute_scanned_meta_escape_slash_u('"\c\u0000"')
+    refute_scanned_meta_escape_slash_u('"\c\U0000"')
+
+    refute_scanned_meta_escape_slash_u('"\C-\u0000"')
+    refute_scanned_meta_escape_slash_u('"\C-\U0000"')
+
+    refute_scanned_meta_escape_slash_u('"\M-\u0000"')
+    refute_scanned_meta_escape_slash_u('"\M-\U0000"')
+  end
 end
