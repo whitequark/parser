@@ -518,7 +518,8 @@ class Parser::Lexer
   c_nl_zlen  = c_nl | zlen;
   c_line     = any - c_nl_zlen;
 
-  c_unicode  = c_any - 0x00..0x7f;
+  c_ascii    = 0x00..0x7f;
+  c_unicode  = c_any - c_ascii;
   c_upper    = [A-Z];
   c_lower    = [a-z_]  | c_unicode;
   c_alpha    = c_lower | c_upper;
@@ -1406,7 +1407,7 @@ class Parser::Lexer
       ':'
       => { fhold; fgoto expr_beg; };
 
-      '%s' c_any
+      '%s' (c_ascii - [A-Za-z0-9])
       => {
         if version?(23)
           type, delimiter = tok[0..-2], tok[-1].chr
@@ -1758,14 +1759,14 @@ class Parser::Lexer
       };
 
       # %<string>
-      '%' ( any - [A-Za-z] )
+      '%' ( c_ascii - [A-Za-z0-9] )
       => {
         type, delimiter = @source_buffer.slice(@ts).chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %w(we are the people)
-      '%' [A-Za-z]+ c_any
+      '%' [A-Za-z] (c_ascii - [A-Za-z0-9])
       => {
         type, delimiter = tok[0..-2], tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
