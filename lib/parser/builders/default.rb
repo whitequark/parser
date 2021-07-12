@@ -161,7 +161,7 @@ module Parser
       #
       # ```
       # (send nil :foo
-      #   (hash
+      #   (kwargs
       #     (pair
       #       (sym :a)
       #       (int 42))
