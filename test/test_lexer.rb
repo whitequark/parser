@@ -2246,6 +2246,25 @@ class TestLexer < Minitest::Test
                    :tSTRING_END,     '%',    [6, 7])
   end
 
+  def test_string_pct_null
+    assert_scanned("%\0blah\0",
+                   :tSTRING_BEG,     "%\0",  [0, 2],
+                   :tSTRING_CONTENT, "blah", [2, 6],
+                   :tSTRING_END,     "\0",    [6, 7])
+  end
+
+  def test_string_pct_non_ascii
+    refute_scanned("%★foo★")
+  end
+
+  def test_string_pct_alphabet
+    refute_scanned("%AfooA")
+  end
+
+  def test_string_pct_number
+    refute_scanned("%1foo1")
+  end
+
   def test_string_pct_w
     assert_scanned("%w[s1 s2 ]",
                    :tQWORDS_BEG,     "%w[", [0, 3],
@@ -2291,6 +2310,26 @@ class TestLexer < Minitest::Test
                    :tSTRING_CONTENT, "def", [7, 10],
                    :tSPACE,          nil,   [10, 10],
                    :tSTRING_END,     ']',   [10, 11])
+  end
+
+  def test_string_pct_w_null
+    assert_scanned("%w\0abc\0",
+                   :tQWORDS_BEG,     "%w\0", [0, 3],
+                   :tSTRING_CONTENT, "abc",  [3, 6],
+                   :tSPACE,          nil,    [6, 6],
+                   :tSTRING_END,     "\0",   [6, 7])
+  end
+
+  def test_string_pct_w_non_ascii
+    refute_scanned("%w★foo★")
+  end
+
+  def test_string_pct_w_alphabet
+    refute_scanned("%wAfooA")
+  end
+
+  def test_string_pct_w_number
+    refute_scanned("%w1foo1")
   end
 
   def test_string_pct_i
