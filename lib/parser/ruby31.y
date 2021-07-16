@@ -2302,6 +2302,12 @@ opt_block_args_tail:
                       result = @builder.pin(val[0], lvar)
                     }
 
+                | tCARET nonlocal_var
+                    {
+                      non_lvar = @builder.accessible(val[1])
+                      result = @builder.pin(val[0], non_lvar)
+                    }
+
       p_expr_ref: tCARET tLPAREN expr_value tRPAREN
                     {
                       expr = @builder.begin(val[1], val[2], val[3])
@@ -2577,6 +2583,19 @@ regexp_contents: # nothing
                     {
                       @lexer.state = :expr_end
                       result = @builder.complex(val[0])
+                    }
+
+    nonlocal_var: tIVAR
+                    {
+                      result = @builder.ivar(val[0])
+                    }
+                | tGVAR
+                    {
+                      result = @builder.gvar(val[0])
+                    }
+                | tCVAR
+                    {
+                      result = @builder.cvar(val[0])
                     }
 
    user_variable: tIDENTIFIER
