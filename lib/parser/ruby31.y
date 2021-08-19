@@ -371,7 +371,7 @@ rule
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
                     }
-                  p_expr
+                  p_top_expr_body
                     {
                       @pattern_variables.pop
                       @lexer.in_kwarg = val[2]
@@ -386,7 +386,7 @@ rule
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
                     }
-                  p_expr
+                  p_top_expr_body
                     {
                       @pattern_variables.pop
                       @lexer.in_kwarg = val[2]
