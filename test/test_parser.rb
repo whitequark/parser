@@ -9614,6 +9614,68 @@ class TestParser < Minitest::Test
       SINCE_3_0)
   end
 
+  def test_pattern_matching_single_line_allowed_omission_of_parentheses
+    assert_parses(
+      s(:begin,
+        s(:match_pattern,
+          s(:array,
+            s(:int, 1),
+            s(:int, 2)),
+          s(:array_pattern,
+            s(:match_var, :a),
+            s(:match_var, :b))),
+        s(:lvar, :a)),
+      %q{[1, 2] => a, b; a},
+      %q{~~~~~~~~~~~~~~ expression (match_pattern)
+        |       ~~ operator (match_pattern)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:match_pattern,
+          s(:hash,
+            s(:pair,
+              s(:sym, :a),
+              s(:int, 1))),
+          s(:hash_pattern,
+            s(:match_var, :a))),
+        s(:lvar, :a)),
+      %q{{a: 1} => a:; a},
+      %q{~~~~~~~~~~~~ expression (match_pattern)
+        |       ~~ operator (match_pattern)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:match_pattern_p,
+          s(:array,
+            s(:int, 1),
+            s(:int, 2)),
+          s(:array_pattern,
+            s(:match_var, :a),
+            s(:match_var, :b))),
+        s(:lvar, :a)),
+      %q{[1, 2] in a, b; a},
+      %q{~~~~~~~~~~~~~~ expression (match_pattern_p)
+        |       ~~ operator (match_pattern_p)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:match_pattern_p,
+          s(:hash,
+            s(:pair,
+              s(:sym, :a),
+              s(:int, 1))),
+          s(:hash_pattern,
+            s(:match_var, :a))),
+        s(:lvar, :a)),
+      %q{{a: 1} in a:; a},
+      %q{~~~~~~~~~~~~ expression (match_pattern_p)
+        |       ~~ operator (match_pattern_p)},
+      SINCE_3_1)
+  end
+
   def test_ruby_bug_pattern_matching_restore_in_kwarg_flag
     refute_diagnoses(
       "p(({} in {a:}), a:\n 1)",
@@ -9703,7 +9765,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tCOMMA' }],
       %{1 => a, b},
       %{      ^ location},
-      SINCE_3_0)
+      %w(3.0))
 
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tASSOC' }],
@@ -9715,7 +9777,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tLABEL' }],
       %{1 => a:},
       %{     ^^ location},
-      SINCE_3_0)
+      %w(3.0))
   end
 
   def test_pattern_matching_required_bound_variable_before_pin
