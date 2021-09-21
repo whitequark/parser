@@ -10054,6 +10054,22 @@ class TestParser < Minitest::Test
       SINCE_3_1)
   end
 
+  def test_value_omission
+    assert_parses(
+      s(:hash,
+        s(:pair, s(:sym, :a), s(:send, nil, :a)),
+        s(:pair, s(:sym, :b), s(:send, nil, :b))),
+      %q{{a:, b:}},
+      %q{^ begin
+        |       ^ end
+        |  ^ operator (pair)
+        | ~ expression (pair.sym)
+        | ~~ expression (pair.send)
+        | ~~ expression (pair)
+        |~~~~~~~~ expression},
+      SINCE_3_1)
+  end
+
   def test_rasgn_line_continuation
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tASSOC' }],

@@ -3098,6 +3098,11 @@ f_opt_paren_args: f_paren_args
                     {
                       result = @builder.pair_keyword(val[0], val[1])
                     }
+                | tLABEL
+                    {
+                      value = @builder.call_method(nil, nil, val[0])
+                      result = @builder.pair_keyword(val[0], value)
+                    }
                 | tSTRING_BEG string_contents tLABEL_END arg_value
                     {
                       result = @builder.pair_quoted(val[0], val[1], val[2], val[3])
