@@ -38,7 +38,13 @@ module Parser
       # Prevent the following error when processing binary encoded source.
       # "\xC0".split # => ArgumentError (invalid byte sequence in UTF-8)
       lines = string.force_encoding(Encoding::BINARY).split("\\\n")
-      lines.map! {|s| s.force_encoding(original_encoding) }
+      if lines.length == 1
+        # If the line continuation sequence was found but there is no second
+        # line, it was not really a line continuation and must be ignored.
+        lines = [string]
+      else
+        lines.map! {|s| s.force_encoding(original_encoding) }
+      end
 
       if @at_line_begin
         lines_to_dedent = lines
