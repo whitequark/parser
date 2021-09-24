@@ -266,6 +266,42 @@ Format:
  ~~~~~~~~~~ expression (pair)
 ~~~
 
+#### With local variable
+
+Format:
+
+~~~
+(pair (sym :foo) (lvar :foo))
+"{foo:}"
+     ^ operator (pair)
+  ~~~ expression (sym)
+  ~~~ expression (lvar)
+~~~
+
+#### With constant
+
+Format:
+
+~~~
+(pair (sym :foo) (const nil :foo))
+"{FOO:}"
+     ^ operator (pair)
+  ~~~ expression (const)
+  ~~~ expression (lvar)
+~~~
+
+#### With method call
+
+Format:
+
+~~~
+(pair (sym :puts) (send nil :puts))
+"{puts:}"
+      ^ operator (pair)
+  ~~~~ expression (sym)
+  ~~~~ expression (send)
+~~~
+
 #### Plain
 
 Format:

@@ -518,6 +518,20 @@ module Parser
       n(:pair, [ key, value ], pair_map)
     end
 
+    def pair_label(key_t)
+      key_l = loc(key_t)
+      value_l = key_l.adjust(end_pos: -1)
+
+      label = value(key_t)
+      value =
+        if label =~ /\A[[:lower:]]/
+          n(:ident, [ label.to_sym ], Source::Map::Variable.new(value_l))
+        else
+          n(:const, [ nil, label.to_sym ], Source::Map::Constant.new(nil, value_l, value_l))
+        end
+      pair_keyword(key_t, accessible(value))
+    end
+
     def kwsplat(dstar_t, arg)
       n(:kwsplat, [ arg ],
         unary_op_map(dstar_t, arg))
@@ -608,18 +622,28 @@ module Parser
       when :ident
         name, = *node
 
-        if @parser.static_env.declared?(name)
-          if name.to_s == parser.current_arg_stack.top
-            diagnostic :error, :circular_argument_reference,
-                       { :var_name => name.to_s }, node.loc.expression
-          end
+        if %w[? !].any? { |c| name.to_s.end_with?(c) }
+          diagnostic :error, :invalid_id_to_get,
+                     { :identifier => name.to_s }, node.loc.expression
+        end
 
-          node.updated(:lvar)
-        else
-          name, = *node
-          n(:send, [ nil, name ],
+        # Numbered parameters are not declared anywhere,
+        # so they take precedence over method calls in numblock contexts
+        if @parser.version >= 27 && @parser.try_declare_numparam(node)
+          return node.updated(:lvar)
+        end
+
+        unless @parser.static_env.declared?(name)
+          return n(:send, [ nil, name ],
             var_send_map(node))
         end
+
+        if name.to_s == parser.current_arg_stack.top
+          diagnostic :error, :circular_argument_reference,
+                     { :var_name => name.to_s }, node.loc.expression
+        end
+
+        node.updated(:lvar)
 
       else
         node
@@ -682,6 +706,17 @@ module Parser
         @parser.static_env.declare(name)
 
         node.updated(:lvasgn)
+
+      when :match_var
+        name, = *node
+
+        var_name = node.children[0].to_s
+        name_loc = node.loc.expression
+
+        check_assignment_to_numparam(var_name, name_loc)
+        check_reserved_for_numparam(var_name, name_loc)
+
+        node
 
       when :nil, :self, :true, :false,
            :__FILE__, :__LINE__, :__ENCODING__
