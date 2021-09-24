@@ -10084,6 +10084,30 @@ class TestParser < Minitest::Test
         | ~~ expression (pair)
         |~~~~~~~~ expression},
       SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tRCURLY' }],
+      %q{{"#{x}":}},
+      %q{        ^ location},
+      SINCE_3_1)
+  end
+
+  def test_keyword_argument_omission
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:kwargs,
+          s(:pair, s(:sym, :a), s(:send, nil, :a)),
+          s(:pair, s(:sym, :b), s(:send, nil, :b)))),
+      %q{foo(a:, b:)},
+      %q{   ^ begin
+        |          ^ end
+        |     ^ operator (kwargs.pair)
+        |    ~ expression (kwargs.pair.sym)
+        |    ~~ expression (kwargs.pair.send)
+        |    ~~ expression (kwargs.pair)
+        |    ~~~~~~ expression (kwargs)
+        |~~~~~~~~~~~ expression},
+      SINCE_3_1)
   end
 
   def test_rasgn_line_continuation
