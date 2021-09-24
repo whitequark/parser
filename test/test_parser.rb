@@ -439,6 +439,22 @@ class TestParser < Minitest::Test
       SINCE_2_3)
   end
 
+  def test_dedenting_non_interpolating_heredoc_line_continuation
+    assert_parses(
+      s(:dstr, s(:str, "baz\\\n"), s(:str, "qux\n")),
+      %Q{<<~'FOO'\n  baz\\\n  qux\nFOO},
+      %q{},
+      SINCE_2_3)
+  end
+
+  def test_dedenting_interpolating_heredoc_fake_line_continuation
+    assert_parses(
+      s(:dstr, s(:str, "baz\\\n"), s(:str, "qux\n")),
+      %Q{<<~'FOO'\n  baz\\\\\n  qux\nFOO},
+      %q{},
+      SINCE_2_3)
+  end
+
   # Symbols
 
   def test_symbol_plain
