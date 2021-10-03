@@ -602,10 +602,36 @@ class TestLexer < Minitest::Test
 
   def test_dot2
     assert_scanned "..", :tDOT2, "..", [0, 2]
+    refute_scanned("foo\n..42",
+                   :tIDENTIFIER, "foo", [0, 3],
+                   :tNL,         nil,   [3, 4])
+  end
+
+  def test_dot2_27
+    setup_lexer 27
+    assert_scanned "..", :tBDOT2, "..", [0, 2]
+    assert_scanned("foo\n..42",
+                   :tIDENTIFIER, "foo", [0, 3],
+                   :tNL,         nil,   [3, 4],
+                   :tBDOT2,      "..",  [4, 6],
+                   :tINTEGER,    42,    [6, 8])
   end
 
   def test_dot3
     assert_scanned "...", :tDOT3, "...", [0, 3]
+    refute_scanned("foo\n...42",
+                   :tIDENTIFIER, "foo", [0, 3],
+                   :tNL,         nil,   [3, 4])
+  end
+
+  def test_dot3_27
+    setup_lexer 27
+    assert_scanned "...", :tBDOT3, "...", [0, 3]
+    assert_scanned("foo\n...42",
+                   :tIDENTIFIER, "foo", [0, 3],
+                   :tNL,         nil,   [3, 4],
+                   :tBDOT3,      "...", [4, 7],
+                   :tINTEGER,    42,    [7, 9])
   end
 
   def test_equals

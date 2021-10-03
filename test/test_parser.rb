@@ -911,6 +911,29 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_beginless_irange_after_newline
+    assert_parses(
+      s(:begin,
+        s(:lvar, :foo),
+        s(:irange, nil,
+          s(:int, 100))),
+      %Q{foo\n..100},
+      %q{},
+      SINCE_2_7
+    )
+  end
+
+  def test_beginless_erange_after_newline
+    assert_parses(
+      s(:begin,
+        s(:lvar, :foo),
+        s(:erange, nil,
+          s(:int, 100))),
+      %Q{foo\n...100},
+      %q{},
+      SINCE_2_7
+    )
+  end
   #
   # Access
   #

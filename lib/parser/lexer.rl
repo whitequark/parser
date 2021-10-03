@@ -2513,6 +2513,28 @@ class Parser::Lexer
         end
       };
 
+      c_space* '..'
+      => {
+        emit(:tNL, nil, @newline_s, @newline_s + 1)
+        if @version < 27
+          fhold; fnext line_begin; fbreak;
+        else
+          emit(:tBDOT2)
+          fnext expr_beg; fbreak;
+        end
+      };
+
+      c_space* '...'
+      => {
+        emit(:tNL, nil, @newline_s, @newline_s + 1)
+        if @version < 27
+          fhold; fnext line_begin; fbreak;
+        else
+          emit(:tBDOT3)
+          fnext expr_beg; fbreak;
+        end
+      };
+
       c_space* %{ tm = p } ('.' | '&.')
       => { p = tm - 1; fgoto expr_end; };
 
