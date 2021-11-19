@@ -2288,7 +2288,7 @@ opt_block_args_tail:
 
       p_variable: tIDENTIFIER
                     {
-                      result = @builder.match_var(val[0])
+                      result = @builder.assignable(@builder.match_var(val[0]))
                     }
 
        p_var_ref: tCARET tIDENTIFIER
@@ -2650,46 +2650,6 @@ keyword_variable: kNIL
 
          var_ref: user_variable
                     {
-                      if (node = val[0]) && node.type == :ident
-                        name = node.children[0]
-
-                        if name =~ /\A_[1-9]\z/ && !static_env.declared?(name) && context.in_dynamic_block?
-                          # definitely an implicit param
-                          location = node.loc.expression
-
-                          if max_numparam_stack.has_ordinary_params?
-                            diagnostic :error, :ordinary_param_defined, nil, [nil, location]
-                          end
-
-                          raw_context = context.stack.dup
-                          raw_max_numparam_stack = max_numparam_stack.stack.dup
-
-                          # ignore current block scope
-                          raw_context.pop
-                          raw_max_numparam_stack.pop
-
-                          raw_context.reverse_each do |outer_scope|
-                            if outer_scope == :block || outer_scope == :lambda
-                              outer_scope_has_numparams = raw_max_numparam_stack.pop > 0
-
-                              if outer_scope_has_numparams
-                                diagnostic :error, :numparam_used_in_outer_scope, nil, [nil, location]
-                              else
-                                # for now it's ok, but an outer scope can also be a block
-                                # with numparams, so we need to continue
-                              end
-                            else
-                              # found an outer scope that can't have numparams
-                              # like def/class/etc
-                              break
-                            end
-                          end
-
-                          static_env.declare(name)
-                          max_numparam_stack.register(name[1].to_i)
-                        end
-                      end
-
                       result = @builder.accessible(val[0])
                     }
                 | keyword_variable
@@ -3100,8 +3060,7 @@ f_opt_paren_args: f_paren_args
                     }
                 | tLABEL
                     {
-                      value = @builder.call_method(nil, nil, val[0])
-                      result = @builder.pair_keyword(val[0], value)
+                      result = @builder.pair_label(val[0])
                     }
                 | tSTRING_BEG string_contents tLABEL_END arg_value
                     {
@@ -3172,5 +3131,49 @@ require 'parser'
   def endless_method_name(name_t)
     if !%w[=== == != <= >=].include?(name_t[0]) && name_t[0].end_with?('=')
       diagnostic :error, :endless_setter, nil, name_t
+    end
+  end
+
+  def try_declare_numparam(node)
+    name = node.children[0]
+
+    if name =~ /\A_[1-9]\z/ && !static_env.declared?(name) && context.in_dynamic_block?
+      # definitely an implicit param
+      location = node.loc.expression
+
+      if max_numparam_stack.has_ordinary_params?
+        diagnostic :error, :ordinary_param_defined, nil, [nil, location]
+      end
+
+      raw_context = context.stack.dup
+      raw_max_numparam_stack = max_numparam_stack.stack.dup
+
+      # ignore current block scope
+      raw_context.pop
+      raw_max_numparam_stack.pop
+
+      raw_context.reverse_each do |outer_scope|
+        if outer_scope == :block || outer_scope == :lambda
+          outer_scope_has_numparams = raw_max_numparam_stack.pop > 0
+
+          if outer_scope_has_numparams
+            diagnostic :error, :numparam_used_in_outer_scope, nil, [nil, location]
+          else
+            # for now it's ok, but an outer scope can also be a block
+            # with numparams, so we need to continue
+          end
+        else
+          # found an outer scope that can't have numparams
+          # like def/class/etc
+          break
+        end
+      end
+
+      static_env.declare(name)
+      max_numparam_stack.register(name[1].to_i)
+
+      true
+    else
+      false
     end
   end

@@ -10093,7 +10093,7 @@ class TestParser < Minitest::Test
       SINCE_3_1)
   end
 
-  def test_value_omission
+  def test_hash_pair_value_omission
     assert_parses(
       s(:hash,
         s(:pair, s(:sym, :a), s(:send, nil, :a)),
@@ -10103,9 +10103,31 @@ class TestParser < Minitest::Test
         |       ^ end
         |  ^ operator (pair)
         | ~ expression (pair.sym)
-        | ~~ expression (pair.send)
+        | ~ expression (pair.send)
         | ~~ expression (pair)
         |~~~~~~~~ expression},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:hash,
+        s(:pair, s(:sym, :puts), s(:send, nil, :puts))),
+      %q{{puts:}},
+      %q{     ^ operator (pair)
+        | ~~~~ expression (pair.sym)
+        | ~~~~ expression (pair.send)
+        | ~~~~ selector (pair.send)
+        | ~~~~~ expression (pair)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:hash,
+        s(:pair, s(:sym, :BAR), s(:const, nil, :BAR))),
+      %q{{BAR:}},
+      %q{    ^ operator (pair)
+        | ~~~ expression (pair.sym)
+        | ~~~ expression (pair.const)
+        | ~~~ name (pair.const)
+        | ~~~~ expression (pair)},
       SINCE_3_1)
 
     assert_diagnoses(
@@ -10126,10 +10148,24 @@ class TestParser < Minitest::Test
         |          ^ end
         |     ^ operator (kwargs.pair)
         |    ~ expression (kwargs.pair.sym)
-        |    ~~ expression (kwargs.pair.send)
+        |    ~ expression (kwargs.pair.send)
         |    ~~ expression (kwargs.pair)
         |    ~~~~~~ expression (kwargs)
         |~~~~~~~~~~~ expression},
+      SINCE_3_1)
+  end
+
+  def test_hash_pair_value_omission_invalid_label
+    assert_diagnoses(
+      [:error, :invalid_id_to_get, { :identifier => 'foo?' }],
+      %q{{ foo?: }},
+      %q{  ^^^^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_id_to_get, { :identifier => 'bar!' }],
+      %q{{ bar!: }},
+      %q{  ^^^^ location},
       SINCE_3_1)
   end
 
@@ -10547,5 +10583,19 @@ class TestParser < Minitest::Test
       %q{   ~ selector (in_pattern.pin)
         |   ~~~~~~~~~~~~~~~~~~~~~ expression (in_pattern.pin)},
       SINCE_3_1)
+  end
+
+  def test_assignment_to_numparam_via_pattern_matching
+    assert_diagnoses(
+      [:error, :reserved_for_numparam, { :name => '_1' }],
+      %q{proc { 1 in _1 }},
+      %q{            ~~ location},
+      SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :cant_assign_to_numparam, { :name => '_1' }],
+      %q{proc { _1; 1 in _1 }},
+      %q{                ~~ location},
+      SINCE_2_7)
   end
 end
