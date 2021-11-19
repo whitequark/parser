@@ -5608,7 +5608,7 @@ class TestParser < Minitest::Test
         s(:str, "")),
       %q{/\xa8/n =~ ""}.dup.force_encoding(Encoding::UTF_8),
       %{},
-      SINCE_1_9)
+      SINCE_3_1 - SINCE_1_9)
   end
 
   #
@@ -6513,7 +6513,7 @@ class TestParser < Minitest::Test
         s(:str, "#")),
       %q{[/()\\1/, ?#]},
       %q{},
-      SINCE_1_9)
+      SINCE_3_1 - SINCE_1_9)
   end
 
   def test_parser_bug_272
@@ -10670,6 +10670,52 @@ class TestParser < Minitest::Test
       [:warning, :duplicate_hash_key],
       %q{ { /foo/ => 1, /foo/ => 2 } },
       %q{               ~~~~~ location},
+      SINCE_3_1)
+  end
+
+  def test_control_meta_escape_chars_in_regexp
+    x9f = "\x9F".dup.force_encoding('ascii-8bit')
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\c\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\c\M-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\C-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\C-\M-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\M-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\M-\C-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, x9f), s(:regopt)),
+      %q{/\M-\c\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
       SINCE_3_1)
   end
 end

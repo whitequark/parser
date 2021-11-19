@@ -3719,4 +3719,29 @@ class TestLexer < Minitest::Test
     refute_scanned_meta_escape_slash_u('"\M-\u0000"')
     refute_scanned_meta_escape_slash_u('"\M-\U0000"')
   end
+
+  def test_meta_control_hex_escaped_char
+    setup_lexer(19)
+
+    assert_scanned("\"\\c\\xFF\"",
+                    :tSTRING, "\x9F", [0, 8])
+
+    assert_scanned("\"\\c\\M-\\xFF\"",
+                    :tSTRING, "\x9F", [0, 11])
+
+    assert_scanned("\"\\C-\\xFF\"",
+                    :tSTRING, "\x9F", [0, 9])
+
+    assert_scanned("\"\\C-\\M-\\xFF\"",
+                    :tSTRING, "\x9F", [0, 12])
+
+    assert_scanned("\"\\M-\\xFF\"",
+                    :tSTRING, "\x9F", [0, 9])
+
+    assert_scanned("\"\\M-\\C-\\xFF\"",
+                    :tSTRING, "\x9F", [0, 12])
+
+    assert_scanned("\"\\M-\\c\\xFF\"",
+                    :tSTRING, "\x9F", [0, 11])
+  end
 end
