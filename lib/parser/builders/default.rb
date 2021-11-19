@@ -538,6 +538,32 @@ module Parser
     end
 
     def associate(begin_t, pairs, end_t)
+      0.upto(pairs.length - 1) do |i|
+        (i + 1).upto(pairs.length - 1) do |j|
+          key1, = *pairs[i]
+          key2, = *pairs[j]
+
+          do_warn = false
+
+          # keys have to be simple nodes, MRI ignores equal composite keys like
+          # `{ a(1) => 1, a(1) => 1 }`
+          case key1.type
+          when :sym, :str, :int, :float
+            if key1 == key2
+              do_warn = true
+            end
+          when :rational, :complex, :regexp
+            if @parser.version >= 31 && key1 == key2
+              do_warn = true
+            end
+          end
+
+          if do_warn
+            diagnostic :warning, :duplicate_hash_key, nil, key2.loc.expression
+          end
+        end
+      end
+
       n(:hash, [ *pairs ],
         collection_map(begin_t, pairs, end_t))
     end

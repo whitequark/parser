@@ -10598,4 +10598,78 @@ class TestParser < Minitest::Test
       %q{                ~~ location},
       SINCE_2_7)
   end
+
+  def test_warn_on_duplicate_hash_key
+    # symbol
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { :foo => 1, :foo => 2 } },
+      %q{              ^^^^ location},
+      ALL_VERSIONS)
+
+    # string
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { "foo" => 1, "foo" => 2 } },
+      %q{               ^^^^^ location},
+      ALL_VERSIONS)
+
+    # small number
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { 1000 => 1, 1000 => 2 } },
+      %q{              ^^^^ location},
+      ALL_VERSIONS)
+
+    # float
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { 1.0 => 1, 1.0 => 2 } },
+      %q{             ^^^ location},
+      ALL_VERSIONS)
+
+    # bignum
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { 1_000_000_000_000_000_000 => 1, 1_000_000_000_000_000_000 => 2 } },
+      %q{                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ location},
+      ALL_VERSIONS)
+
+    # rational (tRATIONAL exists starting from 2.7)
+    refute_diagnoses(%q{ { 1.0r => 1, 1.0r => 2 } },
+      SINCE_2_1 - SINCE_3_1)
+
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { 1.0r => 1, 1.0r => 2 } },
+      %q{              ~~~~ location},
+      SINCE_3_1)
+
+    # complex (tIMAGINARY exists starting from 2.7)
+    refute_diagnoses(%q{ { 1.0i => 1, 1.0i => 2 } },
+      SINCE_2_1 - SINCE_3_1)
+
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { 1.0i => 1, 1.0i => 2 } },
+      %q{              ~~~~ location},
+      SINCE_3_1)
+
+    # small float
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { 1.72723e-77 => 1, 1.72723e-77 => 2 } },
+      %q{                     ~~~~~~~~~~~ location},
+      ALL_VERSIONS)
+
+    # regexp
+    refute_diagnoses(%q{ { /foo/ => 1, /foo/ => 2 } },
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{ { /foo/ => 1, /foo/ => 2 } },
+      %q{               ~~~~~ location},
+      SINCE_3_1)
+  end
 end

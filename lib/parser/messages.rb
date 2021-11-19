@@ -80,6 +80,7 @@ module Parser
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',
+    :duplicate_hash_key      => 'key is duplicated and overwritten',
 
     # Parser errors that are not Ruby errors
     :invalid_encoding        => 'literal contains escape sequences incompatible with UTF-8',
