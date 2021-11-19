@@ -738,12 +738,14 @@ class Parser::Lexer
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
+    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
     | ( c_any - [\\] )  %read_post_meta_or_ctrl_char
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
+    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
     | ( c_any - [\\?] ) %read_post_meta_or_ctrl_char %slash_c_char
   );
 
@@ -935,7 +937,7 @@ class Parser::Lexer
         #   b"
         # must be parsed as "ab"
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
-      elsif current_literal.regexp?
+      elsif current_literal.regexp? && @version < 31
         # Regular expressions should include escape sequences in their
         # escaped form. On the other hand, escaped newlines are removed (in cases like "\\C-\\\n\\M-x")
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
