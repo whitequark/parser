@@ -1,6 +1,25 @@
 Changelog
 =========
 
+Not released (2021-11-25)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.0.3, 2.7.5, and 2.6.9 (#829) (Koichi ITO)
+
+Features implemented:
+ * lexer.rl: parse meta-control-hex chars in regexes starting from 3.1 (#828) (Ilya Bylich)
+ * builder.rb: warn on duplicate hash key literals. (#827) (Ilya Bylich)
+ * ruby31.y: Allow value omission in Hash literals (#818) (Svyatoslav Kryukov)
+ * ruby31.y: Allow omission of parentheses in one line pattern matching (#816) (Koichi ITO)
+ * ruby31.y: Add pattern matching pin support for instance/class/global variables (#813) (Koichi ITO)
+
+Bugs fixed:
+ * ruby31.y: handle local variables as hash labels with omitted values (#820) (Ilya Bylich)
+ * lexer.rl: Fix handling of beginless ranges at start of line (#822) (Matijs van Zuijlen)
+ * dedenter.rb: Fix squiggly heredoc line continuation handling (#819) (Matijs van Zuijlen)
+ * lexer.rl: fix incompatible delimiters on percent literal (#808) (Masataka Pocke Kuwabara)
+
 v3.0.2.0 (2021-07-08)
 ---------------------
 
