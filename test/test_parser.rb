@@ -10673,7 +10673,61 @@ class TestParser < Minitest::Test
       SINCE_3_1)
   end
 
-  def test_control_meta_escape_chars_in_regexp
+  def test_parser_bug_830
+    assert_parses(
+      s(:regexp,
+        s(:str, "\\("),
+        s(:regopt)),
+      %q{/\(/},
+      %q{},
+      ALL_VERSIONS)
+  end
+
+  def test_control_meta_escape_chars_in_regexp__before_31
+    assert_parses(
+      s(:regexp, s(:str, "\\c\\xFF"), s(:regopt)),
+      %q{/\c\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, "\\c\\M-\\xFF"), s(:regopt)),
+      %q{/\c\M-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, "\\C-\\xFF"), s(:regopt)),
+      %q{/\C-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, "\\C-\\M-\\xFF"), s(:regopt)),
+      %q{/\C-\M-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, "\\M-\\xFF"), s(:regopt)),
+      %q{/\M-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, "\\M-\\C-\\xFF"), s(:regopt)),
+      %q{/\M-\C-\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+
+    assert_parses(
+      s(:regexp, s(:str, "\\M-\\c\\xFF"), s(:regopt)),
+      %q{/\M-\c\xFF/}.dup.force_encoding('ascii-8bit'),
+      %q{},
+      ALL_VERSIONS - SINCE_3_1)
+  end
+
+  def test_control_meta_escape_chars_in_regexp__since_31
     x9f = "\x9F".dup.force_encoding('ascii-8bit')
 
     assert_parses(

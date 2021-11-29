@@ -937,7 +937,11 @@ class Parser::Lexer
         #   b"
         # must be parsed as "ab"
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
-      elsif current_literal.regexp? && @version < 31
+      elsif current_literal.regexp? && @version >= 31 && %w[c C m M].include?(escaped_char)
+        # Ruby >= 3.1 escapes \c- and \m chars, that's the only escape sequence
+        # supported by regexes so far, so it needs a separate branch.
+        current_literal.extend_string(@escape, @ts, @te)
+      elsif current_literal.regexp?
         # Regular expressions should include escape sequences in their
         # escaped form. On the other hand, escaped newlines are removed (in cases like "\\C-\\\n\\M-x")
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
