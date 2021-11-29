@@ -9,6 +9,9 @@ module Parser
   # + :sclass - in the singleton class body (class << obj; end)
   # + :def - in the method body (def m; end)
   # + :defs - in the singleton method body (def self.m; end)
+  # + :def_open_args - in the arglist of the method definition
+  #                    keep in mind that it's set **only** after reducing the first argument,
+  #                    if you need to handle the first argument check `lex_state == expr_fname`
   # + :block - in the block body (tap {})
   # + :lambda - in the lambda body (-> {})
   #
@@ -63,6 +66,10 @@ module Parser
 
     def in_dynamic_block?
       in_block? || in_lambda?
+    end
+
+    def in_def_open_args?
+      @stack.last == :def_open_args
     end
   end
 end

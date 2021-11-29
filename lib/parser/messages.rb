@@ -77,6 +77,7 @@ module Parser
     :duplicate_pattern_key        => 'duplicate hash pattern key %{name}',
     :endless_setter               => 'setter method cannot be defined in an endless method definition',
     :invalid_id_to_get            => 'identifier %{identifier} is not valid to get',
+    :forward_arg_after_restarg    => '... after rest argument',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',

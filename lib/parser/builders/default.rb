@@ -879,8 +879,14 @@ module Parser
 
     def args(begin_t, args, end_t, check_args=true)
       args = check_duplicate_args(args) if check_args
-      n(:args, args,
-        collection_map(begin_t, args, end_t))
+      validate_no_forward_arg_after_restarg(args)
+
+      map = collection_map(begin_t, args, end_t)
+      if !self.class.emit_forward_arg && args.length == 1 && args[0].type == :forward_arg
+        n(:forward_args, [], map)
+      else
+        n(:args, args, map)
+      end
     end
 
     def numargs(max_numparam)
@@ -1741,6 +1747,21 @@ module Parser
       elsif arg_name_collides?(this_name, that_name)
         diagnostic :error, :duplicate_argument, nil,
                    this_arg.loc.name, [ that_arg.loc.name ]
+      end
+    end
+
+    def validate_no_forward_arg_after_restarg(args)
+      restarg = nil
+      forward_arg = nil
+      args.each do |arg|
+        case arg.type
+        when :restarg then restarg = arg
+        when :forward_arg then forward_arg = arg
+        end
+      end
+
+      if !forward_arg.nil? && !restarg.nil?
+        diagnostic :error, :forward_arg_after_restarg, nil, forward_arg.loc.expression, [restarg.loc.expression]
       end
     end
 
