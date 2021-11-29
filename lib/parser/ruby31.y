@@ -2700,28 +2700,16 @@ f_opt_paren_args: f_paren_args
 
                       @lexer.state = :expr_value
                     }
-                | tLPAREN2 f_arg tCOMMA args_forward rparen
-                    {
-                      args = [ *val[1], @builder.forward_arg(val[3]) ]
-                      result = @builder.args(val[0], args, val[4])
-
-                      @static_env.declare_forward_args
-                    }
-                | tLPAREN2 args_forward rparen
-                    {
-                      result = @builder.forward_only_args(val[0], val[1], val[2])
-                      @static_env.declare_forward_args
-
-                      @lexer.state = :expr_value
-                    }
 
        f_arglist: f_paren_args
                 |   {
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
+                      @context.push(:def_open_args)
                     }
                   f_args term
                     {
+                      @context.pop
                       @lexer.in_kwarg = val[0]
                       result = @builder.args(nil, val[1], nil)
                     }
@@ -2741,6 +2729,11 @@ f_opt_paren_args: f_paren_args
                 | f_block_arg
                     {
                       result = [ val[0] ]
+                    }
+                | args_forward
+                    {
+                      @static_env.declare_forward_args
+                      result = [ @builder.forward_arg(val[0]) ]
                     }
 
    opt_args_tail: tCOMMA args_tail

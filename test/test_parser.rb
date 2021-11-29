@@ -6742,6 +6742,18 @@ class TestParser < Minitest::Test
     end
   end
 
+  def test_context_def_open_args
+    assert_context(
+      [:def, :def_open_args],
+      %q{def foo a = get_context; end},
+      SINCE_3_1)
+
+    assert_context(
+      [:defs, :def_open_args],
+      %q{def self.foo a = get_context; end},
+      SINCE_3_1)
+  end
+
   def test_context_cmd_brace_block
     [
       'tap foo { get_context }',
@@ -10770,6 +10782,48 @@ class TestParser < Minitest::Test
       s(:regexp, s(:str, x9f), s(:regopt)),
       %q{/\M-\c\xFF/}.dup.force_encoding('ascii-8bit'),
       %q{},
+      SINCE_3_1)
+  end
+
+  def test_forward_arg_with_open_args
+    assert_diagnoses_many(
+      [
+        [:warning, :triple_dot_at_eol],
+        [:error, :unexpected_token, { :token => 'tDOT3' }],
+      ],
+      %Q{def foo ...\nend},
+      SINCE_2_7 - SINCE_3_1)
+
+    assert_diagnoses_many(
+      [
+        [:error, :unexpected_token, { :token => 'tBDOT3' }],
+      ],
+      %Q{def foo a, b = 1, ...\nend},
+      SINCE_2_7 - SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args, s(:forward_arg)), nil),
+      %Q{def foo ...\nend},
+      %q{        ~~~ expression (args.forward_arg)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :a),
+          s(:optarg, :b,
+            s(:int, 1)),
+          s(:forward_arg)), nil),
+      %Q{def foo a, b = 1, ...\nend},
+      %q{                  ~~~ expression (args.forward_arg)},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :forward_arg_after_restarg],
+      %Q{def foo *rest, ...\nend},
+      %q{               ~~~ location
+        |        ~~~~~ highlights (0)},
       SINCE_3_1)
   end
 end

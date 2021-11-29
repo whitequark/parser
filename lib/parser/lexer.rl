@@ -1442,6 +1442,18 @@ class Parser::Lexer
       => { emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
            fhold; fnext expr_labelarg; fbreak; };
 
+      '...' c_nl
+      => {
+        if @version >= 31
+          emit(:tBDOT3, '...'.freeze, @ts, @te - 1)
+          emit(:tNL, "\n".freeze, @te - 1, @te)
+          fnext expr_end; fbreak;
+        else
+          p -= 4;
+          fhold; fgoto expr_end;
+        end
+      };
+
       w_space_comment;
 
       c_any
@@ -2046,19 +2058,38 @@ class Parser::Lexer
         fnext expr_beg; fbreak;
       };
 
-      '...'
+      '...' c_nl?
       => {
+        # Here we scan and conditionally emit "\n":
+        # + if it's there
+        #   + and emitted we do nothing
+        #   + and not emitted we return `p` to "\n" to process it on the next scan
+        # + if it's not there we do nothing
+        followed_by_nl = @te - 1 == @newline_s
+        nl_emitted = false
+        dots_te = followed_by_nl ? @te - 1 : @te
+
         if @version >= 30
           if @lambda_stack.any? && @lambda_stack.last + 1 == @paren_nest
             # To reject `->(...)` like `->...`
-            emit(:tDOT3)
+            emit(:tDOT3, '...'.freeze, @ts, dots_te)
           else
-            emit(:tBDOT3)
+            emit(:tBDOT3, '...'.freeze, @ts, dots_te)
+
+            if @version >= 31 && followed_by_nl && @context.in_def_open_args?
+              emit(:tNL, @te - 1, @te)
+              nl_emitted = true
+            end
           end
         elsif @version >= 27
-          emit(:tBDOT3)
+          emit(:tBDOT3, '...'.freeze, @ts, dots_te)
         else
-          emit(:tDOT3)
+          emit(:tDOT3, '...'.freeze, @ts, dots_te)
+        end
+
+        if followed_by_nl && !nl_emitted
+          # return "\n" to process it on the next scan
+          fhold;
         end
 
         fnext expr_beg; fbreak;
