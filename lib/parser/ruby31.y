@@ -1159,6 +1159,14 @@ rule
                     {
                       result = @builder.block_pass(val[0], val[1])
                     }
+                | tAMPER
+                    {
+                      if !@static_env.declared_anonymous_blockarg?
+                        diagnostic :error, :no_anonymous_blockarg, nil, val[0]
+                      end
+
+                      result = @builder.block_pass(val[0], nil)
+                    }
 
    opt_block_arg: tCOMMA block_arg
                     {
@@ -3011,6 +3019,12 @@ f_opt_paren_args: f_paren_args
                       @static_env.declare val[1][0]
 
                       result = @builder.blockarg(val[0], val[1])
+                    }
+                | blkarg_mark
+                    {
+                      @static_env.declare_anonymous_blockarg
+
+                      result = @builder.blockarg(val[0], nil)
                     }
 
  opt_f_block_arg: tCOMMA f_block_arg

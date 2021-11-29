@@ -10826,4 +10826,30 @@ class TestParser < Minitest::Test
         |        ~~~~~ highlights (0)},
       SINCE_3_1)
   end
+
+  def test_anonymous_blockarg
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:blockarg, nil)),
+        s(:send, nil, :bar,
+          s(:block_pass, nil))),
+      %q{def foo(&); bar(&); end},
+      %q{        ~ expression (args.blockarg)
+        |                ~ operator (send.block_pass)
+        |                ~ expression (send.block_pass)},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_blockarg],
+      %q{def foo(); bar(&); end},
+      %q{               ^ location},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tINTEGER' }],
+      %q{def foo(&0); end},
+      %q{         ^ location},
+      SINCE_3_1)
+  end
 end

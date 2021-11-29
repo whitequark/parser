@@ -1014,6 +1014,17 @@ Format:
 
 Begin of the `expression` points to `&`.
 
+
+### Anonymous block argument
+
+Format:
+
+~~~
+(blockarg nil)
+"&"
+ ~ expression
+~~~
+
 ### Auto-expanding proc argument (1.9)
 
 In Ruby 1.9 and later, when a proc-like closure (i.e. a closure
@@ -1389,6 +1400,15 @@ Used when passing expression as block `foo(&bar)`
 "foo(1, &foo)"
         ^ operator
         ~~~~ expression
+~~~
+
+### Passing expression as anonymous block `foo(&)`
+
+~~~
+(send nil :foo (int 1) (block-pass nil))
+"foo(1, &)"
+        ^ operator
+        ~ expression
 ~~~
 
 ### "Stabby lambda"
