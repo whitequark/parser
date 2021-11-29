@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Not released (2021-11-29)
+-------------------------
+
+Features implemented:
+ * ruby31.y: parse anonymous block argument. (#833) (Ilya Bylich)
+ * ruby31.y: parse forward argument without parentheses (#832) (Ilya Bylich)
+
 v3.0.3.0 (2021-11-25)
 ---------------------
 
