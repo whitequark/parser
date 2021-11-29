@@ -973,9 +973,12 @@ module Parser
     end
 
     def blockarg(amper_t, name_t)
-      check_reserved_for_numparam(value(name_t), loc(name_t))
+      if !name_t.nil?
+        check_reserved_for_numparam(value(name_t), loc(name_t))
+      end
 
-      n(:blockarg, [ value(name_t).to_sym ],
+      arg_name = name_t ? value(name_t).to_sym : nil
+      n(:blockarg, [ arg_name ],
         arg_prefix_map(amper_t, name_t))
     end
 

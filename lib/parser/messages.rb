@@ -78,6 +78,7 @@ module Parser
     :endless_setter               => 'setter method cannot be defined in an endless method definition',
     :invalid_id_to_get            => 'identifier %{identifier} is not valid to get',
     :forward_arg_after_restarg    => '... after rest argument',
+    :no_anonymous_blockarg        => 'no anonymous block parameter',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',

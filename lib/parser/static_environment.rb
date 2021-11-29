@@ -4,6 +4,7 @@ module Parser
 
   class StaticEnvironment
     FORWARD_ARGS = :FORWARD_ARGS
+    ANONYMOUS_BLOCKARG = :ANONYMOUS_BLOCKARG
 
     def initialize
       reset
@@ -50,6 +51,14 @@ module Parser
 
     def declared_forward_args?
       declared?(FORWARD_ARGS)
+    end
+
+    def declare_anonymous_blockarg
+      declare(ANONYMOUS_BLOCKARG)
+    end
+
+    def declared_anonymous_blockarg?
+      declared?(ANONYMOUS_BLOCKARG)
     end
 
     def empty?
