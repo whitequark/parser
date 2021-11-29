@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2021-11-29)
--------------------------
+v3.0.3.1 (2021-11-29)
+---------------------
 
 Features implemented:
  * ruby31.y: parse anonymous block argument. (#833) (Ilya Bylich)
