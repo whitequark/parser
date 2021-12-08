@@ -41,7 +41,7 @@ module Parser
       if lines.length == 1
         # If the line continuation sequence was found but there is no second
         # line, it was not really a line continuation and must be ignored.
-        lines = [string]
+        lines = [string.force_encoding(original_encoding)]
       else
         lines.map! {|s| s.force_encoding(original_encoding) }
       end
