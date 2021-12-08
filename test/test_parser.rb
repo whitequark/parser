@@ -316,6 +316,13 @@ class TestParser < Minitest::Test
 
     assert_parses(
       s(:send, nil, :p,
+        s(:str, "ð\n")),
+      %Q{p <<~E\n  ð\nE},
+      %q{},
+      SINCE_2_3)
+
+    assert_parses(
+      s(:send, nil, :p,
         s(:dstr,
           s(:str, "x\n"),
           s(:str, "  y\n"))),
