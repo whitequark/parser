@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2021-12-08)
+-------------------------
+
+Bugs fixed:
+ * dedenter.rb: fix an encoding/squiggly heredoc regression (#836) (hmdne)
+
 v3.0.3.1 (2021-11-29)
 ---------------------
 
