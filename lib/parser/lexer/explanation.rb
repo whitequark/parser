@@ -18,7 +18,7 @@ module Parser
     def advance
       type, (val, range) = advance_before_explanation
 
-      more = "(in-kwarg)" if @in_kwarg
+      more = "(in-kwarg)" if @context.in_kwarg
 
       puts decorate(range,
                     Color.green("#{type} #{val.inspect}"),

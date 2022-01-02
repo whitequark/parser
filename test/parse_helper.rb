@@ -264,7 +264,8 @@ module ParseHelper
       assert_equal 1, nodes.count, "there must exactly 1 `get_context()` call"
 
       node = nodes.first
-      assert_equal context, node.context, "(#{version}) expect parsing context to match"
+      actual_context = Parser::Context::FLAGS.each_with_object([]) { |flag, acc| acc << flag if node.context.public_send(flag) }
+      assert_equal context.sort, actual_context.sort, "(#{version}) expect parsing context to match"
     end
   end
 
@@ -354,7 +355,9 @@ module ParseHelper
     assert lexer.lambda_stack.empty?, "(#{version}) expected lambda_stack to be empty after parsing"
 
     assert parser.static_env.empty?, "(#{version}) expected static_env to be empty after parsing"
-    assert parser.context.empty?, "(#{version}) expected context to be empty after parsing"
+    Parser::Context::FLAGS.each do |ctx_flag|
+      refute parser.context.public_send(ctx_flag), "(#{version}) expected context.#{ctx_flag} to be `false` after parsing"
+    end
     assert parser.max_numparam_stack.empty?, "(#{version}) expected max_numparam_stack to be empty after parsing"
     assert parser.current_arg_stack.empty?, "(#{version}) expected current_arg_stack to be empty after parsing"
     assert parser.pattern_variables.empty?, "(#{version}) expected pattern_variables to be empty after parsing"

@@ -96,7 +96,7 @@ module NodeContextExt
 
   module BuilderExt
     def n(type, children, source_map)
-      super.updated(nil, nil, context: @parser.context.stack.dup)
+      super.updated(nil, nil, context: @parser.context.dup)
     end
   end
   Parser::Builders::Default.prepend(BuilderExt)

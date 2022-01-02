@@ -48,7 +48,7 @@ rule
 
          program:   {
                       @current_arg_stack.push(nil)
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: false)
                     }
                   top_compstmt
                     {
@@ -299,13 +299,13 @@ rule
                       @lexer.command_start = false
                       @pattern_variables.push
 
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   p_expr
                     {
                       @pattern_variables.pop
-                      @lexer.in_kwarg = val[2]
+                      @context.in_kwarg = val[2]
                       if @builder.class.emit_match_pattern
                         result = @builder.match_pattern(val[0], val[1], val[3])
                       else
@@ -337,12 +337,13 @@ rule
 
  cmd_brace_block: tLBRACE_ARG
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   brace_body tRCURLY
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
            fcall: operation
@@ -1134,7 +1135,8 @@ rule
                     }
                 | tLAMBDA
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   lambda
                     {
@@ -1143,6 +1145,8 @@ rule
                       args, (begin_t, body, end_t) = val[2]
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
+
+                      @context.in_lambda = val[1].in_lambda
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
@@ -1194,71 +1198,65 @@ rule
                     {
                       result = @builder.for(val[0], val[1], val[2], *val[3], val[4], val[5])
                     }
-                | kCLASS cpath superclass
+                | k_class cpath superclass
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:class)
+                      local_push
+                      @context.in_class = true
                     }
                     bodystmt kEND
                     {
-                      unless @context.class_definition_allowed?
-                        diagnostic :error, :class_in_def, nil, val[0]
+                      k_class, ctx = val[0]
+                      if @context.in_def
+                        diagnostic :error, :class_in_def, nil, k_class
                       end
 
                       lt_t, superclass = val[2]
-                      result = @builder.def_class(val[0], val[1],
+                      result = @builder.def_class(k_class, val[1],
                                                   lt_t, superclass,
                                                   val[4], val[5])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_class = ctx.in_class
                     }
-                | kCLASS tLSHFT expr term
+                | k_class tLSHFT expr term
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:sclass)
+                      @context.in_def = false
+                      @context.in_class = false
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      result = @builder.def_sclass(val[0], val[1], val[2],
+                      k_class, ctx = val[0]
+                      result = @builder.def_sclass(k_class, val[1], val[2],
                                                    val[5], val[6])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
+                      @context.in_class = ctx.in_class
                     }
-                | kMODULE cpath
+                | k_module cpath
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @context.push(:module)
+                      @context.in_class = true
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      unless @context.module_definition_allowed?
-                        diagnostic :error, :module_in_def, nil, val[0]
+                      k_mod, ctx = val[0]
+                      if @context.in_def
+                        diagnostic :error, :module_in_def, nil, k_mod
                       end
 
-                      result = @builder.def_module(val[0], val[1],
+                      result = @builder.def_module(k_mod, val[1],
                                                    val[3], val[4])
 
-                      @lexer.cmdarg.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_class = ctx.in_class
                     }
-                | kDEF fname
+                | k_def fname
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:def)
+                      local_push
+                      result = context.dup
+                      @context.in_def = true
                       @current_arg_stack.push(nil)
                     }
                     f_arglist bodystmt kEND
@@ -1266,22 +1264,19 @@ rule
                       result = @builder.def_method(val[0], val[1],
                                   val[3], val[4], val[5])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = val[2].in_def
                       @current_arg_stack.pop
                     }
-                | kDEF singleton dot_or_colon
+                | k_def singleton dot_or_colon
                     {
                       @lexer.state = :expr_fname
                     }
                     fname
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:defs)
+                      local_push
+                      result = context.dup
+                      @context.in_def = true
                       @current_arg_stack.push(nil)
                     }
                     f_arglist bodystmt kEND
@@ -1289,10 +1284,8 @@ rule
                       result = @builder.def_singleton(val[0], val[1], val[2],
                                   val[4], val[6], val[7], val[8])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = val[5].in_def
                       @current_arg_stack.pop
                     }
                 | kBREAK
@@ -1314,9 +1307,22 @@ rule
 
    primary_value: primary
 
+         k_class: kCLASS
+                    {
+                      result = [ val[0], @context.dup ]
+                    }
+        k_module: kMODULE
+                    {
+                      result = [ val[0], @context.dup ]
+                    }
+           k_def: kDEF
+                    {
+                      result = val[0]
+                    }
+
         k_return: kRETURN
                     {
-                      if @context.in_class?
+                      if @context.in_class && !@context.in_def && !(context.in_block || context.in_lambda)
                         diagnostic :error, :invalid_return, nil, val[0]
                       end
                     }
@@ -1566,11 +1572,10 @@ opt_block_args_tail:
 
           lambda:   {
                       @static_env.extend_dynamic
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: false)
                     }
                   f_larglist
                     {
-                      @context.pop
                       @lexer.cmdarg.push(false)
                     }
                   lambda_body
@@ -1598,31 +1603,34 @@ opt_block_args_tail:
 
      lambda_body: tLAMBEG
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3] ]
-                      @context.pop
+                      @context.in_lambda = val[1].in_lambda
                     }
                 | kDO_LAMBDA
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   bodystmt kEND
                     {
                       result = [ val[0], val[2], val[3] ]
-                      @context.pop
+                      @context.in_lambda = val[1].in_lambda
                     }
 
         do_block: kDO_BLOCK
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   do_body kEND
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
       block_call: command do_block
@@ -1708,26 +1716,28 @@ opt_block_args_tail:
 
      brace_block: tLCURLY
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   brace_body tRCURLY
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
                 | kDO
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   do_body kEND
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
       brace_body:   {
                       @static_env.extend_dynamic
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: false)
                     }
                     opt_block_param compstmt
                     {
@@ -1740,7 +1750,7 @@ opt_block_args_tail:
 
          do_body:   {
                       @static_env.extend_dynamic
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: false)
                     }
                     {
                       @lexer.cmdarg.push(false)
@@ -1774,14 +1784,14 @@ opt_block_args_tail:
                       @pattern_variables.push
                       @pattern_hash_keys.push
 
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   p_top_expr then
                     {
                       @pattern_hash_keys.pop
                       @pattern_variables.pop
-                      @lexer.in_kwarg = val[1]
+                      @context.in_kwarg = val[1]
                     }
                   compstmt p_cases
                     {
@@ -1907,13 +1917,13 @@ opt_block_args_tail:
                 | tLBRACE
                     {
                       @pattern_hash_keys.push
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = false
+                      result = @context.in_kwarg
+                      @context.in_kwarg = false
                     }
                   p_kwargs rbrace
                     {
                       @pattern_hash_keys.pop
-                      @lexer.in_kwarg = val[1]
+                      @context.in_kwarg = val[1]
                       result = @builder.hash_pattern(val[0], val[2], val[3])
                     }
                 | tLBRACE rbrace
@@ -2120,7 +2130,8 @@ opt_block_args_tail:
                     }
                 | tLAMBDA
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   lambda
                     {
@@ -2129,6 +2140,8 @@ opt_block_args_tail:
                       args, (begin_t, body, end_t) = val[2]
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
+
+                      @context.in_lambda = val[1].in_lambda
                     }
 
       p_variable: tIDENTIFIER
@@ -2528,12 +2541,12 @@ keyword_variable: kNIL
                       @lexer.state = :expr_value
                     }
                 |   {
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   f_args term
                     {
-                      @lexer.in_kwarg = val[0]
+                      @context.in_kwarg = val[0]
                       result = @builder.args(nil, val[1], nil)
                     }
 
@@ -2939,6 +2952,20 @@ require 'parser'
     Encoding::UTF_8
   end
 
+  def local_push
+    @static_env.extend_static
+    @lexer.cmdarg.push(false)
+    @lexer.cond.push(false)
+    @max_numparam_stack.push(static: true)
+  end
+
+  def local_pop
+    @static_env.unextend
+    @lexer.cmdarg.pop
+    @lexer.cond.pop
+    @max_numparam_stack.pop
+  end
+
   def try_declare_numparam(node)
     name = node.children[0]
 
@@ -2950,16 +2977,18 @@ require 'parser'
         diagnostic :error, :ordinary_param_defined, nil, [nil, location]
       end
 
-      raw_context = context.stack.dup
       raw_max_numparam_stack = max_numparam_stack.stack.dup
 
       # ignore current block scope
-      raw_context.pop
       raw_max_numparam_stack.pop
 
-      raw_context.reverse_each do |outer_scope|
-        if outer_scope == :block || outer_scope == :lambda
-          outer_scope_has_numparams = raw_max_numparam_stack.pop > 0
+      raw_max_numparam_stack.reverse_each do |outer_scope|
+        if outer_scope[:static]
+          # found an outer scope that can't have numparams
+          # like def/class/etc
+          break
+        else
+          outer_scope_has_numparams = outer_scope[:value] > 0
 
           if outer_scope_has_numparams
             diagnostic :error, :numparam_used_in_outer_scope, nil, [nil, location]
@@ -2967,10 +2996,6 @@ require 'parser'
             # for now it's ok, but an outer scope can also be a block
             # with numparams, so we need to continue
           end
-        else
-          # found an outer scope that can't have numparams
-          # like def/class/etc
-          break
         end
       end
 

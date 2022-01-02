@@ -6699,66 +6699,37 @@ class TestParser < Minitest::Test
       %q{class A; get_context; end},
       %q{class A < B; get_context; end}
     ].each do |code|
-      assert_context([:class], code, ALL_VERSIONS)
+      assert_context([:in_class], code, ALL_VERSIONS)
     end
   end
 
   def test_context_module
     assert_context(
-      [:module],
+      [:in_class],
       %q{module M; get_context; end},
       ALL_VERSIONS)
   end
 
-  def test_context_sclass
-    assert_context(
-      [:sclass],
-      %q{class << foo; get_context; end},
-      ALL_VERSIONS)
-  end
-
   def test_context_def
-    [
+    assert_context(
+      [:in_def],
       %q{def m; get_context; end},
-      %q{def m(a = get_context); end}
-    ].each do |code|
-      assert_context([:def], code, ALL_VERSIONS)
-    end
+      ALL_VERSIONS)
 
-    [
+    assert_context(
+      [:in_def],
       %q{def m() = get_context},
-      %q{def m(a = get_context) = 42}
-    ].each do |code|
-      assert_context([:def], code, SINCE_3_0)
-    end
-  end
-
-  def test_context_defs
-    [
-      %q{def foo.m; get_context; end},
-      %q{def foo.m(a = get_context); end}
-    ].each do |code|
-      assert_context([:defs], code, ALL_VERSIONS)
-    end
-
-    [
-      %q{def foo.m() = get_context},
-      %q{def foo.m(a = get_context) = 42}
-    ].each do |code|
-      assert_context([:defs], code, SINCE_3_0)
-    end
-  end
-
-  def test_context_def_open_args
-    assert_context(
-      [:def, :def_open_args],
-      %q{def foo a = get_context; end},
-      SINCE_3_1)
+      SINCE_3_0)
 
     assert_context(
-      [:defs, :def_open_args],
-      %q{def self.foo a = get_context; end},
-      SINCE_3_1)
+      [:in_def],
+      %q{def self.m; get_context; end},
+      ALL_VERSIONS)
+
+    assert_context(
+      [:in_def],
+      %q{def self.m() = get_context},
+      SINCE_3_0)
   end
 
   def test_context_cmd_brace_block
@@ -6767,7 +6738,7 @@ class TestParser < Minitest::Test
       'foo.tap foo { get_context }',
       'foo::tap foo { get_context }'
     ].each do |code|
-      assert_context([:block], code, ALL_VERSIONS)
+      assert_context([:in_block], code, ALL_VERSIONS)
     end
   end
 
@@ -6780,7 +6751,7 @@ class TestParser < Minitest::Test
       'foo.tap do get_context end',
       'foo::tap do get_context end'
     ].each do |code|
-      assert_context([:block], code, ALL_VERSIONS)
+      assert_context([:in_block], code, ALL_VERSIONS)
     end
   end
 
@@ -6790,7 +6761,7 @@ class TestParser < Minitest::Test
       %q{foo.tap do get_context end},
       %q{foo::tap do get_context end}
     ].each do |code|
-      assert_context([:block], code, ALL_VERSIONS)
+      assert_context([:in_block], code, ALL_VERSIONS)
     end
   end
 
@@ -6803,90 +6774,8 @@ class TestParser < Minitest::Test
       '->(a = get_context) {}',
       '->(a = get_context) do end'
     ].each do |code|
-      assert_context([:lambda], code, SINCE_1_9)
+      assert_context([:in_lambda], code, SINCE_1_9)
     end
-  end
-
-  def test_context_nested
-    assert_context(
-      [:class, :module, :sclass, :defs, :def, :block],
-      %q{
-        class A
-          module M
-            class << foo
-              def bar.m
-                def m
-                  tap do
-                    get_context
-                  end
-                end
-              end
-            end
-          end
-        end
-      },
-      ALL_VERSIONS)
-
-    assert_context(
-      [:class, :module, :sclass, :defs, :def, :lambda, :block],
-      %q{
-        class A
-          module M
-            class << foo
-              def bar.m
-                def m
-                  -> do
-                    tap do
-                      get_context
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      },
-      SINCE_1_9)
-
-    assert_context(
-      [],
-      %q{
-        class A
-          module M
-            class << foo
-              def bar.m
-                def m
-                  tap do
-                  end
-                end
-              end
-            end
-          end
-        end
-        get_context
-      },
-      ALL_VERSIONS)
-
-    assert_context(
-      [],
-      %q{
-        class A
-          module M
-            class << foo
-              def bar.m
-                def m
-                  -> do
-                    tap do
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-        get_context
-      },
-      SINCE_1_9)
   end
 
   def test_return_in_class
@@ -8125,7 +8014,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tDOT3' }],
       %q{def foo ...; end},
       %q{        ^^^ location},
-      SINCE_2_7)
+      SINCE_3_1 - SINCE_2_7)
   end
 
   def test_trailing_forward_arg
@@ -10831,6 +10720,95 @@ class TestParser < Minitest::Test
       %Q{def foo *rest, ...\nend},
       %q{               ~~~ location
         |        ~~~~~ highlights (0)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :a),
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      "def foo(a, ...) bar(...) end",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :a),
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      "def foo a, ...\n  bar(...)\nend",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:optarg, :b,
+            s(:int, 1)),
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      "def foo b = 1, ...\n  bar(...)\nend",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      "def foo ...; bar(...); end",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:arg, :a),
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      "def foo a, ...; bar(...); end",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:optarg, :b,
+            s(:int, 1)),
+          s(:forward_arg)),
+        s(:send, nil, :bar,
+          s(:forwarded_args))),
+      "def foo b = 1, ...; bar(...); end",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:def, :foo,
+          s(:args,
+            s(:forward_arg)),
+          s(:send, nil, :bar,
+            s(:forwarded_args)))),
+      "(def foo ...\n  bar(...)\nend)",
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:def, :foo,
+          s(:args,
+            s(:forward_arg)),
+          s(:send, nil, :bar,
+            s(:forwarded_args)))),
+      "(def foo ...; bar(...); end)",
+      %q{},
       SINCE_3_1)
   end
 

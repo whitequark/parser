@@ -280,14 +280,15 @@ rule
  cmd_brace_block: tLBRACE_ARG
                     {
                       @static_env.extend_dynamic
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                     opt_block_param compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
          command: operation command_args =tLOWEST
@@ -1011,7 +1012,8 @@ rule
                     }
                 | tLAMBDA
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   lambda
                     {
@@ -1020,6 +1022,8 @@ rule
                       args, (begin_t, body, end_t) = val[2]
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
+
+                      @context.in_lambda = val[1].in_lambda
                     }
                 | kIF expr_value then compstmt if_tail kEND
                     {
@@ -1091,75 +1095,73 @@ rule
                                             val[2], val[4],
                                             val[5], val[7], val[8])
                     }
-                | kCLASS cpath superclass
+                | k_class cpath superclass
                     {
-                      @static_env.extend_static
-                      @lexer.push_cmdarg
-                      @context.push(:class)
+                      local_push
+                      @context.in_class = true
                     }
                     bodystmt kEND
                     {
-                      unless @context.class_definition_allowed?
-                        diagnostic :error, :class_in_def, nil, val[0]
+                      k_class, ctx = val[0]
+                      if @context.in_def
+                        diagnostic :error, :class_in_def, nil, k_class
                       end
 
                       lt_t, superclass = val[2]
-                      result = @builder.def_class(val[0], val[1],
+                      result = @builder.def_class(k_class, val[1],
                                                   lt_t, superclass,
                                                   val[4], val[5])
 
-                      @lexer.pop_cmdarg
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_class = ctx.in_class
                     }
-                | kCLASS tLSHFT expr term
+                | k_class tLSHFT expr term
                     {
-                      @static_env.extend_static
-                      @lexer.push_cmdarg
-                      @context.push(:sclass)
+                      @context.in_def = false
+                      @context.in_class = false
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      result = @builder.def_sclass(val[0], val[1], val[2],
+                      k_class, ctx = val[0]
+                      result = @builder.def_sclass(k_class, val[1], val[2],
                                                    val[5], val[6])
 
-                      @lexer.pop_cmdarg
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
+                      @context.in_class = ctx.in_class
                     }
-                | kMODULE cpath
+                | k_module cpath
                     {
-                      @static_env.extend_static
-                      @lexer.push_cmdarg
-                      @context.push(:module)
+                      @context.in_class = true
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      unless @context.module_definition_allowed?
-                        diagnostic :error, :module_in_def, nil, val[0]
+                      k_mod, ctx = val[0]
+                      if @context.in_def
+                        diagnostic :error, :module_in_def, nil, k_mod
                       end
 
-                      result = @builder.def_module(val[0], val[1],
+                      result = @builder.def_module(k_mod, val[1],
                                                    val[3], val[4])
 
-                      @lexer.pop_cmdarg
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_class = ctx.in_class
                     }
                 | kDEF fname
                     {
-                      @static_env.extend_static
-                      @lexer.push_cmdarg
-                      @context.push(:def)
+                      local_push
+                      result = context.dup
+                      @context.in_def = true
                     }
                     f_arglist bodystmt kEND
                     {
                       result = @builder.def_method(val[0], val[1],
                                   val[3], val[4], val[5])
 
-                      @lexer.pop_cmdarg
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = val[2].in_def
                     }
                 | kDEF singleton dot_or_colon
                     {
@@ -1167,18 +1169,17 @@ rule
                     }
                     fname
                     {
-                      @static_env.extend_static
-                      @lexer.push_cmdarg
-                      @context.push(:defs)
+                      local_push
+                      result = context.dup
+                      @context.in_def = true
                     }
                     f_arglist bodystmt kEND
                     {
                       result = @builder.def_singleton(val[0], val[1], val[2],
                                   val[4], val[6], val[7], val[8])
 
-                      @lexer.pop_cmdarg
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = val[5].in_def
                     }
                 | kBREAK
                     {
@@ -1198,6 +1199,16 @@ rule
                     }
 
    primary_value: primary
+
+         k_class: kCLASS
+                    {
+                      result = [ val[0], @context.dup ]
+                    }
+
+        k_module: kMODULE
+                    {
+                      result = [ val[0], @context.dup ]
+                    }
 
             then: term
                 | kTHEN
@@ -1439,13 +1450,9 @@ rule
           lambda:   {
                       @static_env.extend_dynamic
                     }
-                  f_larglist
+                  f_larglist lambda_body
                     {
-                      @context.pop
-                    }
-                  lambda_body
-                    {
-                      result = [ val[1], val[3] ]
+                      result = [ val[1], val[2] ]
 
                       @static_env.unextend
                     }
@@ -1461,34 +1468,37 @@ rule
 
      lambda_body: tLAMBEG
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3] ]
-                      @context.pop
+                      @context.in_lambda = val[1].in_lambda
                     }
                 | kDO_LAMBDA
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   compstmt kEND
                     {
                       result = [ val[0], val[2], val[3] ]
-                      @context.pop
+                      @context.in_lambda = val[1].in_lambda
                     }
 
         do_block: kDO_BLOCK
                     {
                       @static_env.extend_dynamic
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                     opt_block_param compstmt kEND
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
       block_call: command do_block
@@ -1562,26 +1572,28 @@ rule
      brace_block: tLCURLY
                     {
                       @static_env.extend_dynamic
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                     opt_block_param compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
                 | kDO
                     {
                       @static_env.extend_dynamic
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                     opt_block_param compstmt kEND
                     {
                       result = [ val[0], val[2], val[3], val[4] ]
 
                       @static_env.unextend
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
        case_body: kWHEN args then compstmt cases
@@ -2182,4 +2194,16 @@ require 'parser'
 
   def default_encoding
     Encoding::BINARY
+  end
+
+  def local_push
+    @static_env.extend_static
+    @lexer.cmdarg.push(false)
+    @lexer.cond.push(false)
+  end
+
+  def local_pop
+    @static_env.unextend
+    @lexer.cmdarg.pop
+    @lexer.cond.pop
   end
