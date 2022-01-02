@@ -35,21 +35,21 @@ module Parser
     end
 
     def top
-      @stack.last
+      @stack.last[:value]
     end
 
-    def push
-      @stack.push(0)
+    def push(static:)
+      @stack.push(value: 0, static: static)
     end
 
     def pop
-      @stack.pop
+      @stack.pop[:value]
     end
 
     private
 
     def set(value)
-      @stack[@stack.length - 1] = value
+      @stack.last[:value] = value
     end
   end
 

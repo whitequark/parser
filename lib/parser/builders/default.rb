@@ -714,7 +714,7 @@ module Parser
         node.updated(:gvasgn)
 
       when :const
-        unless @parser.context.dynamic_const_definition_allowed?
+        if @parser.context.in_def
           diagnostic :error, :dynamic_const, nil, node.loc.expression
         end
 

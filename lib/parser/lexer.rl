@@ -95,7 +95,7 @@ class Parser::Lexer
   attr_accessor :static_env
   attr_accessor :force_utf32
 
-  attr_accessor :cond, :cmdarg, :in_kwarg, :context, :command_start
+  attr_accessor :cond, :cmdarg, :context, :command_start
 
   attr_accessor :tokens, :comments
 
@@ -172,9 +172,6 @@ class Parser::Lexer
     # at the entry to #advance, it will transition to expr_cmdarg
     # instead of expr_arg at certain points.
     @command_start = true
-
-    # True at the end of "def foo a:"
-    @in_kwarg      = false
 
     # State before =begin / =end block comment
     @cs_before_block_comment = self.class.lex_en_line_begin
@@ -1442,15 +1439,15 @@ class Parser::Lexer
       => { emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
            fhold; fnext expr_labelarg; fbreak; };
 
-      '...' c_nl
+      '...'
       => {
-        if @version >= 31
-          emit(:tBDOT3, '...'.freeze, @ts, @te - 1)
-          emit(:tNL, "\n".freeze, @te - 1, @te)
+        if @version >= 31 && @context.in_argdef
+          emit(:tBDOT3, '...'.freeze)
+          # emit(:tNL, "\n".freeze, @te - 1, @te)
           fnext expr_end; fbreak;
         else
-          p -= 4;
-          fhold; fgoto expr_end;
+          p -= 3;
+          fgoto expr_end;
         end
       };
 
@@ -2076,7 +2073,7 @@ class Parser::Lexer
           else
             emit(:tBDOT3, '...'.freeze, @ts, dots_te)
 
-            if @version >= 31 && followed_by_nl && @context.in_def_open_args?
+            if @version >= 31 && followed_by_nl && @context.in_argdef
               emit(:tNL, @te - 1, @te)
               nl_emitted = true
             end
@@ -2161,7 +2158,7 @@ class Parser::Lexer
 
     w_newline
     => {
-      if @in_kwarg
+      if @context.in_kwarg
         fhold; fgoto expr_end;
       else
         fgoto line_begin;

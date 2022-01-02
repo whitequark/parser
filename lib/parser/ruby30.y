@@ -48,7 +48,7 @@ rule
 
          program:   {
                       @current_arg_stack.push(nil)
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: true)
                     }
                   top_compstmt
                     {
@@ -300,13 +300,13 @@ rule
                       @lexer.command_start = false
                       @pattern_variables.push
 
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   p_expr
                     {
                       @pattern_variables.pop
-                      @lexer.in_kwarg = val[2]
+                      @context.in_kwarg = val[2]
                       result = @builder.match_pattern(val[0], val[1], val[3])
                     }
                 | arg kIN
@@ -315,13 +315,13 @@ rule
                       @lexer.command_start = false
                       @pattern_variables.push
 
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   p_expr
                     {
                       @pattern_variables.pop
-                      @lexer.in_kwarg = val[2]
+                      @context.in_kwarg = val[2]
                       result = @builder.match_pattern_p(val[0], val[1], val[3])
                     }
                 | arg =tLBRACE_ARG
@@ -339,29 +339,24 @@ rule
 
         def_name: fname
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
+                      local_push
                       @current_arg_stack.push(nil)
 
-                      result = val[0]
+                      result = [ val[0], @context.dup ]
+                      @context.in_def = true
                     }
 
-       defn_head: kDEF def_name
+       defn_head: k_def def_name
                     {
-                      @context.push(:def)
-
                       result = [ val[0], val[1] ]
                     }
 
-       defs_head: kDEF singleton dot_or_colon
+       defs_head: k_def singleton dot_or_colon
                     {
                       @lexer.state = :expr_fname
                     }
                   def_name
                     {
-                      @context.push(:defs)
-
                       result = [ val[0], val[1], val[2], val[4] ]
                     }
 
@@ -378,12 +373,13 @@ rule
 
  cmd_brace_block: tLBRACE_ARG
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   brace_body tRCURLY
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
            fcall: operation
@@ -875,21 +871,19 @@ rule
                     }
                 | defn_head f_opt_paren_args tEQL arg
                     {
-                      _def_t, name_t = val[0]
+                      def_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
 
-                      result = @builder.def_endless_method(*val[0],
+                      result = @builder.def_endless_method(def_t, name_t,
                                  val[1], val[2], val[3])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
                       @current_arg_stack.pop
                     }
                 | defn_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
                     {
-                      _def_t, name_t = val[0]
+                      def_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
 
                       rescue_body = @builder.rescue_body(val[4],
@@ -898,32 +892,28 @@ rule
 
                       method_body = @builder.begin_body(val[3], [ rescue_body ])
 
-                      result = @builder.def_endless_method(*val[0],
+                      result = @builder.def_endless_method(def_t, name_t,
                                  val[1], val[2], method_body)
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
                       @current_arg_stack.pop
                     }
                 | defs_head f_opt_paren_args tEQL arg
                     {
-                      _def_t, _recv, _dot_t, name_t = val[0]
+                      def_t, recv, dot_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
 
-                      result = @builder.def_endless_singleton(*val[0],
+                      result = @builder.def_endless_singleton(def_t, recv, dot_t, name_t,
                                  val[1], val[2], val[3])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
                       @current_arg_stack.pop
                     }
                 | defs_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
                     {
-                      _def_t, _recv, _dot_t, name_t = val[0]
+                      def_t, recv, dot_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
 
                       rescue_body = @builder.rescue_body(val[4],
@@ -932,13 +922,11 @@ rule
 
                       method_body = @builder.begin_body(val[3], [ rescue_body ])
 
-                      result = @builder.def_endless_singleton(*val[0],
+                      result = @builder.def_endless_singleton(def_t, recv, dot_t, name_t,
                                  val[1], val[2], method_body)
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
                       @current_arg_stack.pop
                     }
                 | primary
@@ -1292,85 +1280,78 @@ rule
                     {
                       result = @builder.for(val[0], val[1], val[2], *val[3], val[4], val[5])
                     }
-                | kCLASS cpath superclass
+                | k_class cpath superclass
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:class)
+                      @context.in_class = true
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      unless @context.class_definition_allowed?
-                        diagnostic :error, :class_in_def, nil, val[0]
+                      k_class, ctx = val[0]
+                      if @context.in_def
+                        diagnostic :error, :class_in_def, nil, k_class
                       end
 
                       lt_t, superclass = val[2]
-                      result = @builder.def_class(val[0], val[1],
+                      result = @builder.def_class(k_class, val[1],
                                                   lt_t, superclass,
                                                   val[4], val[5])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_class = ctx.in_class
                     }
-                | kCLASS tLSHFT expr term
+                | k_class tLSHFT expr term
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @lexer.cond.push(false)
-                      @context.push(:sclass)
+                      @context.in_def = false
+                      @context.in_class = false
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      result = @builder.def_sclass(val[0], val[1], val[2],
+                      k_class, ctx = val[0]
+                      result = @builder.def_sclass(k_class, val[1], val[2],
                                                    val[5], val[6])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
+                      @context.in_class = ctx.in_class
                     }
-                | kMODULE cpath
+                | k_module cpath
                     {
-                      @static_env.extend_static
-                      @lexer.cmdarg.push(false)
-                      @context.push(:module)
+                      @context.in_class = true
+                      local_push
                     }
                     bodystmt kEND
                     {
-                      unless @context.module_definition_allowed?
-                        diagnostic :error, :module_in_def, nil, val[0]
+                      k_mod, ctx = val[0]
+                      if @context.in_def
+                        diagnostic :error, :module_in_def, nil, k_mod
                       end
 
-                      result = @builder.def_module(val[0], val[1],
+                      result = @builder.def_module(k_mod, val[1],
                                                    val[3], val[4])
 
-                      @lexer.cmdarg.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_class = ctx.in_class
                     }
                 | defn_head f_arglist bodystmt kEND
                     {
-                      result = @builder.def_method(*val[0], val[1],
+                      def_t, (name_t, ctx) = val[0]
+                      result = @builder.def_method(def_t, name_t, val[1],
                                   val[2], val[3])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
                       @current_arg_stack.pop
                     }
                 | defs_head f_arglist bodystmt kEND
                     {
-                      result = @builder.def_singleton(*val[0], val[1],
+                      def_t, recv, dot_t, (name_t, ctx) = val[0]
+                      result = @builder.def_singleton(def_t, recv, dot_t, name_t, val[1],
                                   val[2], val[3])
 
-                      @lexer.cmdarg.pop
-                      @lexer.cond.pop
-                      @static_env.unextend
-                      @context.pop
+                      local_pop
+                      @context.in_def = ctx.in_def
                       @current_arg_stack.pop
                     }
                 | kBREAK
@@ -1392,9 +1373,22 @@ rule
 
    primary_value: primary
 
+         k_class: kCLASS
+                    {
+                      result = [ val[0], @context.dup ]
+                    }
+        k_module: kMODULE
+                    {
+                      result = [ val[0], @context.dup ]
+                    }
+           k_def: kDEF
+                    {
+                      result = val[0]
+                    }
+
         k_return: kRETURN
                     {
-                      if @context.in_class?
+                      if @context.in_class && !@context.in_def && !(context.in_block || context.in_lambda)
                         diagnostic :error, :invalid_return, nil, val[0]
                       end
                     }
@@ -1646,12 +1640,12 @@ opt_block_args_tail:
           lambda: tLAMBDA
                     {
                       @static_env.extend_dynamic
-                      @max_numparam_stack.push
-                      @context.push(:lambda)
+                      @max_numparam_stack.push(static: false)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   f_larglist
                     {
-                      @context.pop
                       @lexer.cmdarg.push(false)
                     }
                   lambda_body
@@ -1663,6 +1657,7 @@ opt_block_args_tail:
                       @max_numparam_stack.pop
                       @static_env.unextend
                       @lexer.cmdarg.pop
+                      @context.in_lambda = val[1].in_lambda
 
                       result      = @builder.block(lambda_call,
                                       begin_t, args, body, end_t)
@@ -1683,31 +1678,34 @@ opt_block_args_tail:
 
      lambda_body: tLAMBEG
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   compstmt tRCURLY
                     {
                       result = [ val[0], val[2], val[3] ]
-                      @context.pop
+                      @context.in_lambda = val[1].in_lambda
                     }
                 | kDO_LAMBDA
                     {
-                      @context.push(:lambda)
+                      result = @context.dup
+                      @context.in_lambda = true
                     }
                   bodystmt kEND
                     {
                       result = [ val[0], val[2], val[3] ]
-                      @context.pop
+                      @context.in_lambda = val[1].in_lambda
                     }
 
         do_block: kDO_BLOCK
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   do_body kEND
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
       block_call: command do_block
@@ -1793,26 +1791,28 @@ opt_block_args_tail:
 
      brace_block: tLCURLY
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   brace_body tRCURLY
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
                 | kDO
                     {
-                      @context.push(:block)
+                      result = @context.dup
+                      @context.in_block = true
                     }
                   do_body kEND
                     {
                       result = [ val[0], *val[2], val[3] ]
-                      @context.pop
+                      @context.in_block = val[1].in_block
                     }
 
       brace_body:   {
                       @static_env.extend_dynamic
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: false)
                     }
                     opt_block_param compstmt
                     {
@@ -1825,7 +1825,7 @@ opt_block_args_tail:
 
          do_body:   {
                       @static_env.extend_dynamic
-                      @max_numparam_stack.push
+                      @max_numparam_stack.push(static: false)
                     }
                     {
                       @lexer.cmdarg.push(false)
@@ -1859,14 +1859,14 @@ opt_block_args_tail:
                       @pattern_variables.push
                       @pattern_hash_keys.push
 
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   p_top_expr then
                     {
                       @pattern_variables.pop
                       @pattern_hash_keys.pop
-                      @lexer.in_kwarg = val[1]
+                      @context.in_kwarg = val[1]
                     }
                   compstmt p_cases
                     {
@@ -2007,13 +2007,13 @@ opt_block_args_tail:
                 | tLBRACE
                     {
                       @pattern_hash_keys.push
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = false
+                      result = @context.in_kwarg
+                      @context.in_kwarg = false
                     }
                   p_kwargs rbrace
                     {
                       @pattern_hash_keys.pop
-                      @lexer.in_kwarg = val[1]
+                      @context.in_kwarg = val[1]
                       result = @builder.hash_pattern(val[0], val[2], val[3])
                     }
                 | tLBRACE rbrace
@@ -2623,12 +2623,12 @@ f_opt_paren_args: f_paren_args
 
        f_arglist: f_paren_args
                 |   {
-                      result = @lexer.in_kwarg
-                      @lexer.in_kwarg = true
+                      result = @context.in_kwarg
+                      @context.in_kwarg = true
                     }
                   f_args term
                     {
-                      @lexer.in_kwarg = val[0]
+                      @context.in_kwarg = val[0]
                       result = @builder.args(nil, val[1], nil)
                     }
 
@@ -3036,10 +3036,24 @@ require 'parser'
     end
   end
 
+  def local_push
+    @static_env.extend_static
+    @lexer.cmdarg.push(false)
+    @lexer.cond.push(false)
+    @max_numparam_stack.push(static: true)
+  end
+
+  def local_pop
+    @static_env.unextend
+    @lexer.cmdarg.pop
+    @lexer.cond.pop
+    @max_numparam_stack.pop
+  end
+
   def try_declare_numparam(node)
     name = node.children[0]
 
-    if name =~ /\A_[1-9]\z/ && !static_env.declared?(name) && context.in_dynamic_block?
+    if name =~ /\A_[1-9]\z/ && !static_env.declared?(name) && @context.in_dynamic_block?
       # definitely an implicit param
       location = node.loc.expression
 
@@ -3047,27 +3061,26 @@ require 'parser'
         diagnostic :error, :ordinary_param_defined, nil, [nil, location]
       end
 
-      raw_context = context.stack.dup
       raw_max_numparam_stack = max_numparam_stack.stack.dup
 
       # ignore current block scope
-      raw_context.pop
       raw_max_numparam_stack.pop
 
-      raw_context.reverse_each do |outer_scope|
-        if outer_scope == :block || outer_scope == :lambda
-          outer_scope_has_numparams = raw_max_numparam_stack.pop > 0
+      raw_max_numparam_stack.reverse_each do |outer_scope|
+        if outer_scope[:static]
+          # found an outer scope that can't have numparams
+          # like def/class/etc
+          break
+        else
+          outer_scope_has_numparams = outer_scope[:value] > 0
 
           if outer_scope_has_numparams
             diagnostic :error, :numparam_used_in_outer_scope, nil, [nil, location]
           else
             # for now it's ok, but an outer scope can also be a block
+            # like proc { _1; proc { proc { proc { _2 }} }}
             # with numparams, so we need to continue
           end
-        else
-          # found an outer scope that can't have numparams
-          # like def/class/etc
-          break
         end
       end
 
