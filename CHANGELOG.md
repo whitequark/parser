@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v3.1.0.0 (2022-01-03)
+---------------------
+
+API modifications:
+ * parser/current: update for 3.1.0 release. (#840) (Ilya Bylich)
+
+Features implemented:
+ * ruby31.y: accept forward arg without parentheses. (#839) (Ilya Bylich)
+
 v3.0.3.2 (2021-12-08)
 ---------------------
 
