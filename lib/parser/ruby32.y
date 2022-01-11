@@ -2136,23 +2136,13 @@ opt_block_args_tail:
                     {
                       result = [ *val[0], val[1] ]
                     }
-                | p_args_head tSTAR tIDENTIFIER
+                | p_args_head p_rest
                     {
-                      match_rest = @builder.match_rest(val[1], val[2])
-                      result = [ *val[0], match_rest ]
+                      result = [ *val[0], val[1] ]
                     }
-                | p_args_head tSTAR tIDENTIFIER tCOMMA p_args_post
+                | p_args_head p_rest tCOMMA p_args_post
                     {
-                      match_rest = @builder.match_rest(val[1], val[2])
-                      result = [ *val[0], match_rest, *val[4] ]
-                    }
-                | p_args_head tSTAR
-                    {
-                      result = [ *val[0], @builder.match_rest(val[1]) ]
-                    }
-                | p_args_head tSTAR tCOMMA p_args_post
-                    {
-                      result = [ *val[0], @builder.match_rest(val[1]), *val[3] ]
+                      result = [ *val[0], val[1], *val[3] ]
                     }
                 | p_args_tail
 
