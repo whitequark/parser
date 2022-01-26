@@ -166,6 +166,7 @@ module Parser
       @option_parser.parse!(options)
 
       # Slop has just removed recognized options from `options`.
+      @fragments << $stdin.read if options.delete('-')
       options.each do |file_or_dir|
         if File.directory?(file_or_dir)
           Find.find(file_or_dir) do |path|

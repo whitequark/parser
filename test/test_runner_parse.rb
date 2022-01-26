@@ -53,4 +53,9 @@ class TestRunnerParse < Minitest::Test
     assert_prints ['--emit-json', '-e', ''],
                   "\n"
   end
+
+  def test_stdin_input
+    assert_prints ['--emit-ruby', '-', { stdin_data: '123' }],
+                  's(:int, 123)'
+  end
 end
