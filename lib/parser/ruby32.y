@@ -2967,7 +2967,7 @@ f_opt_paren_args: f_paren_args
 
      kwrest_mark: tPOW | tDSTAR
 
-      f_no_kwarg: kwrest_mark kNIL
+      f_no_kwarg: p_kwnorest
                     {
                       result = [ @builder.kwnilarg(val[0], val[1]) ]
                     }
