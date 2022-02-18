@@ -93,7 +93,7 @@ module Parser
     CurrentRuby = Ruby30
 
   when /^3\.1\./
-    current_version = '3.1.0'
+    current_version = '3.1.1'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby31', current_version
     end
