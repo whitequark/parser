@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2022-02-21)
--------------------------
+v3.1.1.0 (2022-02-21)
+---------------------
 
 API modifications:
  * Bump 3.1 branch to 3.1.1 (Koichi ITO)
