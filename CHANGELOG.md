@@ -1,6 +1,19 @@
 Changelog
 =========
 
+Not released (2022-02-21)
+-------------------------
+
+API modifications:
+ * Bump 3.1 branch to 3.1.1 (Koichi ITO)
+
+Features implemented:
+ * ruby32.y: Reuse operation rule for operation2 (Koichi ITO)
+ * ruby32.y: Reuse p_kwnorest rule for f_no_kwarg (Koichi ITO)
+ * ruby-parse: add ability to read fragment from stdin (#844) (Jeremy Stanley)
+ * ruby32.y: reduce p_args with p_rest (#843) (Vladimir Dementyev)
+ * ruby32.y: branch parser (#841) (Ilya Bylich)
+
 v3.1.0.0 (2022-01-03)
 ---------------------
 
