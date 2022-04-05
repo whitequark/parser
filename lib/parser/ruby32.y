@@ -2252,11 +2252,14 @@ opt_block_args_tail:
 
       p_kwnorest: kwrest_mark kNIL
                     {
-                      result = [ @builder.match_nil_pattern(val[0], val[1]) ]
+                      result = val
                     }
 
     p_any_kwrest: p_kwrest
                 | p_kwnorest
+                    {
+                      result = [ @builder.match_nil_pattern(val[0][0], val[0][1]) ]
+                    }
 
          p_value: p_primitive
                 | p_primitive tDOT2 p_primitive
@@ -2969,7 +2972,7 @@ f_opt_paren_args: f_paren_args
 
       f_no_kwarg: p_kwnorest
                     {
-                      result = [ @builder.kwnilarg(val[0], val[1]) ]
+                      result = [ @builder.kwnilarg(val[0][0], val[0][1]) ]
                     }
 
         f_kwrest: kwrest_mark tIDENTIFIER
