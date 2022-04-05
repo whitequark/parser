@@ -27,25 +27,15 @@ jobs:
           - ruby: "3.1.1"
             test_command: "./ci/run_rubocop_specs || true"
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: /home/runner/bundle
-        key: bundle-${{ matrix.ruby }}-${{ hashFiles('../Gemfile') }}-${{ hashFiles('**/*.gemspec') }}
-        restore-keys: |
-          bundle-${{ matrix.ruby }}-
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
+    - uses: actions/checkout@v3
     - name: Install Ragel
       run: |
         sudo apt-get update
         sudo apt-get install ragel
-    - name: Bundle install
-      run: |
-        bundle config path /home/runner/bundle
-        bundle install
-        bundle update
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
     - name: Run tests
       run: |
         ${{ matrix.test_command }}
