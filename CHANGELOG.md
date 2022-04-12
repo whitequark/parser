@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Not released (2022-04-12)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.1.2, 3.0.4, 2.7.6, and 2.6.10 (#850) (Koichi ITO)
+
+Bugs fixed:
+ * ruby32.y: fix using p_kwnorest in f_no_kwarg (#848) (Vladimir Dementyev)
+
 v3.1.1.0 (2022-02-21)
 ---------------------
 
