@@ -9621,6 +9621,40 @@ class TestParser < Minitest::Test
       %q{~~~~~~~~~~~~ expression (match_pattern_p)
         |       ~~ operator (match_pattern_p)},
       SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:match_pattern_p,
+          s(:hash,
+            s(:pair,
+              s(:sym, :key),
+              s(:sym, :value))),
+          s(:hash_pattern,
+            s(:pair,
+              s(:sym, :key),
+              s(:match_var, :value)))),
+        s(:lvar, :value)),
+      %q{{key: :value} in key: value; value},
+      %q{~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (match_pattern_p)
+        |              ~~ operator (match_pattern_p)},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:match_pattern,
+          s(:hash,
+            s(:pair,
+              s(:sym, :key),
+              s(:sym, :value))),
+          s(:hash_pattern,
+            s(:pair,
+              s(:sym, :key),
+              s(:match_var, :value)))),
+        s(:lvar, :value)),
+      %q{{key: :value} => key: value; value},
+      %q{~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression (match_pattern)
+        |              ~~ operator (match_pattern)},
+      SINCE_3_1)
   end
 
   def test_ruby_bug_pattern_matching_restore_in_kwarg_flag
