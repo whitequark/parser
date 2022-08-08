@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2022-08-08)
--------------------------
+v3.1.2.1 (2022-08-08)
+---------------------
 
 Bugs fixed:
  * ruby31.y: fix preparing the state for one-line patterns without braces (#864) (Vladimir Dementyev)
