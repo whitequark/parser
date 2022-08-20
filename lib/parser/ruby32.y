@@ -3127,7 +3127,7 @@ f_opt_paren_args: f_paren_args
                     {
                       result = val[1]
                     }
-         trailer:  | tNL | tCOMMA
+         trailer:  | opt_nl | tCOMMA
 
             term: tSEMI
                   {
