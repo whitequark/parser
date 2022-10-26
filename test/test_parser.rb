@@ -10925,4 +10925,48 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_if_while_after_class__since_32
+    assert_parses(
+      s(:module,
+        s(:const,
+          s(:if,
+            s(:true),
+            s(:const, nil, :Object), nil), :Kernel), nil),
+      %q{module if true; Object end::Kernel; end},
+      %q{},
+      SINCE_3_2)
+
+    assert_parses(
+      s(:module,
+        s(:const,
+          s(:while,
+            s(:true),
+            s(:break,
+              s(:const, nil, :Object))), :Kernel), nil),
+      %q{module while true; break Object end::Kernel; end},
+      %q{},
+      SINCE_3_2)
+
+    assert_parses(
+      s(:class,
+        s(:const,
+          s(:if,
+            s(:true),
+            s(:const, nil, :Object), nil), :Kernel), nil, nil),
+      %q{class if true; Object end::Kernel; end},
+      %q{},
+      SINCE_3_2)
+
+    assert_parses(
+      s(:class,
+        s(:const,
+          s(:while,
+            s(:true),
+            s(:break,
+              s(:const, nil, :Object))), :Kernel), nil, nil),
+      %q{class while true; break Object end::Kernel; end},
+      %q{},
+      SINCE_3_2)
+  end
 end
