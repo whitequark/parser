@@ -11020,4 +11020,38 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_multiple_pattern_matches
+    code = '{a: 0} => a:'
+    node = s(:match_pattern,
+            s(:hash,
+              s(:pair,
+                s(:sym, :a),
+                s(:int, 0))),
+            s(:hash_pattern,
+              s(:match_var, :a)))
+    assert_parses(
+      s(:begin,
+        node,
+        node),
+      %Q{#{code}\n#{code}},
+      %q{},
+      SINCE_3_2)
+
+    code = '{a: 0} in a:'
+    node = s(:match_pattern_p,
+            s(:hash,
+              s(:pair,
+                s(:sym, :a),
+                s(:int, 0))),
+            s(:hash_pattern,
+              s(:match_var, :a)))
+    assert_parses(
+      s(:begin,
+        node,
+        node),
+      %Q{#{code}\n#{code}},
+      %q{},
+      SINCE_3_2)
+  end
 end
