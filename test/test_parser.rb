@@ -10881,12 +10881,14 @@ class TestParser < Minitest::Test
       ALL_VERSIONS - SINCE_3_2)
   end
 
-  def test_invalid_escape_sequence_in_regexp__since_32
-    assert_diagnoses(
-      [:error, :invalid_regexp, { :message => "invalid Unicode escape: /foo-\\u-bar/" }],
-      %q{/foo-\\u-bar/},
-      %q{},
-      SINCE_3_2)
+  if RUBY_ENGINE != 'truffleruby'
+    def test_invalid_escape_sequence_in_regexp__since_32
+      assert_diagnoses(
+        [:error, :invalid_regexp, { :message => "invalid Unicode escape: /foo-\\u-bar/" }],
+        %q{/foo-\\u-bar/},
+        %q{},
+        SINCE_3_2)
+    end
   end
 
   def test_forwarded_restarg
