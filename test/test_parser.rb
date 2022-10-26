@@ -31,6 +31,7 @@ class TestParser < Minitest::Test
   SINCE_2_7 = SINCE_2_6 - %w(2.6)
   SINCE_3_0 = SINCE_2_7 - %w(2.7)
   SINCE_3_1 = SINCE_3_0 - %w(3.0)
+  SINCE_3_2 = SINCE_3_1 - %w(3.1)
 
   # Guidelines for test naming:
   #  * Test structure follows structure of AST_FORMAT.md.
@@ -10870,5 +10871,21 @@ class TestParser < Minitest::Test
       %q{def foo(&0); end},
       %q{         ^ location},
       SINCE_3_1)
+  end
+
+  def test_invalid_escape_sequence_in_regexp__before_32
+    assert_diagnoses(
+      [:fatal, :invalid_unicode_escape],
+      %q{/foo-\\u-bar/},
+      %q{},
+      ALL_VERSIONS - SINCE_3_2)
+  end
+
+  def test_invalid_escape_sequence_in_regexp__since_32
+    assert_diagnoses(
+      [:error, :invalid_regexp, { :message => "invalid Unicode escape: /foo-\\u-bar/" }],
+      %q{/foo-\\u-bar/},
+      %q{},
+      SINCE_3_2)
   end
 end

@@ -99,7 +99,7 @@ class Parser::Lexer
 
   attr_accessor :tokens, :comments
 
-  attr_reader :paren_nest, :cmdarg_stack, :cond_stack, :lambda_stack
+  attr_reader :paren_nest, :cmdarg_stack, :cond_stack, :lambda_stack, :version
 
   def initialize(version)
     @version    = version
@@ -432,6 +432,18 @@ class Parser::Lexer
     else
       self.class.lex_en_expr_end
     end
+  end
+
+  def emit_invalid_escapes?
+    # always true for old Rubies
+    return true if @version < 32
+
+    # in "?\u123" case we don't push any literals
+    # but we always emit invalid escapes
+    return true if literal.nil?
+
+    # Ruby >= 32, regexp, exceptional case
+    !literal.regexp?
   end
 
   # Mapping of strings to parser tokens.
@@ -768,13 +780,17 @@ class Parser::Lexer
       # \u123
     | 'u' xdigit{0,3}
       % {
-        diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
+        if emit_invalid_escapes?
+          diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
+        end
       }
 
       # u{not hex} or u{}
     | 'u{' ( c_any - xdigit - [ \t}] )* '}'
       % {
-        diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
+        if emit_invalid_escapes?
+          diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
+        end
       }
 
       # \u{  \t  123  \t 456   \t\t }
