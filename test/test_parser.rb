@@ -10977,4 +10977,47 @@ class TestParser < Minitest::Test
       %q{    ^ location},
       ALL_VERSIONS)
   end
+
+  def test_newline_in_hash_argument
+    assert_parses(
+      s(:send,
+        s(:send, nil, :obj), :set,
+        s(:kwargs,
+          s(:pair,
+            s(:sym, :foo),
+            s(:int, 1)))),
+      %Q{obj.set foo:\n1},
+      %q{},
+      SINCE_3_2)
+
+    assert_parses(
+      s(:send,
+        s(:send, nil, :obj), :set,
+        s(:kwargs,
+          s(:pair,
+            s(:sym, :foo),
+            s(:int, 1)))),
+      %Q{obj.set "foo":\n1},
+      %q{},
+      SINCE_3_2)
+
+    assert_parses(
+      s(:case_match,
+        s(:lvar, :foo),
+        s(:in_pattern,
+          s(:hash_pattern,
+            s(:match_var, :a)), nil,
+          s(:begin,
+            s(:int, 0),
+            s(:true))),
+        s(:in_pattern,
+          s(:hash_pattern,
+            s(:match_var, :b)), nil,
+          s(:begin,
+            s(:int, 0),
+            s(:true))), nil),
+      %Q{case foo\nin a:\n0\ntrue\nin "b":\n0\ntrue\nend},
+      %q{},
+      SINCE_3_2)
+  end
 end
