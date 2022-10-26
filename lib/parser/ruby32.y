@@ -2632,22 +2632,11 @@ regexp_contents: # nothing
                     {
                       result = @builder.ident(val[0])
                     }
-                | tIVAR
-                    {
-                      result = @builder.ivar(val[0])
-                    }
-                | tGVAR
-                    {
-                      result = @builder.gvar(val[0])
-                    }
                 | tCONSTANT
                     {
                       result = @builder.const(val[0])
                     }
-                | tCVAR
-                    {
-                      result = @builder.cvar(val[0])
-                    }
+                | nonlocal_var
 
 keyword_variable: kNIL
                     {
