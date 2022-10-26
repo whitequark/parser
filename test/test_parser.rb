@@ -10969,4 +10969,12 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_bare_backslash
+    assert_diagnoses(
+      [:error, :bare_backslash],
+      %q{x = \ 42},
+      %q{    ^ location},
+      ALL_VERSIONS)
+  end
 end
