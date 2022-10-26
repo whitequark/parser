@@ -10888,4 +10888,41 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_forwarded_restarg
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:restarg)),
+        s(:send, nil, :bar,
+          s(:forwarded_restarg))),
+      %q{def foo(*); bar(*); end},
+      %q{                ~ expression (send.forwarded_restarg)},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_restarg],
+      %q{def foo; bar(*); end},
+      %q{},
+      SINCE_3_2)
+  end
+
+  def test_forwarded_kwrestarg
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:kwrestarg)),
+        s(:send, nil, :bar,
+          s(:kwargs,
+            s(:forwarded_kwrestarg)))),
+      %q{def foo(**); bar(**); end},
+      %q{                 ~~ expression (send.kwargs.forwarded_kwrestarg)},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_kwrestarg],
+      %q{def foo; bar(**); end},
+      %q{},
+      SINCE_3_2)
+  end
 end

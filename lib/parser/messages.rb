@@ -79,6 +79,8 @@ module Parser
     :invalid_id_to_get            => 'identifier %{identifier} is not valid to get',
     :forward_arg_after_restarg    => '... after rest argument',
     :no_anonymous_blockarg        => 'no anonymous block parameter',
+    :no_anonymous_restarg         => 'no anonymous rest parameter',
+    :no_anonymous_kwrestarg       => 'no anonymous keyword rest parameter',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',

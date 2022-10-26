@@ -1078,6 +1078,14 @@ module Parser
       n(:forwarded_args, [], token_map(dots_t))
     end
 
+    def forwarded_restarg(star_t)
+      n(:forwarded_restarg, [], token_map(star_t))
+    end
+
+    def forwarded_kwrestarg(dstar_t)
+      n(:forwarded_kwrestarg, [], token_map(dstar_t))
+    end
+
     def call_method(receiver, dot_t, selector_t,
                     lparen_t=nil, args=[], rparen_t=nil)
       type = call_type_for_dot(dot_t)

@@ -33,6 +33,7 @@ module Parser
         hash_pattern const_pattern if_guard unless_guard match_nil_pattern
         empty_else find_pattern kwargs
         match_pattern_p match_pattern
+        forwarded_restarg forwarded_kwrestarg
       ).to_set.freeze
 
   end # Meta

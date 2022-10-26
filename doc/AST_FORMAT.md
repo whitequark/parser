@@ -1276,6 +1276,28 @@ Format:
      ~~~ expression
 ~~~
 
+### Method call taking positional arguments of the currently called method
+
+Format:
+
+~~~
+(send nil :foo
+  (forwarded-restarg))
+"foo(*)"
+     ~ expression
+~~~
+
+### Method call taking keyword arguments of the currently called method
+
+Format:
+
+~~~
+(send nil :foo
+  (forwarded-kwrestarg))
+"foo(**)"
+     ~~ expression
+~~~
+
 ## Send
 
 ### To self

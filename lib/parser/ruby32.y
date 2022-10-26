@@ -1175,6 +1175,14 @@ rule
                     {
                       result = [ @builder.splat(val[0], val[1]) ]
                     }
+                | tSTAR
+                    {
+                      if !@static_env.declared_anonymous_restarg?
+                        diagnostic :error, :no_anonymous_restarg, nil, val[0]
+                      end
+
+                      result = [ @builder.forwarded_restarg(val[0]) ]
+                    }
                 | args tCOMMA arg_value
                     {
                       result = val[0] << val[2]
@@ -2987,6 +2995,8 @@ f_opt_paren_args: f_paren_args
                     }
                 | kwrest_mark
                     {
+                      @static_env.declare_anonymous_kwrestarg
+
                       result = [ @builder.kwrestarg(val[0]) ]
                     }
 
@@ -3032,6 +3042,8 @@ f_opt_paren_args: f_paren_args
                     }
                 | restarg_mark
                     {
+                      @static_env.declare_anonymous_restarg
+
                       result = [ @builder.restarg(val[0]) ]
                     }
 
@@ -3099,6 +3111,14 @@ f_opt_paren_args: f_paren_args
                 | tDSTAR arg_value
                     {
                       result = @builder.kwsplat(val[0], val[1])
+                    }
+                | tDSTAR
+                    {
+                      if !@static_env.declared_anonymous_kwrestarg?
+                        diagnostic :error, :no_anonymous_kwrestarg, nil, val[0]
+                      end
+
+                      result = @builder.forwarded_kwrestarg(val[0])
                     }
 
        operation: tIDENTIFIER | tCONSTANT | tFID
