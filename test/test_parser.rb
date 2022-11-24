@@ -11038,7 +11038,7 @@ class TestParser < Minitest::Test
         node),
       %Q{#{code}\n#{code}},
       %q{},
-      SINCE_3_2)
+      SINCE_3_1)
 
     code = '{a: 0} in a:'
     node = s(:match_pattern_p,
@@ -11054,6 +11054,6 @@ class TestParser < Minitest::Test
         node),
       %Q{#{code}\n#{code}},
       %q{},
-      SINCE_3_2)
+      SINCE_3_1)
   end
 end
