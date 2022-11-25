@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Not released (2022-11-25)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.1.3, 3.0.5, 2.7.7 (#886) (Koichi ITO)
+ * ruby32.y: reuse nonlocal_var rule. (#879) (Ilya Bylich)
+ * ruby32.y: reuse opt_nl rule. (#878) (Ilya Bylich)
+
+Features implemented:
+ * ruby32.y: implement forwarded restarg and kwrestarg. (#874) (Ilya Bylich)
+
 v3.1.2.1 (2022-08-08)
 ---------------------
 
