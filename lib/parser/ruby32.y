@@ -1191,6 +1191,14 @@ rule
                     {
                       result = val[0] << @builder.splat(val[2], val[3])
                     }
+                | args tCOMMA tSTAR
+                    {
+                      if !@static_env.declared_anonymous_restarg?
+                        diagnostic :error, :no_anonymous_restarg, nil, val[2]
+                      end
+
+                      result = val[0] << @builder.forwarded_restarg(val[2])
+                    }
 
         mrhs_arg: mrhs
                     {
