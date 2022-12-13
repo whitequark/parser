@@ -2346,7 +2346,7 @@ opt_block_args_tail:
                       result = @builder.pin(val[0], non_lvar)
                     }
 
-      p_expr_ref: tCARET tLPAREN expr_value tRPAREN
+      p_expr_ref: tCARET tLPAREN expr_value rparen
                     {
                       expr = @builder.begin(val[1], val[2], val[3])
                       result = @builder.pin(val[0], expr)
