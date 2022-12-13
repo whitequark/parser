@@ -446,6 +446,64 @@ class Parser::Lexer
     !literal.regexp?
   end
 
+  # String escaping
+
+  def extend_string_escaped
+    current_literal = literal
+    # Get the first character after the backslash.
+    escaped_char = @source_buffer.slice(@escape_s).chr
+
+    if current_literal.munge_escape? escaped_char
+      # If this particular literal uses this character as an opening
+      # or closing delimiter, it is an escape sequence for that
+      # particular character. Write it without the backslash.
+
+      if current_literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
+        # Regular expressions should include escaped delimiters in their
+        # escaped form, except when the escaped character is
+        # a closing delimiter but not a regexp metacharacter.
+        #
+        # The backslash itself cannot be used as a closing delimiter
+        # at the same time as an escape symbol, but it is always munged,
+        # so this branch also executes for the non-closing-delimiter case
+        # for the backslash.
+        current_literal.extend_string(tok, @ts, @te)
+      else
+        current_literal.extend_string(escaped_char, @ts, @te)
+      end
+    else
+      # It does not. So this is an actual escape sequence, yay!
+      if current_literal.squiggly_heredoc? && escaped_char == "\n".freeze
+        # Squiggly heredocs like
+        #   <<~-HERE
+        #     1\
+        #     2
+        #   HERE
+        # treat '\' as a line continuation, but still dedent the body, so the heredoc above becomes "12\n".
+        # This information is emitted as is, without escaping,
+        # later this escape sequence (\\\n) gets handled manually in the Lexer::Dedenter
+        current_literal.extend_string(tok, @ts, @te)
+      elsif current_literal.supports_line_continuation_via_slash? && escaped_char == "\n".freeze
+        # Heredocs, regexp and a few other types of literals support line
+        # continuation via \\\n sequence. The code like
+        #   "a\
+        #   b"
+        # must be parsed as "ab"
+        current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
+      elsif current_literal.regexp? && @version >= 31 && %w[c C m M].include?(escaped_char)
+        # Ruby >= 3.1 escapes \c- and \m chars, that's the only escape sequence
+        # supported by regexes so far, so it needs a separate branch.
+        current_literal.extend_string(@escape, @ts, @te)
+      elsif current_literal.regexp?
+        # Regular expressions should include escape sequences in their
+        # escaped form. On the other hand, escaped newlines are removed (in cases like "\\C-\\\n\\M-x")
+        current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
+      else
+        current_literal.extend_string(@escape || tok, @ts, @te)
+      end
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -909,59 +967,7 @@ class Parser::Lexer
   }
 
   action extend_string_escaped {
-    current_literal = literal
-    # Get the first character after the backslash.
-    escaped_char = @source_buffer.slice(@escape_s).chr
-
-    if current_literal.munge_escape? escaped_char
-      # If this particular literal uses this character as an opening
-      # or closing delimiter, it is an escape sequence for that
-      # particular character. Write it without the backslash.
-
-      if current_literal.regexp? && REGEXP_META_CHARACTERS.match(escaped_char)
-        # Regular expressions should include escaped delimiters in their
-        # escaped form, except when the escaped character is
-        # a closing delimiter but not a regexp metacharacter.
-        #
-        # The backslash itself cannot be used as a closing delimiter
-        # at the same time as an escape symbol, but it is always munged,
-        # so this branch also executes for the non-closing-delimiter case
-        # for the backslash.
-        current_literal.extend_string(tok, @ts, @te)
-      else
-        current_literal.extend_string(escaped_char, @ts, @te)
-      end
-    else
-      # It does not. So this is an actual escape sequence, yay!
-      if current_literal.squiggly_heredoc? && escaped_char == "\n".freeze
-        # Squiggly heredocs like
-        #   <<~-HERE
-        #     1\
-        #     2
-        #   HERE
-        # treat '\' as a line continuation, but still dedent the body, so the heredoc above becomes "12\n".
-        # This information is emitted as is, without escaping,
-        # later this escape sequence (\\\n) gets handled manually in the Lexer::Dedenter
-        current_literal.extend_string(tok, @ts, @te)
-      elsif current_literal.supports_line_continuation_via_slash? && escaped_char == "\n".freeze
-        # Heredocs, regexp and a few other types of literals support line
-        # continuation via \\\n sequence. The code like
-        #   "a\
-        #   b"
-        # must be parsed as "ab"
-        current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
-      elsif current_literal.regexp? && @version >= 31 && %w[c C m M].include?(escaped_char)
-        # Ruby >= 3.1 escapes \c- and \m chars, that's the only escape sequence
-        # supported by regexes so far, so it needs a separate branch.
-        current_literal.extend_string(@escape, @ts, @te)
-      elsif current_literal.regexp?
-        # Regular expressions should include escape sequences in their
-        # escaped form. On the other hand, escaped newlines are removed (in cases like "\\C-\\\n\\M-x")
-        current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
-      else
-        current_literal.extend_string(@escape || tok, @ts, @te)
-      end
-    end
+    extend_string_escaped
   }
 
   # Extend a string with a newline or a EOF character.
