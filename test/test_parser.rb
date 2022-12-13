@@ -10526,6 +10526,16 @@ class TestParser < Minitest::Test
       %q{   ~ selector (in_pattern.pin)
         |   ~~~~~~~~~~~~~~~~~~~~~ expression (in_pattern.pin)},
       SINCE_3_1)
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:pin,
+          s(:begin,
+          s(:int, 1))), nil, nil),
+      %Q{in ^(1\n)},
+      %q{   ~ selector (in_pattern.pin)
+        |   ~~~~~ expression (in_pattern.pin)},
+      SINCE_3_2)
   end
 
   def test_assignment_to_numparam_via_pattern_matching
