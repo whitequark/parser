@@ -272,6 +272,7 @@ class Parser::Lexer
     _lex_to_state_actions   = klass.send :_lex_to_state_actions
     _lex_from_state_actions = klass.send :_lex_from_state_actions
     _lex_eof_trans          = klass.send :_lex_eof_trans
+    _lex_actions            = klass.send :_lex_actions if klass.respond_to?(:_lex_actions, true)
 
     pe = @source_pts.size + 2
     p, eof = @p, pe

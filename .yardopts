@@ -6,7 +6,8 @@
 --asset ./doc/css/common.css:css/common.css
 --verbose
 --api public
---exclude lib/parser/lexer.rb
+--exclude lib/parser/lexer-F0.rb
+--exclude lib/parser/lexer-F1.rb
 --exclude lib/parser/ruby18.rb
 --exclude lib/parser/ruby19.rb
 --exclude lib/parser/ruby20.rb

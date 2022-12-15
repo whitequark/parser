@@ -64,7 +64,11 @@ module Parser
 
   require 'parser/static_environment'
 
-  require 'parser/lexer'
+  if RUBY_ENGINE == 'ruby'
+    require 'parser/lexer-F1'
+  else
+    require 'parser/lexer-F0'
+  end
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
   require 'parser/lexer/dedenter'
