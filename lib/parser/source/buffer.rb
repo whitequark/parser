@@ -191,11 +191,20 @@ module Parser
         end
       end
 
-      def slice(range)
+      def slice(start, length = nil)
+        if length.nil?
+          if start.is_a?(::Range)
+            length = start.size
+            start = start.begin
+          else
+            length = 1
+          end
+        end
+
         if @slice_source.nil?
-          @source[range]
+          @source[start, length]
         else
-          @slice_source[range].encode(@source.encoding)
+          @slice_source[start, length].encode(@source.encoding)
         end
       end
 

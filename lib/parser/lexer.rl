@@ -109,6 +109,13 @@ class Parser::Lexer
     @tokens     = nil
     @comments   = nil
 
+    @_lex_actions =
+      if self.class.respond_to?(:_lex_actions, true)
+        self.class.send :_lex_actions
+      else
+        []
+      end
+
     reset
   end
 
@@ -257,7 +264,7 @@ class Parser::Lexer
 
   # Return next token: [type, value].
   def advance
-    if @token_queue.any?
+    unless @token_queue.empty?
       return @token_queue.shift
     end
 
@@ -272,7 +279,7 @@ class Parser::Lexer
     _lex_to_state_actions   = klass.send :_lex_to_state_actions
     _lex_from_state_actions = klass.send :_lex_from_state_actions
     _lex_eof_trans          = klass.send :_lex_eof_trans
-    _lex_actions            = klass.send :_lex_actions if klass.respond_to?(:_lex_actions, true)
+    _lex_actions            = @_lex_actions
 
     pe = @source_pts.size + 2
     p, eof = @p, pe
@@ -322,7 +329,7 @@ class Parser::Lexer
   end
 
   def tok(s = @ts, e = @te)
-    @source_buffer.slice(s...e)
+    @source_buffer.slice(s, e - s)
   end
 
   def range(s = @ts, e = @te)
@@ -452,7 +459,7 @@ class Parser::Lexer
   def extend_string_escaped
     current_literal = literal
     # Get the first character after the backslash.
-    escaped_char = @source_buffer.slice(@escape_s).chr
+    escaped_char = @source_buffer.slice(@escape_s, 1).chr
 
     if current_literal.munge_escape? escaped_char
       # If this particular literal uses this character as an opening
@@ -780,7 +787,7 @@ class Parser::Lexer
     end
 
     if (@escape = ESCAPES[codepoint]).nil?
-      @escape = encode_escape(@source_buffer.slice(p - 1))
+      @escape = encode_escape(@source_buffer.slice(p - 1, 1))
     end
   }
 
@@ -789,7 +796,7 @@ class Parser::Lexer
   }
 
   action read_post_meta_or_ctrl_char {
-    @escape = @source_buffer.slice(p - 1).chr
+    @escape = @source_buffer.slice(p - 1, 1).chr
 
     if @version >= 27 && ((0..8).include?(@escape.ord) || (14..31).include?(@escape.ord))
       diagnostic :fatal, :invalid_escape
@@ -948,7 +955,7 @@ class Parser::Lexer
 
     # tLABEL_END is only possible in non-cond context on >= 2.2
     if @version >= 22 && !@cond.active?
-      lookahead = @source_buffer.slice(@te...@te+2)
+      lookahead = @source_buffer.slice(@te, 2)
     end
 
     current_literal = literal
@@ -1799,7 +1806,7 @@ class Parser::Lexer
       # %<string>
       '%' ( c_ascii - [A-Za-z0-9] )
       => {
-        type, delimiter = @source_buffer.slice(@ts).chr, tok[-1].chr
+        type, delimiter = @source_buffer.slice(@ts, 1).chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
@@ -1953,7 +1960,7 @@ class Parser::Lexer
       '?' c_space_nl
       => {
         escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
-                   "\v" => '\v', "\f" => '\f' }[@source_buffer.slice(@ts + 1)]
+                   "\v" => '\v', "\f" => '\f' }[@source_buffer.slice(@ts + 1, 1)]
         diagnostic :warning, :invalid_escape_use, { :escape => escape }, range
 
         p = @ts - 1
@@ -2047,7 +2054,7 @@ class Parser::Lexer
         if version?(18)
           ident = tok(@ts, @te - 2)
 
-          emit((@source_buffer.slice(@ts) =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
+          emit((@source_buffer.slice(@ts, 1) =~ /[A-Z]/) ? :tCONSTANT : :tIDENTIFIER,
                ident, @ts, @te - 2)
           fhold; # continue as a symbol
 
