@@ -746,6 +746,11 @@ class Parser::Lexer
     'BEGIN'  => :klBEGIN,      'END'      => :klEND,
   }
 
+  ESCAPE_WHITESPACE = {
+    " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
+    "\v" => '\v', "\f" => '\f'
+  }
+
   %w(class module def undef begin end then elsif else ensure case when
      for break next redo retry in do return yield super self nil true
      false and or not alias __FILE__ __LINE__ __ENCODING__).each do |keyword|
@@ -2042,8 +2047,7 @@ class Parser::Lexer
 
       '?' c_space_nl
       => {
-        escape = { " "  => '\s', "\r" => '\r', "\n" => '\n', "\t" => '\t',
-                   "\v" => '\v', "\f" => '\f' }[@source_buffer.slice(@ts + 1, 1)]
+        escape = ESCAPE_WHITESPACE[@source_buffer.slice(@ts + 1, 1)]
         diagnostic :warning, :invalid_escape_use, { :escape => escape }, range
 
         p = @ts - 1
