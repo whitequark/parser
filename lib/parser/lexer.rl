@@ -759,6 +759,16 @@ class Parser::Lexer
     end
   end
 
+  def emit_colon_with_digits(p, tm, diag_msg)
+    if @version >= 27
+      diagnostic :error, diag_msg, { name: tok(tm, @te) }, range(tm, @te)
+    else
+      emit(:tCOLON, tok(@ts, @ts + 1), @ts, @ts + 1)
+      p = @ts
+    end
+    p
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -2056,12 +2066,7 @@ class Parser::Lexer
           | '@@' %{ tm = p - 2; diag_msg = :cvar_name }
           ) [0-9]*
       => {
-        if @version >= 27
-          diagnostic :error, diag_msg, { name: tok(tm, @te) }, range(tm, @te)
-        else
-          emit(:tCOLON, tok(@ts, @ts + 1), @ts, @ts + 1)
-          p = @ts
-        end
+        emit_colon_with_digits(p, tm, diag_msg)
 
         fnext expr_end; fbreak;
       };
