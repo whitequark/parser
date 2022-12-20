@@ -527,6 +527,15 @@ class Parser::Lexer
     @command_start = true
   end
 
+  def e_lbrace
+    @cond.push(false); @cmdarg.push(false)
+
+    current_literal = literal
+    if current_literal
+      current_literal.start_interp_brace
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1111,12 +1120,7 @@ class Parser::Lexer
   interp_code = '#{';
 
   e_lbrace = '{' % {
-    @cond.push(false); @cmdarg.push(false)
-
-    current_literal = literal
-    if current_literal
-      current_literal.start_interp_brace
-    end
+    e_lbrace
   };
 
   e_rbrace = '}' % {
