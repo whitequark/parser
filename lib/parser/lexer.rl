@@ -637,6 +637,46 @@ class Parser::Lexer
     digits
   end
 
+  def unicode_points(p)
+    @escape = ""
+
+    codepoints = tok(@escape_s + 2, p - 1)
+    codepoint_s = @escape_s + 2
+
+    if @version < 24
+      if codepoints.start_with?(" ") || codepoints.start_with?("\t")
+        diagnostic :fatal, :invalid_unicode_escape, nil,
+                   range(@escape_s + 2, @escape_s + 3)
+      end
+
+      if spaces_p = codepoints.index(/[ \t]{2}/)
+        diagnostic :fatal, :invalid_unicode_escape, nil,
+                   range(codepoint_s + spaces_p + 1, codepoint_s + spaces_p + 2)
+      end
+
+      if codepoints.end_with?(" ") || codepoints.end_with?("\t")
+        diagnostic :fatal, :invalid_unicode_escape, nil, range(p - 1, p)
+      end
+    end
+
+    codepoints.scan(/([0-9a-fA-F]+)|([ \t]+)/).each do |(codepoint_str, spaces)|
+      if spaces
+        codepoint_s += spaces.length
+      else
+        codepoint = codepoint_str.to_i(16)
+
+        if codepoint >= 0x110000
+          diagnostic :error, :unicode_point_too_large, nil,
+                     range(codepoint_s, codepoint_s + codepoint_str.length)
+          break
+        end
+
+        @escape += codepoint.chr(Encoding::UTF_8)
+        codepoint_s += codepoint_str.length
+      end
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -865,43 +905,7 @@ class Parser::Lexer
   escaped_nl = "\\" c_nl;
 
   action unicode_points {
-    @escape = ""
-
-    codepoints  = tok(@escape_s + 2, p - 1)
-    codepoint_s = @escape_s + 2
-
-    if @version < 24
-      if codepoints.start_with?(" ") || codepoints.start_with?("\t")
-        diagnostic :fatal, :invalid_unicode_escape, nil,
-          range(@escape_s + 2, @escape_s + 3)
-      end
-
-      if spaces_p = codepoints.index(/[ \t]{2}/)
-        diagnostic :fatal, :invalid_unicode_escape, nil,
-          range(codepoint_s + spaces_p + 1, codepoint_s + spaces_p + 2)
-      end
-
-      if codepoints.end_with?(" ") || codepoints.end_with?("\t")
-        diagnostic :fatal, :invalid_unicode_escape, nil, range(p - 1, p)
-      end
-    end
-
-    codepoints.scan(/([0-9a-fA-F]+)|([ \t]+)/).each do |(codepoint_str, spaces)|
-      if spaces
-        codepoint_s += spaces.length
-      else
-        codepoint = codepoint_str.to_i(16)
-
-        if codepoint >= 0x110000
-          diagnostic :error, :unicode_point_too_large, nil,
-                     range(codepoint_s, codepoint_s + codepoint_str.length)
-          break
-        end
-
-        @escape     += codepoint.chr(Encoding::UTF_8)
-        codepoint_s += codepoint_str.length
-      end
-    end
+    unicode_points(p)
   }
 
   action unescape_char {
