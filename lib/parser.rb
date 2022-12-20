@@ -64,10 +64,10 @@ module Parser
 
   require 'parser/static_environment'
 
-  if RUBY_ENGINE == 'ruby'
-    require 'parser/lexer-F1'
-  else
+  if RUBY_ENGINE == 'truffleruby'
     require 'parser/lexer-F0'
+  else
+    require 'parser/lexer-F1'
   end
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
