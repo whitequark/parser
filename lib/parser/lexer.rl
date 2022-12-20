@@ -704,6 +704,28 @@ class Parser::Lexer
     p = @ts
   end
 
+  def encode_escaped_char(p)
+    @escape = encode_escape(tok(p - 2, p).to_i(16))
+  end
+
+  def slash_c_char
+    @escape = encode_escape(@escape[0].ord & 0x9f)
+  end
+
+  def slash_m_char
+    @escape = encode_escape(@escape[0].ord | 0x80)
+  end
+
+  def emit_character_constant
+    value = @escape || tok(@ts + 1)
+
+    if version?(18)
+      emit(:tINTEGER, value.getbyte(0))
+    else
+      emit(:tCHARACTER, value)
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -953,23 +975,23 @@ class Parser::Lexer
   }
 
   action slash_c_char {
-    @escape = encode_escape(@escape[0].ord & 0x9f)
+    slash_c_char
   }
 
   action slash_m_char {
-    @escape = encode_escape(@escape[0].ord | 0x80)
+    slash_m_char
   }
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
-    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
+    |   '\\x' xdigit{1,2} % { encode_escaped_char(p) } %slash_c_char
     | ( c_any - [\\] )  %read_post_meta_or_ctrl_char
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
-    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
+    |   '\\x' xdigit{1,2} % { encode_escaped_char(p) } %slash_c_char
     | ( c_any - [\\?] ) %read_post_meta_or_ctrl_char %slash_c_char
   );
 
@@ -2034,13 +2056,7 @@ class Parser::Lexer
           | (c_any - c_space_nl - e_bs) % { @escape = nil }
           )
       => {
-        value = @escape || tok(@ts + 1)
-
-        if version?(18)
-          emit(:tINTEGER, value.getbyte(0))
-        else
-          emit(:tCHARACTER, value)
-        end
+        emit_character_constant
 
         fnext expr_end; fbreak;
       };
