@@ -606,6 +606,18 @@ class Parser::Lexer
     current_literal.extend_string(string, @ts, @te)
   end
 
+  def unescape_char(p)
+    codepoint = @source_pts[p - 1]
+
+    if @version >= 30 && (codepoint == 117 || codepoint == 85) # 'u' or 'U'
+      diagnostic :fatal, :invalid_escape
+    end
+
+    if (@escape = ESCAPES[codepoint]).nil?
+      @escape = encode_escape(@source_buffer.slice(p - 1, 1))
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -874,15 +886,7 @@ class Parser::Lexer
   }
 
   action unescape_char {
-    codepoint = @source_pts[p - 1]
-
-    if @version >= 30 && (codepoint == 117 || codepoint == 85) # 'u' or 'U'
-      diagnostic :fatal, :invalid_escape
-    end
-
-    if (@escape = ESCAPES[codepoint]).nil?
-      @escape = encode_escape(@source_buffer.slice(p - 1, 1))
-    end
+    unescape_char(p)
   }
 
   action invalid_complex_escape {
