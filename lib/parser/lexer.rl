@@ -687,6 +687,14 @@ class Parser::Lexer
     p
   end
 
+  def read_post_meta_or_ctrl_char(p)
+    @escape = @source_buffer.slice(p - 1, 1).chr
+
+    if @version >= 27 && ((0..8).include?(@escape.ord) || (14..31).include?(@escape.ord))
+      diagnostic :fatal, :invalid_escape
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -927,11 +935,7 @@ class Parser::Lexer
   }
 
   action read_post_meta_or_ctrl_char {
-    @escape = @source_buffer.slice(p - 1, 1).chr
-
-    if @version >= 27 && ((0..8).include?(@escape.ord) || (14..31).include?(@escape.ord))
-      diagnostic :fatal, :invalid_escape
-    end
+    read_post_meta_or_ctrl_char(p)
   }
 
   action slash_c_char {
