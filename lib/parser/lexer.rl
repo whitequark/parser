@@ -677,6 +677,16 @@ class Parser::Lexer
     end
   end
 
+  def e_heredoc_nl(p)
+    # After every heredoc was parsed, @herebody_s contains the
+    # position of next token after all heredocs.
+    if @herebody_s
+      p = @herebody_s
+      @herebody_s = nil
+    end
+    p
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1063,12 +1073,7 @@ class Parser::Lexer
   # containing another heredocs) is closed, the previous value is restored.
 
   e_heredoc_nl = c_nl % {
-    # After every heredoc was parsed, @herebody_s contains the
-    # position of next token after all heredocs.
-    if @herebody_s
-      p = @herebody_s
-      @herebody_s = nil
-    end
+    p = e_heredoc_nl(p)
   };
 
   action extend_string {
