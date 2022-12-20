@@ -769,6 +769,11 @@ class Parser::Lexer
     p
   end
 
+  def emit_singleton_class
+    emit(:kCLASS, 'class'.freeze, @ts, @ts + 5)
+    emit(:tLSHFT, '<<'.freeze,    @te - 2, @te)
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -2401,8 +2406,7 @@ class Parser::Lexer
            fnext expr_fname; fbreak; };
 
       'class' w_any* '<<'
-      => { emit(:kCLASS, 'class'.freeze, @ts, @ts + 5)
-           emit(:tLSHFT, '<<'.freeze,    @te - 2, @te)
+      => { emit_singleton_class
            fnext expr_value; fbreak; };
 
       # a if b:c: Syntax error.
