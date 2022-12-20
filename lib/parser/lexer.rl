@@ -594,6 +594,18 @@ class Parser::Lexer
     end
   end
 
+  def extend_string_slice_end(lookahead)
+    # tLABEL_END is only possible in non-cond context on >= 2.2
+    if @version >= 22 && !@cond.active?
+      lookahead = @source_buffer.slice(@te, 2)
+    end
+    lookahead
+  end
+
+  def extend_string_for_token_range(current_literal, string)
+    current_literal.extend_string(string, @ts, @te)
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1035,10 +1047,7 @@ class Parser::Lexer
   action extend_string {
     string = tok
 
-    # tLABEL_END is only possible in non-cond context on >= 2.2
-    if @version >= 22 && !@cond.active?
-      lookahead = @source_buffer.slice(@te, 2)
-    end
+    lookahead = extend_string_slice_end(lookahead)
 
     current_literal = literal
     if !current_literal.heredoc? &&
@@ -1052,7 +1061,7 @@ class Parser::Lexer
       end
       fbreak;
     else
-      current_literal.extend_string(string, @ts, @te)
+      extend_string_for_token_range(current_literal, string)
     end
   }
 
