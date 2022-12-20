@@ -536,6 +536,15 @@ class Parser::Lexer
     end
   end
 
+  def extend_interp_digit_var
+    if @version >= 27
+      literal.extend_string(tok, @ts, @te)
+    else
+      message = tok.start_with?('#@@') ? :cvar_name : :ivar_name
+      diagnostic :error, message, { :name => tok(@ts + 1, @te) }, range(@ts + 1, @te)
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1097,12 +1106,7 @@ class Parser::Lexer
   interp_digit_var = '#' ('@' | '@@') digit c_alpha*;
 
   action extend_interp_digit_var {
-    if @version >= 27
-      literal.extend_string(tok, @ts, @te)
-    else
-      message = tok.start_with?('#@@') ? :cvar_name : :ivar_name
-      diagnostic :error, message, { :name => tok(@ts + 1, @te) }, range(@ts + 1, @te)
-    end
+    extend_interp_digit_var
   }
 
   # Interpolations with code blocks must match nested curly braces, as
