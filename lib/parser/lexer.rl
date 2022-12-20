@@ -747,6 +747,18 @@ class Parser::Lexer
     end
   end
 
+  def e_rbrace_rparen_rbrack
+    emit_table(PUNCTUATION)
+
+    if @version < 24
+      @cond.lexpop
+      @cmdarg.lexpop
+    else
+      @cond.pop
+      @cmdarg.pop
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -2575,15 +2587,7 @@ class Parser::Lexer
 
       e_rbrace | e_rparen | e_rbrack
       => {
-        emit_table(PUNCTUATION)
-
-        if @version < 24
-          @cond.lexpop
-          @cmdarg.lexpop
-        else
-          @cond.pop
-          @cmdarg.pop
-        end
+        e_rbrace_rparen_rbrack
 
         if tok == '}'.freeze || tok == ']'.freeze
           if @version >= 25
