@@ -726,6 +726,17 @@ class Parser::Lexer
     end
   end
 
+  def check_ambiguous_slash(tm)
+    if tok(tm, tm + 1) == '/'.freeze
+      # Ambiguous regexp literal.
+      if @version < 30
+        diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
+      else
+        diagnostic :warning, :ambiguous_regexp, nil, range(tm, tm + 1)
+      end
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1705,14 +1716,7 @@ class Parser::Lexer
       | '<<'
       )
       => {
-        if tok(tm, tm + 1) == '/'.freeze
-          # Ambiguous regexp literal.
-          if @version < 30
-            diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
-          else
-            diagnostic :warning, :ambiguous_regexp, nil, range(tm, tm + 1)
-          end
-        end
+        check_ambiguous_slash(tm)
 
         p = tm - 1
         fgoto expr_beg;
