@@ -737,6 +737,16 @@ class Parser::Lexer
     end
   end
 
+  def global_var
+    if tok =~ /^\$([1-9][0-9]*)$/
+      emit(:tNTH_REF, tok(@ts + 1).to_i)
+    elsif tok =~ /^\$([&`'+])$/
+      emit(:tBACK_REF)
+    else
+      emit(:tGVAR)
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1488,13 +1498,7 @@ class Parser::Lexer
   expr_variable := |*
       global_var
       => {
-        if    tok =~ /^\$([1-9][0-9]*)$/
-          emit(:tNTH_REF, tok(@ts + 1).to_i)
-        elsif tok =~ /^\$([&`'+])$/
-          emit(:tBACK_REF)
-        else
-          emit(:tGVAR)
-        end
+        global_var
 
         fnext *stack_pop; fbreak;
       };
