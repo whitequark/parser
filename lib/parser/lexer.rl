@@ -512,6 +512,21 @@ class Parser::Lexer
     end
   end
 
+  def extend_interp_code(current_literal)
+    current_literal.flush_string
+    current_literal.extend_content
+
+    emit(:tSTRING_DBEG, '#{'.freeze)
+
+    if current_literal.heredoc?
+      current_literal.saved_herebody_s = @herebody_s
+      @herebody_s = nil
+    end
+
+    current_literal.start_interp_brace
+    @command_start = true
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1132,18 +1147,7 @@ class Parser::Lexer
 
   action extend_interp_code {
     current_literal = literal
-    current_literal.flush_string
-    current_literal.extend_content
-
-    emit(:tSTRING_DBEG, '#{'.freeze)
-
-    if current_literal.heredoc?
-      current_literal.saved_herebody_s = @herebody_s
-      @herebody_s = nil
-    end
-
-    current_literal.start_interp_brace
-    @command_start = true
+    extend_interp_code(current_literal)
     fnext expr_value;
     fbreak;
   }
