@@ -545,6 +545,51 @@ class Parser::Lexer
     end
   end
 
+  def extend_string_eol_check_eof(current_literal, pe)
+    if @te == pe
+      diagnostic :fatal, :string_eof, nil,
+                 range(current_literal.str_s, current_literal.str_s + 1)
+    end
+  end
+
+  def extend_string_eol_heredoc_line
+    line = tok(@herebody_s, @ts).gsub(/\r+$/, ''.freeze)
+
+    if version?(18, 19, 20)
+      # See ruby:c48b4209c
+      line = line.gsub(/\r.*$/, ''.freeze)
+    end
+    line
+  end
+
+  def extend_string_eol_heredoc_intertwined(p)
+    if @herebody_s
+      # This is a regular literal intertwined with a heredoc. Like:
+      #
+      #     p <<-foo+"1
+      #     bar
+      #     foo
+      #     2"
+      #
+      # which, incidentally, evaluates to "bar\n1\n2".
+      p = @herebody_s - 1
+      @herebody_s = nil
+    end
+    p
+  end
+
+  def extend_string_eol_words(current_literal, p)
+    if current_literal.words? && !eof_codepoint?(@source_pts[p])
+      current_literal.extend_space @ts, @te
+    else
+      # A literal newline is appended if the heredoc was _not_ closed
+      # this time (see fbreak above). See also Literal#nest_and_try_closing
+      # for rationale of calling #flush_string here.
+      current_literal.extend_string tok, @ts, @te
+      current_literal.flush_string
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1016,18 +1061,10 @@ class Parser::Lexer
   # has to handle such case specially.
   action extend_string_eol {
     current_literal = literal
-    if @te == pe
-      diagnostic :fatal, :string_eof, nil,
-                 range(current_literal.str_s, current_literal.str_s + 1)
-    end
+    extend_string_eol_check_eof(current_literal, pe)
 
     if current_literal.heredoc?
-      line = tok(@herebody_s, @ts).gsub(/\r+$/, ''.freeze)
-
-      if version?(18, 19, 20)
-        # See ruby:c48b4209c
-        line = line.gsub(/\r.*$/, ''.freeze)
-      end
+      line = extend_string_eol_heredoc_line
 
       # Try ending the heredoc with the complete most recently
       # scanned line. @herebody_s always refers to the start of such line.
@@ -1051,29 +1088,10 @@ class Parser::Lexer
         fnext *pop_literal; fbreak;
       end
 
-      if @herebody_s
-        # This is a regular literal intertwined with a heredoc. Like:
-        #
-        #     p <<-foo+"1
-        #     bar
-        #     foo
-        #     2"
-        #
-        # which, incidentally, evaluates to "bar\n1\n2".
-        p = @herebody_s - 1
-        @herebody_s = nil
-      end
+      p = extend_string_eol_heredoc_intertwined(p)
     end
 
-    if current_literal.words? && !eof_codepoint?(@source_pts[p])
-      current_literal.extend_space @ts, @te
-    else
-      # A literal newline is appended if the heredoc was _not_ closed
-      # this time (see fbreak above). See also Literal#nest_and_try_closing
-      # for rationale of calling #flush_string here.
-      current_literal.extend_string tok, @ts, @te
-      current_literal.flush_string
-    end
+    extend_string_eol_words(current_literal, p)
   }
 
   action extend_string_space {
