@@ -695,6 +695,15 @@ class Parser::Lexer
     end
   end
 
+  def extend_interp_var(current_literal)
+    current_literal.flush_string
+    current_literal.extend_content
+
+    emit(:tSTRING_DVAR, nil, @ts, @ts + 1)
+
+    p = @ts
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1158,12 +1167,7 @@ class Parser::Lexer
 
   action extend_interp_var {
     current_literal = literal
-    current_literal.flush_string
-    current_literal.extend_content
-
-    emit(:tSTRING_DVAR, nil, @ts, @ts + 1)
-
-    p = @ts
+    p = extend_interp_var(current_literal)
     fcall expr_variable;
   }
 
