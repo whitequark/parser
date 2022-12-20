@@ -618,6 +618,25 @@ class Parser::Lexer
     end
   end
 
+  def numeric_literal_int
+    digits = tok(@num_digits_s, @num_suffix_s)
+
+    if digits.end_with? '_'.freeze
+      diagnostic :error, :trailing_in_number, { :character => '_'.freeze },
+                 range(@te - 1, @te)
+    elsif digits.empty? && @num_base == 8 && version?(18)
+      # 1.8 did not raise an error on 0o.
+      digits = '0'.freeze
+    elsif digits.empty?
+      diagnostic :error, :empty_numeric
+    elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
+      invalid_s = @num_digits_s + invalid_idx
+      diagnostic :error, :invalid_octal, nil,
+                 range(invalid_s, invalid_s + 1)
+    end
+    digits
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -2380,21 +2399,7 @@ class Parser::Lexer
       | '0'   digit* '_'? %{ @num_base = 8;  @num_digits_s = @ts } int_dec
       ) %{ @num_suffix_s = p } int_suffix
       => {
-        digits = tok(@num_digits_s, @num_suffix_s)
-
-        if digits.end_with? '_'.freeze
-          diagnostic :error, :trailing_in_number, { :character => '_'.freeze },
-                     range(@te - 1, @te)
-        elsif digits.empty? && @num_base == 8 && version?(18)
-          # 1.8 did not raise an error on 0o.
-          digits = '0'.freeze
-        elsif digits.empty?
-          diagnostic :error, :empty_numeric
-        elsif @num_base == 8 && (invalid_idx = digits.index(/[89]/))
-          invalid_s = @num_digits_s + invalid_idx
-          diagnostic :error, :invalid_octal, nil,
-                     range(invalid_s, invalid_s + 1)
-        end
+        digits = numeric_literal_int
 
         if version?(18, 19, 20)
           emit(:tINTEGER, digits.to_i(@num_base), @ts, @num_suffix_s)
