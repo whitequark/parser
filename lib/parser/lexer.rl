@@ -774,6 +774,12 @@ class Parser::Lexer
     emit(:tLSHFT, '<<'.freeze,    @te - 2, @te)
   end
 
+  def check_invalid_escapes(p)
+    if emit_invalid_escapes?
+      diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
+    end
+  end
+
   # Mapping of strings to parser tokens.
 
   PUNCTUATION = {
@@ -1065,17 +1071,13 @@ class Parser::Lexer
       # \u123
     | 'u' xdigit{0,3}
       % {
-        if emit_invalid_escapes?
-          diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
-        end
+        check_invalid_escapes(p)
       }
 
       # u{not hex} or u{}
     | 'u{' ( c_any - xdigit - [ \t}] )* '}'
       % {
-        if emit_invalid_escapes?
-          diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, p)
-        end
+        check_invalid_escapes(p)
       }
 
       # \u{  \t  123  \t 456   \t\t }
