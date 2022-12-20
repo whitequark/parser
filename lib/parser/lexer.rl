@@ -382,6 +382,10 @@ class Parser::Lexer
     nil
   end
 
+  def emit_comment_from_range(p, pe)
+    emit_comment(@sharp_s, p == pe ? p - 2 : p)
+  end
+
   def diagnostic(type, reason, arguments=nil, location=range, highlights=[])
     @diagnostics.process(
         Parser::Diagnostic.new(type, reason, arguments, location, highlights))
@@ -1286,7 +1290,7 @@ class Parser::Lexer
       '#'     %{ @sharp_s = p - 1 }
       # The (p == pe) condition compensates for added "\0" and
       # the way Ragel handles EOF.
-      c_line* %{ emit_comment(@sharp_s, p == pe ? p - 2 : p) }
+      c_line* %{ emit_comment_from_range(p, pe) }
     ;
 
   w_space_comment =
