@@ -737,7 +737,7 @@ class Parser::Lexer
     end
   end
 
-  def global_var
+  def emit_global_var
     if tok =~ /^\$([1-9][0-9]*)$/
       emit(:tNTH_REF, tok(@ts + 1).to_i)
     elsif tok =~ /^\$([&`'+])$/
@@ -747,7 +747,7 @@ class Parser::Lexer
     end
   end
 
-  def e_rbrace_rparen_rbrack
+  def emit_rbrace_rparen_rbrack
     emit_table(PUNCTUATION)
 
     if @version < 24
@@ -1527,7 +1527,7 @@ class Parser::Lexer
   expr_variable := |*
       global_var
       => {
-        global_var
+        emit_global_var
 
         fnext *stack_pop; fbreak;
       };
@@ -2598,7 +2598,7 @@ class Parser::Lexer
 
       e_rbrace | e_rparen | e_rbrack
       => {
-        e_rbrace_rparen_rbrack
+        emit_rbrace_rparen_rbrack
 
         if tok == '}'.freeze || tok == ']'.freeze
           if @version >= 25
