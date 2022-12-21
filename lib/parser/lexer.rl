@@ -116,6 +116,19 @@ class Parser::Lexer
         []
       end
 
+    @emit_integer = lambda { |chars, p| emit(:tINTEGER,   chars); p }
+    @emit_rational = lambda { |chars, p| emit(:tRATIONAL,  Rational(chars)); p }
+    @emit_imaginary = lambda { |chars, p| emit(:tIMAGINARY, Complex(0, chars)); p }
+    @emit_imaginary_rational = lambda { |chars, p| emit(:tIMAGINARY, Complex(0, Rational(chars))); p }
+    @emit_integer_re = lambda { |chars, p| emit(:tINTEGER,   chars, @ts, @te - 2); p - 2 }
+    @emit_integer_if = lambda { |chars, p| emit(:tINTEGER,   chars, @ts, @te - 2); p - 2 }
+    @emit_integer_rescue = lambda { |chars, p| emit(:tINTEGER,   chars, @ts, @te - 6); p - 6 }
+
+    @emit_float = lambda { |chars, p| emit(:tFLOAT,     Float(chars)); p }
+    @emit_imaginary_float = lambda { |chars, p| emit(:tIMAGINARY, Complex(0, Float(chars))); p }
+    @emit_float_if =     lambda { |chars, p| emit(:tFLOAT,     Float(chars), @ts, @te - 2); p - 2 }
+    @emit_float_rescue = lambda { |chars, p| emit(:tFLOAT,     Float(chars), @ts, @te - 6); p - 6 }
+
     reset
   end
 
@@ -980,24 +993,24 @@ class Parser::Lexer
   flo_pow  = [eE] [+\-]? ( digit+ '_' )* digit+;
 
   int_suffix =
-    ''       % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars) } }
-  | 'r'      % { @num_xfrm = lambda { |chars| emit(:tRATIONAL,  Rational(chars)) } }
-  | 'i'      % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, chars)) } }
-  | 'ri'     % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Rational(chars))) } }
-  | 're'     % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars, @ts, @te - 2); p -= 2 } }
-  | 'if'     % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars, @ts, @te - 2); p -= 2 } }
-  | 'rescue' % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars, @ts, @te - 6); p -= 6 } };
+    ''       % { @num_xfrm = @emit_integer }
+  | 'r'      % { @num_xfrm = @emit_rational }
+  | 'i'      % { @num_xfrm = @emit_imaginary }
+  | 'ri'     % { @num_xfrm = @emit_imaginary_rational }
+  | 're'     % { @num_xfrm = @emit_integer_re }
+  | 'if'     % { @num_xfrm = @emit_integer_if }
+  | 'rescue' % { @num_xfrm = @emit_integer_rescue };
 
   flo_pow_suffix =
-    ''   % { @num_xfrm = lambda { |chars| emit(:tFLOAT,     Float(chars)) } }
-  | 'i'  % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Float(chars))) } }
-  | 'if' % { @num_xfrm = lambda { |chars| emit(:tFLOAT,     Float(chars), @ts, @te - 2); p -= 2 } };
+    ''   % { @num_xfrm = @emit_float }
+  | 'i'  % { @num_xfrm = @emit_imaginary_float }
+  | 'if' % { @num_xfrm = @emit_float_if };
 
   flo_suffix =
     flo_pow_suffix
-  | 'r'      % { @num_xfrm = lambda { |chars| emit(:tRATIONAL,  Rational(chars)) } }
-  | 'ri'     % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Rational(chars))) } }
-  | 'rescue' % { @num_xfrm = lambda { |chars| emit(:tFLOAT,     Float(chars), @ts, @te - 6); p -= 6 } };
+  | 'r'      % { @num_xfrm = @emit_rational }
+  | 'ri'     % { @num_xfrm = @emit_imaginary_rational }
+  | 'rescue' % { @num_xfrm = @emit_float_rescue };
 
   #
   # === ESCAPE SEQUENCE PARSING ===
@@ -2473,7 +2486,7 @@ class Parser::Lexer
           emit(:tINTEGER, digits.to_i(@num_base), @ts, @num_suffix_s)
           p = @num_suffix_s - 1
         else
-          @num_xfrm.call(digits.to_i(@num_base))
+          p = @num_xfrm.call(digits.to_i(@num_base), p)
         end
         fbreak;
       };
@@ -2518,7 +2531,7 @@ class Parser::Lexer
           emit(:tFLOAT, Float(digits), @ts, @num_suffix_s)
           p = @num_suffix_s - 1
         else
-          @num_xfrm.call(digits)
+          p = @num_xfrm.call(digits, p)
         end
         fbreak;
       };
