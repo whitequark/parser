@@ -714,7 +714,7 @@ class Parser::Lexer
 
     emit(:tSTRING_DVAR, nil, @ts, @ts + 1)
 
-    p = @ts
+    @ts
   end
 
   def encode_escaped_char(p)
