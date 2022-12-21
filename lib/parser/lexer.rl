@@ -380,7 +380,7 @@ class Parser::Lexer
     nil
   end
 
-  def emit_comment_from_range(p, pe)
+  def emit_comment_until_eof(pe)
     emit_comment(@sharp_s, @p == pe ? @p - 2 : @p)
   end
 
@@ -457,6 +457,32 @@ class Parser::Lexer
   end
 
   # String escaping
+
+  def escape_octal
+    @escape = encode_escape(tok(@escape_s, @p).to_i(8) % 0x100)
+  end
+
+  def escape_hex
+    @escape = encode_escape(tok(@escape_s + 1, @p).to_i(16))
+  end
+
+  def report_invalid_hex
+    diagnostic :fatal, :invalid_hex_escape, nil, range(@escape_s - 1, @p + 2)
+  end
+
+  def escape_slash_u
+    @escape = tok(@escape_s + 1, @p).to_i(16).chr(Encoding::UTF_8)
+  end
+
+  def report_unterminated_slash_u_escaoe
+    diagnostic :fatal, :unterminated_unicode, nil, range(@p - 1, @p)
+  end
+
+  def report_invalid_escapes
+    if emit_invalid_escapes?
+      diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, @p)
+    end
+  end
 
   def extend_string_escaped
     current_literal = literal
@@ -540,58 +566,28 @@ class Parser::Lexer
     end
   end
 
+  def e_lbrack
+    @cond.push(false); @cmdarg.push(false)
+
+    @paren_nest += 1
+  end
+
+  def e_lparen
+    @cond.push(false); @cmdarg.push(false)
+
+    @paren_nest += 1
+
+    if version?(18)
+      @command_start = true
+    end
+  end
+
   def extend_interp_digit_var
     if @version >= 27
       literal.extend_string(tok, @ts, @te)
     else
       message = tok.start_with?('#@@') ? :cvar_name : :ivar_name
       diagnostic :error, message, { :name => tok(@ts + 1, @te) }, range(@ts + 1, @te)
-    end
-  end
-
-  def extend_string_eol_check_eof(current_literal, pe)
-    if @te == pe
-      diagnostic :fatal, :string_eof, nil,
-                 range(current_literal.str_s, current_literal.str_s + 1)
-    end
-  end
-
-  def extend_string_eol_heredoc_line
-    line = tok(@herebody_s, @ts).gsub(/\r+$/, ''.freeze)
-
-    if version?(18, 19, 20)
-      # See ruby:c48b4209c
-      line = line.gsub(/\r.*$/, ''.freeze)
-    end
-    line
-  end
-
-  def extend_string_eol_heredoc_intertwined
-    if @herebody_s
-      # This is a regular literal intertwined with a heredoc. Like:
-      #
-      #     p <<-foo+"1
-      #     bar
-      #     foo
-      #     2"
-      #
-      # which, incidentally, evaluates to "bar\n1\n2".
-      @p = @herebody_s - 1
-      @herebody_s = nil
-    end
-  end
-
-  def extend_string_eol_words
-    current_literal = literal
-
-    if current_literal.words? && !eof_codepoint?(@source_pts[@p])
-      current_literal.extend_space @ts, @te
-    else
-      # A literal newline is appended if the heredoc was _not_ closed
-      # this time (see fbreak above). See also Literal#nest_and_try_closing
-      # for rationale of calling #flush_string here.
-      current_literal.extend_string tok, @ts, @te
-      current_literal.flush_string
     end
   end
 
@@ -608,6 +604,96 @@ class Parser::Lexer
     literal.extend_string(string, @ts, @te)
   end
 
+  def extend_string
+    string = tok
+
+    lookahead = extend_string_slice_end
+
+    current_literal = literal
+    if !current_literal.heredoc? &&
+          (token = current_literal.nest_and_try_closing(string, @ts, @te, lookahead))
+      if token[0] == :tLABEL_END
+        @p += 1
+        pop_literal
+        # fnext expr_labelarg;
+        self.class.lex_en_expr_labelarg
+      else
+        # fnext *pop_literal;
+        pop_literal
+      end
+    else
+      extend_string_for_token_range(string)
+      nil
+    end
+  end
+
+  def extend_string_eol(pe)
+    current_literal = literal
+
+    if @te == pe
+      diagnostic :fatal, :string_eof, nil,
+                 range(current_literal.str_s, current_literal.str_s + 1)
+    end
+
+    if current_literal.heredoc?
+      line = tok(@herebody_s, @ts).gsub(/\r+$/, ''.freeze)
+
+      if version?(18, 19, 20)
+        # See ruby:c48b4209c
+        line = line.gsub(/\r.*$/, ''.freeze)
+      end
+
+      # Try ending the heredoc with the complete most recently
+      # scanned line. @herebody_s always refers to the start of such line.
+      if current_literal.nest_and_try_closing(line, @herebody_s, @ts)
+        # Adjust @herebody_s to point to the next line.
+        @herebody_s = @te
+
+        # Continue regular lexing after the heredoc reference (<<END).
+        @p = current_literal.heredoc_e - 1
+        return true
+      else
+        # Calculate indentation level for <<~HEREDOCs.
+        current_literal.infer_indent_level(line)
+
+        # Ditto.
+        @herebody_s = @te
+      end
+    else
+      # Try ending the literal with a newline.
+      if current_literal.nest_and_try_closing(tok, @ts, @te)
+        return true
+      end
+
+      if @herebody_s
+        # This is a regular literal intertwined with a heredoc. Like:
+        #
+        #     p <<-foo+"1
+        #     bar
+        #     foo
+        #     2"
+        #
+        # which, incidentally, evaluates to "bar\n1\n2".
+        @p = @herebody_s - 1
+        @herebody_s = nil
+      end
+    end
+
+    current_literal = literal
+
+    if current_literal.words? && !eof_codepoint?(@source_pts[@p])
+      current_literal.extend_space @ts, @te
+    else
+      # A literal newline is appended if the heredoc was _not_ closed
+      # this time (see fbreak above). See also Literal#nest_and_try_closing
+      # for rationale of calling #flush_string here.
+      current_literal.extend_string tok, @ts, @te
+      current_literal.flush_string
+    end
+
+    false
+  end
+
   def unescape_char
     codepoint = @source_pts[@p - 1]
 
@@ -620,7 +706,7 @@ class Parser::Lexer
     end
   end
 
-  def numeric_literal_int
+  def emit_simple_integer
     digits = tok(@num_digits_s, @num_suffix_s)
 
     if digits.end_with? '_'.freeze
@@ -636,7 +722,24 @@ class Parser::Lexer
       diagnostic :error, :invalid_octal, nil,
                  range(invalid_s, invalid_s + 1)
     end
-    digits
+
+    if version?(18, 19, 20)
+      emit(:tINTEGER, digits.to_i(@num_base), @ts, @num_suffix_s)
+      @p = @num_suffix_s - 1
+    else
+      @num_xfrm.call(digits.to_i(@num_base))
+    end
+  end
+
+  def emit_simple_float
+    digits = tok(@ts, @num_suffix_s)
+
+    if version?(18, 19, 20)
+      emit(:tFLOAT, Float(digits), @ts, @num_suffix_s)
+      @p = @num_suffix_s - 1
+    else
+      @num_xfrm.call(digits)
+    end
   end
 
   def unicode_points
@@ -776,9 +879,33 @@ class Parser::Lexer
     emit(:tLSHFT, '<<'.freeze,    @te - 2, @te)
   end
 
-  def check_invalid_escapes
-    if emit_invalid_escapes?
-      diagnostic :fatal, :invalid_unicode_escape, nil, range(@escape_s - 1, @p)
+  # Integers
+
+  def set_no_int_suffix
+    @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars) }
+  end
+
+  def set_rational_int_suffix
+    @num_xfrm = lambda { |chars| emit(:tRATIONAL,  Rational(chars)) }
+  end
+
+  def set_imaginary_int_suffix
+    @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, chars)) }
+  end
+
+  def set_rational_imaginary_int_suffix
+    @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Rational(chars))) }
+  end
+
+  # Identifiers
+
+  def emit_local_ident(cmd_state)
+    emit(:tIDENTIFIER)
+
+    if !@static_env.nil? && @static_env.declared?(tok)
+      self.class.lex_en_expr_endfn
+    else
+      arg_or_cmdarg(cmd_state)
     end
   end
 
@@ -983,10 +1110,10 @@ class Parser::Lexer
   flo_pow  = [eE] [+\-]? ( digit+ '_' )* digit+;
 
   int_suffix =
-    ''       % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars) } }
-  | 'r'      % { @num_xfrm = lambda { |chars| emit(:tRATIONAL,  Rational(chars)) } }
-  | 'i'      % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, chars)) } }
-  | 'ri'     % { @num_xfrm = lambda { |chars| emit(:tIMAGINARY, Complex(0, Rational(chars))) } }
+    ''       % { set_no_int_suffix }
+  | 'r'      % { set_rational_int_suffix }
+  | 'i'      % { set_imaginary_int_suffix }
+  | 'ri'     % { set_rational_imaginary_int_suffix }
   | 're'     % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars, @ts, @te - 2); @p -= 2 } }
   | 'if'     % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars, @ts, @te - 2); @p -= 2 } }
   | 'rescue' % { @num_xfrm = lambda { |chars| emit(:tINTEGER,   chars, @ts, @te - 6); @p -= 6 } };
@@ -1055,33 +1182,27 @@ class Parser::Lexer
   escape = (
       # \377
       [0-7]{1,3}
-      % { @escape = encode_escape(tok(@escape_s, @p).to_i(8) % 0x100) }
+      % { escape_octal }
 
       # \xff
     | 'x' xdigit{1,2}
-        % { @escape = encode_escape(tok(@escape_s + 1, @p).to_i(16)) }
+        % { escape_hex }
 
       # %q[\x]
     | 'x' ( c_any - xdigit )
-      % {
-        diagnostic :fatal, :invalid_hex_escape, nil, range(@escape_s - 1, @p + 2)
-      }
+      % { report_invalid_hex }
 
       # \u263a
     | 'u' xdigit{4}
-      % { @escape = tok(@escape_s + 1, @p).to_i(16).chr(Encoding::UTF_8) }
+      % { escape_slash_u }
 
       # \u123
     | 'u' xdigit{0,3}
-      % {
-        check_invalid_escapes
-      }
+      % { report_invalid_escapes }
 
       # u{not hex} or u{}
     | 'u{' ( c_any - xdigit - [ \t}] )* '}'
-      % {
-        check_invalid_escapes
-      }
+      % { report_invalid_escapes }
 
       # \u{  \t  123  \t 456   \t\t }
     | 'u{' [ \t]* ( xdigit{1,6} [ \t]+ )*
@@ -1093,9 +1214,7 @@ class Parser::Lexer
         ( xdigit* ( c_any - xdigit - [ \t}] )+ '}'
           | ( c_any - [ \t}] )* c_eof
           | xdigit{7,}
-        ) % {
-          diagnostic :fatal, :unterminated_unicode, nil, range(@p - 1, @p)
-        }
+        ) % { report_unterminated_slash_u_escaoe }
       )
 
       # \C-\a \cx
@@ -1170,23 +1289,9 @@ class Parser::Lexer
   };
 
   action extend_string {
-    string = tok
-
-    lookahead = extend_string_slice_end
-
-    current_literal = literal
-    if !current_literal.heredoc? &&
-          (token = current_literal.nest_and_try_closing(string, @ts, @te, lookahead))
-      if token[0] == :tLABEL_END
-        @p += 1
-        pop_literal
-        fnext expr_labelarg;
-      else
-        fnext *pop_literal;
-      end
+    if (break_with_next_state = extend_string)
+      fnext *break_with_next_state;
       fbreak;
-    else
-      extend_string_for_token_range(string)
     end
   }
 
@@ -1198,38 +1303,10 @@ class Parser::Lexer
   # As heredoc closing line can immediately precede EOF, this action
   # has to handle such case specially.
   action extend_string_eol {
-    current_literal = literal
-    extend_string_eol_check_eof(current_literal, pe)
-
-    if current_literal.heredoc?
-      line = extend_string_eol_heredoc_line
-
-      # Try ending the heredoc with the complete most recently
-      # scanned line. @herebody_s always refers to the start of such line.
-      if current_literal.nest_and_try_closing(line, @herebody_s, @ts)
-        # Adjust @herebody_s to point to the next line.
-        @herebody_s = @te
-
-        # Continue regular lexing after the heredoc reference (<<END).
-        @p = current_literal.heredoc_e - 1
-        fnext *pop_literal; fbreak;
-      else
-        # Calculate indentation level for <<~HEREDOCs.
-        current_literal.infer_indent_level(line)
-
-        # Ditto.
-        @herebody_s = @te
-      end
-    else
-      # Try ending the literal with a newline.
-      if current_literal.nest_and_try_closing(tok, @ts, @te)
-        fnext *pop_literal; fbreak;
-      end
-
-      extend_string_eol_heredoc_intertwined
+    pop = extend_string_eol(pe)
+    if pop
+      fnext *pop_literal; fbreak;
     end
-
-    extend_string_eol_words
   }
 
   action extend_string_space {
@@ -1417,7 +1494,7 @@ class Parser::Lexer
       '#'     %{ @sharp_s = @p - 1 }
       # The (@p == pe) condition compensates for added "\0" and
       # the way Ragel handles EOF.
-      c_line* %{ emit_comment_from_range(@p, pe) }
+      c_line* %{ emit_comment_until_eof(pe) }
     ;
 
   w_space_comment =
@@ -1485,9 +1562,7 @@ class Parser::Lexer
   # @cond/@cmdarg-related code to e_lbrack, e_lparen and e_lbrace.
 
   e_lbrack = '[' % {
-    @cond.push(false); @cmdarg.push(false)
-
-    @paren_nest += 1
+    e_lbrack
   };
 
   e_rbrack = ']' % {
@@ -1498,13 +1573,7 @@ class Parser::Lexer
   # emit correct opening kDO/tLBRACE.
 
   e_lparen = '(' % {
-    @cond.push(false); @cmdarg.push(false)
-
-    @paren_nest += 1
-
-    if version?(18)
-      @command_start = true
-    end
+    e_lparen
   };
 
   e_rparen = ')' % {
@@ -1513,13 +1582,9 @@ class Parser::Lexer
 
   # Ruby is context-sensitive wrt/ local identifiers.
   action local_ident {
-    emit(:tIDENTIFIER)
-
-    if !@static_env.nil? && @static_env.declared?(tok)
-      fnext expr_endfn; fbreak;
-    else
-      fnext *arg_or_cmdarg(cmd_state); fbreak;
-    end
+    next_state = emit_local_ident(cmd_state)
+    fnext *next_state;
+    fbreak;
   }
 
   # Variable lexing code is accessed from both expressions and
@@ -2092,6 +2157,7 @@ class Parser::Lexer
         emit_character_constant
 
         fnext expr_end; fbreak;
+        # foo
       };
 
       '?' c_space_nl
@@ -2468,14 +2534,7 @@ class Parser::Lexer
       | '0'   digit* '_'? %{ @num_base = 8;  @num_digits_s = @ts } int_dec
       ) %{ @num_suffix_s = @p } int_suffix
       => {
-        digits = numeric_literal_int
-
-        if version?(18, 19, 20)
-          emit(:tINTEGER, digits.to_i(@num_base), @ts, @num_suffix_s)
-          @p = @num_suffix_s - 1
-        else
-          @num_xfrm.call(digits.to_i(@num_base))
-        end
+        emit_simple_integer
         fbreak;
       };
 
@@ -2513,14 +2572,7 @@ class Parser::Lexer
       | flo_frac          %{ @num_suffix_s = @p } flo_suffix
       )
       => {
-        digits = tok(@ts, @num_suffix_s)
-
-        if version?(18, 19, 20)
-          emit(:tFLOAT, Float(digits), @ts, @num_suffix_s)
-          @p = @num_suffix_s - 1
-        else
-          @num_xfrm.call(digits)
-        end
+        emit_simple_float
         fbreak;
       };
 
