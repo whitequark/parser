@@ -102,7 +102,7 @@ module Parser
     CurrentRuby = Ruby31
 
   when /^3\.2\./
-    current_version = '3.2.0-dev'
+    current_version = '3.2.0'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby32', current_version
     end
@@ -112,8 +112,8 @@ module Parser
 
   else # :nocov:
     # Keep this in sync with released Ruby.
-    warn_syntax_deviation 'parser/ruby31', '3.1.x'
-    require 'parser/ruby31'
-    CurrentRuby = Ruby31
+    warn_syntax_deviation 'parser/ruby32', '3.2.x'
+    require 'parser/ruby32'
+    CurrentRuby = Ruby32
   end
 end
