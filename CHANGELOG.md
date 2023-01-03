@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2023-01-03)
--------------------------
+v3.2.0.0 (2023-01-03)
+---------------------
 
 API modifications:
  * lexer.rl: extract `extend_string_escaped` to a separate method (#893) (Ilya Bylich)
