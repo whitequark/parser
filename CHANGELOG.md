@@ -1,6 +1,20 @@
 Changelog
 =========
 
+Not released (2023-01-03)
+-------------------------
+
+API modifications:
+ * lexer.rl: extract `extend_string_escaped` to a separate method (#893) (Ilya Bylich)
+ * bump Racc to 1.6.1 (#890) (Koichi ITO)
+
+Features implemented:
+ * lexer.rl: use Ragel -F0 on non-CRuby (#894) (Benoit Daloze)
+ * ruby32.y: Allow optional newlines before closing parenthesis (#892) (Koichi ITO)
+
+Bugs fixed:
+ * ruby32.y: fix a parse error when using forwarded argument with restarg (#889) (Koichi ITO)
+
 v3.1.3.0 (2022-11-25)
 ---------------------
 
