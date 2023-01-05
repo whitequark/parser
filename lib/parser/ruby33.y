@@ -3168,7 +3168,7 @@ require 'parser'
 ---- inner
 
   def version
-    32
+    33
   end
 
   def default_encoding
