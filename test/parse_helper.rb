@@ -30,6 +30,7 @@ module ParseHelper
     when '3.0' then parser = Parser::Ruby30.new
     when '3.1' then parser = Parser::Ruby31.new
     when '3.2' then parser = Parser::Ruby32.new
+    when '3.3' then parser = Parser::Ruby33.new
     when 'mac' then parser = Parser::MacRuby.new
     when 'ios' then parser = Parser::RubyMotion.new
     else raise "Unrecognized Ruby version #{version}"
