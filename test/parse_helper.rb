@@ -7,7 +7,7 @@ module ParseHelper
   require 'parser/macruby'
   require 'parser/rubymotion'
 
-  ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 3.0 3.1 3.2 mac ios)
+  ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3 mac ios)
 
   def setup
     @diagnostics = []
@@ -30,6 +30,7 @@ module ParseHelper
     when '3.0' then parser = Parser::Ruby30.new
     when '3.1' then parser = Parser::Ruby31.new
     when '3.2' then parser = Parser::Ruby32.new
+    when '3.3' then parser = Parser::Ruby33.new
     when 'mac' then parser = Parser::MacRuby.new
     when 'ios' then parser = Parser::RubyMotion.new
     else raise "Unrecognized Ruby version #{version}"

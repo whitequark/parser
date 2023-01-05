@@ -36,6 +36,7 @@ GENERATED_FILES = %w(lib/parser/lexer-F0.rb
                      lib/parser/ruby30.rb
                      lib/parser/ruby31.rb
                      lib/parser/ruby32.rb
+                     lib/parser/ruby33.rb
                      lib/parser/macruby.rb
                      lib/parser/rubymotion.rb)
 
