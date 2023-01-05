@@ -1,11 +1,6 @@
 Changelog
 =========
 
-v3.3.0.0
---------
-Features implemented:
- * Add Ruby 3.3 support
-
 v3.2.0.0 (2023-01-03)
 ---------------------
 
