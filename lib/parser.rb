@@ -69,6 +69,7 @@ module Parser
   else
     require 'parser/lexer-F1'
   end
+  require 'parser/lexer-strings'
   require 'parser/lexer/literal'
   require 'parser/lexer/stack_state'
   require 'parser/lexer/dedenter'

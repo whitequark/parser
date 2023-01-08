@@ -23,6 +23,7 @@ task :build => [:generate_release, :changelog]
 
 GENERATED_FILES = %w(lib/parser/lexer-F0.rb
                      lib/parser/lexer-F1.rb
+                     lib/parser/lexer-strings.rb
                      lib/parser/ruby18.rb
                      lib/parser/ruby19.rb
                      lib/parser/ruby20.rb
@@ -157,6 +158,10 @@ file 'lib/parser/lexer-F1.rb' => 'lib/parser/lexer.rl' do |t|
 end
 
 file 'lib/parser/lexer-F0.rb' => 'lib/parser/lexer.rl' do |t|
+  sh "ragel -F0 -R #{t.source} -o #{t.name}"
+end
+
+file 'lib/parser/lexer-strings.rb' => 'lib/parser/lexer-strings.rl' do |t|
   sh "ragel -F0 -R #{t.source} -o #{t.name}"
 end
 
