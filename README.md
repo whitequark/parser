@@ -109,7 +109,7 @@ with Parser:
 * Precise source location reporting.
 * [Documented](doc/AST_FORMAT.md) AST format which is convenient to work with.
 * A simple interface and a powerful, tweakable one.
-* Parses 1.8, 1.9, 2.0, 2.1, 2.2 and 2.3 syntax with backwards-compatible
+* Parses 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.0, 3.1, and 3.2 syntax with backwards-compatible
   AST formats.
 * Parses MacRuby and RubyMotion syntax extensions.
 * [Rewriting][rewriting] support.
