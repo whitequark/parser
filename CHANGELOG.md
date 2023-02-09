@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Not released (2023-02-09)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.2.1 (#908) (Koichi ITO)
+ * lexer.rl: extract strings lexing to lexer-strings.rl (#905) (Ilya Bylich)
+
+Features implemented:
+ * Ruby 3.3 support (#904) (Ole Friis Østergaard)
+
 v3.2.0.0 (2023-01-03)
 ---------------------
 
