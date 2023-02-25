@@ -5,8 +5,8 @@ module Parser
 
     ##
     # {Parser::AST::Node} contains information about a single AST node and its
-    # child nodes. It extends the basic [AST::Node](http://rdoc.info/gems/ast/AST/Node)
-    # class provided by gem [ast](http://rdoc.info/gems/ast).
+    # child nodes. It extends the basic [AST::Node](https://www.rubydoc.info/gems/ast/AST/Node)
+    # class provided by gem [ast](https://www.rubydoc.info/gems/ast).
     #
     # @api public
     #
