@@ -11148,4 +11148,23 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_anonymous_args_with_forwarded_args
+    assert_parses(
+      s(:def, :deconstruct,
+        s(:args,
+          s(:forward_arg)),
+        s(:array,
+          s(:send, nil, :args,
+            s(:forwarded_restarg)),
+          s(:send, nil, :kw,
+            s(:kwargs,
+              s(:forwarded_kwrestarg))),
+          s(:csend,
+            s(:send, nil, :block,
+              s(:block_pass, nil)), :call))),
+      %Q{def deconstruct(...); [args(*), kw(**), block(&)&.call] end},
+      %q{},
+      SINCE_3_2)
+  end
 end

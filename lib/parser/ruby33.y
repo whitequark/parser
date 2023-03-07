@@ -2762,6 +2762,11 @@ f_opt_paren_args: f_paren_args
                 | args_forward
                     {
                       @static_env.declare_forward_args
+
+                      @static_env.declare_anonymous_restarg
+                      @static_env.declare_anonymous_kwrestarg
+                      @static_env.declare_anonymous_blockarg
+
                       result = [ @builder.forward_arg(val[0]) ]
                     }
 
