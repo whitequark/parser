@@ -10958,6 +10958,32 @@ class TestParser < Minitest::Test
       SINCE_3_2)
   end
 
+  def test_forwarded_kwrestarg_with_additional_kwarg
+    assert_parses(
+      s(:def, :foo,
+        s(:args,
+          s(:kwrestarg)),
+        s(:send, nil, :bar,
+          s(:kwargs,
+            s(:forwarded_kwrestarg),
+            s(:pair,
+              s(:sym, :from_foo),
+              s(:true))))),
+      %q{def foo(**); bar(**, from_foo: true); end},
+      %q{                 ~~ expression (send.kwargs.forwarded_kwrestarg)},
+      SINCE_3_2)
+
+    refute_diagnoses(
+      %q{def foo(**); bar(**, from_foo: true); end},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:warning, :duplicate_hash_key],
+      %q{def foo(**); bar(foo: 1, **, foo: 2); end},
+      %q{                             ^^^ location},
+      SINCE_3_2)
+  end
+
   def test_forwarded_argument_with_kwrestarg
     assert_parses(
       s(:def, :foo,

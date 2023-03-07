@@ -540,8 +540,13 @@ module Parser
     def associate(begin_t, pairs, end_t)
       0.upto(pairs.length - 1) do |i|
         (i + 1).upto(pairs.length - 1) do |j|
-          key1, = *pairs[i]
-          key2, = *pairs[j]
+          pair_i = pairs[i]
+          pair_j = pairs[j]
+
+          next if pair_i.type != :pair || pair_j.type != :pair
+
+          key1, = *pair_i
+          key2, = *pair_j
 
           do_warn = false
 
