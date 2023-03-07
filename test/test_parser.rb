@@ -11133,4 +11133,19 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_1)
   end
+
+  def test_kwoptarg_with_kwrestarg_and_forwarded_args
+    assert_parses(
+      s(:def, :f,
+        s(:args,
+          s(:kwoptarg, :a,
+            s(:nil)),
+          s(:kwrestarg)),
+        s(:send, nil, :b,
+          s(:kwargs,
+            s(:forwarded_kwrestarg)))),
+      %Q{def f(a: nil, **); b(**) end},
+      %q{},
+      SINCE_3_2)
+  end
 end
