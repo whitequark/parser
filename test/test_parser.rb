@@ -11148,4 +11148,36 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_argument_forwarding_with_anon_rest_kwrest_and_block
+    assert_diagnoses(
+      [:error, :unexpected_token, { token: 'tBDOT3' }],
+      %q{def f(*, **, &); g(...); end},
+      %q{},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_restarg],
+      %q{def f(...); g(*); end},
+      %q{},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_restarg],
+      %q{def f(...); g(0, *); end},
+      %q{},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_kwrestarg],
+      %q{def f(...); g(**); end},
+      %q{},
+      SINCE_3_2)
+
+    assert_diagnoses(
+      [:error, :no_anonymous_kwrestarg],
+      %q{def f(...); g(x: 1, **); end},
+      %q{},
+      SINCE_3_2)
+  end
 end
