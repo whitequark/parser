@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Not released (2023-03-08)
+-------------------------
+
+API modifications:
+ * bump racc to 1.6.2 (#916) (Ilya Bylich)
+ * backport tests for mixed usage of anonymous kwarg/kwrestarg and forwarded-arguments (#915) (Ilya Bylich)
+ * add tests for kwopt+kwrest arguments and forwarded_kwrestarg. (#913) (Ilya Bylich)
+
+Bugs fixed:
+ * builders/default: allow forwarded_kwrestarg with additional kwargs (#912) (Owen Stephens)
+
 v3.2.1.0 (2023-02-09)
 ---------------------
 
