@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2023-03-08)
--------------------------
+v3.2.1.1 (2023-03-08)
+---------------------
 
 API modifications:
  * bump racc to 1.6.2 (#916) (Ilya Bylich)
