@@ -303,7 +303,7 @@ parse.y.
 
 ## Contributing
 
-1. Make sure you have [Ragel ~> 6.7](http://www.complang.org/ragel/) installed
+1. Make sure you have [Ragel ~> 6.7](http://www.colm.net/open-source/ragel/) installed
 2. Fork it
 3. Create your feature branch (`git checkout -b my-new-feature`)
 4. Commit your changes (`git commit -am 'Add some feature'`)
