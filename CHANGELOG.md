@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2023-06-08)
+-------------------------
+
+API modifications:
+ * Add Racc to runtime dependencies (#929) (Koichi ITO)
+
 v3.2.2.2 (2023-06-08)
 ---------------------
 
