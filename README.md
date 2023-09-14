@@ -86,33 +86,31 @@ If you reuse the same parser object for multiple `#parse` runs, you need to
 You can also use the `ruby-parse` utility (it's bundled with the gem) to play
 with Parser:
 
-```bash
-$ ruby-parse -L -e "2+2"
-(send
-  (int 2) :+
-  (int 2))
-2+2
-  ~ selector
-~~~ expression
-(int 2)
-2+2
-~ expression
-(int 2)
-2+2
+    $ ruby-parse -L -e "2+2"
+    (send
+      (int 2) :+
+      (int 2))
+    2+2
+     ~ selector
+    ~~~ expression
+    (int 2)
+    2+2
+    ~ expression
+    (int 2)
+    2+2
 
-$ ruby-parse -E -e "2+2"
-2+2
-^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
-2+2
-  ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
-2+2
-  ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
-2+2
-  ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
-(send
-  (int 2) :+
-  (int 2))
-```
+    $ ruby-parse -E -e "2+2"
+    2+2
+    ^ tINTEGER 2                                    expr_end     [0 <= cond] [0 <= cmdarg]
+    2+2
+     ^ tPLUS "+"                                    expr_beg     [0 <= cond] [0 <= cmdarg]
+    2+2
+      ^ tINTEGER 2                                  expr_end     [0 <= cond] [0 <= cmdarg]
+    2+2
+      ^ false "$eof"                                expr_end     [0 <= cond] [0 <= cmdarg]
+    (send
+      (int 2) :+
+      (int 2))
 
 ## Features
 
