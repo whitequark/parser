@@ -95,10 +95,11 @@ module Parser
       end
 
       ##
-      # Same as {associate}, but compares by identity, thus producing an unambiguous
-      # result even in presence of equal nodes.
+      # Same as {associate}, but uses `node.loc` instead of `node` as
+      # the hash key, thus producing an unambiguous result even in presence
+      # of equal nodes.
       #
-      # @return [Hash<Parser::Source::Node, Array<Parser::Source::Comment>>]
+      # @return [Hash<Parser::Source::Map, Array<Parser::Source::Comment>>]
       #
       def associate_locations
         @map_using = :location
@@ -106,11 +107,10 @@ module Parser
       end
 
       ##
-      # Same as {associate}, but uses `node.loc` instead of `node` as
-      # the hash key, thus producing an unambiguous result even in presence
-      # of equal nodes.
+      # Same as {associate}, but compares by identity, thus producing an unambiguous
+      # result even in presence of equal nodes.
       #
-      # @return [Hash<Parser::Source::Map, Array<Parser::Source::Comment>>]
+      # @return [Hash<Parser::Source::Node, Array<Parser::Source::Comment>>]
       #
       def associate_by_identity
         @map_using = :identity
