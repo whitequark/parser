@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2023-10-04)
--------------------------
+v3.2.2.4 (2023-10-04)
+---------------------
 
 API modifications:
  * bump Racc to 1.7.1 (#930) (Koichi ITO)
