@@ -4740,6 +4740,22 @@ class TestParser < Minitest::Test
         |      ~~ operator (iflipflop)})
 
     assert_parses(
+      s(:if, s(:iflipflop, s(:lvar, :foo), s(:nil)),
+        nil, nil),
+      %q{if foo..nil; end},
+      %q{   ~~~~~~~~ expression (iflipflop)
+        |      ~~ operator (iflipflop)},
+      %w(1.8))
+
+    assert_parses(
+      s(:if, s(:iflipflop, s(:nil), s(:lvar, :bar)),
+        nil, nil),
+      %q{if nil..bar; end},
+      %q{   ~~~~~~~~ expression (iflipflop)
+        |      ~~ operator (iflipflop)},
+      %w(1.8))
+
+    assert_parses(
       s(:not, s(:begin, s(:iflipflop, s(:lvar, :foo), s(:lvar, :bar)))),
       %q{!(foo..bar)},
       %q{  ~~~~~~~~ expression (begin.iflipflop)
@@ -4754,6 +4770,26 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
+  def test_cond_iflipflop_with_endless_range
+    assert_parses(
+      s(:if, s(:iflipflop, s(:lvar, :foo), nil),
+        nil, nil),
+      %q{if foo..; end},
+      %q{   ~~~~~ expression (iflipflop)
+        |      ~~ operator (iflipflop)},
+      SINCE_2_6)
+  end
+
+  def test_cond_iflipflop_with_beginless_range
+    assert_parses(
+      s(:if, s(:iflipflop, nil, s(:lvar, :bar)),
+        nil, nil),
+      %q{if ..bar; end},
+      %q{   ~~~~~ expression (iflipflop)
+        |   ~~ operator (iflipflop)},
+      SINCE_2_7)
+  end
+
   def test_cond_eflipflop
     assert_parses(
       s(:if, s(:eflipflop, s(:lvar, :foo), s(:lvar, :bar)),
@@ -4761,6 +4797,22 @@ class TestParser < Minitest::Test
       %q{if foo...bar; end},
       %q{   ~~~~~~~~~ expression (eflipflop)
         |      ~~~ operator (eflipflop)})
+
+    assert_parses(
+      s(:if, s(:eflipflop, s(:lvar, :foo), s(:nil)),
+        nil, nil),
+      %q{if foo...nil; end},
+      %q{   ~~~~~~~~~ expression (eflipflop)
+        |      ~~~ operator (eflipflop)},
+      %w(1.8))
+
+    assert_parses(
+      s(:if, s(:eflipflop, s(:nil), s(:lvar, :bar)),
+        nil, nil),
+      %q{if nil...bar; end},
+      %q{   ~~~~~~~~~ expression (eflipflop)
+        |      ~~~ operator (eflipflop)},
+      %w(1.8))
 
     assert_parses(
       s(:not, s(:begin, s(:eflipflop, s(:lvar, :foo), s(:lvar, :bar)))),
@@ -4775,6 +4827,26 @@ class TestParser < Minitest::Test
       %q{  ~~~~~~~~~ expression (begin.eflipflop)
         |     ~~~ operator (begin.eflipflop)},
       SINCE_1_9)
+  end
+
+  def test_cond_eflipflop_with_endless_range
+    assert_parses(
+      s(:if, s(:eflipflop, s(:lvar, :foo), nil),
+        nil, nil),
+      %q{if foo...; end},
+      %q{   ~~~~~~ expression (eflipflop)
+        |      ~~~ operator (eflipflop)},
+      SINCE_2_6)
+  end
+
+  def test_cond_eflipflop_with_beginless_range
+    assert_parses(
+      s(:if, s(:eflipflop, nil, s(:lvar, :bar)),
+        nil, nil),
+      %q{if ...bar; end},
+      %q{   ~~~~~~ expression (eflipflop)
+        |   ~~~ operator (eflipflop)},
+      SINCE_2_7)
   end
 
   def test_cond_match_current_line
