@@ -1690,7 +1690,19 @@ module Parser
           cond
         end
 
-      when :and, :or, :irange, :erange
+      when :and, :or
+        lhs, rhs = *cond
+
+        if @parser.version == 18
+          cond
+        else
+          cond.updated(cond.type, [
+            check_condition(lhs),
+            check_condition(rhs)
+          ])
+        end
+
+      when :irange, :erange
         lhs, rhs = *cond
 
         type = case cond.type
@@ -1698,15 +1710,13 @@ module Parser
         when :erange then :eflipflop
         end
 
-        if [:and, :or].include?(cond.type) &&
-               @parser.version == 18
-          cond
-        else
-          cond.updated(type, [
-            check_condition(lhs),
-            check_condition(rhs)
-          ])
-        end
+        lhs_condition = check_condition(lhs) unless lhs.nil?
+        rhs_condition = check_condition(rhs) unless rhs.nil?
+
+        return cond.updated(type, [
+          lhs_condition,
+          rhs_condition
+        ])
 
       when :regexp
         n(:match_current_line, [ cond ], expr_map(cond.loc.expression))
