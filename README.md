@@ -131,8 +131,8 @@ with Parser:
 
 [clang-like]: http://clang.llvm.org/diagnostics.html
 [ast]: https://rubygems.org/gems/ast
-[insane-lexer]: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
-[rewriting]: http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/
+[insane-lexer]: http://web.archive.org/web/20210621201915/http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+[rewriting]: http://web.archive.org/web/20220123050223/http://whitequark.org/blog/2013/04/26/lets-play-with-ruby-code/
 
 ## Documentation
 
