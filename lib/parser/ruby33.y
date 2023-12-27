@@ -261,7 +261,7 @@ rule
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
-                | defn_head f_opt_paren_args tEQL command
+                | defn_head f_opt_paren_args tEQL endless_command
                     {
                       def_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
@@ -273,49 +273,13 @@ rule
                       @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
-                | defn_head f_opt_paren_args tEQL command kRESCUE_MOD arg
-                    {
-                      def_t, (name_t, ctx) = val[0]
-                      endless_method_name(name_t)
-
-                      rescue_body = @builder.rescue_body(val[4],
-                                        nil, nil, nil,
-                                        nil, val[5])
-
-                      method_body = @builder.begin_body(val[3], [ rescue_body ])
-
-                      result = @builder.def_endless_method(def_t, name_t,
-                                 val[1], val[2], method_body)
-
-                      local_pop
-                      @current_arg_stack.pop
-                      @context.in_def = ctx.in_def
-                    }
-                | defs_head f_opt_paren_args tEQL command
+                | defs_head f_opt_paren_args tEQL endless_command
                     {
                       def_t, recv, dot_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
 
                       result = @builder.def_endless_singleton(def_t, recv, dot_t, name_t,
                                  val[1], val[2], val[3])
-
-                      local_pop
-                      @current_arg_stack.pop
-                      @context.in_def = ctx.in_def
-                    }
-                | defs_head f_opt_paren_args tEQL command kRESCUE_MOD arg
-                    {
-                      def_t, recv, dot_t, (name_t, ctx) = val[0]
-                      endless_method_name(name_t)
-
-                      rescue_body = @builder.rescue_body(val[4],
-                                        nil, nil, nil,
-                                        nil, val[5])
-
-                      method_body = @builder.begin_body(val[3], [ rescue_body ])
-
-                      result = @builder.def_endless_singleton(def_t, recv, dot_t, name_t,
-                                 val[1], val[2], method_body)
 
                       local_pop
                       @current_arg_stack.pop
@@ -324,6 +288,20 @@ rule
                 | backref tOP_ASGN command_rhs
                     {
                       @builder.op_assign(val[0], val[1], val[2])
+                    }
+
+ endless_command: command
+                | endless_command kRESCUE_MOD arg
+                    {
+                      rescue_body = @builder.rescue_body(val[1],
+                                        nil, nil, nil,
+                                        nil, val[2])
+
+                      result = @builder.begin_body(val[0], [ rescue_body ])
+                    }
+                | kNOT opt_nl endless_command
+                    {
+                      result = @builder.not_op(val[0], nil, val[2], nil)
                     }
 
      command_rhs: command_call =tOP_ASGN
@@ -939,7 +917,7 @@ rule
                       result = @builder.ternary(val[0], val[1],
                                                 val[2], val[4], val[5])
                     }
-                | defn_head f_opt_paren_args tEQL arg
+                | defn_head f_opt_paren_args tEQL endless_arg
                     {
                       def_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
@@ -951,55 +929,33 @@ rule
                       @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
-                | defn_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
-                    {
-                      def_t, (name_t, ctx) = val[0]
-                      endless_method_name(name_t)
-
-                      rescue_body = @builder.rescue_body(val[4],
-                                        nil, nil, nil,
-                                        nil, val[5])
-
-                      method_body = @builder.begin_body(val[3], [ rescue_body ])
-
-                      result = @builder.def_endless_method(def_t, name_t,
-                                 val[1], val[2], method_body)
-
-                      local_pop
-                      @current_arg_stack.pop
-                      @context.in_def = ctx.in_def
-                    }
-                | defs_head f_opt_paren_args tEQL arg
+                | defs_head f_opt_paren_args tEQL endless_arg
                     {
                       def_t, recv, dot_t, (name_t, ctx) = val[0]
                       endless_method_name(name_t)
 
                       result = @builder.def_endless_singleton(def_t, recv, dot_t, name_t,
                                  val[1], val[2], val[3])
-
-                      local_pop
-                      @current_arg_stack.pop
-                      @context.in_def = ctx.in_def
-                    }
-                | defs_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
-                    {
-                      def_t, recv, dot_t, (name_t, ctx) = val[0]
-                      endless_method_name(name_t)
-
-                      rescue_body = @builder.rescue_body(val[4],
-                                        nil, nil, nil,
-                                        nil, val[5])
-
-                      method_body = @builder.begin_body(val[3], [ rescue_body ])
-
-                      result = @builder.def_endless_singleton(def_t, recv, dot_t, name_t,
-                                 val[1], val[2], method_body)
 
                       local_pop
                       @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | primary
+
+     endless_arg: arg=kRESCUE_MOD
+                | endless_arg kRESCUE_MOD arg
+                    {
+                      rescue_body = @builder.rescue_body(val[1],
+                                        nil, nil, nil,
+                                        nil, val[2])
+
+                      result = @builder.begin_body(val[0], [ rescue_body ])
+                    }
+                | kNOT opt_nl endless_arg
+                    {
+                      result = @builder.not_op(val[0], nil, val[2], nil)
+                    }
 
            relop: tGT | tLT | tGEQ | tLEQ
 
