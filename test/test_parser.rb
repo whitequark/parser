@@ -32,6 +32,7 @@ class TestParser < Minitest::Test
   SINCE_3_0 = SINCE_2_7 - %w(2.7)
   SINCE_3_1 = SINCE_3_0 - %w(3.0)
   SINCE_3_2 = SINCE_3_1 - %w(3.1)
+  SINCE_3_3 = SINCE_3_2 - %w(3.2)
 
   # Guidelines for test naming:
   #  * Test structure follows structure of AST_FORMAT.md.
@@ -9069,6 +9070,28 @@ class TestParser < Minitest::Test
       },
       %q{}
     )
+  end
+
+  def test_ruby_bug_19539
+    assert_parses(
+      s(:str, "[Bug #19539]\n"),
+      "<<' FOO'\n""[Bug #19539]\n"" FOO\n",
+      %q{},
+      SINCE_3_3)
+
+    assert_parses(
+      s(:str, "[Bug #19539]\n"),
+      "<<-' FOO'\n""[Bug #19539]\n"" FOO\n",
+      %q{},
+      SINCE_3_3)
+
+    # closing identifier doesn't have enough leading spaces
+    # so it's considered as a part of the string (and so we reach EOF)
+    assert_diagnoses(
+      [:fatal, :string_eof],
+      "<<~'    E'\n  E",
+      %q{},
+      SINCE_3_3)
   end
 
   def test_pattern_matching_hash_with_string_keys
