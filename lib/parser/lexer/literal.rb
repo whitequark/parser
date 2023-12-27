@@ -5,6 +5,7 @@ module Parser
 
   class Lexer::Literal
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
+    SPACE = ' '.ord
 
     TYPES = {
     # type       start token     interpolate?
@@ -234,7 +235,20 @@ module Parser
     protected
 
     def delimiter?(delimiter)
-      if @indent
+      if heredoc?
+        # This heredoc is valid:
+        # <<~E
+        #   E
+        # and this:
+        # <<~E
+        # E
+        # but this one is not:
+        # <<~'  E'
+        # E
+        # because there are not enough leading spaces in the closing delimiter.
+        delimiter.end_with?(@end_delim) &&
+          delimiter.delete_suffix(@end_delim).bytes.all? { |c| c == SPACE }
+      elsif @indent
         @end_delim == delimiter.lstrip
       else
         @end_delim == delimiter
