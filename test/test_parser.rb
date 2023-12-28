@@ -7784,6 +7784,12 @@ class TestParser < Minitest::Test
       %q{:@@1},
       %q{ ^^^ location},
       SINCE_2_7)
+
+    assert_diagnoses(
+      [:error, :gvar_name, { :name => '$01234' }],
+      %q{:$01234},
+      %q{ ^^^^^^ location},
+      SINCE_3_3)
   end
 
   def test_csend_inside_lhs_of_masgn__since_27
