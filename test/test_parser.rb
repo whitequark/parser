@@ -9797,6 +9797,18 @@ class TestParser < Minitest::Test
       %q{0 => [a, a]},
       %q{         ^ location},
       SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{0 in [a, *a]},
+      %q{          ^ location},
+      SINCE_3_3)
+
+    assert_diagnoses(
+      [:error, :duplicate_variable_name, { :name => 'a' }],
+      %q{0 in [*a, a, b, *b]},
+      %q{          ^ location},
+      SINCE_3_3)
   end
 
   def test_pattern_matching_duplicate_hash_keys
