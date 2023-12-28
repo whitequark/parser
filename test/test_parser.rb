@@ -11322,4 +11322,52 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_3)
   end
+
+  def test_ruby_bug_19281
+    assert_parses(
+      s(:send, nil, :p,
+        s(:begin,
+          s(:int, 1),
+          s(:int, 2)),
+        s(:begin,
+          s(:int, 3)),
+        s(:begin,
+          s(:int, 4))),
+      'p (1;2),(3),(4)',
+      %q{},
+      SINCE_3_3)
+
+    assert_parses(
+      s(:send, nil, :p,
+        s(:begin),
+        s(:begin),
+        s(:begin)),
+      'p (;),(),()',
+      %q{},
+      SINCE_3_3)
+
+    assert_parses(
+      s(:send,
+        s(:send, nil, :a), :b,
+        s(:begin,
+          s(:int, 1),
+          s(:int, 2)),
+        s(:begin,
+          s(:int, 3)),
+        s(:begin,
+          s(:int, 4))),
+      'a.b (1;2),(3),(4)',
+      %q{},
+      SINCE_3_3)
+
+    assert_parses(
+      s(:send,
+        s(:send, nil, :a), :b,
+        s(:begin),
+        s(:begin),
+        s(:begin)),
+      'a.b (;),(),()',
+      %q{},
+      SINCE_3_3)
+  end
 end
