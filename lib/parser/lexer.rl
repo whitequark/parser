@@ -1387,7 +1387,13 @@ class Parser::Lexer
       ':' ( bareword | global_var | class_var | instance_var |
             operator_fname | operator_arithmetic | operator_rest )
       => {
-        emit(:tSYMBOL, tok(@ts + 1), @ts)
+        gvar_name = tok(@ts + 1)
+
+        if @version >= 33 && gvar_name.start_with?('$0') && gvar_name.length > 2
+          diagnostic :error, :gvar_name, { :name => gvar_name }, range(@ts + 1, @te)
+        end
+
+        emit(:tSYMBOL, gvar_name, @ts)
         fnext expr_end; fbreak;
       };
 
