@@ -10468,6 +10468,27 @@ class TestParser < Minitest::Test
     end
   end
 
+  def test_numparam_ruby_bug_19025
+    assert_diagnoses_many(
+      [
+        [:warning, :ambiguous_prefix, { :prefix => '**' }],
+        [:error, :unexpected_token, { :token => 'tDSTAR' }]
+      ],
+      'p { [_1 **2] }',
+      %w[3.0 3.1 3.2])
+
+    assert_parses(
+      s(:numblock,
+        s(:send, nil, :p), 1,
+        s(:array,
+          s(:send,
+            s(:lvar, :_1), :**,
+            s(:int, 2)))),
+      'p { [_1 **2] }',
+      %q{},
+      SINCE_3_3)
+  end
+
   def test_endless_setter
     assert_diagnoses(
       [:error, :endless_setter],
