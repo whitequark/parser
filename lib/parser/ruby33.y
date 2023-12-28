@@ -1207,21 +1207,13 @@ rule
 
                       result = @builder.begin_keyword(val[0], val[2], val[3])
                     }
-                | tLPAREN_ARG stmt
+                | tLPAREN_ARG compstmt
                     {
                       @lexer.state = :expr_endarg
                     }
-                    rparen
+                    tRPAREN
                     {
                       result = @builder.begin(val[0], val[1], val[3])
-                    }
-                | tLPAREN_ARG
-                    {
-                      @lexer.state = :expr_endarg
-                    }
-                    opt_nl tRPAREN
-                    {
-                      result = @builder.begin(val[0], nil, val[3])
                     }
                 | tLPAREN compstmt tRPAREN
                     {
