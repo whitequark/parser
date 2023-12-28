@@ -11370,4 +11370,18 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_3)
   end
+
+  def test_ungettable_gvar
+    assert_diagnoses(
+      [:error, :gvar_name, { :name => '$01234' }],
+      '$01234',
+      '^^^^^^ location',
+      ALL_VERSIONS)
+
+    assert_diagnoses(
+      [:error, :gvar_name, { :name => '$01234' }],
+      '"#$01234"',
+      '  ^^^^^^ location',
+      ALL_VERSIONS)
+  end
 end

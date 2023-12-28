@@ -72,6 +72,7 @@ module Parser
     :circular_argument_reference  => 'circular argument reference %{var_name}',
     :pm_interp_in_var_name        => 'symbol literal with interpolation is not allowed',
     :lvar_name                    => "`%{name}' is not allowed as a local variable name",
+    :gvar_name                    => '%{name} is not allowed as a global variable name',
     :undefined_lvar               => "no such local variable: `%{name}'",
     :duplicate_variable_name      => 'duplicate variable name %{name}',
     :duplicate_pattern_key        => 'duplicate hash pattern key %{name}',

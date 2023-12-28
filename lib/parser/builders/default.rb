@@ -594,7 +594,13 @@ module Parser
     end
 
     def gvar(token)
-      n(:gvar, [ value(token).to_sym ],
+      gvar_name = value(token)
+
+      if gvar_name.start_with?('$0') && gvar_name.length > 2
+        diagnostic :error, :gvar_name, { :name => gvar_name }, loc(token)
+      end
+
+      n(:gvar, [ gvar_name.to_sym ],
         variable_map(token))
     end
 
