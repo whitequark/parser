@@ -2401,6 +2401,9 @@ opt_block_args_tail:
                       opts   = @builder.regexp_options(val[3])
                       result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
+            
+       words_sep: tSPACE
+                | words_sep tSPACE
 
            words: tWORDS_BEG word_list tSTRING_END
                     {
@@ -2411,7 +2414,7 @@ opt_block_args_tail:
                     {
                       result = []
                     }
-                | word_list word tSPACE
+                | word_list word words_sep
                     {
                       result = val[0] << @builder.word(val[1])
                     }
@@ -2434,7 +2437,7 @@ opt_block_args_tail:
                     {
                       result = []
                     }
-                | symbol_list word tSPACE
+                | symbol_list word words_sep
                     {
                       result = val[0] << @builder.word(val[1])
                     }
@@ -2453,7 +2456,7 @@ opt_block_args_tail:
                     {
                       result = []
                     }
-                | qword_list tSTRING_CONTENT tSPACE
+                | qword_list tSTRING_CONTENT words_sep
                     {
                       result = val[0] << @builder.string_internal(val[1])
                     }
@@ -2462,7 +2465,7 @@ opt_block_args_tail:
                     {
                       result = []
                     }
-                | qsym_list tSTRING_CONTENT tSPACE
+                | qsym_list tSTRING_CONTENT words_sep
                     {
                       result = val[0] << @builder.symbol_internal(val[1])
                     }
