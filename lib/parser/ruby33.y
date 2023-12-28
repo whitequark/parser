@@ -911,13 +911,9 @@ rule
                     {
                       result = @builder.logical_op(:or, val[0], val[1], val[2])
                     }
-                | kDEFINED opt_nl
+                | kDEFINED opt_nl begin_defined arg
                     {
-                      @context.in_defined = true
-                    }
-                  arg
-                    {
-                      @context.in_defined = false
+                      @context.in_defined = val[2].in_defined
                       result = @builder.keyword_cmd(:defined?, val[0], nil, [ val[3] ], nil)
                     }
                 | arg tEH arg opt_nl tCOLON arg
@@ -974,6 +970,11 @@ rule
                 | rel_expr relop arg =tGT
                     {
                       result = @builder.binary_op(val[0], val[1], val[2])
+                    }
+
+   begin_defined: none
+                    {
+                      result = @context.dup
                     }
 
        arg_value: arg
@@ -1251,13 +1252,9 @@ rule
                     {
                       result = @builder.keyword_cmd(:yield, val[0])
                     }
-                | kDEFINED opt_nl tLPAREN2
+                | kDEFINED opt_nl tLPAREN2 begin_defined expr rparen
                     {
-                      @context.in_defined = true
-                    }
-                  expr rparen
-                    {
-                      @context.in_defined = false
+                      @context.in_defined = val[3].in_defined
                       result = @builder.keyword_cmd(:defined?, val[0],
                                                     val[2], [ val[4] ], val[5])
                     }
