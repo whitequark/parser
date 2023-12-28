@@ -332,39 +332,35 @@ rule
                     {
                       result = @builder.not_op(val[0], nil, val[1], nil)
                     }
-                | arg tASSOC
+                | arg p_assoc
                     {
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
                       @pattern_variables.push
                       @pattern_hash_keys.push
-
-                      result = @context.in_kwarg
                       @context.in_kwarg = true
                     }
                   p_top_expr_body
                     {
                       @pattern_variables.pop
                       @pattern_hash_keys.pop
-                      @context.in_kwarg = val[2]
-                      result = @builder.match_pattern(val[0], val[1], val[3])
+                      assoc_t, @context.in_kwarg = val[1]
+                      result = @builder.match_pattern(val[0], assoc_t, val[3])
                     }
-                | arg kIN
+                | arg p_in
                     {
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
                       @pattern_variables.push
                       @pattern_hash_keys.push
-
-                      result = @context.in_kwarg
                       @context.in_kwarg = true
                     }
                   p_top_expr_body
                     {
                       @pattern_variables.pop
                       @pattern_hash_keys.pop
-                      @context.in_kwarg = val[2]
-                      result = @builder.match_pattern_p(val[0], val[1], val[3])
+                      in_t, @context.in_kwarg = val[1]
+                      result = @builder.match_pattern_p(val[0], in_t, val[3])
                     }
                 | arg =tLBRACE_ARG
 
@@ -1918,7 +1914,17 @@ opt_block_args_tail:
                     }
                 | case_body
 
-     p_case_body: kIN
+         p_assoc: tASSOC
+                    {
+                      result = [ val[0], @context.in_kwarg ]
+                    }
+
+            p_in: kIN
+                    {
+                      result = [ val[0], @context.in_kwarg ]
+                    }
+
+     p_case_body: p_in
                     {
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
@@ -1936,7 +1942,8 @@ opt_block_args_tail:
                     }
                   compstmt p_cases
                     {
-                      result = [ @builder.in_pattern(val[0], *val[2], val[3], val[5]),
+                      in_t = val[0][0]
+                      result = [ @builder.in_pattern(in_t, *val[2], val[3], val[5]),
                                  *val[6] ]
                     }
 
