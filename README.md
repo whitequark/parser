@@ -260,6 +260,15 @@ issue](https://github.com/whitequark/parser/issues/72).
 
 It is unknown whether any gems are affected by this issue.
 
+### Syntax check of block exits
+
+Similar to "void value expression" checks Ruby MRI also checks for correct
+usage of `break`, `next` and `redo`, if it's used outside of a {break,next,redo}-able
+context Ruby returns a syntax error starting from 3.3.0. `parser` gem simply doesn't
+run this type of checks.
+
+It is unknown whether any gems are affected by this issue.
+
 ### Invalid characters inside comments and literals
 
 Ruby MRI permits arbitrary non-7-bit byte sequences to appear in comments, as well as in string or symbol literals in form of escape sequences, regardless of source encoding. Parser requires all source code, including the expanded escape sequences, to consist of valid byte sequences in the source encoding that are convertible to UTF-8.
