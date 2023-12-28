@@ -2510,13 +2510,15 @@ regexp_contents: # nothing
                       @lexer.cmdarg.push(false)
                       @lexer.cond.push(false)
                     }
-                    compstmt tSTRING_DEND
+                    compstmt string_dend
                     {
                       @lexer.cmdarg.pop
                       @lexer.cond.pop
 
                       result = @builder.begin(val[0], val[2], val[3])
                     }
+
+     string_dend: tSTRING_DEND
 
      string_dvar: tGVAR
                     {
