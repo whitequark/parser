@@ -11308,4 +11308,18 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_3_2)
   end
+
+  def test_ruby_bug_18878
+    assert_parses(
+      s(:block,
+        s(:send,
+          s(:const, nil, :Foo), :Bar),
+        s(:args,
+          s(:procarg0,
+            s(:arg, :a))),
+        s(:int, 42)),
+      'Foo::Bar { |a| 42 }',
+      %q{},
+      SINCE_3_3)
+  end
 end

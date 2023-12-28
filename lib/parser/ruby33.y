@@ -469,6 +469,14 @@ rule
                       result      = @builder.block(method_call,
                                       begin_t, args, body, end_t)
                     }
+                | primary_value tCOLON2 tCONSTANT tLCURLY brace_body tRCURLY
+                    {
+                      method_call = @builder.call_method(val[0], val[1], val[2],
+                                        nil, [], nil)
+
+                      args, body = val[4]
+                      result = @builder.block(method_call, val[3], args, body, val[5])
+                    }
                 | kSUPER command_args
                     {
                       result = @builder.keyword_cmd(:super, val[0],
