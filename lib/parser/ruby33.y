@@ -2520,17 +2520,9 @@ regexp_contents: # nothing
 
      string_dend: tSTRING_DEND
 
-     string_dvar: tGVAR
+     string_dvar: nonlocal_var
                     {
-                      result = @builder.gvar(val[0])
-                    }
-                | tIVAR
-                    {
-                      result = @builder.ivar(val[0])
-                    }
-                | tCVAR
-                    {
-                      result = @builder.cvar(val[0])
+                      result = @builder.accessible(val[0])
                     }
                 | backref
 
