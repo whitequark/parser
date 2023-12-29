@@ -3788,6 +3788,25 @@ class TestParser < Minitest::Test
       %q{                ~~ selector (match_with_lvasgn)
         |~~~~~~~~~~~~~~~~~~~~~~~~ expression (match_with_lvasgn)},
       SINCE_1_9)
+
+    assert_parses(
+      s(:begin,
+        s(:match_with_lvasgn,
+          s(:regexp,
+            s(:str, "(?<a>a)"),
+            s(:regopt)),
+          s(:str, "a")),
+        s(:send,
+          s(:regexp,
+            s(:begin),
+            s(:str, "(?<b>b)"),
+            s(:regopt)), :=~,
+          s(:str, "b")),
+        s(:lvar, :a),
+        s(:send, nil, :b)),
+      %q{/(?<a>a)/ =~ 'a'; /#{}(?<b>b)/ =~ 'b'; a; b},
+      %q{},
+      SINCE_3_3)
   end
 
   def test_non_lvar_injecting_match

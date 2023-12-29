@@ -2261,6 +2261,10 @@ module Parser
 
     def static_regexp_node(node)
       if node.type == :regexp
+        if @parser.version >= 33 && node.children[0..-2].any? { |child| child.type != :str }
+          return nil
+        end
+
         parts, options = node.children[0..-2], node.children[-1]
         static_regexp(parts, options)
       end
