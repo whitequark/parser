@@ -332,35 +332,19 @@ rule
                     {
                       result = @builder.not_op(val[0], nil, val[1], nil)
                     }
-                | arg p_assoc
-                    {
-                      @lexer.state = :expr_beg
-                      @lexer.command_start = false
-                      @pattern_variables.push
-                      @pattern_hash_keys.push
-                      @context.in_kwarg = true
-                    }
-                  p_top_expr_body
+                | arg tASSOC p_in_kwarg p_pvtbl p_pktbl p_top_expr_body
                     {
                       @pattern_variables.pop
                       @pattern_hash_keys.pop
-                      assoc_t, @context.in_kwarg = val[1]
-                      result = @builder.match_pattern(val[0], assoc_t, val[3])
+                      @context.in_kwarg = val[2]
+                      result = @builder.match_pattern(val[0], val[1], val[5])
                     }
-                | arg p_in
-                    {
-                      @lexer.state = :expr_beg
-                      @lexer.command_start = false
-                      @pattern_variables.push
-                      @pattern_hash_keys.push
-                      @context.in_kwarg = true
-                    }
-                  p_top_expr_body
+                | arg kIN p_in_kwarg p_pvtbl p_pktbl p_top_expr_body
                     {
                       @pattern_variables.pop
                       @pattern_hash_keys.pop
-                      in_t, @context.in_kwarg = val[1]
-                      result = @builder.match_pattern_p(val[0], in_t, val[3])
+                      @context.in_kwarg = val[2]
+                      result = @builder.match_pattern_p(val[0], val[1], val[5])
                     }
                 | arg =tLBRACE_ARG
 
@@ -1914,27 +1898,26 @@ opt_block_args_tail:
                     }
                 | case_body
 
-         p_assoc: tASSOC
+         p_pvtbl: none
                     {
-                      result = [ val[0], @context.in_kwarg ]
+                      @pattern_variables.push
                     }
 
-            p_in: kIN
+         p_pktbl: none
                     {
-                      result = [ val[0], @context.in_kwarg ]
+                      @pattern_hash_keys.push
                     }
 
-     p_case_body: p_in
+      p_in_kwarg: none
                     {
+                      result = @context.in_kwarg
+                      
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
-                      @pattern_variables.push
-                      @pattern_hash_keys.push
-
-                      result = @context.in_kwarg
                       @context.in_kwarg = true
                     }
-                  p_top_expr then
+
+     p_case_body: kIN p_in_kwarg p_pvtbl p_pktbl p_top_expr then
                     {
                       @pattern_variables.pop
                       @pattern_hash_keys.pop
@@ -1942,9 +1925,8 @@ opt_block_args_tail:
                     }
                   compstmt p_cases
                     {
-                      in_t = val[0][0]
-                      result = [ @builder.in_pattern(in_t, *val[2], val[3], val[5]),
-                                 *val[6] ]
+                      result = [ @builder.in_pattern(val[0], *val[4], val[5], val[7]),
+                                 *val[8] ]
                     }
 
          p_cases: opt_else
