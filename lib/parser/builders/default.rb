@@ -660,6 +660,13 @@ module Parser
         end
 
         unless @parser.static_env.declared?(name)
+          if @parser.version == 33 &&
+              name == :it &&
+              @parser.context.in_block &&
+              !@parser.max_numparam_stack.has_ordinary_params?
+            diagnostic :warning, :ambiguous_it_call, nil, node.loc.expression
+          end
+
           return n(:send, [ nil, name ],
             var_send_map(node))
         end

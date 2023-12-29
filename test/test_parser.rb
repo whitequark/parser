@@ -11409,4 +11409,35 @@ class TestParser < Minitest::Test
       '  ^^^^^^ location',
       ALL_VERSIONS)
   end
+
+  def test_it_warning_in_33
+    refute_diagnoses(
+      'if false; it; end',
+      ALL_VERSIONS)
+    refute_diagnoses(
+      'def foo; it; end',
+      ALL_VERSIONS)
+    assert_diagnoses(
+      [:warning, :ambiguous_it_call, {}],
+      '0.times { it }',
+      '          ^^ location',
+      ['3.3'])
+    refute_diagnoses(
+      '0.times { || it }',
+      ALL_VERSIONS)
+    refute_diagnoses(
+      '0.times { |_n| it }',
+      ALL_VERSIONS)
+    assert_diagnoses(
+      [:warning, :ambiguous_it_call, {}],
+      '0.times { it; it = 1; it }',
+      '          ^^ location',
+      ['3.3'])
+    refute_diagnoses(
+      '0.times { it = 1; it }',
+      ALL_VERSIONS)
+    refute_diagnoses(
+      'it = 1; 0.times { it }',
+      ALL_VERSIONS)
+  end
 end
