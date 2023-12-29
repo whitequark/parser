@@ -1331,7 +1331,7 @@ rule
                       local_pop
                       @context.in_class = ctx.in_class
                     }
-                | k_class tLSHFT expr term
+                | k_class tLSHFT expr_value term
                     {
                       @context.in_def = false
                       @context.in_class = false
