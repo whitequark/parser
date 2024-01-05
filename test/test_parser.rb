@@ -11440,4 +11440,52 @@ class TestParser < Minitest::Test
       'it = 1; 0.times { it }',
       ALL_VERSIONS)
   end
+
+  def test_anonymous_params_in_nested_scopes
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_blockarg, {}],
+      'def b(&) ->(&) {c(&)} end',
+      '                  ^ location',
+      SINCE_3_3)
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_restarg, {}],
+      'def b(*) ->(*) {c(*)} end',
+      '                  ^ location',
+      SINCE_3_3)
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_restarg, {}],
+      'def b(a, *) ->(*) {c(1, *)} end',
+      '                        ^ location',
+      SINCE_3_3)
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_restarg, {}],
+      'def b(*) ->(a, *) {c(*)} end',
+      '                     ^ location',
+      SINCE_3_3)
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_kwrestarg, {}],
+      'def b(**) ->(**) {c(**)} end',
+      '                    ^^ location',
+      SINCE_3_3)
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_kwrestarg, {}],
+      'def b(k:, **) ->(**) {c(k: 1, **)} end',
+      '                              ^^ location',
+      SINCE_3_3)
+    assert_diagnoses(
+      [:error, :ambiguous_anonymous_kwrestarg, {}],
+      'def b(**) ->(k:, **) {c(**)} end',
+      '                        ^^ location',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(&) ->(&) {c()} end',
+      SINCE_3_3)
+    refute_diagnoses(
+      'def b(*) ->(*) {c()} end',
+      SINCE_3_3)
+    refute_diagnoses(
+      'def b(**) ->(**) {c()} end',
+      SINCE_3_3)
+  end
 end

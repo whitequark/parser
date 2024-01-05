@@ -1100,6 +1100,11 @@ rule
                         diagnostic :error, :no_anonymous_blockarg, nil, val[0]
                       end
 
+                      if @context.in_dynamic_block? && context.in_def &&
+                        @static_env.declared_anonymous_blockarg? && @static_env.parent_has_anonymous_blockarg?
+                        diagnostic :error, :ambiguous_anonymous_blockarg, nil, val[0]
+                      end
+
                       result = @builder.block_pass(val[0], nil)
                     }
 
@@ -1134,6 +1139,11 @@ rule
                     {
                       if !@static_env.declared_anonymous_restarg?
                         diagnostic :error, :no_anonymous_restarg, nil, val[0]
+                      end
+
+                      if @context.in_dynamic_block? && context.in_def &&
+                        @static_env.declared_anonymous_restarg? && @static_env.parent_has_anonymous_restarg?
+                        diagnostic :error, :ambiguous_anonymous_restarg, nil, val[0]
                       end
 
                       result = [ @builder.forwarded_restarg(val[0]) ]
@@ -3046,6 +3056,11 @@ f_opt_paren_args: f_paren_args
                     {
                       if !@static_env.declared_anonymous_kwrestarg?
                         diagnostic :error, :no_anonymous_kwrestarg, nil, val[0]
+                      end
+
+                      if @context.in_dynamic_block? && context.in_def &&
+                        @static_env.declared_anonymous_kwrestarg? && @static_env.parent_has_anonymous_kwrestarg?
+                        diagnostic :error, :ambiguous_anonymous_kwrestarg, nil, val[0]
                       end
 
                       result = @builder.forwarded_kwrestarg(val[0])
