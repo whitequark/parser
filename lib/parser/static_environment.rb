@@ -63,6 +63,10 @@ module Parser
       declared?(ANONYMOUS_BLOCKARG)
     end
 
+    def parent_has_anonymous_blockarg?
+      @stack.any? { |variables| variables.include?(ANONYMOUS_BLOCKARG) }
+    end
+
     def declare_anonymous_restarg
       declare(ANONYMOUS_RESTARG)
     end
@@ -71,12 +75,20 @@ module Parser
       declared?(ANONYMOUS_RESTARG)
     end
 
+    def parent_has_anonymous_restarg?
+      @stack.any? { |variables| variables.include?(ANONYMOUS_RESTARG) }
+    end
+
     def declare_anonymous_kwrestarg
       declare(ANONYMOUS_KWRESTARG)
     end
 
     def declared_anonymous_kwrestarg?
       declared?(ANONYMOUS_KWRESTARG)
+    end
+
+    def parent_has_anonymous_kwrestarg?
+      @stack.any? { |variables| variables.include?(ANONYMOUS_KWRESTARG) }
     end
 
     def empty?
