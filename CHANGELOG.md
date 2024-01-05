@@ -1,6 +1,32 @@
 Changelog
 =========
 
+v3.3.0.0 (2024-01-05)
+---------------------
+
+API modifications:
+ * current.rb: mark 3.3 branch as stable (#984) (Ilya Bylich)
+ * ruby33.y: extract string_dend (#969) (Ilya Bylich)
+ * lexer.rl: treat numparams as locals (#968) (Ilya Bylich)
+ * ruby33.y: extract words_sep (#967) (Ilya Bylich)
+ * literal.rb: match heredoc identifier from end of line (#965) (Ilya Bylich)
+ * ruby33.y: extract {endless_command,endless_arg} rules (#964) (Ilya Bylich)
+ * Bump Racc to 1.7.3 (#954) (Koichi ITO)
+
+Features implemented:
+ * ruby33.y: reject ambiguous anonymous arguments (#983) (Ilya Bylich)
+ * ruby33.y: extract arg_splat rule. (#981) (Ilya Bylich)
+ * builder.rb: warn `it` in a block with no ordinary params. (#980) (Ilya Bylich)
+ * builder.rb: extract named captures only from static regexes. (#979) (Ilya Bylich)
+ * ruby33.y: accept expr_value in sclass definition. (#978) (Ilya Bylich)
+ * ruby33.y: extract p_in_kwarg (#977) (Ilya Bylich)
+ * ruby33.y: extract p_assoc and p_in rules (#976) (Ilya Bylich)
+ * ruby33.y: reject invalid gvar as symbol (#974) (Ilya Bylich)
+ * ruby33.y: properly restore in_defined flag, extract begin_defined rule (#973) (Ilya Bylich)
+ * builder.rb: reject multi-char gvar names starting with 0 (#972) (Ilya Bylich)
+ * ruby33.y: allow semicolon in parenthesis at the first argument of command call (#971) (Ilya Bylich)
+ * ruby33.y: parse qualified const with brace block as a method call (#970) (Ilya Bylich)
+
 v3.2.2.4 (2023-10-04)
 ---------------------
 
