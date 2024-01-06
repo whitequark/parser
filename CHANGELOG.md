@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2024-01-06)
--------------------------
+v3.3.0.1 (2024-01-06)
+---------------------
 
 Bugs fixed:
  * Supports Ruby 2.0+ runtime (#986) (Koichi ITO)
