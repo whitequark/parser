@@ -247,7 +247,7 @@ module Parser
         # E
         # because there are not enough leading spaces in the closing delimiter.
         delimiter.end_with?(@end_delim) &&
-          delimiter.delete_suffix(@end_delim).bytes.all? { |c| c == SPACE }
+          delimiter.sub(/#{@end_delim}\z/, '').bytes.all? { |c| c == SPACE }
       elsif @indent
         @end_delim == delimiter.lstrip
       else
