@@ -997,6 +997,16 @@ class TestLexer < Minitest::Test
                    :tNL,             nil,        [7, 8])
   end
 
+  def test_heredoc_plus_character
+    assert_scanned("a = <<'+'\nABCDEF\n+\n",
+                   :tIDENTIFIER,     "a",        [0, 1],
+                   :tEQL,            "=",        [2, 3],
+                   :tSTRING_BEG,     "<<\'",     [4, 9],
+                   :tSTRING_CONTENT, "ABCDEF\n", [10, 17],
+                   :tSTRING_END,     "+",        [17, 18],
+                   :tNL,             nil,        [9, 10])
+  end
+
   def test_heredoc_cr
     assert_scanned("a = <<E\r\r\nABCDEF\r\r\nE\r\r\r\n",
                    :tIDENTIFIER,     "a",          [0, 1],
