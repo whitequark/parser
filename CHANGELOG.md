@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2024-01-07)
+-------------------------
+
+Bugs fixed:
+ * Fix an error when using heredoc with non-word delimiters (#987) (Koichi ITO)
+
 v3.3.0.1 (2024-01-06)
 ---------------------
 
