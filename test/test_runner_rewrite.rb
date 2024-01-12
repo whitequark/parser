@@ -10,11 +10,11 @@ require (BASE_DIR + 'helper').expand_path
 
 class TestRunnerRewrite < Minitest::Test
   def assert_rewriter_output(path, args, input: 'input.rb', output: 'output.rb', expected_output: '', expected_error: '')
-    @ruby_rewrite = BASE_DIR.expand_path + '../bin/ruby-rewrite'
-    @test_dir     = BASE_DIR + path
+    @ruby_rewrite = ::BASE_DIR.expand_path + '../bin/ruby-rewrite'
+    @test_dir     = ::BASE_DIR + path
     @fixtures_dir = @test_dir + 'fixtures'
 
-    Dir.mktmpdir("parser", BASE_DIR.expand_path.to_s) do |tmp_dir|
+    Dir.mktmpdir("parser", ::BASE_DIR.expand_path.to_s) do |tmp_dir|
       tmp_dir = Pathname.new(tmp_dir)
       sample_file = tmp_dir + "#{path}.rb"
       sample_file_expanded = sample_file.expand_path
