@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2024-01-12)
--------------------------
+v3.3.0.3 (2024-01-12)
+---------------------
 
 Bugs fixed:
  * lexer.rl: accept tabs before closing heredoc delimiter (#990) (Ilya Bylich)
