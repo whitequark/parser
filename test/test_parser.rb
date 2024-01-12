@@ -11488,4 +11488,12 @@ class TestParser < Minitest::Test
       'def b(**) ->(**) {c()} end',
       SINCE_3_3)
   end
+
+  def test_parser_bug_989
+    assert_parses(
+      s(:str, "\t\tcontent\n"),
+      "\t<<-HERE\n\t\tcontent\n\tHERE",
+      %q{},
+      ALL_VERSIONS)
+  end
 end

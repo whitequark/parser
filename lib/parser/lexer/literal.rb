@@ -6,6 +6,7 @@ module Parser
   class Lexer::Literal
     DELIMITERS = { '(' => ')', '[' => ']', '{' => '}', '<' => '>' }
     SPACE = ' '.ord
+    TAB = "\t".ord
 
     TYPES = {
     # type       start token     interpolate?
@@ -247,7 +248,7 @@ module Parser
         # E
         # because there are not enough leading spaces in the closing delimiter.
         delimiter.end_with?(@end_delim) &&
-          delimiter.sub(/#{Regexp.escape(@end_delim)}\z/, '').bytes.all? { |c| c == SPACE }
+          delimiter.sub(/#{Regexp.escape(@end_delim)}\z/, '').bytes.all? { |c| c == SPACE || c == TAB }
       elsif @indent
         @end_delim == delimiter.lstrip
       else
