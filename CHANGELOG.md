@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2024-01-15)
+-------------------------
+
+Features implemented:
+ * Register a Ruby 3.4 parser (#991) (Jean byroot Boussier)
+
 v3.3.0.3 (2024-01-12)
 ---------------------
 
