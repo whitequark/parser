@@ -33,6 +33,7 @@ class TestParser < Minitest::Test
   SINCE_3_1 = SINCE_3_0 - %w(3.0)
   SINCE_3_2 = SINCE_3_1 - %w(3.1)
   SINCE_3_3 = SINCE_3_2 - %w(3.2)
+  SINCE_3_4 = SINCE_3_3 - %w(3.3)
 
   # Guidelines for test naming:
   #  * Test structure follows structure of AST_FORMAT.md.
@@ -9218,7 +9219,7 @@ class TestParser < Minitest::Test
     # diagnostic error because of the wrong lvar name
     assert_diagnoses(
       [:error, :lvar_name, { name: "a\n" }],
-      %Q{case nil; in "\#{ <<-HERE }":;\na\nHERE\nelse\nend},
+      "case nil; in \"\#{ <<-HERE }\":;\na\nHERE\nelse\nend",
       %q{                 ~~~~~~~ location},
       SINCE_2_7
     )
@@ -10600,7 +10601,7 @@ class TestParser < Minitest::Test
       s(:dstr,
         s(:begin),
         s(:str, "\n")),
-      %q{<<~HERE!  #{}!HERE}.gsub('!', "\n"),
+      "<<~HERE\n  \#{}\nHERE",
       %q{},
       SINCE_2_3)
   end
