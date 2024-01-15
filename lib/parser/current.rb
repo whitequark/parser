@@ -119,6 +119,15 @@ module Parser
     require 'parser/ruby33'
     CurrentRuby = Ruby33
 
+  when /^3\.4\./
+    current_version = '3.4.0'
+    if RUBY_VERSION != current_version
+      warn_syntax_deviation 'parser/ruby34', current_version
+    end
+
+    require 'parser/ruby34'
+    CurrentRuby = Ruby34
+
   else # :nocov:
     # Keep this in sync with released Ruby.
     warn_syntax_deviation 'parser/ruby33', '3.3.x'

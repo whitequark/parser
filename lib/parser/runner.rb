@@ -133,6 +133,11 @@ module Parser
         @parser_class = Parser::Ruby33
       end
 
+      opts.on '--34', 'Parse as Ruby 3.4 would' do
+        require 'parser/ruby34'
+        @parser_class = Parser::Ruby34
+      end
+
       opts.on '--mac', 'Parse as MacRuby 0.12 would' do
         require 'parser/macruby'
         @parser_class = Parser::MacRuby
