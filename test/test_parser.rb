@@ -10501,7 +10501,7 @@ class TestParser < Minitest::Test
         [:error, :unexpected_token, { :token => 'tDSTAR' }]
       ],
       'p { [_1 **2] }',
-      %w[3.0 3.1 3.2])
+      %w[3.0 3.1])
 
     assert_parses(
       s(:numblock,
@@ -10512,7 +10512,7 @@ class TestParser < Minitest::Test
             s(:int, 2)))),
       'p { [_1 **2] }',
       %q{},
-      SINCE_3_3)
+      SINCE_3_2)
   end
 
   def test_endless_setter
