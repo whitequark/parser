@@ -1,8 +1,14 @@
 Changelog
 =========
 
-Not released (2024-01-15)
+Not released (2024-01-21)
 -------------------------
+
+API modifications:
+ * Bump 3.2 branch to 3.2.3 (#993) (Koichi ITO)
+
+v3.3.0.4 (2024-01-15)
+---------------------
 
 Features implemented:
  * Register a Ruby 3.4 parser (#991) (Jean byroot Boussier)
