@@ -833,7 +833,7 @@ class Parser::Lexer
 
     if !@static_env.nil? && @static_env.declared?(tok)
       fnext expr_endfn; fbreak;
-    elsif @version >= 33 && tok =~ /\A_[1-9]\z/
+    elsif @version >= 32 && tok =~ /\A_[1-9]\z/
       fnext expr_endfn; fbreak;
     else
       fnext *arg_or_cmdarg(cmd_state); fbreak;
