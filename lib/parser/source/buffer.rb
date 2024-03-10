@@ -46,6 +46,7 @@ module Parser
       # magic encoding comment or UTF-8 BOM. `string` can be in any encoding.
       #
       # @param [String]  string
+      # @raise [Parser::UnknownEncodingInMagicComment] if the encoding is not recognized
       # @return [String, nil] encoding name, if recognized
       #
       def self.recognize_encoding(string)
@@ -66,7 +67,11 @@ module Parser
         return nil if encoding_line.nil? || encoding_line[0] != '#'
 
         if (result = ENCODING_RE.match(encoding_line))
-          Encoding.find(result[3] || result[4] || result[6])
+          begin
+            Encoding.find(result[3] || result[4] || result[6])
+          rescue ArgumentError => e
+            raise Parser::UnknownEncodingInMagicComment, e.message
+          end
         else
           nil
         end

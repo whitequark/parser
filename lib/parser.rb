@@ -59,6 +59,7 @@ module Parser
 
   require 'parser/syntax_error'
   require 'parser/clobbering_error'
+  require 'parser/unknown_encoding_in_magic_comment_error'
   require 'parser/diagnostic'
   require 'parser/diagnostic/engine'
 
