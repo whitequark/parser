@@ -60,9 +60,10 @@ class TestEncoding < Minitest::Test
     assert_equal Encoding::UTF_8, recognize('# coding: utf-8-unix')
     assert_equal Encoding::UTF_8, recognize('# coding: utf-8-mac')
 
-    assert_raises(ArgumentError) do
+    e = assert_raises(ArgumentError) do
       assert_nil recognize('# coding: utf-8-dicks')
     end
+    assert(e.is_a?(Parser::UnknownEncodingInMagicComment))
   end
 
   def test_parse_18_invalid_enc
