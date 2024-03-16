@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'parser/runner'
+require_relative '../runner'
 require 'tempfile'
 
 module Parser

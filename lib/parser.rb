@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 if RUBY_VERSION =~ /^1\.[89]\./
-  require 'parser/version'
+  require_relative 'parser/version'
   raise LoadError, <<-UNSUPPORTED_VERSION_MSG
 parser v#{Parser::VERSION} cannot run on Ruby #{RUBY_VERSION}.
 Please upgrade to Ruby 2.0.0 or higher, or use an older version of the parser gem.
@@ -17,75 +17,75 @@ require 'ast'
 # @api public
 #
 module Parser
-  require 'parser/version'
-  require 'parser/messages'
-  require 'parser/deprecation'
+  require_relative 'parser/version'
+  require_relative 'parser/messages'
+  require_relative 'parser/deprecation'
 
   module AST
-    require 'parser/ast/node'
-    require 'parser/ast/processor'
-    require 'parser/meta'
+    require_relative 'parser/ast/node'
+    require_relative 'parser/ast/processor'
+    require_relative 'parser/meta'
   end
 
   module Source
-    require 'parser/source/buffer'
-    require 'parser/source/range'
+    require_relative 'parser/source/buffer'
+    require_relative 'parser/source/range'
 
-    require 'parser/source/comment'
-    require 'parser/source/comment/associator'
+    require_relative 'parser/source/comment'
+    require_relative 'parser/source/comment/associator'
 
-    require 'parser/source/rewriter'
-    require 'parser/source/rewriter/action'
-    require 'parser/source/tree_rewriter'
-    require 'parser/source/tree_rewriter/action'
+    require_relative 'parser/source/rewriter'
+    require_relative 'parser/source/rewriter/action'
+    require_relative 'parser/source/tree_rewriter'
+    require_relative 'parser/source/tree_rewriter/action'
 
-    require 'parser/source/map'
-    require 'parser/source/map/operator'
-    require 'parser/source/map/collection'
-    require 'parser/source/map/constant'
-    require 'parser/source/map/variable'
-    require 'parser/source/map/keyword'
-    require 'parser/source/map/definition'
-    require 'parser/source/map/method_definition'
-    require 'parser/source/map/send'
-    require 'parser/source/map/index'
-    require 'parser/source/map/condition'
-    require 'parser/source/map/ternary'
-    require 'parser/source/map/for'
-    require 'parser/source/map/rescue_body'
-    require 'parser/source/map/heredoc'
-    require 'parser/source/map/objc_kwarg'
+    require_relative 'parser/source/map'
+    require_relative 'parser/source/map/operator'
+    require_relative 'parser/source/map/collection'
+    require_relative 'parser/source/map/constant'
+    require_relative 'parser/source/map/variable'
+    require_relative 'parser/source/map/keyword'
+    require_relative 'parser/source/map/definition'
+    require_relative 'parser/source/map/method_definition'
+    require_relative 'parser/source/map/send'
+    require_relative 'parser/source/map/index'
+    require_relative 'parser/source/map/condition'
+    require_relative 'parser/source/map/ternary'
+    require_relative 'parser/source/map/for'
+    require_relative 'parser/source/map/rescue_body'
+    require_relative 'parser/source/map/heredoc'
+    require_relative 'parser/source/map/objc_kwarg'
   end
 
-  require 'parser/syntax_error'
-  require 'parser/clobbering_error'
-  require 'parser/unknown_encoding_in_magic_comment_error'
-  require 'parser/diagnostic'
-  require 'parser/diagnostic/engine'
+  require_relative 'parser/syntax_error'
+  require_relative 'parser/clobbering_error'
+  require_relative 'parser/unknown_encoding_in_magic_comment_error'
+  require_relative 'parser/diagnostic'
+  require_relative 'parser/diagnostic/engine'
 
-  require 'parser/static_environment'
+  require_relative 'parser/static_environment'
 
   if RUBY_ENGINE == 'truffleruby'
-    require 'parser/lexer-F0'
+    require_relative 'parser/lexer-F0'
   else
-    require 'parser/lexer-F1'
+    require_relative 'parser/lexer-F1'
   end
-  require 'parser/lexer-strings'
-  require 'parser/lexer/literal'
-  require 'parser/lexer/stack_state'
-  require 'parser/lexer/dedenter'
+  require_relative 'parser/lexer-strings'
+  require_relative 'parser/lexer/literal'
+  require_relative 'parser/lexer/stack_state'
+  require_relative 'parser/lexer/dedenter'
 
   module Builders
-    require 'parser/builders/default'
+    require_relative 'parser/builders/default'
   end
 
-  require 'parser/context'
-  require 'parser/max_numparam_stack'
-  require 'parser/current_arg_stack'
-  require 'parser/variables_stack'
+  require_relative 'parser/context'
+  require_relative 'parser/max_numparam_stack'
+  require_relative 'parser/current_arg_stack'
+  require_relative 'parser/variables_stack'
 
-  require 'parser/base'
+  require_relative 'parser/base'
 
-  require 'parser/rewriter'
-  require 'parser/tree_rewriter'
+  require_relative 'parser/rewriter'
+  require_relative 'parser/tree_rewriter'
 end

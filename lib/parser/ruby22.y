@@ -2373,7 +2373,7 @@ end
 
 ---- header
 
-require 'parser'
+require_relative '../parser'
 
 ---- inner
 

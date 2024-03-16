@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'parser/runner'
-require 'parser/color'
-require 'parser/lexer/explanation'
+require_relative '../runner'
+require_relative '../color'
+require_relative '../lexer/explanation'
 require 'json'
 
 module Parser
