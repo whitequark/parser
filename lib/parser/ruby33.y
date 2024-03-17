@@ -1915,7 +1915,7 @@ opt_block_args_tail:
       p_in_kwarg: none
                     {
                       result = @context.in_kwarg
-                      
+
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
                       @context.in_kwarg = true
@@ -2391,7 +2391,7 @@ opt_block_args_tail:
                       opts   = @builder.regexp_options(val[3])
                       result = @builder.regexp_compose(val[0], val[1], val[2], opts)
                     }
-            
+
        words_sep: tSPACE
                 | words_sep tSPACE
 
@@ -3111,7 +3111,7 @@ end
 
 ---- header
 
-require 'parser'
+require_relative '../parser'
 
 ---- inner
 

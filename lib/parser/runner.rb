@@ -4,7 +4,7 @@ require 'benchmark'
 require 'find'
 require 'optparse'
 
-require 'parser'
+require_relative '../parser'
 
 module Parser
 
@@ -64,87 +64,87 @@ module Parser
       end
 
       opts.on '--18', 'Parse as Ruby 1.8.7 would' do
-        require 'parser/ruby18'
+        require_relative 'ruby18'
         @parser_class = Parser::Ruby18
       end
 
       opts.on '--19', 'Parse as Ruby 1.9.3 would' do
-        require 'parser/ruby19'
+        require_relative 'ruby19'
         @parser_class = Parser::Ruby19
       end
 
       opts.on '--20', 'Parse as Ruby 2.0 would' do
-        require 'parser/ruby20'
+        require_relative 'ruby20'
         @parser_class = Parser::Ruby20
       end
 
       opts.on '--21', 'Parse as Ruby 2.1 would' do
-        require 'parser/ruby21'
+        require_relative 'ruby21'
         @parser_class = Parser::Ruby21
       end
 
       opts.on '--22', 'Parse as Ruby 2.2 would' do
-        require 'parser/ruby22'
+        require_relative 'ruby22'
         @parser_class = Parser::Ruby22
       end
 
       opts.on '--23', 'Parse as Ruby 2.3 would' do
-        require 'parser/ruby23'
+        require_relative 'ruby23'
         @parser_class = Parser::Ruby23
       end
 
       opts.on '--24', 'Parse as Ruby 2.4 would' do
-        require 'parser/ruby24'
+        require_relative 'ruby24'
         @parser_class = Parser::Ruby24
       end
 
       opts.on '--25', 'Parse as Ruby 2.5 would' do
-        require 'parser/ruby25'
+        require_relative 'ruby25'
         @parser_class = Parser::Ruby25
       end
 
       opts.on '--26', 'Parse as Ruby 2.6 would' do
-        require 'parser/ruby26'
+        require_relative 'ruby26'
         @parser_class = Parser::Ruby26
       end
 
       opts.on '--27', 'Parse as Ruby 2.7 would' do
-        require 'parser/ruby27'
+        require_relative 'ruby27'
         @parser_class = Parser::Ruby27
       end
 
       opts.on '--30', 'Parse as Ruby 3.0 would' do
-        require 'parser/ruby30'
+        require_relative 'ruby30'
         @parser_class = Parser::Ruby30
       end
 
       opts.on '--31', 'Parse as Ruby 3.1 would' do
-        require 'parser/ruby31'
+        require_relative 'ruby31'
         @parser_class = Parser::Ruby31
       end
 
       opts.on '--32', 'Parse as Ruby 3.2 would' do
-        require 'parser/ruby32'
+        require_relative 'ruby32'
         @parser_class = Parser::Ruby32
       end
 
       opts.on '--33', 'Parse as Ruby 3.3 would' do
-        require 'parser/ruby33'
+        require_relative 'ruby33'
         @parser_class = Parser::Ruby33
       end
 
       opts.on '--34', 'Parse as Ruby 3.4 would' do
-        require 'parser/ruby34'
+        require_relative 'ruby34'
         @parser_class = Parser::Ruby34
       end
 
       opts.on '--mac', 'Parse as MacRuby 0.12 would' do
-        require 'parser/macruby'
+        require_relative 'macruby'
         @parser_class = Parser::MacRuby
       end
 
       opts.on '--ios', 'Parse as mid-2015 RubyMotion would' do
-        require 'parser/rubymotion'
+        require_relative 'rubymotion'
         @parser_class = Parser::RubyMotion
       end
 
@@ -193,7 +193,7 @@ module Parser
       end
 
       if @parser_class.nil?
-        require 'parser/current'
+        require_relative 'current'
         @parser_class = Parser::CurrentRuby
       end
     end

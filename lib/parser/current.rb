@@ -17,7 +17,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby20', current_version
     end
 
-    require 'parser/ruby20'
+    require_relative 'ruby20'
     CurrentRuby = Ruby20
 
   when /^2\.1\./
@@ -26,7 +26,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby21', current_version
     end
 
-    require 'parser/ruby21'
+    require_relative 'ruby21'
     CurrentRuby = Ruby21
 
   when /^2\.2\./
@@ -35,7 +35,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby22', current_version
     end
 
-    require 'parser/ruby22'
+    require_relative 'ruby22'
     CurrentRuby = Ruby22
 
   when /^2\.3\./
@@ -44,7 +44,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby23', current_version
     end
 
-    require 'parser/ruby23'
+    require_relative 'ruby23'
     CurrentRuby = Ruby23
 
   when /^2\.4\./
@@ -53,7 +53,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby24', current_version
     end
 
-    require 'parser/ruby24'
+    require_relative 'ruby24'
     CurrentRuby = Ruby24
 
   when /^2\.5\./
@@ -62,7 +62,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby25', current_version
     end
 
-    require 'parser/ruby25'
+    require_relative 'ruby25'
     CurrentRuby = Ruby25
 
   when /^2\.6\./
@@ -71,7 +71,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby26', current_version
     end
 
-    require 'parser/ruby26'
+    require_relative 'ruby26'
     CurrentRuby = Ruby26
 
   when /^2\.7\./
@@ -80,7 +80,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby27', current_version
     end
 
-    require 'parser/ruby27'
+    require_relative 'ruby27'
     CurrentRuby = Ruby27
 
   when /^3\.0\./
@@ -89,7 +89,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby30', current_version
     end
 
-    require 'parser/ruby30'
+    require_relative 'ruby30'
     CurrentRuby = Ruby30
 
   when /^3\.1\./
@@ -98,7 +98,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby31', current_version
     end
 
-    require 'parser/ruby31'
+    require_relative 'ruby31'
     CurrentRuby = Ruby31
 
   when /^3\.2\./
@@ -107,7 +107,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby32', current_version
     end
 
-    require 'parser/ruby32'
+    require_relative 'ruby32'
     CurrentRuby = Ruby32
 
   when /^3\.3\./
@@ -116,7 +116,7 @@ module Parser
       warn_syntax_deviation 'parser/ruby33', current_version
     end
 
-    require 'parser/ruby33'
+    require_relative 'ruby33'
     CurrentRuby = Ruby33
 
   when /^3\.4\./
@@ -125,13 +125,13 @@ module Parser
       warn_syntax_deviation 'parser/ruby34', current_version
     end
 
-    require 'parser/ruby34'
+    require_relative 'ruby34'
     CurrentRuby = Ruby34
 
   else # :nocov:
     # Keep this in sync with released Ruby.
     warn_syntax_deviation 'parser/ruby33', '3.3.x'
-    require 'parser/ruby33'
+    require_relative 'ruby33'
     CurrentRuby = Ruby33
   end
 end

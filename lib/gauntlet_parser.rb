@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'gauntlet'
-require 'parser/all'
+require_relative 'parser/all'
 require 'shellwords'
 
 class ParserGauntlet < Gauntlet
