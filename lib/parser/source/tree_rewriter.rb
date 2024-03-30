@@ -118,7 +118,7 @@ module Parser
       end
 
       ##
-      # Returns true iff no (non trivial) update has been recorded
+      # Returns true if no (non trivial) update has been recorded
       #
       # @return [Boolean]
       #

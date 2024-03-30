@@ -226,7 +226,7 @@ module Parser
       end
 
       ##
-      # Return `true` iff this range and `other` are disjoint.
+      # Return `true` if this range and `other` are disjoint.
       #
       # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
       #
@@ -242,7 +242,7 @@ module Parser
       end
 
       ##
-      # Return `true` iff this range is not disjoint from `other`.
+      # Return `true` if this range is not disjoint from `other`.
       #
       # @param [Range] other
       # @return [Boolean] `true` if this range and `other` overlap
@@ -252,7 +252,7 @@ module Parser
       end
 
       ##
-      # Returns true iff this range contains (strictly) `other`.
+      # Returns true if this range contains (strictly) `other`.
       #
       # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
       #
@@ -276,7 +276,7 @@ module Parser
       end
 
       ##
-      # Returns true iff both ranges intersect and also have different elements from one another.
+      # Returns true if both ranges intersect and also have different elements from one another.
       #
       # Two ranges must be one and only one of ==, disjoint?, contains?, contained? or crossing?
       #
