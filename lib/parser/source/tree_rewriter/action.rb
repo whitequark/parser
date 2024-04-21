@@ -6,9 +6,10 @@ module Parser
     # @api private
     #
     # Actions are arranged in a tree and get combined so that:
-    #   children are strictly contained by their parent
-    #   sibblings all disjoint from one another and ordered
-    #   only actions with replacement==nil may have children
+    # 
+    # * Children are strictly contained by their parent
+    # * Siblings are all disjointed from one another and ordered
+    # * Only actions with `replacement == nil` may have children
     #
     class TreeRewriter::Action
       attr_reader :range, :replacement, :insert_before, :insert_after
@@ -60,7 +61,7 @@ module Parser
 
       ##
       # A root action has its range set to the whole source range, even
-      # though it typically do not act on that range.
+      # though it typically does not act on that range.
       # This method returns the action as if it was a child action with
       # its range contracted.
       # @return [Action]
