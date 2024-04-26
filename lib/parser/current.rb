@@ -84,7 +84,7 @@ module Parser
     CurrentRuby = Ruby27
 
   when /^3\.0\./
-    current_version = '3.0.6'
+    current_version = '3.0.7'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby30', current_version
     end
@@ -93,7 +93,7 @@ module Parser
     CurrentRuby = Ruby30
 
   when /^3\.1\./
-    current_version = '3.1.4'
+    current_version = '3.1.5'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby31', current_version
     end
@@ -102,7 +102,7 @@ module Parser
     CurrentRuby = Ruby31
 
   when /^3\.2\./
-    current_version = '3.2.3'
+    current_version = '3.2.4'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby32', current_version
     end
@@ -111,7 +111,7 @@ module Parser
     CurrentRuby = Ruby32
 
   when /^3\.3\./
-    current_version = '3.3.0'
+    current_version = '3.3.1'
     if RUBY_VERSION != current_version
       warn_syntax_deviation 'parser/ruby33', current_version
     end
