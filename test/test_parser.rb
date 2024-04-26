@@ -11497,4 +11497,34 @@ class TestParser < Minitest::Test
       %q{},
       ALL_VERSIONS)
   end
+
+  def test_parser_bug_19370
+    refute_diagnoses(
+      'def b(&) ->() {c(&)} end',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(*) ->() {c(*)} end',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(a, *) ->() {c(1, *)} end',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(*) ->(a) {c(*)} end',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(**) ->() {c(**)} end',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(k:, **) ->() {c(k: 1, **)} end',
+      SINCE_3_3)
+
+    refute_diagnoses(
+      'def b(**) ->(k:) {c(**)} end',
+      SINCE_3_3)
+  end
 end
