@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2024-04-26)
--------------------------
+v3.3.1.0 (2024-04-26)
+---------------------
 
 API modifications:
  * Bump parser branches to 3.0.7, 3.1.5, 3.2.4, 3.3.1 (#1011) (Ilya Bylich)
