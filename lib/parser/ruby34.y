@@ -1101,7 +1101,7 @@ rule
                       end
 
                       if @context.in_dynamic_block? && context.in_def &&
-                        @static_env.declared_anonymous_blockarg? && @static_env.parent_has_anonymous_blockarg?
+                        @static_env.declared_anonymous_blockarg_in_current_scpe? && @static_env.parent_has_anonymous_blockarg?
                         diagnostic :error, :ambiguous_anonymous_blockarg, nil, val[0]
                       end
 
@@ -1142,7 +1142,7 @@ rule
                       end
 
                       if @context.in_dynamic_block? && context.in_def &&
-                        @static_env.declared_anonymous_restarg? && @static_env.parent_has_anonymous_restarg?
+                        @static_env.declared_anonymous_restarg_in_current_scope? && @static_env.parent_has_anonymous_restarg?
                         diagnostic :error, :ambiguous_anonymous_restarg, nil, val[0]
                       end
 
@@ -3059,7 +3059,7 @@ f_opt_paren_args: f_paren_args
                       end
 
                       if @context.in_dynamic_block? && context.in_def &&
-                        @static_env.declared_anonymous_kwrestarg? && @static_env.parent_has_anonymous_kwrestarg?
+                        @static_env.declared_anonymous_kwrestarg_in_current_scope? && @static_env.parent_has_anonymous_kwrestarg?
                         diagnostic :error, :ambiguous_anonymous_kwrestarg, nil, val[0]
                       end
 

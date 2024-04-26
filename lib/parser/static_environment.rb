@@ -4,9 +4,15 @@ module Parser
 
   class StaticEnvironment
     FORWARD_ARGS = :FORWARD_ARGS
-    ANONYMOUS_BLOCKARG = :ANONYMOUS_BLOCKARG
-    ANONYMOUS_RESTARG = :ANONYMOUS_RESTARG
-    ANONYMOUS_KWRESTARG = :ANONYMOUS_KWRESTARG
+
+    ANONYMOUS_RESTARG_IN_CURRENT_SCOPE = :ANONYMOUS_RESTARG_IN_CURRENT_SCOPE
+    ANONYMOUS_RESTARG_INHERITED = :ANONYMOUS_RESTARG_INHERITED
+
+    ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE = :ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE
+    ANONYMOUS_KWRESTARG_INHERITED = :ANONYMOUS_KWRESTARG_INHERITED
+
+    ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE = :ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE
+    ANONYMOUS_BLOCKARG_INHERITED = :ANONYMOUS_BLOCKARG_INHERITED
 
     def initialize
       reset
@@ -27,6 +33,15 @@ module Parser
     def extend_dynamic
       @stack.push(@variables)
       @variables = @variables.dup
+      if @variables.delete(ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE)
+        @variables.add(ANONYMOUS_BLOCKARG_INHERITED)
+      end
+      if @variables.delete(ANONYMOUS_RESTARG_IN_CURRENT_SCOPE)
+        @variables.add(ANONYMOUS_RESTARG_INHERITED)
+      end
+      if @variables.delete(ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE)
+        @variables.add(ANONYMOUS_KWRESTARG_INHERITED)
+      end
 
       self
     end
@@ -47,6 +62,8 @@ module Parser
       @variables.include?(name.to_sym)
     end
 
+    # Forward args
+
     def declare_forward_args
       declare(FORWARD_ARGS)
     end
@@ -55,40 +72,58 @@ module Parser
       declared?(FORWARD_ARGS)
     end
 
+    # Anonymous blockarg
+
     def declare_anonymous_blockarg
-      declare(ANONYMOUS_BLOCKARG)
+      declare(ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE)
     end
 
     def declared_anonymous_blockarg?
-      declared?(ANONYMOUS_BLOCKARG)
+      declared?(ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE) || declared?(ANONYMOUS_BLOCKARG_INHERITED)
+    end
+
+    def declared_anonymous_blockarg_in_current_scpe?
+      declared?(ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE)
     end
 
     def parent_has_anonymous_blockarg?
-      @stack.any? { |variables| variables.include?(ANONYMOUS_BLOCKARG) }
+      @stack.any? { |variables| variables.include?(ANONYMOUS_BLOCKARG_IN_CURRENT_SCOPE) }
     end
 
+    # Anonymous restarg
+
     def declare_anonymous_restarg
-      declare(ANONYMOUS_RESTARG)
+      declare(ANONYMOUS_RESTARG_IN_CURRENT_SCOPE)
     end
 
     def declared_anonymous_restarg?
-      declared?(ANONYMOUS_RESTARG)
+      declared?(ANONYMOUS_RESTARG_IN_CURRENT_SCOPE) || declared?(ANONYMOUS_RESTARG_INHERITED)
+    end
+
+    def declared_anonymous_restarg_in_current_scope?
+      declared?(ANONYMOUS_RESTARG_IN_CURRENT_SCOPE)
     end
 
     def parent_has_anonymous_restarg?
-      @stack.any? { |variables| variables.include?(ANONYMOUS_RESTARG) }
+      @stack.any? { |variables| variables.include?(ANONYMOUS_RESTARG_IN_CURRENT_SCOPE) }
     end
 
+    # Anonymous kwresarg
+
     def declare_anonymous_kwrestarg
-      declare(ANONYMOUS_KWRESTARG)
+      declare(ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE)
     end
 
     def declared_anonymous_kwrestarg?
-      declared?(ANONYMOUS_KWRESTARG)
+      declared?(ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE) || declared?(ANONYMOUS_KWRESTARG_INHERITED)
+    end
+
+    def declared_anonymous_kwrestarg_in_current_scope?
+      declared?(ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE)
     end
 
     def parent_has_anonymous_kwrestarg?
-      @stack.any? { |variables| variables.include?(ANONYMOUS_KWRESTARG) }
+      @stack.any? { |variables| variables.include?(ANONYMOUS_KWRESTARG_IN_CURRENT_SCOPE) }
     end
 
     def empty?
