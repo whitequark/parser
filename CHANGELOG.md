@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Not released (2024-04-26)
+-------------------------
+
+API modifications:
+ * Bump parser branches to 3.0.7, 3.1.5, 3.2.4, 3.3.1 (#1011) (Ilya Bylich)
+ * Use `require_relative` in the Parser codebase (#1003) (Koichi ITO)
+
+Features implemented:
+ * ruby{33,34}.y: allow blocks inherit anonymous args. (#1010) (Ilya Bylich)
+ * Raise a more specific error when encountering an unknown magic comment encoding (#999) (Earlopain)
+
 v3.3.0.5 (2024-01-21)
 ---------------------
 
