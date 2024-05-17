@@ -116,12 +116,21 @@ class Parser::Lexer
     @emit_integer_if = lambda { |chars, p| emit(:tINTEGER,   chars, @ts, @te - 2); p - 2 }
     @emit_integer_rescue = lambda { |chars, p| emit(:tINTEGER,   chars, @ts, @te - 6); p - 6 }
 
-    @emit_float = lambda { |chars, p| emit(:tFLOAT,     Float(chars)); p }
-    @emit_imaginary_float = lambda { |chars, p| emit(:tIMAGINARY, Complex(0, Float(chars))); p }
-    @emit_float_if =     lambda { |chars, p| emit(:tFLOAT,     Float(chars), @ts, @te - 2); p - 2 }
-    @emit_float_rescue = lambda { |chars, p| emit(:tFLOAT,     Float(chars), @ts, @te - 6); p - 6 }
+    @emit_float = lambda { |chars, p| emit(:tFLOAT,     construct_float(chars)); p }
+    @emit_imaginary_float = lambda { |chars, p| emit(:tIMAGINARY, Complex(0, construct_float(chars))); p }
+    @emit_float_if =     lambda { |chars, p| emit(:tFLOAT,     construct_float(chars), @ts, @te - 2); p - 2 }
+    @emit_float_rescue = lambda { |chars, p| emit(:tFLOAT,     construct_float(chars), @ts, @te - 6); p - 6 }
 
     reset
+  end
+
+  def construct_float(chars)
+    begin
+      old_verbose, $VERBOSE = $VERBOSE, nil
+      Float(chars)
+    ensure
+      $VERBOSE = old_verbose
+    end
   end
 
   def reset(reset_state=true)
