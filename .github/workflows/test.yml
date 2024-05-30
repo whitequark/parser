@@ -29,7 +29,7 @@ jobs:
           - ruby: "3.3.2"
             test_command: "./ci/run_rubocop_specs || true"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Ragel
       run: |
         sudo apt-get update
