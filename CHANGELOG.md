@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Not released (2024-05-30)
+-------------------------
+
+API modifications:
+ * Bump 3.3 branch to 3.3.2 (Ilya Bylich)
+ * Bump 3.1 branch to 3.1.6 (#1014) (Koichi ITO)
+
 v3.3.1.0 (2024-04-26)
 ---------------------
 
