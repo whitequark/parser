@@ -545,7 +545,7 @@ class Parser::Lexer
     @newline_s = p
   }
 
-  c_nl       = '\n' $ do_nl;
+  c_nl       = ('\r\n' | '\n') $ do_nl;
   c_space    = [ \t\r\f\v];
   c_space_nl = c_space | c_nl;
 
@@ -1995,7 +1995,7 @@ class Parser::Lexer
 
       # Here we use '\n' instead of w_newline to not modify @newline_s
       # and eventually properly emit tNL
-      (c_space* w_space_comment '\n')+
+      (c_space* w_space_comment ('\r\n' | '\n'))+
       => {
         if @version < 27
           # Ruby before 2.7 doesn't support comments before leading dot.
