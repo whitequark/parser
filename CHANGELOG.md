@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Not released (2024-06-12)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.3.3 (#1023) (Koichi ITO)
+ * Bump Racc to 1.8.0 (#1018) (Koichi ITO)
+
 v3.3.2.0 (2024-05-30)
 ---------------------
 
