@@ -426,7 +426,7 @@ module Parser
     def regexp_compose(begin_t, parts, end_t, options)
       begin
         static_regexp(parts, options)
-      rescue RegexpError => e
+      rescue RegexpError, Encoding::UndefinedConversionError => e
         diagnostic :error, :invalid_regexp, { :message => e.message },
                    loc(begin_t).join(loc(end_t))
       end

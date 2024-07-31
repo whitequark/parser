@@ -585,6 +585,18 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
+  def test_regexp_error_invalid_encoding_conversion
+    message = if defined?(JRUBY_VERSION)
+      '"\\xE3\\x81\\x82" from UTF-8 to ASCII-8BIT'
+    else
+      'U+3042 from UTF-8 to ASCII-8BIT'
+    end
+    assert_diagnoses(
+      [:error, :invalid_regexp, { message: message }],
+      %q[/あ/n],
+      %q(~~~ location))
+  end
+
   # Arrays
 
   def test_array_plain
