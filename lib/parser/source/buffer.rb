@@ -186,7 +186,7 @@ module Parser
           raise ArgumentError, 'Source::Buffer is immutable'
         end
 
-        @source = input.gsub("\r\n".freeze, "\n".freeze).freeze
+        @source = input.freeze
 
         if !@source.ascii_only? &&
            @source.encoding != Encoding::UTF_32LE &&
