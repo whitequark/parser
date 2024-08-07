@@ -17,14 +17,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.0.7", "3.1.6", "3.2.4", "3.3.4", "jruby-9.2"]
+        ruby: ["3.0.7", "3.1.6", "3.2.5", "3.3.4", "jruby-9.2"]
         test_command: ["bundle exec rake test"]
         include:
           - ruby: "head"
             test_command: "bundle exec rake test || true"
           - ruby: "truffleruby"
             test_command: "bundle exec rake test || true"
-          - ruby: "3.2.4"
+          - ruby: "3.2.5"
             test_command: "./ci/run_rubocop_specs || true"
           - ruby: "3.3.4"
             test_command: "./ci/run_rubocop_specs || true"
