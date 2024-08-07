@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2024-08-07)
--------------------------
+v3.3.4.1 (2024-08-07)
+---------------------
 
 API modifications:
  * Bump 3.2 branch to 3.2.5. (#1036) (Ilya Bylich)
