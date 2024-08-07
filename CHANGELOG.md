@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Not released (2024-08-07)
+-------------------------
+
+API modifications:
+ * Bump 3.2 branch to 3.2.5. (#1036) (Ilya Bylich)
+ * Bump Racc to 1.8.1 (#1031) (Koichi ITO)
+
+Bugs fixed:
+ * builder.rb: catch encoding errors when parsing invalid encoding regexp (#1033) (Earlopain)
+
 v3.3.4.0 (2024-07-10)
 ---------------------
 
