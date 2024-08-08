@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2024-08-08)
+-------------------------
+
+Bugs fixed:
+ * Fix errros in the ascii specs of RuboCop (#1037) (Koichi ITO)
+
 v3.3.4.1 (2024-08-07)
 ---------------------
 
