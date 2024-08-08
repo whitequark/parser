@@ -94,15 +94,16 @@ module Parser
       #
       def self.reencode_string(input)
         original_encoding = input.encoding
-        dup_input = input.dup
-        detected_encoding = recognize_encoding(dup_input.force_encoding(Encoding::BINARY))
+        detected_encoding = recognize_encoding(input.force_encoding(Encoding::BINARY))
 
         if detected_encoding.nil?
-          dup_input.force_encoding(original_encoding)
+          input.force_encoding(original_encoding)
         elsif detected_encoding == Encoding::BINARY
           input
         else
-          dup_input.force_encoding(detected_encoding).encode(Encoding::UTF_8)
+          input.
+            force_encoding(detected_encoding).
+            encode(Encoding::UTF_8)
         end
       end
 
