@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'benchmark'
 require 'find'
 require 'optparse'
 
@@ -220,14 +219,13 @@ module Parser
     end
 
     def process_all_input
-      parsing_time =
-        Benchmark.measure do
-          process_fragments
-          process_files
-        end
+      time_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      process_fragments
+      process_files
+      time_elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - time_start
 
       if @benchmark
-        report_with_time(parsing_time)
+        report_with_time(time_elapsed)
       end
     end
 
@@ -278,12 +276,10 @@ module Parser
       raise NotImplementedError, "implement #{self.class}##{__callee__}"
     end
 
-    def report_with_time(parsing_time)
-      cpu_time = parsing_time.utime
-
-      speed = '%.3f' % (@source_size / cpu_time / 1000)
+    def report_with_time(time_elapsed)
+      speed = '%.3f' % (@source_size / time_elapsed / 1000)
       puts "Parsed #{@source_count} files (#{@source_size} characters)" \
-           " in #{'%.2f' % cpu_time} seconds (#{speed} kchars/s)."
+           " in #{'%.2f' % time_elapsed} seconds (#{speed} kchars/s)."
 
       if defined?(RUBY_ENGINE)
         engine = RUBY_ENGINE
