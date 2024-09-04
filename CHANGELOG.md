@@ -1,8 +1,14 @@
 Changelog
 =========
 
-Not released (2024-08-08)
+Not released (2024-09-04)
 -------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.3.5 (#1039) (Koichi ITO)
+
+v3.3.4.2 (2024-08-08)
+---------------------
 
 Bugs fixed:
  * Fix errros in the ascii specs of RuboCop (#1037) (Koichi ITO)
