@@ -298,7 +298,7 @@ It is unknown whether any gems are affected by this issue.
 
 ## Contributors
 
-* [whitequark][]
+* Catherine [whitequark][]
 * Markus Schirp ([mbj][])
 * Yorick Peterse ([yorickpeterse][])
 * Magnus Holm ([judofyr][])
