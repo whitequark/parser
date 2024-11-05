@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2024-11-05)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.3.6 (#1045) (Koichi ITO)
+
 v3.3.5.1 (2024-10-31)
 ---------------------
 
