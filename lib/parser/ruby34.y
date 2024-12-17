@@ -366,6 +366,7 @@ rule
 
                       result = [ val[0], @context.dup ]
                       @context.in_def = true
+                      @context.cant_return = false
                     }
 
        defn_head: k_def def_name
@@ -1319,6 +1320,7 @@ rule
                 | k_class cpath superclass
                     {
                       @context.in_class = true
+                      @context.cant_return = true
                       local_push
                     }
                     bodystmt kEND
@@ -1334,11 +1336,13 @@ rule
 
                       local_pop
                       @context.in_class = ctx.in_class
+                      @context.cant_return = ctx.cant_return
                     }
                 | k_class tLSHFT expr_value term
                     {
                       @context.in_def = false
                       @context.in_class = false
+                      @context.cant_return = true
                       local_push
                     }
                     bodystmt kEND
@@ -1350,10 +1354,12 @@ rule
                       local_pop
                       @context.in_def = ctx.in_def
                       @context.in_class = ctx.in_class
+                      @context.cant_return = ctx.cant_return
                     }
                 | k_module cpath
                     {
                       @context.in_class = true
+                      @context.cant_return = true
                       local_push
                     }
                     bodystmt kEND
@@ -1367,6 +1373,7 @@ rule
 
                       local_pop
                       @context.in_class = ctx.in_class
+                      @context.cant_return = ctx.cant_return
                     }
                 | defn_head f_arglist bodystmt kEND
                     {
@@ -1425,7 +1432,7 @@ rule
 
         k_return: kRETURN
                     {
-                      if @context.in_class && !@context.in_def && !(context.in_block || context.in_lambda)
+                      if @context.cant_return && !(context.in_block || context.in_lambda)
                         diagnostic :error, :invalid_return, nil, val[0]
                       end
                     }
