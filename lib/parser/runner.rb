@@ -242,7 +242,12 @@ module Parser
 
     def process_files
       @files.each do |filename|
-        source = File.read(filename).force_encoding(@parser.default_encoding)
+        source = begin
+          File.read(filename).force_encoding(@parser.default_encoding)
+        rescue Errno::EISDIR
+          # Will happen for a folder called `foo.rb`. Just catch this here, it's cheaper than checking every file.
+          next
+        end
 
         buffer = Parser::Source::Buffer.new(filename)
 
