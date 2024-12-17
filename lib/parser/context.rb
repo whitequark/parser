@@ -24,6 +24,7 @@ module Parser
       in_class
       in_block
       in_lambda
+      cant_return
     ]
 
     def initialize
@@ -38,6 +39,7 @@ module Parser
       @in_class = false
       @in_block = false
       @in_lambda = false
+      @cant_return = false
     end
 
     attr_accessor(*FLAGS)

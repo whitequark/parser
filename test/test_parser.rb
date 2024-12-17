@@ -6805,7 +6805,8 @@ class TestParser < Minitest::Test
       %q{class A; get_context; end},
       %q{class A < B; get_context; end}
     ].each do |code|
-      assert_context([:in_class], code, ALL_VERSIONS)
+      assert_context([:in_class], code, ALL_VERSIONS - SINCE_3_4)
+      assert_context([:in_class, :cant_return], code, SINCE_3_4)
     end
   end
 
@@ -6813,7 +6814,20 @@ class TestParser < Minitest::Test
     assert_context(
       [:in_class],
       %q{module M; get_context; end},
-      ALL_VERSIONS)
+      ALL_VERSIONS - SINCE_3_4)
+    assert_context(
+      [:in_class, :cant_return],
+      %q{module M; get_context; end},
+      SINCE_3_4)
+  end
+
+  def test_context_sclass
+    [
+      %q{class << foo; get_context; end},
+      %q{class A; class << self; get_context; end; end}
+    ].each do |code|
+      assert_context([:cant_return], code, SINCE_3_4)
+    end
   end
 
   def test_context_def
@@ -6900,13 +6914,19 @@ class TestParser < Minitest::Test
       SINCE_2_5)
 
     [
-      %q{class << foo; return; end},
       %q{def m; return; end},
       %q{tap { return }},
-      %q{class A; class << self; return; end; end},
+      %q{class A; class << self; def m; return; end; end; end},
       %q{class A; def m; return; end; end},
     ].each do |code|
       refute_diagnoses(code, ALL_VERSIONS)
+    end
+
+    [
+      %q{class << foo; return; end},
+      %q{class A; class << self; return; end; end},
+    ].each do |code|
+      refute_diagnoses(code, ALL_VERSIONS - SINCE_3_4)
     end
 
     [
@@ -6915,6 +6935,20 @@ class TestParser < Minitest::Test
     ].each do |code|
       refute_diagnoses(code, SINCE_1_9)
     end
+  end
+
+  def test_return_in_sclass_since_34
+    assert_diagnoses(
+      [:error, :invalid_return, {}],
+      %q{class << foo; return; end},
+      %q{              ^^^^^^ location},
+      SINCE_3_4)
+    
+    assert_diagnoses(
+      [:error, :invalid_return, {}],
+      %q{class A; class << self; return; end; end},
+      %q{                        ^^^^^^ location},
+      SINCE_3_4)
   end
 
   def test_method_definition_in_while_cond
