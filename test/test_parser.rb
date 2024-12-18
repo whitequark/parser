@@ -2239,7 +2239,7 @@ class TestParser < Minitest::Test
         s(:lvar, :var)),
       %q{def f(var = defined?(var)) var end},
       %q{},
-      SINCE_2_7 - SINCE_2_1)
+      SINCE_2_1 - SINCE_2_7)
 
     assert_parses(
       s(:def, :f,
@@ -2247,7 +2247,7 @@ class TestParser < Minitest::Test
         s(:lvar, :var)),
       %q{def f(var: defined?(var)) var end},
       %q{},
-      SINCE_2_7 - SINCE_2_1)
+      SINCE_2_1 - SINCE_2_7)
 
     assert_parses(
       s(:block,
@@ -5721,7 +5721,7 @@ class TestParser < Minitest::Test
         s(:str, "")),
       %q{/\xa8/n =~ ""}.dup.force_encoding(Encoding::UTF_8),
       %{},
-      SINCE_3_1 - SINCE_1_9)
+      SINCE_1_9 - SINCE_3_1)
   end
 
   #
@@ -6626,7 +6626,7 @@ class TestParser < Minitest::Test
         s(:str, "#")),
       %q{[/()\\1/, ?#]},
       %q{},
-      SINCE_3_1 - SINCE_1_9)
+      SINCE_1_9 - SINCE_3_1)
   end
 
   def test_parser_bug_272
@@ -8160,7 +8160,7 @@ class TestParser < Minitest::Test
       [:error, :unexpected_token, { :token => 'tDOT3' }],
       %q{def foo ...; end},
       %q{        ^^^ location},
-      SINCE_3_1 - SINCE_2_7)
+      SINCE_2_7 - SINCE_3_1)
   end
 
   def test_trailing_forward_arg
