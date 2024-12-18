@@ -8163,6 +8163,30 @@ class TestParser < Minitest::Test
       SINCE_3_1 - SINCE_2_7)
   end
 
+  def test_forward_args_super_with_block
+    [
+      %q{def foo(...) super(...) {}; end},
+      %q{def foo(...) super(a, ...) {}; end},
+      %q{def foo(...) super(a, b, ...) {}; end},
+    ].each do |code|
+      # https://bugs.ruby-lang.org/issues/20392
+      refute_diagnoses(code, %w(3.3))
+      assert_diagnoses(
+        [:error, :block_and_blockarg],
+        code,
+        %q{},
+        SINCE_2_7 - %w(3.3))
+    end
+
+    [
+      %q{def foo(...) super {}; end},
+      %q{def foo(...) super() {}; end},
+      %q{def foo(...) super(a) {}; end},
+      %q{def foo(...) super(a, b) {}; end},
+    ].each do |code|
+      refute_diagnoses(code, SINCE_2_7)
+    end
+  end
   def test_trailing_forward_arg
     assert_parses(
       s(:def, :foo,
