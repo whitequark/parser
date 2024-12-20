@@ -47,14 +47,12 @@ preclow
 rule
 
          program:   {
-                      @current_arg_stack.push(nil)
                       @max_numparam_stack.push(static: true)
                     }
                   top_compstmt
                     {
                       result = val[1]
 
-                      @current_arg_stack.pop
                       @max_numparam_stack.pop
                     }
 
@@ -270,7 +268,6 @@ rule
                                  val[1], val[2], val[3])
 
                       local_pop
-                      @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | defs_head f_opt_paren_args tEQL endless_command
@@ -282,7 +279,6 @@ rule
                                  val[1], val[2], val[3])
 
                       local_pop
-                      @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | backref tOP_ASGN command_rhs
@@ -362,7 +358,6 @@ rule
         def_name: fname
                     {
                       local_push
-                      @current_arg_stack.push(nil)
 
                       result = [ val[0], @context.dup ]
                       @context.in_def = true
@@ -911,7 +906,6 @@ rule
                                  val[1], val[2], val[3])
 
                       local_pop
-                      @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | defs_head f_opt_paren_args tEQL endless_arg
@@ -923,7 +917,6 @@ rule
                                  val[1], val[2], val[3])
 
                       local_pop
-                      @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | primary
@@ -1382,7 +1375,6 @@ rule
                                   val[2], val[3])
 
                       local_pop
-                      @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | defs_head f_arglist bodystmt kEND
@@ -1392,7 +1384,6 @@ rule
                                   val[2], val[3])
 
                       local_pop
-                      @current_arg_stack.pop
                       @context.in_def = ctx.in_def
                     }
                 | kBREAK
@@ -1655,14 +1646,12 @@ opt_block_args_tail:
  block_param_def: tPIPE opt_bv_decl tPIPE
                     {
                       @max_numparam_stack.has_ordinary_params!
-                      @current_arg_stack.set(nil)
                       @context.in_argdef = false
                       result = @builder.args(val[0], val[1], val[2])
                     }
                 | tPIPE block_param opt_bv_decl tPIPE
                     {
                       @max_numparam_stack.has_ordinary_params!
-                      @current_arg_stack.set(nil)
                       @context.in_argdef = false
                       result = @builder.args(val[0], val[1].concat(val[2]), val[3])
                     }
@@ -2848,13 +2837,11 @@ f_opt_paren_args: f_paren_args
 
       f_arg_asgn: f_norm_arg
                     {
-                      @current_arg_stack.set(val[0][0])
                       result = val[0]
                     }
 
       f_arg_item: f_arg_asgn
                     {
-                      @current_arg_stack.set(0)
                       result = @builder.arg(val[0])
                     }
                 | tLPAREN f_margs rparen
@@ -2879,7 +2866,6 @@ f_opt_paren_args: f_paren_args
 
                       @max_numparam_stack.has_ordinary_params!
 
-                      @current_arg_stack.set(val[0][0])
                       @context.in_argdef = false
 
                       result = val[0]
@@ -2887,13 +2873,11 @@ f_opt_paren_args: f_paren_args
 
             f_kw: f_label arg_value
                     {
-                      @current_arg_stack.set(nil)
                       @context.in_argdef = true
                       result = @builder.kwoptarg(val[0], val[1])
                     }
                 | f_label
                     {
-                      @current_arg_stack.set(nil)
                       @context.in_argdef = true
                       result = @builder.kwarg(val[0])
                     }
@@ -2949,14 +2933,12 @@ f_opt_paren_args: f_paren_args
 
            f_opt: f_arg_asgn f_eq arg_value
                     {
-                      @current_arg_stack.set(0)
                       @context.in_argdef = true
                       result = @builder.optarg(val[0], val[1], val[2])
                     }
 
      f_block_opt: f_arg_asgn f_eq primary_value
                     {
-                      @current_arg_stack.set(0)
                       @context.in_argdef = true
                       result = @builder.optarg(val[0], val[1], val[2])
                     }
