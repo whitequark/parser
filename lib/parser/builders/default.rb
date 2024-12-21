@@ -1192,6 +1192,15 @@ module Parser
     end
 
     def index_asgn(receiver, lbrack_t, indexes, rbrack_t)
+      if @parser.version >= 34 && (last = indexes.last)
+        if kwargs?(last)
+          diagnostic :error, :invalid_arg_in_index_assign, { :type => "keyword"}, last.loc.expression
+        end
+        if last.type == :block_pass
+          diagnostic :error, :invalid_arg_in_index_assign, { :type => "block"}, last.loc.expression
+        end
+      end
+
       if self.class.emit_kwargs
         rewrite_hash_args_to_kwargs(indexes)
       end

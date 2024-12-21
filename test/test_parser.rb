@@ -3634,7 +3634,9 @@ class TestParser < Minitest::Test
             s(:sym, :kw),
             s(:send, nil, :arg))),
         s(:int, 3)),
-      %q{foo[:kw => arg] = 3})
+      %q{foo[:kw => arg] = 3},
+      %q{},
+      ALL_VERSIONS - SINCE_3_4)
   end
 
   def test_send_index_asgn_kwarg_legacy
@@ -3647,9 +3649,47 @@ class TestParser < Minitest::Test
             s(:sym, :kw),
             s(:send, nil, :arg))),
         s(:int, 3)),
-      %q{foo[:kw => arg] = 3})
+      %q{foo[:kw => arg] = 3},
+      %q{},
+      ALL_VERSIONS - SINCE_3_4)
   ensure
     Parser::Builders::Default.emit_kwargs = true
+  end
+
+  def test_send_index_asgn_since_34
+    [true, false].each do |emit_kwargs|
+      Parser::Builders::Default.emit_kwargs = emit_kwargs
+
+      [
+        %q{foo[:kw => arg] = 3},
+        %q{foo[**args] = 3},
+        %q{def x(**); foo[**] = 3; end},
+      ].each do |code|
+        assert_diagnoses(
+          [:error, :invalid_arg_in_index_assign, { :type => "keyword" }],
+          code,
+          %q{},
+          SINCE_3_4)
+      end
+    
+      refute_diagnoses(
+        %q{foo[{}]},
+        ALL_VERSIONS)
+
+      [
+        %q{foo[&blk] = 3},
+        %q{def x(&); foo[&] = 3; end},
+        %q{foo[&method(:foo)] = 3},
+      ].each do |code|
+        assert_diagnoses(
+          [:error, :invalid_arg_in_index_assign, { :type => "block" }],
+          code,
+          %q{},
+          SINCE_3_4)
+      end
+    ensure
+      Parser::Builders::Default.emit_kwargs = true
+    end
   end
 
   def test_send_lambda
