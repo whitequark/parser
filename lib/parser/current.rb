@@ -5,7 +5,7 @@ module Parser
     def warn_syntax_deviation(feature, version)
       warn "warning: parser/current is loading #{feature}, which recognizes " \
         "#{version}-compliant syntax, but you are running #{RUBY_VERSION}.\n" \
-        "Please see https://github.com/whitequark/parser#compatibility-with-ruby-mri."
+        "Please see https://github.com/whitequark/parser?tab=readme-ov-file#compatibility-with-ruby-mri"
     end
     private :warn_syntax_deviation
   end
