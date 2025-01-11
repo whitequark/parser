@@ -2225,11 +2225,12 @@ opt_block_args_tail:
        p_var_ref: tCARET tIDENTIFIER
                     {
                       name = val[1][0]
+                      lvar = @builder.accessible(@builder.ident(val[1]))
+
                       unless static_env.declared?(name)
                         diagnostic :error, :undefined_lvar, { :name => name }, val[1]
                       end
 
-                      lvar = @builder.accessible(@builder.ident(val[1]))
                       result = @builder.pin(val[0], lvar)
                     }
 
