@@ -85,6 +85,7 @@ module Parser
     :ambiguous_anonymous_restarg   => 'anonymous rest parameter is also used within block',
     :ambiguous_anonymous_kwrestarg => 'anonymous keyword rest parameter is also used within block',
     :ambiguous_anonymous_blockarg  => 'anonymous block parameter is also used within block',
+    :invalid_arg_in_index_assign   => '%{type} argument given in index assignment',
 
     # Parser warnings
     :useless_else            => 'else without rescue is useless',
