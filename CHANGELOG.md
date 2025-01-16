@@ -1,6 +1,20 @@
 Changelog
 =========
 
+Not released (2025-01-16)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.3.7 (#1061) (Koichi ITO)
+ * bump 3.4 branch, remove 3.0 from CI (EOL) (#1057) (Ilya Bylich)
+ * assert that version-specific checks actually run against at least one version (#1050) (Earlopain)
+
+Features implemented:
+ * ruby34.y: reject `return` in singleton class (#1048) (Earlopain)
+
+Bugs fixed:
+ * Fix `ruby-parse` with a folder ending in `.rb` (#1047) (Earlopain)
+
 v3.3.6.0 (2024-11-05)
 ---------------------
 
