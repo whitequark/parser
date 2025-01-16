@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.0.7", "3.1.6", "3.2.6", "3.3.7", "jruby-9.2"]
+        ruby: ["3.1.6", "3.2.6", "3.3.7", "jruby-9.4"]
         test_command: ["bundle exec rake test"]
         include:
           - ruby: "head"
