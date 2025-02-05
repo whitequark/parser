@@ -7946,25 +7946,25 @@ class TestParser < Minitest::Test
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo = foo) end},
       %q{            ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo: foo) end},
       %q{           ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{m { |foo = foo| } },
       %q{           ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{m { |foo: foo| } },
       %q{          ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     # Traversing
 
@@ -7972,19 +7972,19 @@ class TestParser < Minitest::Test
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo = class << foo; end) end},
       %q{                     ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{def m(foo = def foo.m; end); end},
       %q{                ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     assert_diagnoses(
       [:error, :circular_argument_reference, { :var_name => 'foo' }],
       %q{m { |foo = proc { 1 + foo }| } },
       %q{                      ^^^ location},
-      SINCE_2_7)
+      SINCE_2_7 - SINCE_3_4)
 
     # Valid cases
 
@@ -8000,6 +8000,20 @@ class TestParser < Minitest::Test
       'm { |foo = proc { || 1 + foo }| }'
     ].each do |code|
       refute_diagnoses(code, SINCE_2_7)
+    end
+  end
+
+  def test_circular_argument_reference_error_since_34
+    [      
+      %q{def m(foo = foo) end},
+      %q{def m(foo: foo) end},
+      %q{m { |foo = foo| } },
+      %q{m { |foo: foo| } },
+      %q{def m(foo = class << foo; end) end},
+      %q{def m(foo = def foo.m; end); end},
+      %q{m { |foo = proc { 1 + foo }| } },
+    ].each do |code|
+      refute_diagnoses(code, SINCE_3_4)
     end
   end
 
