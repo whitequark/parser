@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2025-02-05)
--------------------------
+v3.3.7.1 (2025-02-05)
+---------------------
 
 API modifications:
  * parser/current: add -dev prefix to 3.4 branch (#1067) (Ilya Bylich)
