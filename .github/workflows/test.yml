@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1.6", "3.2.7", "3.3.7", "jruby-9.4"]
+        ruby: ["3.1.6", "3.2.7", "3.3.7", "3.4.1", "jruby-9.4"]
         test_command: ["bundle exec rake test"]
         include:
           - ruby: "head"
@@ -27,6 +27,8 @@ jobs:
           - ruby: "3.2.7"
             test_command: "./ci/run_rubocop_specs || true"
           - ruby: "3.3.7"
+            test_command: "./ci/run_rubocop_specs || true"
+          - ruby: "3.4.1"
             test_command: "./ci/run_rubocop_specs || true"
     steps:
     - uses: actions/checkout@v4
