@@ -3625,6 +3625,33 @@ class TestParser < Minitest::Test
     Parser::Builders::Default.emit_index = true
   end
 
+  def test_send_index_asgn_kwarg
+    assert_parses(
+      s(:indexasgn,
+        s(:lvar, :foo),
+        s(:kwargs,
+          s(:pair,
+            s(:sym, :kw),
+            s(:send, nil, :arg))),
+        s(:int, 3)),
+      %q{foo[:kw => arg] = 3})
+  end
+
+  def test_send_index_asgn_kwarg_legacy
+    Parser::Builders::Default.emit_kwargs = false
+    assert_parses(
+      s(:indexasgn,
+        s(:lvar, :foo),
+        s(:hash,
+          s(:pair,
+            s(:sym, :kw),
+            s(:send, nil, :arg))),
+        s(:int, 3)),
+      %q{foo[:kw => arg] = 3})
+  ensure
+    Parser::Builders::Default.emit_kwargs = true
+  end
+
   def test_send_lambda
     assert_parses(
       s(:block, s(:lambda),
