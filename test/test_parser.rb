@@ -9567,6 +9567,56 @@ class TestParser < Minitest::Test
     )
   end
 
+  def test_pattern_matching_numbered_parameter
+    assert_parses(
+      s(:numblock,
+        s(:send,
+          s(:int, 1), :then), 1,
+        s(:match_pattern,
+          s(:int, 1),
+          s(:pin,
+            s(:lvar, :_1)))),
+      %q{1.then { 1 in ^_1 }},
+      %q{},
+      %w(2.7)
+    )
+
+    assert_parses(
+      s(:numblock,
+        s(:send,
+          s(:int, 1), :then), 1,
+        s(:match_pattern_p,
+          s(:int, 1),
+          s(:pin,
+            s(:lvar, :_1)))),
+      %q{1.then { 1 in ^_1 }},
+      %q{},
+      SINCE_3_0
+    )
+
+    assert_parses(
+      s(:case_match,
+        s(:int, 0),
+        s(:in_pattern,
+          s(:match_var, :_1), nil, nil), nil),
+      %q{case 0; in _1; end},
+      %q{},
+      %w(2.7)
+    )
+
+    assert_diagnoses(
+      [:error, :reserved_for_numparam, { :name => '_1' }],
+      %q{case 0; in _1; end},
+      %q{           ^^ location},
+      SINCE_3_0)
+
+    assert_diagnoses(
+      [:error, :undefined_lvar, { :name => '_1' }],
+      %q{case 0; in ^_1; end},
+      %q{            ^^ location},
+      SINCE_2_7)
+  end
+
   def assert_pattern_matching_defines_local_variables(match_code, lvar_names, versions = SINCE_2_7)
     code = "case 1; #{match_code}; then [#{lvar_names.join(', ')}]; end"
 
