@@ -5755,6 +5755,25 @@ class TestParser < Minitest::Test
       SINCE_1_9)
   end
 
+  def test_codepoint_surrogate
+    assert_diagnoses(
+      [:error, :invalid_unicode_escape],
+      %q{"\u{D800}"},
+      %q{    ~~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_unicode_escape],
+      %q{"\u{DFFF}"},
+      %q{    ~~~~ location})
+
+    [
+      %q{"\u{D7FF}"},
+      %q{"\u{E000}"},
+    ].each do |code|
+      refute_diagnoses(code)
+    end
+  end
+
   def test_on_error
     assert_diagnoses(
       [:error, :unexpected_token, { :token => 'tIDENTIFIER' }],

@@ -429,6 +429,15 @@ class Parser::LexerStrings
           break
         end
 
+        # UTF-16 surrogate pairs. These are actually accepted before Ruby 2.4
+        # but can't be represented in the AST. Make them a syntax error in
+        # all versions instead, Ruby would raise an exception otherwise.
+        if codepoint & 0xfffff800 == 0xd800
+          diagnostic :error, :invalid_unicode_escape, nil,
+                     range(codepoint_s, codepoint_s + codepoint_str.length)
+          break
+        end
+
         @escape += codepoint.chr(Encoding::UTF_8)
         codepoint_s += codepoint_str.length
       end
