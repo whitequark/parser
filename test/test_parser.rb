@@ -10242,6 +10242,30 @@ class TestParser < Minitest::Test
       SINCE_3_1)
 
     assert_parses(
+      s(:begin,
+        s(:lvasgn, :foo,
+          s(:int, 1)),
+        s(:hash,
+          s(:pair,
+            s(:sym, :foo),
+            s(:lvar, :foo)))),
+      %q{foo = 1; {foo:}},
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
+      s(:begin,
+        s(:lvasgn, :_foo,
+          s(:int, 1)),
+        s(:hash,
+          s(:pair,
+            s(:sym, :_foo),
+            s(:lvar, :_foo)))),
+      %q{_foo = 1; {_foo:}},
+      %q{},
+      SINCE_3_1)
+
+    assert_parses(
       s(:hash,
         s(:pair, s(:sym, :BAR), s(:const, nil, :BAR))),
       %q{{BAR:}},
