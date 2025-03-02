@@ -524,10 +524,10 @@ module Parser
 
       label = value(key_t)
       value =
-        if label =~ /\A[[:lower:]]/
-          n(:ident, [ label.to_sym ], Source::Map::Variable.new(value_l))
-        else
+        if label =~ /\A[[:upper:]]/
           n(:const, [ nil, label.to_sym ], Source::Map::Constant.new(nil, value_l, value_l))
+        else
+          n(:ident, [ label.to_sym ], Source::Map::Variable.new(value_l))
         end
       pair_keyword(key_t, accessible(value))
     end
