@@ -4,9 +4,17 @@ module Parser
   # Parser metadata
   module Meta
 
+    # These are node types required by `Prism::Translation::Parser`, 
+    # which has advanced syntax support ahead of the Parser gem.
+    PRISM_TRANSLATION_PARSER_NODE_TYPES = %i(
+      itarg itblock
+    ).freeze
+    private_constant :PRISM_TRANSLATION_PARSER_NODE_TYPES
+
     # All node types that parser can produce. Not all parser versions
     # will be able to produce every possible node.
-    NODE_TYPES =
+    # Includes node types that are only emitted by the prism parser translator.
+    NODE_TYPES = (
       %i(
         true false nil int float str dstr
         sym dsym xstr regopt regexp array splat
@@ -34,7 +42,7 @@ module Parser
         empty_else find_pattern kwargs
         match_pattern_p match_pattern
         forwarded_restarg forwarded_kwrestarg
-      ).to_set.freeze
-
+      ) + PRISM_TRANSLATION_PARSER_NODE_TYPES
+    ).to_set.freeze
   end # Meta
 end # Parser
