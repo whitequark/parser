@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2025-03-20)
--------------------------
+v3.3.7.2 (2025-03-20)
+---------------------
 
 Features implemented:
  * add prism-specific node types (#1071) (Earlopain)
