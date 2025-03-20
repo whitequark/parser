@@ -17,6 +17,7 @@ MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com
 > The `parser` gem is only compatible with the syntax of Ruby 3.3 and lower. For Ruby 3.4 and later, please use the [`Prism::Translation::Parser`](https://github.com/ruby/prism/blob/main/docs/parser_translation.md) instead.
 > Starting in Ruby 3.4, Prism is the parser used in Ruby itself and can produce AST that is identical to the output of the `parser` gem. If you only need to parse Ruby 3.3 (or greater) and don't require compatibility with the `parser` gem AST, also consider using the native Prism AST.
 > See this [GitHub issue](https://github.com/whitequark/parser/issues/1046) for more details.
+> For a guide on how to use `parser` for older versions and `prism` for newer ones, please see [this guide](./doc/PRISM_TRANSLATION.md).
 
 ## Installation
 
