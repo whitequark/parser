@@ -1209,7 +1209,7 @@ def f(*a: b); end
 ### Block with numbered parameters
 
 Ruby 2.7 introduced a feature called "numbered parameters".
-Numbered and ordinal parameters are mutually exclusive, so if the block
+Numbered, implicit it, and ordinal parameters are mutually exclusive, so if the block
 has only numbered parameters it also has a different AST node.
 
 Note that the second child represents a total number of numbered parameters.
@@ -1225,6 +1225,24 @@ s(:numblock,
 "proc { _1 + _3 }"
       ~ begin   ~ end
  ~~~~~~~~~~~~~~~~ expression
+~~~
+
+## Block with implicit it parameter (prism only)
+
+Ruby 3.4 introduced a feature called the "implicit it parameter".
+Implicit it, numbered, and ordinal parameters are mutually exclusive, so if the block
+only has the implicit it parameter it also has a different AST node.
+
+The second child will always be the symbol `it`.
+
+Format:
+
+~~~
+s(:itblock,
+  s(:send, nil, :proc), :it,
+  s(:send, s(:lvar, :it)))
+"proc { it }"
+ ~~~~~~~~~~~ expression
 ~~~
 
 ## Forward arguments
