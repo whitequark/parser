@@ -1227,10 +1227,10 @@ s(:numblock,
  ~~~~~~~~~~~~~~~~ expression
 ~~~
 
-## Block with implicit it parameter (prism only)
+## Block with `it` block parameter (Prism only)
 
-Ruby 3.4 introduced a feature called the "implicit it parameter".
-Implicit it, numbered, and ordinal parameters are mutually exclusive, so if the block
+Ruby 3.4 introduced a feature called the "`it` block parameter".
+`it`, numbered, and ordinal parameters are mutually exclusive, so if the block
 only has the implicit it parameter it also has a different AST node.
 
 The second child will always be the symbol `it`.
