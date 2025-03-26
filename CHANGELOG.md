@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2025-03-26)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.2.8 and 3.1.7 (#1074) (Koichi ITO)
+
 v3.3.7.2 (2025-03-20)
 ---------------------
 
