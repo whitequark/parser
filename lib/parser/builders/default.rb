@@ -2263,7 +2263,12 @@ module Parser
         source
       end
 
-      Regexp.new(source, (Regexp::EXTENDED if options.children.include?(:x)))
+      begin
+        old_verbose, $VERBOSE = $VERBOSE, nil
+        Regexp.new(source, (Regexp::EXTENDED if options.children.include?(:x)))
+      ensure
+        $VERBOSE = old_verbose
+      end
     end
 
     def static_regexp_node(node)
