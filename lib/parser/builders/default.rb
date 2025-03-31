@@ -1120,15 +1120,19 @@ module Parser
     end
 
     def block(method_call, begin_t, args, body, end_t)
-      _receiver, _selector, *call_args = *method_call
-
       if method_call.type == :yield
         diagnostic :error, :block_given_to_yield, nil, method_call.loc.keyword, [loc(begin_t)]
       end
 
-      last_arg = call_args.last
+      if method_call.type == :super
+        *_args, last_arg = *method_call
+      else
+        _receiver, _selector, *_args, last_arg = *method_call
+      end
       if last_arg && (last_arg.type == :block_pass || last_arg.type == :forwarded_args)
-        diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
+        if (@parser.version == 33 && method_call.type != :super) || @parser.version != 33
+          diagnostic :error, :block_and_blockarg, nil, last_arg.loc.expression, [loc(begin_t)]
+        end
       end
 
       if args.type == :numargs
