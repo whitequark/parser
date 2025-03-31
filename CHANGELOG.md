@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2025-03-31)
--------------------------
+v3.3.7.4 (2025-03-31)
+---------------------
 
 Bugs fixed:
  * lexer-strings.rb: Avoid an exception on utf8 surrogate pair codepoints (#1051) (Earlopain)
