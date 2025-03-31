@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Not released (2025-03-31)
+-------------------------
+
+Bugs fixed:
+ * lexer-strings.rb: Avoid an exception on utf8 surrogate pair codepoints (#1051) (Earlopain)
+ * builder.rb: emit `kwargs` node for `indexasgn` when opted in (#1053) (Earlopain)
+ * builder.rb: correctly handle `...` forwarding to super with explicit block (#1049) (Earlopain)
+ * numbered parameters are valid for pattern matching pinning (#1060) (Earlopain)
+
 v3.3.7.3 (2025-03-26)
 ---------------------
 
