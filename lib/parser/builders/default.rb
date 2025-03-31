@@ -1196,6 +1196,10 @@ module Parser
     end
 
     def index_asgn(receiver, lbrack_t, indexes, rbrack_t)
+      if self.class.emit_kwargs
+        rewrite_hash_args_to_kwargs(indexes)
+      end
+
       if self.class.emit_index
         n(:indexasgn, [ receiver, *indexes ],
           index_map(receiver, lbrack_t, rbrack_t))
