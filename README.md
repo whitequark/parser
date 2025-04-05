@@ -13,7 +13,7 @@ equivalent source code from Parser's ASTs.
 Sponsored by [Evil Martians](http://evilmartians.com).
 MacRuby and RubyMotion support sponsored by [CodeClimate](http://codeclimate.com).
 
-> [!WARNING]  
+> [!WARNING]
 > The `parser` gem is only compatible with the syntax of Ruby 3.3 and lower. For Ruby 3.4 and later, please use the [`Prism::Translation::Parser`](https://github.com/ruby/prism/blob/main/docs/parser_translation.md) instead.
 > Starting in Ruby 3.4, Prism is the parser used in Ruby itself and can produce AST that is identical to the output of the `parser` gem. If you only need to parse Ruby 3.3 (or greater) and don't require compatibility with the `parser` gem AST, also consider using the native Prism AST.
 > See this [GitHub issue](https://github.com/whitequark/parser/issues/1046) for more details.
@@ -123,7 +123,7 @@ with Parser:
 * Precise source location reporting.
 * [Documented](doc/AST_FORMAT.md) AST format which is convenient to work with.
 * A simple interface and a powerful, tweakable one.
-* Parses 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.0, 3.1, and 3.2 syntax with backwards-compatible
+* Parses 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.0, 3.1, 3.2, and 3.3 syntax with backwards-compatible
   AST formats.
 * Parses MacRuby and RubyMotion syntax extensions.
 * [Rewriting][rewriting] support.
