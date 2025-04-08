@@ -13,6 +13,9 @@ module Parser
   # @!attribute [r] static_env
   #  @return [Parser::StaticEnvironment]
   #
+  # @!attribute [r] version
+  #  @return [Integer]
+  #
   class Base < Racc::Parser
     ##
     # Parses a string of Ruby code and returns the AST. If the source
