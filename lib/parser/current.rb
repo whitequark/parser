@@ -134,4 +134,13 @@ module Parser
     require_relative 'ruby33'
     CurrentRuby = Ruby33
   end
+  # @!parse
+  #  ##
+  #  # @api public
+  #  #
+  #  # Parser for the running version of Ruby. NOTE: Supports only Ruby <= 3.3. To parse Ruby 3.4+, please use the prism gem. You can also use them in conjunction to support multiple versions using a backwards-compatible AST.
+  #  #
+  #  # @see https://ruby.github.io/prism/rb/docs/ruby_api_md.html prism gem documentation
+  #  # @see https://github.com/whitequark/parser/blob/master/doc/PRISM_TRANSLATION.md Guide to using prism and parser together.
+  #  class ::Parser::CurrentRuby < ::Parser::Base; end
 end
