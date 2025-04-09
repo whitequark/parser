@@ -32,26 +32,17 @@ RUBY
 
 ## Using `prism` when parsing ruby for the currently running Ruby version
 
-If you are using `Parser::CurrentRuby`, you need to do similar branching logic. Do note that `prism` has no concept of a parser for the currently executing ruby version. As an alternative, you can manually extract the necessary version from the `RUBY_VERSION` constant:
+If you are using `Parser::CurrentRuby`, you need to do similar branching logic:
 
 ```rb
 def parser_for_current_ruby
-  code_version = RUBY_VERSION.to_f
-
-  if code_version <= 3.3
+  if Gem::Version.new(RUBY_VERSION) <= '3.3'
     require 'parser/current'
     Parser::CurrentRuby
   else
     require 'prism'
-    case code_version
-    when 3.3
-      Prism::Translation::Parser33
-    when 3.4
-      Prism::Translation::Parser34
-    else
-      warn "Unknown Ruby version #{code_version}, using 3.4 as a fallback"
-      Prism::Translation::Parser34
-    end
+    # Only available on prism > 1.4.0
+    Prism::Translation::ParserCurrent
   end
 end
 
