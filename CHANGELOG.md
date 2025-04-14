@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Not released (2025-04-14)
+-------------------------
+
+API modifications:
+ * Bump maintenance branches to 3.3.8 (#1077) (Koichi ITO)
+ * YARD docs for Parser::CurrentRuby and Parser::Base#version (#1076) (Vince Broz)
+
 v3.3.7.4 (2025-03-31)
 ---------------------
 
