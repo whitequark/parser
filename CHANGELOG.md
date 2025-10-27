@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Not released (2025-10-27)
--------------------------
+v3.3.10.0 (2025-10-27)
+----------------------
 
 API modifications:
  * Bump maintenance branches to 3.3.10 (#1083) (Koichi ITO)
