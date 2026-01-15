@@ -208,7 +208,7 @@ module Parser
       end
 
       unless @buffer.empty?
-        emit(:tSTRING_CONTENT, @buffer, @buffer_s, @buffer_e)
+        emit(:tSTRING_CONTENT, @buffer.gsub("\r\n", "\n"), @buffer_s, @buffer_e)
 
         clear_buffer
         extend_content
