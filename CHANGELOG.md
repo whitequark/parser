@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Not released (2026-02-17)
+-------------------------
+
+Features implemented:
+ * add `blocknilarg` for prism (#1087) (Earlopain)
+
 v3.3.10.1 (2026-01-15)
 ----------------------
 
