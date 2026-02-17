@@ -7,7 +7,7 @@ module Parser
     # These are node types required by `Prism::Translation::Parser`, 
     # which has advanced syntax support ahead of the Parser gem.
     PRISM_TRANSLATION_PARSER_NODE_TYPES = %i(
-      itarg itblock
+      itarg itblock blocknilarg
     ).freeze
     private_constant :PRISM_TRANSLATION_PARSER_NODE_TYPES
 

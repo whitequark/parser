@@ -1145,6 +1145,17 @@ Format:
  ~~~~~ expression
 ~~~
 
+### Block nil argument (Prism only)
+
+Format:
+
+~~~
+(blocknilarg)
+"&nil"
+  ~~~ name
+ ~~~~ expression
+~~~
+
 ### Objective-C arguments
 
 MacRuby includes a few more syntactic "arguments" whose name becomes
