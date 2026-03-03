@@ -1012,9 +1012,9 @@ class TestLexer < Minitest::Test
                    :tIDENTIFIER,     "a",          [0, 1],
                    :tEQL,            "=",          [2, 3],
                    :tSTRING_BEG,     "<<\"",       [4, 7],
-                   :tSTRING_CONTENT, "ABCDEF\r\n", [9, 17],
-                   :tSTRING_END,     "E",          [17, 20],
-                   :tNL,             nil,          [8, 9])
+                   :tSTRING_CONTENT, "ABCDEF\r\n", [10, 19],
+                   :tSTRING_END,     "E",          [19, 23],
+                   :tNL,             nil,          [9, 10])
   end
 
   def test_heredoc_with_identifier_ending_newline__19
@@ -3188,9 +3188,9 @@ class TestLexer < Minitest::Test
   def test_bug_heredoc_cr_lf
     assert_scanned("<<FIN\r\nfoo\r\nFIN\r\n",
                    :tSTRING_BEG,     "<<\"",  [0, 5],
-                   :tSTRING_CONTENT, "foo\n", [6, 10],
-                   :tSTRING_END,     "FIN",   [10, 13],
-                   :tNL,             nil,     [5, 6])
+                   :tSTRING_CONTENT, "foo\n", [7, 12],
+                   :tSTRING_END,     "FIN",   [12, 16],
+                   :tNL,             nil,     [6, 7])
   end
 
   def test_bug_eh_symbol_no_newline
