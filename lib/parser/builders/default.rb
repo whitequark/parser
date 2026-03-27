@@ -2295,10 +2295,14 @@ module Parser
           [:str, :dstr].include?(parts.first.type)
     end
 
+    # @param [::Parser::AST::Node] token
+    # @return [String]
     def value(token)
       token[0]
     end
 
+    # @param [::Parser::AST::Node] token
+    # @return [String]
     def string_value(token)
       unless token[0].valid_encoding?
         diagnostic(:error, :invalid_encoding, nil, token[1])
