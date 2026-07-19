@@ -445,7 +445,11 @@ class Parser::LexerStrings
   end
 
   def read_post_meta_or_ctrl_char(p)
-    @escape = source_buffer.slice(p - 1, 1).chr
+    # \c and \M- escapes operate on the raw byte value of their target, not on
+    # a Unicode codepoint, so read it as a raw byte here: the source buffer's
+    # own encoding (eg. UTF-8) would otherwise make `.ord` below raise on a
+    # byte that isn't valid on its own in that encoding (eg. \c\xFF).
+    @escape = source_buffer.slice(p - 1, 1).chr.b
 
     if @version >= 27 && ((0..8).include?(@escape.ord) || (14..31).include?(@escape.ord))
       diagnostic :fatal, :invalid_escape
@@ -477,11 +481,16 @@ class Parser::LexerStrings
   end
 
   def slash_c_char
-    @escape = encode_escape(@escape[0].ord & 0x9f)
+    # @escape may already carry the source encoding (eg. via encode_escape,
+    # which force_encodes a raw byte without validating it), so read its
+    # value as a raw byte here rather than as a character in that encoding:
+    # a \c/\M control/meta escape operates on bytes, and .ord on a string
+    # that isn't valid in its tagged encoding raises ArgumentError.
+    @escape = encode_escape(@escape.b[0].ord & 0x9f)
   end
 
   def slash_m_char
-    @escape = encode_escape(@escape[0].ord | 0x80)
+    @escape = encode_escape(@escape.b[0].ord | 0x80)
   end
 
   def emit_character_constant
