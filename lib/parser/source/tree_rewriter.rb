@@ -402,6 +402,9 @@ module Parser
       end
 
       def check_range_validity(range)
+        unless range.source_buffer.equal?(@source_buffer)
+          raise ArgumentError, 'The range belongs to a different source buffer'
+        end
         if range.begin_pos < 0 || range.end_pos > @source_buffer.source.size
           raise IndexError, "The range #{range.to_range} is outside the bounds of the source"
         end
