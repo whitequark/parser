@@ -11070,6 +11070,56 @@ class TestParser < Minitest::Test
       SINCE_3_1)
   end
 
+  # Same escapes as test_control_meta_escape_chars_in_regexp__since_31, but
+  # from a UTF-8 source (the common case, and what these literals actually
+  # have by default unless the source is forced to ascii-8bit as above).
+  # \x9F on its own isn't valid UTF-8, so this can't successfully parse to a
+  # :str node the way the ascii-8bit case does; it must instead raise a
+  # graceful diagnostic rather than crash with an unhandled ArgumentError.
+  def test_control_meta_escape_chars_in_regexp_from_utf8_source
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\c\xFF/},
+      %q{},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\c\M-\xFF/},
+      %q{},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\C-\xFF/},
+      %q{},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\C-\M-\xFF/},
+      %q{},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\M-\xFF/},
+      %q{},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\M-\C-\xFF/},
+      %q{},
+      SINCE_3_1)
+
+    assert_diagnoses(
+      [:error, :invalid_encoding],
+      %q{/\M-\c\xFF/},
+      %q{},
+      SINCE_3_1)
+  end
+
   def test_forward_arg_with_open_args
     assert_diagnoses_many(
       [
