@@ -353,20 +353,28 @@ module Parser
     # Symbols
 
     def symbol(symbol_t)
-      n(:sym, [ string_value(symbol_t).to_sym ],
+      value = string_value(symbol_t)
+      check_symbol_encoding(value, symbol_t[1])
+
+      n(:sym, [ value.to_sym ],
         prefix_string_map(symbol_t))
     end
 
     def symbol_internal(symbol_t)
-      n(:sym, [ string_value(symbol_t).to_sym ],
+      value = string_value(symbol_t)
+      check_symbol_encoding(value, symbol_t[1])
+
+      n(:sym, [ value.to_sym ],
         unquoted_map(symbol_t))
     end
 
     def symbol_compose(begin_t, parts, end_t)
       if collapse_string_parts?(parts)
         str = parts.first
+        value = str.children.first
+        check_symbol_encoding(value, str.loc.expression)
 
-        n(:sym, [ str.children.first.to_sym ],
+        n(:sym, [ value.to_sym ],
           collection_map(begin_t, str.loc.expression, end_t))
       elsif @parser.version == 18 && parts.empty?
         diagnostic :error, :empty_symbol, nil, loc(begin_t).join(loc(end_t))
@@ -471,6 +479,7 @@ module Parser
         case part.type
         when :str
           value, = *part
+          check_symbol_encoding(value, part.loc.expression)
           part.updated(:sym, [ value.to_sym ])
         when :dstr
           part.updated(:dsym)
@@ -2300,11 +2309,25 @@ module Parser
     end
 
     def string_value(token)
-      unless token[0].valid_encoding?
-        diagnostic(:error, :invalid_encoding, nil, token[1])
+      value = token[0]
+
+      unless value.valid_encoding?
+        # Buffer reencodes to UTF-8 and drops the magic comment. Byte escapes
+        # are legal when the source is UTF-8 or undeclared; a declared
+        # non-UTF-8 encoding is still an error.
+        encoding = Source::Buffer.recognize_encoding(token[1].source_buffer.source)
+        if encoding && encoding != Encoding::UTF_8
+          diagnostic(:error, :invalid_encoding, nil, token[1])
+        end
       end
 
-      token[0]
+      value
+    end
+
+    def check_symbol_encoding(value, location)
+      if value.is_a?(String) && !value.valid_encoding?
+        diagnostic(:error, :invalid_encoding, nil, location)
+      end
     end
 
     def loc(token)
