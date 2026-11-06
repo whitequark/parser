@@ -429,7 +429,7 @@ class Parser::Lexer
   def emit_global_var(ts = @ts, te = @te)
     if tok(ts, te) =~ /^\$([1-9][0-9]*)$/
       emit(:tNTH_REF, tok(ts + 1, te).to_i, ts, te)
-    elsif tok =~ /^\$([&`'+])$/
+    elsif tok(ts, te) =~ /^\$([&`'+])$/
       emit(:tBACK_REF, tok(ts, te), ts, te)
     else
       emit(:tGVAR, tok(ts, te), ts, te)
