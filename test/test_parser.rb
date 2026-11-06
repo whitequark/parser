@@ -224,6 +224,15 @@ class TestParser < Minitest::Test
       %q{"#@a #@@a #$a"})
   end
 
+  def test_string_dvar_backref
+    %w[$& $+ $' $`].each do |name|
+      assert_parses(
+        s(:dstr, s(:back_ref, name.to_sym)),
+        '"#' + name + '"',
+        %q{  ~~ expression (back_ref)})
+    end
+  end
+
   def test_string_concat
     assert_parses(
       s(:dstr,
