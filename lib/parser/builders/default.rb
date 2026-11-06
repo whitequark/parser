@@ -1105,7 +1105,9 @@ module Parser
         n(type, [ receiver, :call, *args ],
           send_map(receiver, dot_t, nil, lparen_t, args, rparen_t))
       else
-        n(type, [ receiver, value(selector_t).to_sym, *args ],
+        selector = value(selector_t)
+        selector = selector[0] if selector == '~@' || selector == '!@'
+        n(type, [ receiver, selector.to_sym, *args ],
           send_map(receiver, dot_t, selector_t, lparen_t, args, rparen_t))
       end
     end
