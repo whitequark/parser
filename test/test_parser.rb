@@ -457,9 +457,9 @@ class TestParser < Minitest::Test
       SINCE_2_3)
   end
 
-  def test_dedenting_interpolating_heredoc_fake_line_continuation
+  def test_single_quoted_heredoc_preserves_two_backslashes
     assert_parses(
-      s(:dstr, s(:str, "baz\\\n"), s(:str, "qux\n")),
+      s(:dstr, s(:str, "baz\\\\\n"), s(:str, "qux\n")),
       %Q{<<~'FOO'\n  baz\\\\\n  qux\nFOO},
       %q{},
       SINCE_2_3)

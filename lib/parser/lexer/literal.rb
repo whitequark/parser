@@ -122,6 +122,9 @@ module Parser
     end
 
     def munge_escape?(character)
+      # Single-quoted heredocs preserve every backslash literally.
+      return false if heredoc? && !interpolate?
+
       character = coerce_encoding(character)
 
       if words? && character =~ /[ \t\v\r\f\n]/
