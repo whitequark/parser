@@ -37,7 +37,7 @@ module Parser
     }
 
     attr_reader   :heredoc_e, :str_s, :dedent_level
-    attr_accessor :saved_herebody_s
+    attr_accessor :saved_herebody_s, :next_heredoc_line
 
     def initialize(lexer, str_type, delimiter, str_s, heredoc_e = nil,
                    indent = false, dedent_body = false, label_allowed = false)

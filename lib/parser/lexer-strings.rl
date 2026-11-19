@@ -170,6 +170,7 @@ class Parser::LexerStrings
         end
 
         if current_literal.saved_herebody_s
+          current_literal.next_heredoc_line = @herebody_s
           @herebody_s = current_literal.saved_herebody_s
         end
 
@@ -306,7 +307,7 @@ class Parser::LexerStrings
 
     if current_literal.heredoc?
       current_literal.saved_herebody_s = @herebody_s
-      @herebody_s = nil
+      @herebody_s = current_literal.next_heredoc_line
     end
 
     current_literal.start_interp_brace
@@ -327,6 +328,15 @@ class Parser::LexerStrings
       diagnostic :fatal, :string_eof, nil,
                  range(current_literal.str_s, current_literal.str_s + 1)
     end
+  end
+
+  def resume_after_nested_heredoc(current_literal, p)
+    if current_literal.next_heredoc_line
+      @herebody_s = current_literal.next_heredoc_line
+      current_literal.next_heredoc_line = nil
+      p = @herebody_s - 1
+    end
+    p
   end
 
   def extend_string_eol_heredoc_line
@@ -762,6 +772,9 @@ class Parser::LexerStrings
 
   action extend_string_escaped {
     extend_string_escaped
+    if literal.next_heredoc_line && tok.end_with?("\n".freeze)
+      p = resume_after_nested_heredoc(literal, p)
+    end
   }
 
   # Extend a string with a newline or a EOF character.
@@ -787,8 +800,10 @@ class Parser::LexerStrings
         # Calculate indentation level for <<~HEREDOCs.
         current_literal.infer_indent_level(line)
 
-        # Ditto.
+        # A heredoc inside interpolation has already consumed its body.
+        # Finish this line, then resume after the nested terminator.
         @herebody_s = @te
+        p = resume_after_nested_heredoc(current_literal, p)
       end
     else
       # Try ending the literal with a newline.

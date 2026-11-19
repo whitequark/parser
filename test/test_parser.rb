@@ -284,6 +284,61 @@ class TestParser < Minitest::Test
         |                 ~~~~ heredoc_end})
   end
 
+  def test_nested_heredoc_consumes_inner_body_once
+    assert_parses(
+      s(:array,
+        s(:dstr, s(:begin, s(:str, "b\n")), s(:str, "\n"), s(:str, "a\n")),
+        s(:int, 0)),
+      %q{[<<A,
+#{<<B}
+b
+B
+a
+A
+0]})
+  end
+
+  def test_nested_heredocs_in_separate_interpolations_on_one_line
+    assert_parses(
+      s(:dstr, s(:begin, s(:str, "b\n")), s(:str, ":"),
+        s(:begin, s(:str, "c\n")), s(:str, "\n"), s(:str, "a\n")),
+      %q{<<A
+#{<<B}:#{<<C}
+b
+B
+c
+C
+a
+A})
+  end
+
+  def test_three_levels_of_nested_heredocs
+    assert_parses(
+      s(:dstr, s(:begin,
+        s(:dstr, s(:begin, s(:str, "c\n")), s(:str, "\n"), s(:str, "b\n"))),
+        s(:str, "\n"), s(:str, "a\n")),
+      %q{<<A
+#{<<B}
+#{<<C}
+c
+C
+b
+B
+a
+A})
+  end
+
+  def test_nested_heredoc_before_escaped_newline
+    assert_parses(
+      s(:dstr, s(:begin, s(:str, "b\n")), s(:str, "a\n")),
+      %q{<<A
+#{<<B}\
+b
+B
+a
+A})
+  end
+
   def test_dedenting_heredoc
     assert_parses(
       s(:begin,
