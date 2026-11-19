@@ -8,7 +8,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # ruby/setup-ruby provides only the latest patch of each series for ubuntu-26.04 and later,
+    # so Ruby 3.4.1 is available only on ubuntu-24.04.
+    runs-on: ${{ matrix.ruby == '3.4.1' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     env:
       BUNDLE_JOBS: 4
       BUNDLE_RETRY: 3
