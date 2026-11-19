@@ -3438,6 +3438,16 @@ class TestParser < Minitest::Test
       %q{~foo})
   end
 
+  def test_send_explicit_unary_operator
+    { '~@' => :~, '!@' => :!, '+@' => :+@, '-@' => :-@ }.each do |spelling, selector|
+      assert_parses(
+        s(:send, s(:lvar, :foo), selector),
+        "foo.#{spelling}",
+        %q{    ~~ selector},
+        spelling == '!@' ? SINCE_1_9 : ALL_VERSIONS)
+    end
+  end
+
   def test_bang
     assert_parses(
       s(:not, s(:lvar, :foo)),
