@@ -641,7 +641,18 @@ class Parser::LexerStrings
 
       # \u263a
     | 'u' xdigit{4}
-      % { @escape = tok(@escape_s + 1, p).to_i(16).chr(Encoding::UTF_8) }
+      % {
+        codepoint = tok(@escape_s + 1, p).to_i(16)
+
+        # UTF-16 surrogates. Same rule as \u{...}: a syntax error in every
+        # grammar version. Integer#chr(UTF_8) would raise RangeError.
+        if codepoint & 0xfffff800 == 0xd800
+          diagnostic :error, :invalid_unicode_escape, nil,
+                     range(@escape_s + 1, p)
+        else
+          @escape = codepoint.chr(Encoding::UTF_8)
+        end
+      }
 
       # \u123
     | 'u' xdigit{0,3}

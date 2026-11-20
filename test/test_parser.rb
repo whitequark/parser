@@ -5785,6 +5785,11 @@ class TestParser < Minitest::Test
   def test_codepoint_surrogate
     assert_diagnoses(
       [:error, :invalid_unicode_escape],
+      %q{"\uD800"},
+      %q{   ~~~~ location})
+
+    assert_diagnoses(
+      [:error, :invalid_unicode_escape],
       %q{"\u{D800}"},
       %q{    ~~~~ location})
 
@@ -5992,16 +5997,33 @@ class TestParser < Minitest::Test
   end
 
   def test_bug_ascii_8bit_in_literal
-    assert_diagnoses(
-      [:error, :invalid_encoding],
+    assert_parses(
+      s(:send,
+        s(:send,
+          s(:str, "\x1F\x8B"), :b),
+        :freeze),
+      %q{"\x1F\x8B".b.freeze})
+
+    assert_parses(
+      s(:str, "\x1F\x8B"),
+      %q{"\x1F\x8B"})
+
+    assert_parses(
+      s(:str, "\xFF"),
+      %q{"\xFF"})
+
+    assert_parses(
+      s(:str, ".\xc3."),
       %q{".\xc3."},
-      %q{^^^^^^^^ location},
+      %q{},
       ALL_VERSIONS)
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
+    assert_parses(
+      s(:array,
+        s(:str, 'x'),
+        s(:str, ".\xc3.")),
       %q{%W"x .\xc3."},
-      %q{     ^^^^^^ location},
+      %q{},
       ALL_VERSIONS)
 
     assert_diagnoses(
@@ -6022,10 +6044,10 @@ class TestParser < Minitest::Test
       %q{},
       %w(1.8))
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
+    assert_parses(
+      s(:str, "\xc3"),
       %q{?\xc3},
-      %q{^^^^^ location},
+      %q{},
       SINCE_1_9)
 
     assert_parses(
@@ -7842,8 +7864,12 @@ class TestParser < Minitest::Test
         TEXT
       })
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
+    # The encoding comment is not a magic comment: the first line is blank.
+    # MRI treats the source as UTF-8 and accepts the byte escapes.
+    assert_parses(
+      s(:dstr,
+        s(:str, "        \xE9\x9D\n"),
+        s(:str, "        \u1234\n")),
       %q{
         # encoding: cp932
         <<-TEXT
@@ -7852,8 +7878,8 @@ class TestParser < Minitest::Test
         TEXT
       })
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
+    assert_parses(
+      s(:str, "        \u1234\xE9\x9D\n"),
       %q{
         # encoding: cp932
         <<-TEXT
@@ -7861,8 +7887,10 @@ class TestParser < Minitest::Test
         TEXT
       })
 
-    assert_diagnoses(
-      [:error, :invalid_encoding],
+    assert_parses(
+      s(:dstr,
+        s(:str, "        \u1234\n"),
+        s(:str, "        \xE9\x9D\n")),
       %q{
         # encoding: cp932
         <<-TEXT
